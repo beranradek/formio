@@ -1,0 +1,8 @@
+http://en.wikipedia.org/wiki/FormEngine
+http://cocoon.apache.org/2.1/userdocs/basics/
+http://www.devsphere.com/mapping/docs/guide/formspec.html
+http://jreform.sourceforge.net/
+http://en.wikibooks.org/wiki/Java_Web_Application_Development_With_Click_Framework/Introduction#Simple_Form_Example
+
+Spring Framework
+http://blog.jamesrossiter.co.uk/2013/03/21/binding-entities-and-their-children-to-java-jsp-form-elements-in-spring-framework-mvc/

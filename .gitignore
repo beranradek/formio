@@ -1,0 +1,40 @@
+logs
+project/project
+project/target
+target
+tmp
+.history
+dist
+/.idea
+/*.iml
+/out
+/.idea_modules
+/.classpath
+/.project
+/RUNNING_PID
+.sc
+
+# SBT
+boot/
+lib_managed/
+target/
+.history
+
+# Play
+logs
+dist
+
+# Eclipse
+.cache
+.classpath
+.project
+.scala_dependencies
+.settings
+.target/
+.worksheet
+project/bin/
+bin
+
+# Gradle
+.gradle
+build
