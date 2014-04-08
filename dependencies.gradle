@@ -1,16 +1,8 @@
-configurations {
-	// providedCompile
-}
-
 dependencies {
   compile(group: 'javax.validation', name: 'validation-api', version: '1.1.0.Final')
   compile(group: 'commons-fileupload', name: 'commons-fileupload', version: '1.2.2')
-  // better to use natively-supported compile instead of custom providedCompile for a jar library
+  // better to use natively-supported compile instead of custom providedCompile configuration for a jar library:
   compile(group: 'javax.servlet', name: 'servlet-api', version: '2.5')
-  // providedCompile(group: 'javax.servlet', name: 'servlet-api', version: '2.5')
   testCompile(group: 'junit', name: 'junit', version: '4.8.2')
+  testCompile(group: 'org.hibernate', name: 'hibernate-validator', version: '4.3.1.Final')
 }
-
-// sourceSets.main.compileClasspath += configurations.providedCompile
-// sourceSets.test.compileClasspath += configurations.providedCompile
-// sourceSets.test.runtimeClasspath += configurations.providedCompile

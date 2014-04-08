@@ -1,8 +1,39 @@
+Play! framework
+  * http://www.playframework.com/documentation/2.2.x/JavaForms
+
+Spring framework
+  * http://docs.spring.io/spring/docs/4.0.2.RELEASE/spring-framework-reference/htmlsingle/#validation
+  * http://codetutr.com/2013/05/28/spring-mvc-form-validation/
+  * http://stackoverflow.com/questions/12146298/spring-mvc-how-to-perform-validation
+  * http://viralpatel.net/blogs/spring-mvc-multi-row-submit-java-list/
+  * http://blog.vergiss-blackjack.de/2010/04/iterating-over-nested-objects-in-a-spring-form/
+  * http://eggsylife.co.uk/2009/11/30/spring-forms-dynamic-lists-and-ajax/
+  * http://www.tutorialspoint.com/spring/spring_mvc_form_handling_example.htm
+  * http://stackoverflow.com/questions/14233967/hire-spring-mvc-databinder
+  * http://stackoverflow.com/questions/5118693/spring-mvc-form-handling-without-using-spring-tag
+  * http://www.mkyong.com/spring-mvc/spring-mvc-form-handling-example/
+  * https://gist.github.com/agentgt/4458079
+  * http://stackoverflow.com/questions/7754702/spring-mvc-3-binding-an-immutable-object-to-a-form
+  
+Formio vs. Spring:
+Formio Pros: 
+  * Even easier to learn and use than Spring framework forms.
+  * Functional form processing, immutable and composable form definition.
+  * Immutable view/domain objects can be used (via constructors, static factory methods).
+  * Minimum of library dependencies.
+  * Configurable localization bundle with sensible default (for validation messages).
+  * Not bound to any particular UI model like MVC or template tags, but fully usable with Spring MVC or other frameworks when needed.
+  * Automatic construction of form field names/paths.
+  * (Automatic) construction of (nested) mappings and fields can be used to build automatic form construction tool.
+  
+Formio Cons:
+  * Can be redundant when already working in Spring environment or other frameworks with very good forms support.
+  
 http://en.wikipedia.org/wiki/FormEngine
 http://cocoon.apache.org/2.1/userdocs/basics/
 http://www.devsphere.com/mapping/docs/guide/formspec.html
 http://jreform.sourceforge.net/
 http://en.wikibooks.org/wiki/Java_Web_Application_Development_With_Click_Framework/Introduction#Simple_Form_Example
 
-Spring Framework
-http://blog.jamesrossiter.co.uk/2013/03/21/binding-entities-and-their-children-to-java-jsp-form-elements-in-spring-framework-mvc/
+Immutable vs. mutable objects:
+  * http://programmers.stackexchange.com/questions/151733/if-immutable-objects-are-good-why-do-people-keep-creating-mutable-objects

@@ -5,7 +5,7 @@ apply plugin: 'eclipse'
 
 sourceCompatibility=1.6
 
-group = 'org.twinstone.formio'
+group = 'net.formio'
 // artifactId is taken by default from rootProject.name = 'formio' (settings.gradle)
 
 // Je nutne urcit repositar, jinak pri buildu resolvovani interni 

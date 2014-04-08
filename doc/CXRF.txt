@@ -1,0 +1,25 @@
+CSRF - What Is It?
+Cross-site request forgery (CSRF) is one of the most common web applications 
+vulnerabilities (ranked number 5 on OWASP's Top 10 document). The following 
+section, taken from Wikipedia, explains CSRF severity: "According to the United 
+States Department of Homeland Security the most dangerous CSRF vulnerability 
+ranks in at the 909th most dangerous software bug ever found, making this 
+vulnerability more dangerous than most buffer overflows. Other severity metrics 
+have been issued for CSRF vulnerabilities that result in remote code execution 
+with root privileges as well as a vulnerability that can compromise a root 
+certificate, which will completely undermine a public key infrastructure."
+
+Both links above include detailed information about CSRF attacks but it can be 
+summarized in one short sentence: the core weakness the CSRF attacker is taking 
+advantage of are predictable URLs and request bodies which changes the 
+application state. As an example let’s assume a banking web application in 
+which the 'wire money' form includes two fields: the amount to wire and the 
+destination account number. An attacker can send an email to users which points 
+to a page that silently posts a wire transaction request to the bank systems. 
+If a user clicks that link, while his browser holds a valid session with the 
+bank web site (for example in another tab), the wire transaction will be 
+accepted by the bank systems. On the other hand if the wire form includes an 
+unpredictable value (a secret) which is validated on submit the attack would 
+fail. To mitigate CSRF attacks any request that changes the application state 
+has to include an unpredictable secret token which must be validated before 
+processing the request.
