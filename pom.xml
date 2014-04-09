@@ -219,6 +219,11 @@
 		</snapshotRepository>
 	</distributionManagement>
 	
+	<issueManagement>
+		<system>Github</system>
+		<url>https://github.com/beranradek/formio/issues</url>
+	</issueManagement>
+	
 	<scm>
 		<connection>scm:git:git@github.com:beranradek/formio.git</connection>
 		<developerConnection>scm:git:git@github.com:beranradek/formio.git</developerConnection>
