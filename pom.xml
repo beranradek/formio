@@ -1,8 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+  	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.formio</groupId>
 	<artifactId>formio</artifactId>
 	<version>1.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>Formio</name>
 	<description>Form definition and binding framework for Java platform</description>
 
@@ -195,6 +201,29 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	
+	<distributionManagement>
+		<site>
+			<id>https://github.com/beranradek/formio</id>
+			<url>https://github.com/beranradek/formio.git</url>
+		</site>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<name>Sonatype Nexus Staging</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus Snapshost</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
+	<scm>
+		<connection>scm:git:git@github.com:beranradek/formio.git</connection>
+		<developerConnection>scm:git:git@github.com:beranradek/formio.git</developerConnection>
+		<url>git@github.com:beranradek/formio.git</url>
+	</scm>
 	
 	<mailingLists>
 		<mailingList>
