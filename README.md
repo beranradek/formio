@@ -24,7 +24,7 @@ http://formio.net
 
 ## First Touch
 
-**1) Prepare form definition** (optional automatic search of properties):
+**1) Prepare form definition** (optional automatic mapping of properties):
 ```java
 private static final FormMapping<Person> personForm =
   Forms.automatic(Person.class, "person").build();
@@ -34,7 +34,7 @@ private static final FormMapping<Person> personForm =
 ```java
 FormData<Person> formData = new FormData<Person>(person, null /* initial messages */);
 FormMapping<Person> filledForm = personForm.fill(formData);
-// Push the filled form into a template...
+// Push the filled form into a template, use its properties...
 ```
 
 **3) Bind data edited by user back into an object:**
