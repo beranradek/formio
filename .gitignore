@@ -13,6 +13,8 @@ dist
 /.project
 /RUNNING_PID
 .sc
+pom.xml.releaseBackup
+release.properties
 
 # SBT
 boot/
