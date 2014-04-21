@@ -1,0 +1,24 @@
+Deploying snapshot
+------------------
+
+To https://oss.sonatype.org/content/repositories/snapshots/ repository:
+mvn clean deploy
+
+Snapshot repository:
+<repositories>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>sonatype-snapshots</id>
+      <name>Sonatype Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+</repositories>
+
+Release
+-------
+
+mvn release:clean 
+mvn release:prepare
+mvn release:perform
