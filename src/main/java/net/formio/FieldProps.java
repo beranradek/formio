@@ -16,41 +16,70 @@
  */
 package net.formio;
 
+import java.io.Serializable;
+
 import net.formio.format.Formatter;
 
-
 /**
- * Specification of form field used to construct {@link FormField}.
+ * Specification of properties used to construct a {@link FormField}.
+ * 
  * @author Radek Beran
  */
-public class FieldProps<T> {
+public class FieldProps<T> implements Serializable {
+	private static final long serialVersionUID = 2328756250255932689L;
 	private final String propertyName;
+	private final String type;
 	private final String pattern;
 	private final Formatter<T> formatter;
 	
-	private FieldProps(String propertyName, String pattern, Formatter<T> formatter) {
-		if (propertyName == null || propertyName.isEmpty()) {
-			throw new IllegalArgumentException("propertyName must be specified");
+	FieldProps(Builder<T> builder) {
+		this.propertyName = builder.propertyName;
+		this.type = builder.type;
+		this.pattern = builder.pattern;
+		this.formatter = builder.formatter;
+	}
+	
+	public static class Builder<T> {
+		private final String propertyName;
+		private String type = null;
+		private String pattern = null;
+		private Formatter<T> formatter = null;
+
+		Builder(String propertyName) {
+			this(propertyName, (String)null);
 		}
-		this.propertyName = propertyName;
-		this.pattern = pattern;
-		this.formatter = formatter;
-	}
-	
-	public FieldProps(String propertyName, Formatter<T> formatter) {
-		this(propertyName, null, formatter);
-	}
-	
-	public FieldProps(String propertyName, String pattern) {
-		this(propertyName, pattern, null);
-	}
-	
-	public FieldProps(String propertyName) {
-		this(propertyName, (String)null);
+		
+		Builder(String propertyName, String type) {
+			// package-default access so only Forms (and classes in current package) can create the builder
+			if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be specified");
+			this.propertyName = propertyName;
+			this.type = type;
+		}
+		
+		public Builder<T> type(String type) {
+			this.type = type;
+			return this;
+		}
+		
+		public Builder<T> pattern(String pattern) {
+			this.pattern = pattern;
+			return this;
+		}
+		
+		public Builder<T> formatter(Formatter<T> formatter) {
+			this.formatter = formatter;
+			return this;
+		}
+		
+		public FieldProps<T> build() {
+			FieldProps<T> fieldProps = new FieldProps<T>(this);
+			return fieldProps;
+		}
 	}
 
 	/**
-	 * Name of mapped property.
+	 * Name of mapped property of edited object.
+	 * 
 	 * @return
 	 */
 	public String getPropertyName() {
@@ -58,15 +87,26 @@ public class FieldProps<T> {
 	}
 
 	/**
+	 * Type of form field, for e.g.: text, checkbox, textarea, ...
+	 * 
+	 * @return
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
 	 * Pattern for formatting the value.
+	 * 
 	 * @return
 	 */
 	public String getPattern() {
 		return this.pattern;
 	}
-	
+
 	/**
 	 * Formatter that formats object to String and vice versa.
+	 * 
 	 * @return
 	 */
 	public Formatter<T> getFormatter() {

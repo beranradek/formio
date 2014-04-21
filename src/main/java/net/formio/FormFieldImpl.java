@@ -30,27 +30,29 @@ import net.formio.format.Formatters;
  */
 class FormFieldImpl implements FormField {
 	private final String name;
+	private final String type;
 	private final List<Object> filledObjects;
 	private final String pattern;
 	private final Formatter<Object> formatter;
 	private final String strValue;
 	private final boolean required;
 	
-	static FormFieldImpl getInstance(String name, String pattern, Formatter<Object> formatter, boolean required) {
-		return new FormFieldImpl(name, pattern, formatter, required, Collections.emptyList(), null);
+	static FormFieldImpl getInstance(String name, String type, String pattern, Formatter<Object> formatter, boolean required) {
+		return new FormFieldImpl(name, type, pattern, formatter, required, Collections.emptyList(), null);
 	}
 	
-	static FormFieldImpl getFilledInstance(String name, String pattern, Formatter<Object> formatter, boolean required, List<Object> values, Locale locale, Formatters formatters) {
+	static FormFieldImpl getFilledInstance(String name, String type, String pattern, Formatter<Object> formatter, boolean required, List<Object> values, Locale locale, Formatters formatters) {
 		String strValue = null;
 		if (values.size() > 0) {
 			strValue = valueAsString(values.get(0), pattern, formatter, locale, formatters);
 		}
-		return new FormFieldImpl(name, pattern, formatter, required, values, strValue);
+		return new FormFieldImpl(name, type, pattern, formatter, required, values, strValue);
 	}
 	
-	private FormFieldImpl(String name, String pattern, Formatter<Object> formatter, boolean required, List<Object> values, String strValue) {
+	private FormFieldImpl(String name, String type, String pattern, Formatter<Object> formatter, boolean required, List<Object> values, String strValue) {
 		if (values == null) throw new IllegalArgumentException("values cannot be null, only empty");
 		this.name = name;
+		this.type = type;
 		this.pattern = pattern;
 		this.formatter = formatter;
 		this.filledObjects = values;
@@ -67,6 +69,7 @@ class FormFieldImpl implements FormField {
 	FormFieldImpl(FormField src, String namePrefix) {
 		if (namePrefix == null) throw new IllegalArgumentException("namePrefix cannot be null");
 		this.name = namePrefix + Forms.PATH_SEP + src.getName();
+		this.type = src.getType();
 		this.filledObjects = new ArrayList<Object>(src.getFilledObjects());
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
@@ -81,6 +84,7 @@ class FormFieldImpl implements FormField {
 	 */
 	FormFieldImpl(FormField src, boolean required) {
 		this.name = src.getName();
+		this.type = src.getType();
 		this.filledObjects = new ArrayList<Object>(src.getFilledObjects());
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
@@ -100,6 +104,7 @@ class FormFieldImpl implements FormField {
 		if (!src.getName().startsWith(namePrefix))
 			throw new IllegalStateException("FormField name '" + src.getName() + "' must start with prefix '" + namePrefix + ".'");
 		this.name = namePrefix + "[" + index + "]" + src.getName().substring(namePrefix.length());
+		this.type = src.getType();
 		this.filledObjects = new ArrayList<Object>(src.getFilledObjects());
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
@@ -113,6 +118,11 @@ class FormFieldImpl implements FormField {
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getType() {
+		return type;
 	}
 	
 	@Override

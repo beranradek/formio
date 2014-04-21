@@ -33,6 +33,12 @@ public interface FormField {
 	String getName();
 	
 	/**
+	 * Type of form field, for e.g.: text, checkbox, textarea, ..., or {@code null} if not specified.
+	 * @return
+	 */
+	String getType();
+	
+	/**
 	 * Key for the label (derived from name).
 	 * Does not contain any brackets with indexes as the name does. 
 	 * Useful especially for repeated fields that are part of list mapping

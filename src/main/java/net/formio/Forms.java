@@ -113,6 +113,25 @@ public final class Forms {
 		return new Config.Builder();
 	}
 	
+	/**
+	 * Creates specification of form field.
+	 * @param propertyName
+	 * @param type
+	 * @return
+	 */
+	public static <T> FieldProps.Builder<T> field(String propertyName, String type) {
+		return new FieldProps.Builder<T>(propertyName, type);
+	}
+	
+	/**
+	 * Creates specification of form field.
+	 * @param propertyName
+	 * @return
+	 */
+	public static <T> FieldProps.Builder<T> field(String propertyName) {
+		return field(propertyName, (String)null);
+	}
+	
 	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String formName, Instantiator<T> instantiator, boolean automatic, MappingType mappingType) {
 		return new BasicFormMappingBuilder<T>(dataClass, formName, instantiator, automatic, mappingType);
 	}
