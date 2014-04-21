@@ -16,7 +16,7 @@
 
 ## Available in Maven Central
 
-http://search.maven.org/#search|ga|1|formio / groupId: net.formio, artifactId: formio, version: 1.0.1
+http://search.maven.org/#search|ga|1|formio / groupId: net.formio, artifactId: formio, version: 1.0.2
 
 ## Demo
 
