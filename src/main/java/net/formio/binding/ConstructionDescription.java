@@ -28,23 +28,22 @@ public class ConstructionDescription {
 	private final List<String> argNames;
 
 	protected ConstructionDescription(final AccessibleObject constructionMethod, final List<String> argNames) {
-		if (constructionMethod == null) throw new IllegalArgumentException("constructionMethod cannot be null");
 		if (argNames == null) throw new IllegalArgumentException("argNames cannot be null");
-		this.constructionMethod = constructionMethod;
+		this.constructionMethod = constructionMethod; // can be null if instantiator for e.g. already holds pre-prepared instance
 		this.argNames = argNames;
-	}
-	
-	public AccessibleObject getConstructionMethod() {
-		return this.constructionMethod;
 	}
 
 	public Type[] getGenericParamTypes() {
 		Type[] paramTypes = null;
-		if (constructionMethod instanceof Constructor) {
-			paramTypes = ((Constructor<?>)constructionMethod).getGenericParameterTypes();
-		} else if (constructionMethod instanceof Method) {
-			paramTypes = ((Method)constructionMethod).getGenericParameterTypes();
-		} else throw new IllegalStateException("Unsupported construction method '" + constructionMethod + "'");
+		if (constructionMethod == null) {
+			paramTypes = new Type[0];
+		} else {
+			if (constructionMethod instanceof Constructor) {
+				paramTypes = ((Constructor<?>)constructionMethod).getGenericParameterTypes();
+			} else if (constructionMethod instanceof Method) {
+				paramTypes = ((Method)constructionMethod).getGenericParameterTypes();
+			} else throw new IllegalStateException("Unsupported construction method '" + constructionMethod + "'");
+		}
 		return paramTypes;
 	}
 
@@ -54,12 +53,24 @@ public class ConstructionDescription {
 	
 	public Class<?>[] getArgTypes() {
 		Class<?>[] argTypes = null;
-		if (constructionMethod instanceof Constructor) {
-			argTypes = ((Constructor<?>)constructionMethod).getParameterTypes();
-		} else if (constructionMethod instanceof Method) {
-			argTypes = ((Method)constructionMethod).getParameterTypes();
-		} else throw new IllegalStateException("Unsupported construction method '" + constructionMethod + "'");
+		if (constructionMethod == null) {
+			argTypes = new Class<?>[0];
+		} else {
+			if (constructionMethod instanceof Constructor) {
+				argTypes = ((Constructor<?>)constructionMethod).getParameterTypes();
+			} else if (constructionMethod instanceof Method) {
+				argTypes = ((Method)constructionMethod).getParameterTypes();
+			} else throw new IllegalStateException("Unsupported construction method '" + constructionMethod + "'");
+		}
 		return argTypes;
+	}
+	
+	/**
+	 * Auxiliary method, should be used only by instantiators that produce this construction description.
+	 * @return
+	 */
+	AccessibleObject getConstructionMethod() {
+		return this.constructionMethod;
 	}
 
 }

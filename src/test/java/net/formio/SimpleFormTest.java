@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Logger;
 
+import net.formio.domain.MarriedPerson;
 import net.formio.domain.Nation;
 import net.formio.domain.Person;
 import net.formio.format.Formatter;
@@ -63,7 +64,7 @@ public class SimpleFormTest {
 	private static final FormMapping<Person> PERSON_FORM = Forms.basic(Person.class, "person") // NOPMD by Radek on 2.3.14 19:29
 		// whitelist of properties to bind
 		.fields("personId", "firstName", "lastName", "salary", "phone", "male", "nation")
-		.field("birthDate", CUSTOM_DATE_FORMATTER)
+		.field(Forms.<Date>field("birthDate").formatter(CUSTOM_DATE_FORMATTER).build())
 		.build();
 
 	@Test
@@ -104,6 +105,29 @@ public class SimpleFormTest {
 			ex.printStackTrace();
 			fail("Test failed: " + ex.getMessage());
 		}
+	}
+	
+	@Test
+	public void testBindToProvidedInstance() {
+		MarriedPerson personToFillFromForm = new MarriedPerson("Charlotte", "Stripes");
+		personToFillFromForm.setMarriageDate(new Date());
+		personToFillFromForm.setNation(Nation.SLOVAK);
+		FormData<Person> boundFormData = PERSON_FORM.bind(getRequestParams(), personToFillFromForm);
+		MarriedPerson person = (MarriedPerson)boundFormData.getData();
+		
+		// Constructor-settable properties are not overriden
+		assertEquals("Charlotte", person.getFirstName());
+		assertEquals("Stripes", person.getLastName());
+		assertEquals(40000, person.getSalary());
+		assertEquals("728111222", person.getPhone());
+		assertEquals(Boolean.FALSE, Boolean.valueOf(person.isMale()));
+		
+		// Other properties are overriden from request params
+		assertEquals(Nation.JEDI_KNIGHT, person.getNation());
+		
+		assertNotNull("Marriage date should be filled", person.getMarriageDate());
+		assertEquals(personToFillFromForm.getMarriageDate(), person.getMarriageDate());
+		assertEquals(personToFillFromForm, person);
 	}
 
 	private MapParamsProvider getRequestParams() {

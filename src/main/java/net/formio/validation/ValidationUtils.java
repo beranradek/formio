@@ -45,7 +45,7 @@ final class ValidationUtils {
 	}
 
 	static boolean isTopLevelMapping(String propPrefix) {
-		return propPrefix == null || !propPrefix.contains(Forms.PATH_SEP);
+		return propPrefix == null || propPrefix.isEmpty() || !propPrefix.contains(Forms.PATH_SEP);
 	}
 
 	private ValidationUtils() {

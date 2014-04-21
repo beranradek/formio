@@ -22,16 +22,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import net.formio.FormData;
-import net.formio.FormMapping;
-import net.formio.Forms;
-import net.formio.MapParamsProvider;
-import net.formio.MappingType;
 import net.formio.domain.Address;
 import net.formio.domain.AttendanceReason;
 import net.formio.domain.Collegue;
@@ -85,6 +81,44 @@ public class AdvancedFormTest {
 		testFormProcessingWithDef(REGISTRATION_FORM);
 	}
 	
+	@Test
+	public void testBindingToNestedObjectOfProvidedInstance() {
+		Registration regToFillFromForm = new Registration(Collections.<AttendanceReason>emptySet());
+		NewCollegue col = new NewCollegue();
+		col.setEmail("collegue@email.en");
+		regToFillFromForm.setNewCollegue(col);
+		
+		FormData<Registration> boundFormData = REGISTRATION_FORM.bind(getRequestParams(), regToFillFromForm);
+		Registration reg = boundFormData.getData();
+		
+		assertEquals(regToFillFromForm.getNewCollegue(), reg.getNewCollegue());
+		assertEquals("Joshua", reg.getNewCollegue().getName());
+		assertEquals(null, reg.getNewCollegue().getEmail()); // filled by empty req. param
+		assertEquals("invalidemail.com", reg.getEmail());
+	}
+	
+	@Test
+	public void testBindingToListElementOfProvidedInstance() {
+		Registration regToFillFromForm = new Registration(Collections.<AttendanceReason>emptySet());
+		List<Collegue> collegues = new ArrayList<Collegue>();
+		collegues.add(new Collegue());
+		Collegue c = new Collegue();
+		c.setName("George");
+		c.setRegDate(new RegDate(8, 2015));
+		collegues.add(c);
+		collegues.add(new Collegue());
+		regToFillFromForm.setCollegues(collegues);
+		
+		FormData<Registration> boundFormData = REGISTRATION_FORM.bind(getRequestParams(), regToFillFromForm);
+		Registration reg = boundFormData.getData();
+		
+		assertEquals("Michael", reg.getCollegues().get(0).getName());
+		assertEquals(collegues.get(1), reg.getCollegues().get(1));
+		assertEquals("Natalie", reg.getCollegues().get(1).getName());
+		assertEquals(2015, reg.getCollegues().get(1).getRegDate().getYear());
+		assertEquals(8, reg.getCollegues().get(1).getRegDate().getMonth());
+	}
+	
 	public void testFormProcessingWithDef(FormMapping<Registration> form) {
 		// Initial form definition
 		assertNotNull("nested mappings of root mapping should not be null", form.getNested());
@@ -126,17 +160,10 @@ public class AdvancedFormTest {
 		
 		
 		// Binding data from the form to a model
-		// Preparing data (filled "by the user" into the form)
 		final String sep = Forms.PATH_SEP;
-		final MapParamsProvider reqParams = new MapParamsProvider();
-		reqParams.put("registration" + sep + "email", "invalidemail.com");
-		reqParams.put("registration" + sep + "attendanceReasons", 
-			new String[] { AttendanceReason.COMPANY_INTEREST.name(), AttendanceReason.CERTIFICATION.name() });
-		reqParams.put("registration" + sep + "newCollegue" + sep + "regDate" + sep + "year", "2014");
-		reqParams.put("registration" + sep + "newCollegue" + sep + "regDate" + sep + "month", "11");
 		
 		// Binding form data to model (Registration)
-		FormData<Registration> boundFormData = form.bind(reqParams);
+		FormData<Registration> boundFormData = form.bind(getRequestParams());
 		final Registration boundReg = boundFormData.getData();
 		
 		assertNotNull("bound object should not be null", boundReg);
@@ -158,6 +185,21 @@ public class AdvancedFormTest {
 		final ConstraintViolationMessage msg = msgSet.iterator().next();
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals("Please enter valid e-mail.", msg.getText());
+	}
+	
+	private MapParamsProvider getRequestParams() {
+		// Preparing data (filled "by the user" into the form)
+		final String sep = Forms.PATH_SEP;
+		final MapParamsProvider reqParams = new MapParamsProvider();
+		reqParams.put("registration" + sep + "email", "invalidemail.com");
+		reqParams.put("registration" + sep + "attendanceReasons", 
+			new String[] { AttendanceReason.COMPANY_INTEREST.name(), AttendanceReason.CERTIFICATION.name() });
+		reqParams.put("registration" + sep + "collegues[0]" + sep + "name", "Michael");
+		reqParams.put("registration" + sep + "collegues[1]" + sep + "name", "Natalie");
+		reqParams.put("registration" + sep + "newCollegue" + sep + "regDate" + sep + "year", "2014");
+		reqParams.put("registration" + sep + "newCollegue" + sep + "regDate" + sep + "month", "11");
+		reqParams.put("registration" + sep + "newCollegue" + sep + "name", "Joshua");
+		return reqParams;
 	}
 	
 	private Registration getInitData() {

@@ -1,0 +1,12 @@
+# Changelog
+
+1.0.2
+* Binding to provided instance of edited object.
+* Only optional Maven dependency on servlet API.
+* New version of fileupload dependency.
+* Fixed propagation of field definitions to the filled form for nested objects filled with "null" data.
+* Builder for FieldProps.
+* Type of form field in FieldProps and FormField.
+
+1.0.1 (9.4.2014)
+* First released version.

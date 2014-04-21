@@ -89,6 +89,17 @@ public interface FormMapping<T> {
 	FormData<T> bind(ParamsProvider paramsProvider, Class<?>... validationGroups);
 	
 	/**
+	 * Binds and validates data from the form.
+	 * @param paramsProvider provider of request parameters
+	 * @param instance instance to which data from the request parameter provider should be bound
+	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 
+	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
+	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
+	 * @return
+	 */
+	FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups);
+	
+	/**
 	 * Returns result with validation messages, {@code null} if form data was not validated yet.
 	 * @return
 	 */

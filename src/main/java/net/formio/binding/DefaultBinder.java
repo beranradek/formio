@@ -88,7 +88,7 @@ public class DefaultBinder implements Binder {
 	 * of values to setters.
 	 * 
 	 * @param objClass class of new instance
-	 * @param instantiator instantiator of class T
+	 * @param instantiator instantiator of class T, {@code null} for default instantiator
 	 * @param values values to bind; specify only values that must be bound
 	 * @return new instance of given class filled with bound values
 	 * @throws BindingException if construction of new instance or binding failed or some
@@ -122,7 +122,7 @@ public class DefaultBinder implements Binder {
 			if (valueInfo == null) throw new BindingException("Property '" + paramName + 
 				" could not be bound. Value to bind was not found. " + 
 				"The appropriate field was probably not declared.");
-			updatePropertyValue(obj, paramName, valueInfo, propertyBindErrors);
+			updatePropertyValue(obj, paramName, valueInfo, propertyBindErrors, inst instanceof InstanceHoldingInstantiator);
 			// notBoundYetParamNames cannot be reduced here in cycle (ConcurrentModificationException)
 		}
 		return new FilledData<T>(obj, propertyBindErrors);
@@ -248,10 +248,12 @@ public class DefaultBinder implements Binder {
 	 * @param propertyName name of property (without set, get or is - according to JavaBeans convention)
 	 * @param propertyValue value to set for the property
 	 * @param propertyBindErrors bind errors that can be filled
+	 * @param clientProvidedInstance flag that client provided own instance that should be filled
 	 * @throws BindingException if setter was not found or some other error occurred
 	 */
 	private void updatePropertyValue(Object obj, String propertyName,
-		BoundValuesInfo propertyValueInfo, Map<String, List<ParseError>> propertyBindErrors) {
+		BoundValuesInfo propertyValueInfo, Map<String, List<ParseError>> propertyBindErrors,
+		boolean clientProvidedInstance) {
 		if (propertyName == null || propertyName.isEmpty()) {
 			throw new IllegalArgumentException("Name of property is missing.");
 		}
@@ -287,7 +289,9 @@ public class DefaultBinder implements Binder {
 					+ " of class " + obj.getClass().getSimpleName()
 					+ " failed: " + ex.getMessage(), ex);
 		}
-		if (!propertySet) {
+		// client-provided instance need not to use all the values from the form,
+		// because it can have constructor arguments already set to some different values
+		if (!clientProvidedInstance && !propertySet) {
 			throw new BindingException("Setter for property " + propertyName
 					+ " was not found in " + obj.getClass().getSimpleName());
 		}

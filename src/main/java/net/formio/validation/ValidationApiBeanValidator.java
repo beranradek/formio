@@ -56,7 +56,6 @@ import net.formio.upload.RequestProcessingError;
  * Object validator using {@link ValidatorFactory}.
  *
  * @author Radek Beran
- * @author Jan Simek
  */
 public class ValidationApiBeanValidator implements BeanValidator {
 	
@@ -73,6 +72,14 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		this.locale = locale;
 	}
 	
+	public ValidationApiBeanValidator(ValidatorFactory validatorFactory, Locale locale) {
+		this(validatorFactory, ResBundleMessageInterpolator.DEFAULT_VALIDATION_MESSAGES, locale);
+	}
+	
+	public ValidationApiBeanValidator(ValidatorFactory validatorFactory) {
+		this(validatorFactory, ResBundleMessageInterpolator.DEFAULT_VALIDATION_MESSAGES, Locale.getDefault());
+	}
+	
 	@Override
 	public <T> ValidationResult validate(T inst, 
 		String propPrefix, 
@@ -86,6 +93,10 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		Validator validator = createValidator(this.validatorFactory, msgInterpolator);
 		Set<ConstraintViolation<T>> violations = validator.validate(inst, groups);
 		return buildReport(msgInterpolator, violations, requestFailures, parseErrors, propPrefix);
+	}
+	
+	public <T> ValidationResult validate(T inst, Class<?> ... groups) {
+		return this.validate(inst, (String)null, Collections.<RequestProcessingError>emptyList(), Collections.<ParseError>emptyList(), groups);
 	}
 	
 	@Override
@@ -255,6 +266,7 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	
 	private String pathPrefixedName(String pathPrefix, String name) {
 		if (name == null) return null;
+		if (pathPrefix == null || pathPrefix.isEmpty()) return name;
 		return pathPrefix + Forms.PATH_SEP + name;
 	}
 	

@@ -27,7 +27,7 @@ import net.formio.binding.BindingReflectionUtils;
 
 import org.junit.Test;
 
-public class ReflectionUtilsTest {
+public class BindingReflectionUtilsTest {
 	
 	static class Person {
 		private String name;

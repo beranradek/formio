@@ -43,8 +43,10 @@ import net.formio.validation.ValidationResult;
  */
 public class BasicFormMappingBuilder<T> {
 
-	/** name prefixing all names of the fields in this mapping; 
-	 * it contains complete path to this nested mapping, if this is a nested mapping. */
+	/** 
+	 * Name prefixing all names of the fields in this mapping; 
+	 * it contains complete path to this nested mapping, if this is a nested mapping.
+	 */
 	String path;
 	Class<T> dataClass;
 	Instantiator<T> instantiator;
@@ -61,7 +63,6 @@ public class BasicFormMappingBuilder<T> {
 	boolean automatic;
 
 	/**
-	 * Can be constructed only from the same package/subclass.
 	 * Should be constructed only via {@link Forms} entry point of API.
 	 */
 	BasicFormMappingBuilder(Class<T> dataClass, String formName, Instantiator<T> inst, boolean automatic, MappingType mappingType) {
@@ -86,28 +87,19 @@ public class BasicFormMappingBuilder<T> {
 	 */
 	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> formField) {
 		String frmPrefixedName = formPrefixedName(formField.getPropertyName());
-		fields.put(formField.getPropertyName(), FormFieldImpl.getInstance(frmPrefixedName, formField.getPattern(), (Formatter<Object>)formField.getFormatter(), false));
+		fields.put(formField.getPropertyName(), FormFieldImpl.getInstance(
+			frmPrefixedName, formField.getType(), formField.getPattern(), (Formatter<Object>)formField.getFormatter(), false));
 		return this;
 	}
 	
 	/**
 	 * Adds form field specification.
 	 * @param propertyName name of mapped property
-	 * @param pattern pattern for formatting the value
+	 * @param type type of form field, for e.g.: text, checkbox, textarea, ...
 	 * @return
 	 */
-	public BasicFormMappingBuilder<T> field(String propertyName, String pattern) {
-		return field(new FieldProps<Object>(propertyName, pattern));
-	}
-	
-	/**
-	 * Adds form field specification.
-	 * @param propertyName name of mapped property
-	 * @param formatter formatter that formats object to String and vice versa
-	 * @return
-	 */
-	public <U> BasicFormMappingBuilder<T> field(String propertyName, Formatter<U> formatter) {
-		return field(new FieldProps<U>(propertyName, formatter));
+	public <U> BasicFormMappingBuilder<T> field(String propertyName, String type) {
+		return field(Forms.field(propertyName, type).build());
 	}
 	
 	/**
@@ -115,8 +107,8 @@ public class BasicFormMappingBuilder<T> {
 	 * @param propertyName name of mapped property
 	 * @return
 	 */
-	public BasicFormMappingBuilder<T> field(String propertyName) {
-		return field(new FieldProps<Object>(propertyName, (String)null));
+	public <U> BasicFormMappingBuilder<T> field(String propertyName) {
+		return field(propertyName, (String)null);
 	}
 	
 	/**

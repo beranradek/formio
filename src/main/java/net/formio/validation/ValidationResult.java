@@ -41,6 +41,8 @@ public class ValidationResult implements Serializable {
 	private final Map<String, Set<ConstraintViolationMessage>> fieldMessages;
 	private final Set<ConstraintViolationMessage> globalMessages;
 	
+	public static final ValidationResult empty = newEmptyValidationResult();
+	
 	public ValidationResult(Map<String, Set<ConstraintViolationMessage>> fieldMessages, Set<ConstraintViolationMessage> globalMessages) {
 		if (fieldMessages == null) throw new IllegalArgumentException("field messages cannot be null");
 		if (globalMessages == null) throw new IllegalArgumentException("global messages cannot be null");
@@ -97,4 +99,10 @@ public class ValidationResult implements Serializable {
 		return globalMessages;
 	}
 	
+	private static final ValidationResult newEmptyValidationResult() {
+		return new ValidationResult(
+			Collections.unmodifiableMap(Collections.<String, Set<ConstraintViolationMessage>>emptyMap()),
+			Collections.unmodifiableSet(Collections.<ConstraintViolationMessage>emptySet())
+		);
+	}
 }

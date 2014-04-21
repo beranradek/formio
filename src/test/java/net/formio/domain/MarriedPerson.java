@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -14,34 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Created on 25.5.2011
- *
- * Copyright (c) 2011 Et netera, a.s. All rights reserved.
- * Intended for internal use only.
- * http://www.etnetera.cz
- */
+package net.formio.domain;
 
-package net.formio.format;
+import java.util.Date;
 
-import java.io.Serializable;
+public class MarriedPerson extends Person {
+	private static final long serialVersionUID = -892095807584183318L;
 
-/** 
- * Serializacni zastupce {@link ImmutableDate}.
- * 
- * @author Vlastimil Mencik
- */
-public class ImmutableDateHandle implements Serializable {
+	private Date marriageDate;
 
-	private static final long serialVersionUID = 1L;
-	
-	private long time;
-	
-	public ImmutableDateHandle(long time) {
-		this.time = time;
+	public MarriedPerson(String firstName, String lastName) {
+		super(firstName, lastName);
 	}
 	
-	private Object readResolve() {
-		return new ImmutableDate(time);
+	public Date getMarriageDate() {
+		return marriageDate;
 	}
+
+	public void setMarriageDate(Date marriageDate) {
+		this.marriageDate = marriageDate;
+	}
+
 }

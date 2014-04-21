@@ -80,7 +80,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Class<?> ... validationGroups) {
+	public FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups) {
 		// Finding how many parameters are in the request - check for max. index available in request params name, 
 		// according to this mapping path
 		int maxIndex = findMaxIndex(paramsProvider.getParamNames());
@@ -120,8 +120,13 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		List<T> data = new ArrayList<T>();
 		Map<String, Set<ConstraintViolationMessage>> fieldMsgs = new LinkedHashMap<String, Set<ConstraintViolationMessage>>();
 		Set<ConstraintViolationMessage> globalMsgs = new LinkedHashSet<ConstraintViolationMessage>();
-		for (FormMapping<T> m : listMappings) {
-			FormData<T> formData = m.bind(paramsProvider, validationGroups);
+		for (int index = 0; index < listMappings.size(); index++) {
+			FormMapping<T> m = listMappings.get(index);
+			T instanceForIndex = null;
+			if (instance instanceof List && index < ((List<T>)instance).size()) {
+				instanceForIndex = ((List<T>)instance).get(index);
+			}
+			FormData<T> formData = m.bind(paramsProvider, instanceForIndex, validationGroups);
 			data.add(formData.getData());
 			fieldMsgs.putAll(formData.getValidationResult().getFieldMessages());
 			globalMsgs.addAll(formData.getValidationResult().getGlobalMessages());
@@ -133,11 +138,17 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		return (FormData<T>)formData;
 	}
 	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, Class<?> ... validationGroups) {
+		return bind(paramsProvider, (T)null, validationGroups);
+	}
+	
 	Map<String, FormField> getFieldsWithIndex(int index) {
 		Map<String, FormField> flds = new LinkedHashMap<String, FormField>();
 		for (Map.Entry<String, FormField> e : fields.entrySet()) {
 			FormField srcFld = e.getValue();
-			FormFieldImpl f = FormFieldImpl.getInstance(nameWithIndex(srcFld.getName(), index), srcFld.getPattern(), srcFld.getFormatter(), srcFld.isRequired());
+			FormFieldImpl f = FormFieldImpl.getInstance(nameWithIndex(srcFld.getName(), index), 
+				srcFld.getType(), srcFld.getPattern(), srcFld.getFormatter(), srcFld.isRequired());
 			flds.put(nameWithIndex(e.getKey(), index), f);
 		}
 		return flds;
@@ -174,9 +185,11 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			newMappings.add(builder.build(this.getConfig()));
 			index++;
 		}
+		// unindexed fields (that are only recipes for indexed fields) will not be part of filled form
+		// as well as unindexed nested mappings -> empty maps are used: 
 		BasicFormMappingBuilder<T> builder = Forms.basic(getDataClass(), this.path, getInstantiator(), MappingType.LIST)
-			.fields(getFields());
-			builder.nested = this.nested;
+			.fields(Collections.unmodifiableMap(Collections.<String, FormField>emptyMap()));
+			builder.nested = Collections.unmodifiableMap(Collections.<String, FormMapping<?>>emptyMap());
 			builder.validationResult = editedObj.getValidationResult();
 			builder.listOfMappings = newMappings;
 			builder.filledObject = editedObj.getData();

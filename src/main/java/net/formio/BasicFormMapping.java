@@ -28,6 +28,7 @@ import java.util.Set;
 
 import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.FilledData;
+import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
 import net.formio.format.Formatter;
 import net.formio.upload.RequestProcessingError;
@@ -227,22 +228,32 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	public BasicFormMapping<T> fill(FormData<T> editedObj) {
 		return fillInternal(editedObj).build(this.getConfig());
 	}
-
+	
 	@Override
 	public FormData<T> bind(ParamsProvider paramsProvider, Class<?>... validationGroups) {
+		return bind(paramsProvider, (T)null, validationGroups);
+	}
+
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups) {
 		if (paramsProvider == null) throw new IllegalArgumentException("paramsProvider cannot be null");
 		final RequestProcessingError error = paramsProvider.getRequestError();
 		Map<String, BoundValuesInfo> values = prepareValuesToBindForFields(paramsProvider);
 		
 		// binding (and validating) data from paramsProvider to objects for nested mappings
 		// and adding it to available values to bind
-		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, validationGroups);
+		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, instance, validationGroups);
 		for (Map.Entry<String, FormData<?>> e : nestedFormData.entrySet()) {
 			values.put(e.getKey(), BoundValuesInfo.getInstance(new Object[] { e.getValue().getData() } , (String)null, (Formatter<Object>)null, this.getConfig().getLocale()));
 		}
 		
 		// binding data from "values" to resulting object for this mapping
-		final FilledData<T> filledObject = this.getConfig().getBinder().bindToNewInstance(this.dataClass, this.instantiator, values);
+		Instantiator<T> instantiator = this.instantiator;
+		if (instance != null) {
+			// use instance already prepared by client which the client wish to fill
+			instantiator = new InstanceHoldingInstantiator<T>(instance);
+		}
+		final FilledData<T> filledObject = this.getConfig().getBinder().bindToNewInstance(this.dataClass, instantiator, values);
 		
 		// validation of resulting object for this mapping
 		List<RequestProcessingError> requestFailures = new ArrayList<RequestProcessingError>();
@@ -384,12 +395,27 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	Map<String, FormData<?>> loadDataForMappings(
 		Map<String, FormMapping<?>> mappings, 
 		ParamsProvider paramsProvider, 
+		T instance,
 		Class<?> ... validationGroups) {
-		Map<String, FormData<?>> dataMap = new LinkedHashMap<String, FormData<?>>();
+		final Map<String, FormData<Object>> dataMap = new LinkedHashMap<String, FormData<Object>>();
+		// Transformation from ? to Object (to satisfy generics)
+		final Map<String, FormMapping<Object>> inputMappings = new LinkedHashMap<String, FormMapping<Object>>();
 		for (Map.Entry<String, FormMapping<?>> e : mappings.entrySet()) {
-			dataMap.put(e.getKey(), e.getValue().bind(paramsProvider, validationGroups));
+			inputMappings.put(e.getKey(), (FormMapping<Object>)e.getValue());
 		}
-		return dataMap;
+		for (Map.Entry<String, FormMapping<Object>> e : inputMappings.entrySet()) {
+			Object nestedInstance = null;
+			if (instance != null) {
+				nestedInstance = nestedData(e.getKey(), instance); 
+			}
+			dataMap.put(e.getKey(), e.getValue().bind(paramsProvider, nestedInstance, validationGroups));
+		}
+		// Transformation from Object to ? (to satisfy generics)
+		final Map<String, FormData<?>> outputData = new LinkedHashMap<String, FormData<?>>();
+		for (Map.Entry<String, FormData<Object>> e : dataMap.entrySet()) {
+			outputData.put(e.getKey(), e.getValue());
+		}
+		return outputData;
 	}
 	
 	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj) {
@@ -399,7 +425,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		Map<String, Object> propValues = this.getConfig().getBeanExtractor().extractBean(
 			editedObj.getData(), getAllowedProperties(fields));
 
-		// Fill the fields of this mapping with prepared values
+		// Fill the definitions of fields of this mapping with prepared values
 		Map<String, FormField> filledFields = fillFields(propValues, -1);
 
 		// Returning copy of this form that is filled with form data
@@ -413,17 +439,18 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	
 	Map<String, FormField> fillFields(Map<String, Object> propValues, int indexInList) {
 		Map<String, FormField> filledFields = new HashMap<String, FormField>();
-		for (Map.Entry<String, Object> entry : propValues.entrySet()) {
-			// find field by property name:
-			String propertyName = entry.getKey();
-			final FormField field = this.fields.get(propertyName);
+		// For each field from form definition, let's fill this field with value -> filled form field
+		for (Map.Entry<String, FormField> fieldDefEntry : this.fields.entrySet()) {
+			final String propertyName = fieldDefEntry.getKey();
+			final FormField field = fieldDefEntry.getValue();
+			Object value = propValues.get(propertyName);
 			String fieldName = field.getName();
 			if (indexInList >= 0) {
 				fieldName = nameWithIndex(field.getName(), indexInList);
 			}
 			final FormField filledField = FormFieldImpl.getFilledInstance(
-				fieldName, field.getPattern(), field.getFormatter(), field.isRequired(),
-				fieldValues(entry.getValue()), this.getConfig().getLocale(), this.getConfig().getFormatters());
+				fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.isRequired(),
+				fieldValues(value), this.getConfig().getLocale(), this.getConfig().getFormatters());
 			filledFields.put(propertyName, filledField);
 		}
 		filledFields = Collections.unmodifiableMap(filledFields);
@@ -432,6 +459,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 
 	Map<String, FormMapping<?>> fillNestedMappings(FormData<T> editedObj) {
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
+		// For each definition of nested mapping, fill this mapping with edited data -> filled mapping
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
 			// nested data - nested object or list of nested objects in case of mapping to list
 			Object data = nestedData(e.getKey(), editedObj.getData());
@@ -473,9 +501,9 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return pname;
 	}
 	
-	Object nestedData(String propName, T data) {
+	<U> U nestedData(String propName, T data) {
 		Map<String, Object> props = this.getConfig().getBeanExtractor().extractBean(data, Collections.singleton(propName));
-		return props.get(propName); // can be null if nested object is not required
+		return (U)props.get(propName); // can be null if nested object is not required
 	}
 	
 	private <U> List<U> flatten(Collection<List<U>> collOfLists) {
