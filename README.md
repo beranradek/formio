@@ -1,6 +1,6 @@
 # Formio
 
-#### Form definition and binding framework for Java platform:
+#### Form definition and binding library for Java platform:
 * Easy-to-use configurable handy tool.
 * Automatic binding, even to immutable objects, collections and arrays, complex nested objects and lists of complex objects.
 * (Non)default constructors and static factory methods are supported. Primitives are supported everywhere.
