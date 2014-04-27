@@ -2,21 +2,21 @@
 
 #### Form definition and binding library for Java platform:
 * Easy-to-use configurable handy tool.
-* Automatic binding, even to immutable objects, collections and arrays, complex nested objects and lists of complex objects.
-* (Non)default constructors and static factory methods are supported. Primitives are supported everywhere.
-* Validation of form data (using bean validation with javax.validation annotations).
+* Automatic binding, even to immutable objects, collections and arrays, nested objects and lists of them.
+* Support for (non)default constructors, static factory methods.
+* Primitives can be used everywhere.
+* Validation of form data (using bean validation API).
 * Seamless support for file uploads and configurable max. request/file size.
 * Form definitions are immutable, composable, self-contained, can be easily shared and cached.
 * One simple entry point to API: Forms class.
-* Easy integration with existing frameworks.
-* Minimum dependencies.
+* Non-invasive, easy integration with frameworks, minimum dependencies.
 * Usable with various template frameworks, in environments with or without servlets.
 * Simply unit testable forms.
 * Inspired mainly by well-designed Play framework.
 
 ## Available in Maven Central
 
-http://search.maven.org/#search|ga|1|formio / groupId: net.formio, artifactId: formio, version: 1.0.2
+http://search.maven.org/#search|ga|1|net.formio
 
 ## Demo
 
@@ -32,7 +32,7 @@ private static final FormMapping<Person> personForm =
 
 **2) Fill it with data:**
 ```java
-FormData<Person> formData = new FormData<Person>(person, null /* initial messages */);
+FormData<Person> formData = new FormData<Person>(person, ValidationResult.empty);
 FormMapping<Person> filledForm = personForm.fill(formData);
 // Push the filled form into a template, use its properties...
 ```
