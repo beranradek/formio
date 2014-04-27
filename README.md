@@ -24,7 +24,7 @@ http://formio.net
 
 ## Demo
 
-http://formio-demo.herokuapp.com/
+http://formio-demo.herokuapp.com/, sources on https://github.com/beranradek/formio-demo
 
 ## First Touch
 
