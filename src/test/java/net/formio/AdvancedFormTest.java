@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -88,7 +89,7 @@ public class AdvancedFormTest {
 		col.setEmail("collegue@email.en");
 		regToFillFromForm.setNewCollegue(col);
 		
-		FormData<Registration> boundFormData = REGISTRATION_FORM.bind(getRequestParams(), regToFillFromForm);
+		FormData<Registration> boundFormData = REGISTRATION_FORM.bind(getRequestParams(), new Locale("en"), regToFillFromForm);
 		Registration reg = boundFormData.getData();
 		
 		assertEquals(regToFillFromForm.getNewCollegue(), reg.getNewCollegue());
@@ -109,7 +110,7 @@ public class AdvancedFormTest {
 		collegues.add(new Collegue());
 		regToFillFromForm.setCollegues(collegues);
 		
-		FormData<Registration> boundFormData = REGISTRATION_FORM.bind(getRequestParams(), regToFillFromForm);
+		FormData<Registration> boundFormData = REGISTRATION_FORM.bind(getRequestParams(), new Locale("en"), regToFillFromForm);
 		Registration reg = boundFormData.getData();
 		
 		assertEquals("Michael", reg.getCollegues().get(0).getName());
@@ -137,10 +138,11 @@ public class AdvancedFormTest {
 		assertEquals("root mapping should have correct label key", "registration", form.getLabelKey());
 		assertNull("root mapping has no validation report yet before filling", form.getValidationResult());
 		
+		final Locale locale = new Locale("en"); 
 		
 		// Filled form
-		FormData<Registration> formData = new FormData<Registration>(getInitData(), null);
-		FormMapping<Registration> filledForm = form.fill(formData);
+		FormData<Registration> formData = new FormData<Registration>(getInitData(), ValidationResult.empty);
+		FormMapping<Registration> filledForm = form.fill(formData, locale);
 		LOG.info("Filled form: \n" + filledForm);
 		
 		assertEquals("filled root mapping should have correct name", "registration", filledForm.getName());
@@ -163,7 +165,7 @@ public class AdvancedFormTest {
 		final String sep = Forms.PATH_SEP;
 		
 		// Binding form data to model (Registration)
-		FormData<Registration> boundFormData = form.bind(getRequestParams());
+		FormData<Registration> boundFormData = form.bind(getRequestParams(), locale);
 		final Registration boundReg = boundFormData.getData();
 		
 		assertNotNull("bound object should not be null", boundReg);

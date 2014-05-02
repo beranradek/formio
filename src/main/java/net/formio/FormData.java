@@ -21,7 +21,7 @@ import java.io.Serializable;
 import net.formio.validation.ValidationResult;
 
 /**
- * Edited data and validation report for this data.
+ * Edited data and validation result for this data (state of form editing).
  * @author Radek Beran
  *
  * @param <T>

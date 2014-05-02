@@ -17,6 +17,7 @@
 package net.formio;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.validation.groups.Default;
@@ -74,12 +75,32 @@ public interface FormMapping<T> {
 	 * Fills form with values from given object and returns new filled form
 	 * that can be populated to the template. 
 	 * @param formData object that holds data for the form and initial validation messages/report
+	 * @param locale locale for converting values to strings 
+	 * @return
+	 */
+	FormMapping<T> fill(FormData<T> formData, Locale locale);
+	
+	/**
+	 * Fills form with values from given object and returns new filled form
+	 * that can be populated to the template. Default locale is used.
+	 * @param formData object that holds data for the form and initial validation messages/report
 	 * @return
 	 */
 	FormMapping<T> fill(FormData<T> formData);
 	
 	/**
 	 * Binds and validates data from the form.
+	 * @param paramsProvider provider of request parameters
+	 * @param locale locale for converting strings to values
+	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 
+	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
+	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
+	 * @return
+	 */
+	FormData<T> bind(ParamsProvider paramsProvider, Locale locale, Class<?>... validationGroups);
+	
+	/**
+	 * Binds and validates data from the form. Default locale is used.
 	 * @param paramsProvider provider of request parameters
 	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 
 	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
@@ -90,6 +111,18 @@ public interface FormMapping<T> {
 	
 	/**
 	 * Binds and validates data from the form.
+	 * @param paramsProvider provider of request parameters
+	 * @param locale locale for converting strings to values
+	 * @param instance instance to which data from the request parameter provider should be bound
+	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 
+	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
+	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
+	 * @return
+	 */
+	FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, Class<?>... validationGroups);
+	
+	/**
+	 * Binds and validates data from the form. Default locale is used.
 	 * @param paramsProvider provider of request parameters
 	 * @param instance instance to which data from the request parameter provider should be bound
 	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 

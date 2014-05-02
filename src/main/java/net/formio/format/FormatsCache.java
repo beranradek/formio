@@ -25,21 +25,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Common cache for {@link DateFormat}ters, {@link NumberFormat}ters and 
- * {@link DecimalFormat}ters.
+ * Common cache for {@link DateFormat}s, {@link NumberFormat}s and {@link DecimalFormat}s.
  * @author Radek Beran
  */
-class FormattersCache {
+class FormatsCache {
 	
-	private static final Map<FormatterKey, DateFormat> DATE_FORMATTERS_CACHE = new ConcurrentHashMap<FormatterKey, DateFormat>();
-	private static final Map<FormatterKey, NumberFormat> NUMBER_FORMATTERS_CACHE = new ConcurrentHashMap<FormatterKey, NumberFormat>();
-	private static final Map<FormatterKey, DecimalFormat> DECIMAL_FORMATTERS_CACHE = new ConcurrentHashMap<FormatterKey, DecimalFormat>();
+	private static final Map<FormatKey, DateFormat> DATE_FORMATS_CACHE = new ConcurrentHashMap<FormatKey, DateFormat>();
+	private static final Map<FormatKey, NumberFormat> NUMBER_FORMATS_CACHE = new ConcurrentHashMap<FormatKey, NumberFormat>();
+	private static final Map<FormatKey, DecimalFormat> DECIMAL_FORMATS_CACHE = new ConcurrentHashMap<FormatKey, DecimalFormat>();
 	static final String DEFAULT_DATE_FORMAT = "d.M.yyyy";
 	
-	static DateFormat getOrCreateDateFormatter(String pattern, Locale locale) {
-		final FormatterKey formatterKey = FormatterKey.getInstance(pattern,
+	static DateFormat getOrCreateDateFormat(String pattern, Locale locale) {
+		final FormatKey formatterKey = FormatKey.getInstance(pattern,
 				locale);
-		DateFormat format = DATE_FORMATTERS_CACHE.get(formatterKey);
+		DateFormat format = DATE_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
 				format = new SimpleDateFormat(pattern);
@@ -48,15 +47,15 @@ class FormattersCache {
 				format = new SimpleDateFormat(DEFAULT_DATE_FORMAT, locale);
 			}
 			format.setLenient(false); // without heuristics - allowing only strict pattern 
-			DATE_FORMATTERS_CACHE.put(formatterKey, format);
+			DATE_FORMATS_CACHE.put(formatterKey, format);
 		}
 		return format;
 	}
 
-	static NumberFormat getOrCreateNumberFormatter(String pattern, Locale locale) {
-		final FormatterKey formatterKey = FormatterKey.getInstance(pattern,
+	static NumberFormat getOrCreateNumberFormat(String pattern, Locale locale) {
+		final FormatKey formatterKey = FormatKey.getInstance(pattern,
 				locale);
-		NumberFormat format = NUMBER_FORMATTERS_CACHE.get(formatterKey);
+		NumberFormat format = NUMBER_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
 				format = new DecimalFormat(pattern);
@@ -65,14 +64,14 @@ class FormattersCache {
 				format.setMaximumIntegerDigits(Short.MAX_VALUE);
 				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			}
-			NUMBER_FORMATTERS_CACHE.put(formatterKey, format);
+			NUMBER_FORMATS_CACHE.put(formatterKey, format);
 		}
 		return format;
 	}
 
-	static DecimalFormat getOrCreateDecimalFormatter(String pattern, Locale locale) {
-		final FormatterKey formatterKey = FormatterKey.getInstance(pattern, locale);
-		DecimalFormat format = DECIMAL_FORMATTERS_CACHE.get(formatterKey);
+	static DecimalFormat getOrCreateDecimalFormat(String pattern, Locale locale) {
+		final FormatKey formatterKey = FormatKey.getInstance(pattern, locale);
+		DecimalFormat format = DECIMAL_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
 				format = new DecimalFormat(pattern);
@@ -82,21 +81,21 @@ class FormattersCache {
 				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			}
 			format.setParseBigDecimal(true);
-			DECIMAL_FORMATTERS_CACHE.put(formatterKey, format);
+			DECIMAL_FORMATS_CACHE.put(formatterKey, format);
 		}
 		return format;
 	}
 	
-	protected static final class FormatterKey {
+	protected static final class FormatKey {
 		private final String pattern;
 		private final Locale locale;
 
-		protected static FormatterKey getInstance(String pattern, Locale locale) {
-			// Caching of FormatterKey instances can be implemented here
-			return new FormatterKey(pattern, locale);
+		protected static FormatKey getInstance(String pattern, Locale locale) {
+			// Caching of FormatKey instances can be implemented here
+			return new FormatKey(pattern, locale);
 		}
 
-		private FormatterKey(String pattern, Locale locale) {
+		private FormatKey(String pattern, Locale locale) {
 			this.pattern = pattern;
 			this.locale = locale;
 		}
@@ -118,9 +117,9 @@ class FormattersCache {
 				return true;
 			if (obj == null)
 				return false;
-			if (!(obj instanceof FormatterKey))
+			if (!(obj instanceof FormatKey))
 				return false;
-			FormatterKey other = (FormatterKey) obj;
+			FormatKey other = (FormatKey) obj;
 			if (locale == null) {
 				if (other.locale != null)
 					return false;

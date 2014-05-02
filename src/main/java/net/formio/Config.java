@@ -80,7 +80,6 @@ public class Config {
 		BeanValidator beanValidator;
 		boolean extractorSpecified;
 		boolean binderSpecified;
-		boolean formattersSpecified;
 		boolean validatorSpecified;
 		boolean inputTrimmed = true;
 
@@ -89,8 +88,6 @@ public class Config {
 		}
 		
 		public Builder locale(Locale locale) {
-			if (this.formattersSpecified) throw new IllegalStateException("locale must be specified before the formatters.");
-			if (this.validatorSpecified) throw new IllegalStateException("locale must be specified before the validator.");
 			this.locale = locale;
 			return this;
 		}
@@ -103,7 +100,6 @@ public class Config {
 
 		public Builder formatters(Formatters formatters) {
 			this.formatters = formatters;
-			this.formattersSpecified = true;
 			return this;
 		}
 		
@@ -155,14 +151,14 @@ public class Config {
 		public Config build() {
 			if (this.locale == null) this.locale = DEFAULT_LOCALE;
 			if (this.messageBundleName == null) this.messageBundleName = DEFAULT_MESSAGE_BUNDLE_NAME;
-			if (this.formatters == null) this.formatters = defaultFormatters(this.locale);
+			if (this.formatters == null) this.formatters = DEFAULT_FORMATTERS;
 			if (this.collectionBuilders == null) this.collectionBuilders = DEFAULT_COLLECTION_BUILDERS;
 			if (this.argumentNameResolver == null) this.argumentNameResolver = DEFAULT_ARGUMENT_NAME_RESOLVER;
 			if (this.accessorRegex == null) this.accessorRegex = DefaultBeanExtractor.DEFAULT_ACCESSOR_REGEX;
 			if (this.setterRegex == null) this.setterRegex = DefaultBinder.DEFAULT_SETTER_REGEX;
 			if (this.beanExtractor == null) this.beanExtractor = defaultBeanExtractor(this.accessorRegex);
 			if (this.binder == null) this.binder = new DefaultBinder(this.formatters, this.collectionBuilders, this.argumentNameResolver, this.setterRegex);
-			if (this.beanValidator == null) this.beanValidator = new ValidationApiBeanValidator(Validation.buildDefaultValidatorFactory(), this.messageBundleName, this.locale);
+			if (this.beanValidator == null) this.beanValidator = new ValidationApiBeanValidator(Validation.buildDefaultValidatorFactory(), this.messageBundleName);
 			
 			Config cfg = new Config(this);
 			if (cfg.getLocale() == null) throw new IllegalStateException("locale cannot be null");
@@ -177,10 +173,8 @@ public class Config {
 			return cfg;
 		}
 		
-		private static Formatters defaultFormatters(Locale locale) {
-			return new BasicFormatters(locale);
-		}
-		private static final Locale DEFAULT_LOCALE = Locale.getDefault();
+		private static final Formatters DEFAULT_FORMATTERS = new BasicFormatters();  
+		private static final Locale DEFAULT_LOCALE = Locale.getDefault(); // system locale of JVM
 		private static final String DEFAULT_MESSAGE_BUNDLE_NAME = "ValidationMessages";
 		private static final CollectionBuilders DEFAULT_COLLECTION_BUILDERS = new BasicCollectionBuilders();
 		private static final ArgumentNameResolver DEFAULT_ARGUMENT_NAME_RESOLVER = new AnnotationArgumentNameResolver();

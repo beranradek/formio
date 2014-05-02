@@ -1,6 +1,9 @@
 # Changelog
 
-1.0.2
+1.0.3 (2.5.2014)
+* Dynamic specification of locale in fill/bind methods, instead of locale in configuration.
+
+1.0.2 (21.4.2014)
 * Binding to provided instance of edited object.
 * Only optional Maven dependency on servlet API.
 * New version of fileupload dependency.

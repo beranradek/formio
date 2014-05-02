@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -225,26 +226,36 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
+	public BasicFormMapping<T> fill(FormData<T> editedObj, Locale locale) {
+		return fillInternal(editedObj, locale).build(this.getConfig());
+	}
+	
+	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj) {
-		return fillInternal(editedObj).build(this.getConfig());
+		return fill(editedObj, getDefaultLocale());
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, Class<?>... validationGroups) {
+		return bind(paramsProvider, locale, (T)null, validationGroups);
 	}
 	
 	@Override
 	public FormData<T> bind(ParamsProvider paramsProvider, Class<?>... validationGroups) {
-		return bind(paramsProvider, (T)null, validationGroups);
+		return bind(paramsProvider, getDefaultLocale(), validationGroups);
 	}
 
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups) {
+	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
 		if (paramsProvider == null) throw new IllegalArgumentException("paramsProvider cannot be null");
 		final RequestProcessingError error = paramsProvider.getRequestError();
-		Map<String, BoundValuesInfo> values = prepareValuesToBindForFields(paramsProvider);
+		Map<String, BoundValuesInfo> values = prepareValuesToBindForFields(paramsProvider, locale);
 		
 		// binding (and validating) data from paramsProvider to objects for nested mappings
 		// and adding it to available values to bind
-		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, instance, validationGroups);
+		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, validationGroups);
 		for (Map.Entry<String, FormData<?>> e : nestedFormData.entrySet()) {
-			values.put(e.getKey(), BoundValuesInfo.getInstance(new Object[] { e.getValue().getData() } , (String)null, (Formatter<Object>)null, this.getConfig().getLocale()));
+			values.put(e.getKey(), BoundValuesInfo.getInstance(new Object[] { e.getValue().getData() } , (String)null, (Formatter<Object>)null, locale));
 		}
 		
 		// binding data from "values" to resulting object for this mapping
@@ -265,6 +276,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			this.path, 
 			requestFailures, 
 			flatten(filledObject.getPropertyBindErrors().values()),
+			locale,
 			validationGroups);
 		final Map<String, Set<ConstraintViolationMessage>> fieldMsgs = cloneFieldMessages(validationRep.getFieldMessages());
 		
@@ -275,6 +287,11 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			globalMsgs.addAll(formData.getValidationResult().getGlobalMessages());
 		}
 		return new FormData<T>(filledObject.getData(), new ValidationResult(fieldMsgs, globalMsgs));
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups) {
+		return bind(paramsProvider, getDefaultLocale(), instance, validationGroups);
 	}
 	
 	@Override
@@ -394,7 +411,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	
 	Map<String, FormData<?>> loadDataForMappings(
 		Map<String, FormMapping<?>> mappings, 
-		ParamsProvider paramsProvider, 
+		ParamsProvider paramsProvider,
+		Locale locale,
 		T instance,
 		Class<?> ... validationGroups) {
 		final Map<String, FormData<Object>> dataMap = new LinkedHashMap<String, FormData<Object>>();
@@ -408,7 +426,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			if (instance != null) {
 				nestedInstance = nestedData(e.getKey(), instance); 
 			}
-			dataMap.put(e.getKey(), e.getValue().bind(paramsProvider, nestedInstance, validationGroups));
+			dataMap.put(e.getKey(), e.getValue().bind(paramsProvider, locale, nestedInstance, validationGroups));
 		}
 		// Transformation from Object to ? (to satisfy generics)
 		final Map<String, FormData<?>> outputData = new LinkedHashMap<String, FormData<?>>();
@@ -418,15 +436,15 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return outputData;
 	}
 	
-	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj) {
-		Map<String, FormMapping<?>> newNestedMappings = fillNestedMappings(editedObj);
+	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale) {
+		Map<String, FormMapping<?>> newNestedMappings = fillNestedMappings(editedObj, locale);
 		
 		// Preparing values for this mapping
 		Map<String, Object> propValues = this.getConfig().getBeanExtractor().extractBean(
 			editedObj.getData(), getAllowedProperties(fields));
 
 		// Fill the definitions of fields of this mapping with prepared values
-		Map<String, FormField> filledFields = fillFields(propValues, -1);
+		Map<String, FormField> filledFields = fillFields(propValues, -1, locale);
 
 		// Returning copy of this form that is filled with form data
 		BasicFormMappingBuilder<T> builder = Forms.basic(getDataClass(), this.path)
@@ -437,7 +455,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return builder;
 	}
 	
-	Map<String, FormField> fillFields(Map<String, Object> propValues, int indexInList) {
+	Map<String, FormField> fillFields(Map<String, Object> propValues, int indexInList, Locale locale) {
 		Map<String, FormField> filledFields = new HashMap<String, FormField>();
 		// For each field from form definition, let's fill this field with value -> filled form field
 		for (Map.Entry<String, FormField> fieldDefEntry : this.fields.entrySet()) {
@@ -450,14 +468,14 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			}
 			final FormField filledField = FormFieldImpl.getFilledInstance(
 				fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.isRequired(),
-				fieldValues(value), this.getConfig().getLocale(), this.getConfig().getFormatters());
+				fieldValues(value), locale, this.getConfig().getFormatters());
 			filledFields.put(propertyName, filledField);
 		}
 		filledFields = Collections.unmodifiableMap(filledFields);
 		return filledFields;
 	}
 
-	Map<String, FormMapping<?>> fillNestedMappings(FormData<T> editedObj) {
+	Map<String, FormMapping<?>> fillNestedMappings(FormData<T> editedObj, Locale locale) {
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		// For each definition of nested mapping, fill this mapping with edited data -> filled mapping
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
@@ -465,7 +483,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			Object data = nestedData(e.getKey(), editedObj.getData());
 			FormData formData = new FormData<Object>(data, editedObj.getValidationResult()); // the outer report is propagated to nested
 			FormMapping newMapping = e.getValue();
-			newNestedMappings.put(e.getKey(), newMapping.fill(formData));
+			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale));
 		}
 		return newNestedMappings;
 	}
@@ -564,7 +582,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		}
 	}
 
-	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(ParamsProvider paramsProvider) {
+	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(ParamsProvider paramsProvider, Locale locale) {
 		Map<String, BoundValuesInfo> values = new HashMap<String, BoundValuesInfo>();
 		// Get values for each defined field
 		for (Map.Entry<String, FormField> e : fields.entrySet()) {
@@ -594,7 +612,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			}
 			String propertyName = e.getKey();
 			values.put(propertyName, BoundValuesInfo.getInstance(
-			  paramValues, field.getPattern(), field.getFormatter(), this.getConfig().getLocale()));
+			  paramValues, field.getPattern(), field.getFormatter(), locale));
 		}
 		return values;
 	}
@@ -635,6 +653,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			}
 		}
 		return Collections.unmodifiableMap(fields);
+	}
+	
+	private Locale getDefaultLocale() {
+		return Locale.getDefault();
 	}
 
 }

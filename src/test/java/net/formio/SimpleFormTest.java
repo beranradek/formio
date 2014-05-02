@@ -64,15 +64,17 @@ public class SimpleFormTest {
 	private static final FormMapping<Person> PERSON_FORM = Forms.basic(Person.class, "person") // NOPMD by Radek on 2.3.14 19:29
 		// whitelist of properties to bind
 		.fields("personId", "firstName", "lastName", "salary", "phone", "male", "nation")
-		.field(Forms.<Date>field("birthDate").formatter(CUSTOM_DATE_FORMATTER).build())
+		.field(Forms.<Date>field("birthDate").formatter(CUSTOM_DATE_FORMATTER).type("text").build())
 		.build();
 
 	@Test
 	public void testFormProcessing() {
 		try {
+			final Locale locale = new Locale("en");
+			
 			// Filling form with initial data
 			FormData<Person> formData = new FormData<Person>(getInitData(), null);
-			FormMapping<Person> filledForm = PERSON_FORM.fill(formData);
+			FormMapping<Person> filledForm = PERSON_FORM.fill(formData, locale);
 			
 			LOG.info("Filled form: \n" + filledForm);
 			
@@ -87,7 +89,7 @@ public class SimpleFormTest {
 			MapParamsProvider reqParams = getRequestParams();
 					
 			// Binding data from request to model (Person)
-			FormData<Person> boundFormData = PERSON_FORM.bind(reqParams);
+			FormData<Person> boundFormData = PERSON_FORM.bind(reqParams, locale);
 			Person person = boundFormData.getData();
 			
 			assertEquals(1, person.getPersonId());
@@ -109,10 +111,12 @@ public class SimpleFormTest {
 	
 	@Test
 	public void testBindToProvidedInstance() {
+		final Locale locale = new Locale("en");
+		
 		MarriedPerson personToFillFromForm = new MarriedPerson("Charlotte", "Stripes");
 		personToFillFromForm.setMarriageDate(new Date());
 		personToFillFromForm.setNation(Nation.SLOVAK);
-		FormData<Person> boundFormData = PERSON_FORM.bind(getRequestParams(), personToFillFromForm);
+		FormData<Person> boundFormData = PERSON_FORM.bind(getRequestParams(), locale, personToFillFromForm);
 		MarriedPerson person = (MarriedPerson)boundFormData.getData();
 		
 		// Constructor-settable properties are not overriden

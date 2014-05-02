@@ -31,25 +31,15 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Transforms objects of common type(s) to a String and back from a String.
  * Different subclasses with different registered formatters can be
- * created: Method {@link #registerFormatters(Locale)} can be overridden.
+ * created: Method {@link #registerFormatters()} can be overridden.
  * 
  * @author Radek Beran
  */
 public class BasicFormatters implements Formatters {
 
 	// -- Public API --
-	/**
-	 * Intentionally left default constructor, that can be used with dependency
-	 * injection. Subclasses can define and inject their own mechanisms to
-	 * resolve string values to instances of classes.
-	 */
 	public BasicFormatters() {
-		this(Locale.getDefault());
-	}
-
-	public BasicFormatters(Locale locale) {
-		this.formatters = registerFormatters(locale);
-		this.defaultLocale = locale;
+		this.formatters = registerFormatters();
 	}
 
 	@Override
@@ -67,16 +57,8 @@ public class BasicFormatters implements Formatters {
 		return formatter.parseFromString(str, destClass, formatPattern, locale);
 	}
 
-	public <T> T parseFromString(String str, Class<T> cls, String formatPattern) {
-		return parseFromString(str, cls, formatPattern, getDefaultLocale());
-	}
-
 	public <T> T parseFromString(String str, Class<T> cls, Locale locale) {
 		return parseFromString(str, cls, null, locale);
-	}
-
-	public <T> T parseFromString(String str, Class<T> cls) {
-		return parseFromString(str, cls, null, getDefaultLocale());
 	}
 	
 	@Override
@@ -90,17 +72,13 @@ public class BasicFormatters implements Formatters {
 		return formatter.makeString(value, formatPattern, locale);
 	}
 	
+	public <T> String makeString(T value, Locale locale) {
+		return makeString(value, (String)null, locale);
+	}
+	
 	@Override
 	public boolean canHandle(Class<?> cls) {
 		return cls.isAssignableFrom(String.class) || cls.isEnum() || this.formatters.containsKey(cls);
-	}
-	
-	public <T> String makeString(T value, String formatPattern) {
-		return makeString(value, formatPattern, getDefaultLocale());
-	}
-	
-	public <T> String makeString(T value) {
-		return makeString(value, null, getDefaultLocale());
 	}
 
 	// -- API to override --
@@ -109,9 +87,8 @@ public class BasicFormatters implements Formatters {
 	 * 
 	 * @return
 	 */
-	protected Map<Class<?>, Formatter<?>> registerFormatters(Locale locale) {
-		final FormattersKey formattersKey = FormattersKey
-				.getInstance(getClass(), locale);
+	protected Map<Class<?>, Formatter<?>> registerFormatters() {
+		final Class<? extends Formatters> formattersKey = getClass();
 		Map<Class<?>, Formatter<?>> formatters = FORMATTERS_CACHE.get(formattersKey);
 		if (formatters == null) {
 			formatters = new HashMap<Class<?>, Formatter<?>>();
@@ -125,8 +102,8 @@ public class BasicFormatters implements Formatters {
 				public Date parseFromString(String str, Class<Date> destClass,
 						String formatPattern, Locale locale) {
 					try {
-						return FormattersCache.getOrCreateDateFormatter(
-							formatPattern, getLocaleElseDefault(locale)).parse(str);
+						return FormatsCache.getOrCreateDateFormat(
+							formatPattern, locale).parse(str);
 					} catch (Exception ex) {
 						throw new StringParseException(Date.class, str, ex);
 					}
@@ -134,8 +111,8 @@ public class BasicFormatters implements Formatters {
 				
 				@Override
 				public String makeString(Date value, String formatPattern, Locale locale) {
-					return FormattersCache.getOrCreateDateFormatter(
-						formatPattern, getLocaleElseDefault(locale)).format(value);
+					return FormatsCache.getOrCreateDateFormat(
+						formatPattern, locale).format(value);
 				}
 
 			};
@@ -148,9 +125,9 @@ public class BasicFormatters implements Formatters {
 				public Byte parseFromString(String str, Class<Byte> destClass,
 						String formatPattern, Locale locale) {
 					try {
-						String amendedStr = removeDecimalPart(str, getLocaleElseDefault(locale));
-						return Byte.valueOf(FormattersCache.getOrCreateNumberFormatter(
-							formatPattern, getLocaleElseDefault(locale)).parse(amendedStr).byteValue());
+						String amendedStr = removeDecimalPart(str, locale);
+						return Byte.valueOf(FormatsCache.getOrCreateNumberFormat(
+							formatPattern, locale).parse(amendedStr).byteValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Byte.class, str, ex);
 					}
@@ -172,9 +149,9 @@ public class BasicFormatters implements Formatters {
 						Class<Short> destClass, String formatPattern,
 						Locale locale) {
 					try {
-						String amendedStr = removeDecimalPart(str, getLocaleElseDefault(locale));
-						return Short.valueOf(FormattersCache.getOrCreateNumberFormatter(
-							formatPattern, getLocaleElseDefault(locale)).parse(amendedStr).shortValue());
+						String amendedStr = removeDecimalPart(str, locale);
+						return Short.valueOf(FormatsCache.getOrCreateNumberFormat(
+							formatPattern, locale).parse(amendedStr).shortValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Short.class, str, ex);
 					}
@@ -196,9 +173,9 @@ public class BasicFormatters implements Formatters {
 						Class<Integer> destClass, String formatPattern,
 						Locale locale) {
 					try {
-						String amendedStr = removeDecimalPart(str, getLocaleElseDefault(locale));
-						return Integer.valueOf(FormattersCache.getOrCreateNumberFormatter(
-							formatPattern, getLocaleElseDefault(locale)).parse(amendedStr).intValue());
+						String amendedStr = removeDecimalPart(str, locale);
+						return Integer.valueOf(FormatsCache.getOrCreateNumberFormat(
+							formatPattern, locale).parse(amendedStr).intValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Integer.class, str, ex);
 					}
@@ -219,9 +196,9 @@ public class BasicFormatters implements Formatters {
 				public Long parseFromString(String str, Class<Long> destClass,
 						String formatPattern, Locale locale) {
 					try {
-						String amendedStr = removeDecimalPart(str, getLocaleElseDefault(locale));
-						return Long.valueOf(FormattersCache.getOrCreateNumberFormatter(
-							formatPattern, getLocaleElseDefault(locale)).parse(amendedStr).byteValue());
+						String amendedStr = removeDecimalPart(str, locale);
+						return Long.valueOf(FormatsCache.getOrCreateNumberFormat(
+							formatPattern, locale).parse(amendedStr).byteValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Long.class, str, ex);
 					}
@@ -243,7 +220,7 @@ public class BasicFormatters implements Formatters {
 						Class<BigInteger> destClass, String formatPattern,
 						Locale locale) {
 					try {
-						return new BigInteger(removeDecimalPart(str, getLocaleElseDefault(locale)));
+						return new BigInteger(removeDecimalPart(str, locale));
 					} catch (Exception ex) {
 						throw new StringParseException(BigInteger.class, str, ex);
 					}
@@ -264,8 +241,8 @@ public class BasicFormatters implements Formatters {
 						Class<Double> destClass, String formatPattern,
 						Locale locale) {
 					try {
-						return Double.valueOf(FormattersCache.getOrCreateNumberFormatter(
-							formatPattern, getLocaleElseDefault(locale)).parse(
+						return Double.valueOf(FormatsCache.getOrCreateNumberFormat(
+							formatPattern, locale).parse(
 								amendDecimalPoint(str, locale)).doubleValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Double.class, str, ex);
@@ -275,8 +252,8 @@ public class BasicFormatters implements Formatters {
 				@Override
 				public String makeString(Double value, String formatPattern,
 						Locale locale) {
-					return FormattersCache.getOrCreateNumberFormatter(
-						formatPattern, getLocaleElseDefault(locale)).format(value);
+					return FormatsCache.getOrCreateNumberFormat(
+						formatPattern, locale).format(value);
 				}
 
 			};
@@ -290,22 +267,21 @@ public class BasicFormatters implements Formatters {
 						Class<BigDecimal> destClass, String formatPattern,
 						Locale locale) {
 					try {
-						DecimalFormat format = FormattersCache.getOrCreateDecimalFormatter(
-							formatPattern, getLocaleElseDefault(locale));
+						DecimalFormat format = FormatsCache.getOrCreateDecimalFormat(
+							formatPattern, locale);
 						// Always isParseBigDecimal
 						return (BigDecimal) format.parse(amendDecimalPoint(str, locale),
 							new ParsePosition(0));
 					} catch (Exception ex) {
-						throw new StringParseException(BigDecimal.class, str,
-								ex);
+						throw new StringParseException(BigDecimal.class, str, ex);
 					}
 				}
 				
 				@Override
 				public String makeString(BigDecimal value,
 						String formatPattern, Locale locale) {
-					return FormattersCache.getOrCreateDecimalFormatter(
-						formatPattern, getLocaleElseDefault(locale)).format(value);
+					return FormatsCache.getOrCreateDecimalFormat(
+						formatPattern, locale).format(value);
 				}
 			};
 			formatters.put(BigDecimal.class, bigDecimalFormatter);
@@ -391,73 +367,10 @@ public class BasicFormatters implements Formatters {
 
 	};
 
-	protected Locale getDefaultLocale() {
-		return defaultLocale;
-	}
-
-	protected static final class FormattersKey {
-		private final Class<? extends BasicFormatters> formattersClass;
-		private final Locale locale;
-
-		protected static FormattersKey getInstance(
-				Class<? extends BasicFormatters> formattersClass, Locale locale) {
-			// Caching of FormattersKey instances can be implemented here
-			return new FormattersKey(formattersClass, locale);
-		}
-
-		private FormattersKey(Class<? extends BasicFormatters> formattersClass, Locale locale) {
-			this.formattersClass = formattersClass;
-			this.locale = locale;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result
-					+ ((locale == null) ? 0 : locale.hashCode());
-			result = prime
-					* result
-					+ ((formattersClass == null) ? 0 : formattersClass
-							.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (!(obj instanceof FormattersKey)) {
-				return false;
-			}
-			FormattersKey other = (FormattersKey) obj;
-			if (locale == null) {
-				if (other.locale != null)
-					return false;
-			} else if (!locale.equals(other.locale))
-				return false;
-			if (formattersClass == null) {
-				if (other.formattersClass != null)
-					return false;
-			} else if (!formattersClass.equals(other.formattersClass))
-				return false;
-			return true;
-		}
-
-	}
-
 	// -- Internal implementation --
-	Locale getLocaleElseDefault(Locale locale) {
-		return locale != null ? locale : getDefaultLocale();
-	}
-	
 	private final Map<Class<?>, Formatter<?>> formatters;
 
-	private final Locale defaultLocale;
-
-	private static final Map<FormattersKey, Map<Class<?>, Formatter<?>>> FORMATTERS_CACHE = new ConcurrentHashMap<FormattersKey, Map<Class<?>, Formatter<?>>>();
+	private static final Map<Class<? extends Formatters>, Map<Class<?>, Formatter<?>>> FORMATTERS_CACHE = new ConcurrentHashMap<Class<? extends Formatters>, Map<Class<?>, Formatter<?>>>();
 
 	static String amendDecimalPoint(String str, Locale locale) {
 		String amendedStr = str;

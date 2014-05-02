@@ -46,8 +46,7 @@ public class ValidationApiBeanValidatorTest {
 	public void testIsRequired() {
 		try {
 			ValidationApiBeanValidator v = new ValidationApiBeanValidator(
-					Validation.buildDefaultValidatorFactory(), "whatever",
-					Locale.getDefault());
+				Validation.buildDefaultValidatorFactory(), "whatever");
 			assertTrue("name is required", v.isRequired(Contact.class, "name"));
 			assertTrue("email is required", v.isRequired(Contact.class, "email"));
 			assertTrue("age is required", v.isRequired(Contact.class, "age"));
@@ -60,8 +59,9 @@ public class ValidationApiBeanValidatorTest {
 			c.setNewContact(false);
 			c.setAge(Integer.valueOf(0));
 			ValidationResult r = v.validate(c, "",
-					Collections.<RequestProcessingError> emptyList(),
-					Collections.<ParseError> emptyList());
+				Collections.<RequestProcessingError> emptyList(),
+				Collections.<ParseError> emptyList(),
+				new Locale("cs", "CZ"));
 			assertTrue("Validation should be successfull", r.isSuccess());
 		} catch (Exception ex) {
 			ex.printStackTrace();

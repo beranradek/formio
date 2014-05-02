@@ -61,23 +61,16 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	
 	private final ValidatorFactory validatorFactory;
 	private final String messageBundleName;
-	private final Locale locale;
 	
-	public ValidationApiBeanValidator(ValidatorFactory validatorFactory, String messageBundleName, Locale locale) {
+	public ValidationApiBeanValidator(ValidatorFactory validatorFactory, String messageBundleName) {
 		if (validatorFactory == null) throw new IllegalArgumentException("validatorFactory cannot be null");
 		if (messageBundleName == null || messageBundleName.isEmpty()) throw new IllegalArgumentException("messageBundleName cannot be null or empty");
-		if (locale == null) throw new IllegalArgumentException("locale cannot be null");
 		this.validatorFactory = validatorFactory;
 		this.messageBundleName = messageBundleName;
-		this.locale = locale;
-	}
-	
-	public ValidationApiBeanValidator(ValidatorFactory validatorFactory, Locale locale) {
-		this(validatorFactory, ResBundleMessageInterpolator.DEFAULT_VALIDATION_MESSAGES, locale);
 	}
 	
 	public ValidationApiBeanValidator(ValidatorFactory validatorFactory) {
-		this(validatorFactory, ResBundleMessageInterpolator.DEFAULT_VALIDATION_MESSAGES, Locale.getDefault());
+		this(validatorFactory, ResBundleMessageInterpolator.DEFAULT_VALIDATION_MESSAGES);
 	}
 	
 	@Override
@@ -85,18 +78,23 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		String propPrefix, 
 		List<RequestProcessingError> requestFailures,
 		List<ParseError> parseErrors, 
+		Locale locale,
 		Class<?>... groups) {
 		if (inst == null) {
 			throw new IllegalArgumentException("Validated object cannot be null");
 		}
-		MessageInterpolator msgInterpolator = createMessageInterpolator(this.validatorFactory, this.messageBundleName, this.locale);
+		MessageInterpolator msgInterpolator = createMessageInterpolator(this.validatorFactory, this.messageBundleName, locale);
 		Validator validator = createValidator(this.validatorFactory, msgInterpolator);
 		Set<ConstraintViolation<T>> violations = validator.validate(inst, groups);
-		return buildReport(msgInterpolator, violations, requestFailures, parseErrors, propPrefix);
+		return buildReport(msgInterpolator, violations, requestFailures, parseErrors, propPrefix, locale);
+	}
+	
+	public <T> ValidationResult validate(T inst, Locale locale, Class<?> ... groups) {
+		return this.validate(inst, (String)null, Collections.<RequestProcessingError>emptyList(), Collections.<ParseError>emptyList(), locale, groups);
 	}
 	
 	public <T> ValidationResult validate(T inst, Class<?> ... groups) {
-		return this.validate(inst, (String)null, Collections.<RequestProcessingError>emptyList(), Collections.<ParseError>emptyList(), groups);
+		return this.validate(inst, Locale.getDefault(), groups);
 	}
 	
 	@Override
@@ -149,20 +147,21 @@ public class ValidationApiBeanValidator implements BeanValidator {
 			MessageInterpolator msgInterpolator,
 			List<RequestProcessingError> requestFailures, String propPrefix,
 			Map<String, Set<ConstraintViolationMessage>> fieldMessages,
-			Set<ConstraintViolationMessage> globalMessages) {
+			Set<ConstraintViolationMessage> globalMessages,
+			Locale locale) {
 		for (RequestProcessingError error : requestFailures) {
 			if (error instanceof MaxFileSizeExceededError) {
 				MaxFileSizeExceededError err = (MaxFileSizeExceededError)error;
 				Set<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, err.getFieldName());
 				msgs.add(new ConstraintViolationMessage(Severity.ERROR, 
-					interpolateMsg(msgInterpolator, error),
+					interpolateMsg(msgInterpolator, error, locale),
 					error.getMessageKey(),
 					error.getMessageParameters()));	
 				fieldMessages.put(err.getFieldName(), msgs);
 			} else if (error != null && ValidationUtils.isTopLevelMapping(propPrefix)) {
 				// other request processing errors
 				globalMessages.add(new ConstraintViolationMessage(Severity.ERROR, 
-					interpolateMsg(msgInterpolator, error),
+					interpolateMsg(msgInterpolator, error, locale),
 					ValidationUtils.removeBraces(error.getMessageKey()),
 					error.getMessageParameters()));
 			}
@@ -173,30 +172,32 @@ public class ValidationApiBeanValidator implements BeanValidator {
 			MessageInterpolator msgInterpolator,
 			List<ParseError> parseErrors,
 			String propPrefix,
-			Map<String, Set<ConstraintViolationMessage>> fieldMessages) {
+			Map<String, Set<ConstraintViolationMessage>> fieldMessages,
+			Locale locale) {
 		for (ParseError err : parseErrors) {
 			String formPrefixedPropName = pathPrefixedName(propPrefix, err.getPropertyName());
 			Set<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, formPrefixedPropName);
 			msgs.add(new ConstraintViolationMessage(
 				Severity.ERROR, 
-				interpolateParseErrorMsg(msgInterpolator, err), 
+				interpolateParseErrorMsg(msgInterpolator, err, locale), 
 				err.getMessageKey(),
 				err.getMessageParameters()));
 			fieldMessages.put(formPrefixedPropName, msgs);
 		}
 	}
 	
-	private String interpolateParseErrorMsg(MessageInterpolator msgInterpolator, ParseError msg) {
+	private String interpolateParseErrorMsg(MessageInterpolator msgInterpolator, ParseError msg, Locale locale) {
 		HumanReadableType hrt = msg.getHumanReadableTargetType();
-		String humanReadableTargetType = interpolateMessage(msgInterpolator, humanReadableTypeToMsgTpl(hrt), Collections.<String, Serializable>emptyMap(), this.locale);
+		String humanReadableTargetType = interpolateMessage(msgInterpolator, humanReadableTypeToMsgTpl(hrt), 
+			Collections.<String, Serializable>emptyMap(), locale);
 		Map<String, Serializable> params = new HashMap<String, Serializable>();
 		params.putAll(msg.getMessageParameters());
 		params.put("humanReadableTargetType", humanReadableTargetType);
-		return ValidationUtils.removeBraces(interpolateMessage(msgInterpolator, msg.getMessageKey(), params, this.locale));
+		return ValidationUtils.removeBraces(interpolateMessage(msgInterpolator, msg.getMessageKey(), params, locale));
 	}
 	
-	private String interpolateMsg(MessageInterpolator msgInterpolator, InterpolatedMessage msg) {
-		return ValidationUtils.removeBraces(interpolateMessage(msgInterpolator, msg.getMessageKey(), msg.getMessageParameters(), this.locale));
+	private String interpolateMsg(MessageInterpolator msgInterpolator, InterpolatedMessage msg, Locale locale) {
+		return ValidationUtils.removeBraces(interpolateMessage(msgInterpolator, msg.getMessageKey(), msg.getMessageParameters(), locale));
 	}
 	
 	private String humanReadableTypeToMsgTpl(HumanReadableType hrt) {
@@ -214,15 +215,16 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	private <T> ValidationResult buildReport(MessageInterpolator msgInterpolator, Set<ConstraintViolation<T>> violations, 
 		List<RequestProcessingError> requestFailures,
 		List<ParseError> parseErrors,	
-		String propPrefix) {
+		String propPrefix,
+		Locale locale) {
 		Map<String, Set<ConstraintViolationMessage>> fieldMessages = new LinkedHashMap<String, Set<ConstraintViolationMessage>>();
 		Set<ConstraintViolationMessage> globalMessages = new LinkedHashSet<ConstraintViolationMessage>();
 		
 		// request processing errors
-		processRequestErrors(msgInterpolator, requestFailures, propPrefix, fieldMessages, globalMessages);
+		processRequestErrors(msgInterpolator, requestFailures, propPrefix, fieldMessages, globalMessages, locale);
 		
 		// processing parse errors (in addition to validation errors)
-		processParseErrors(msgInterpolator, parseErrors, propPrefix, fieldMessages);
+		processParseErrors(msgInterpolator, parseErrors, propPrefix, fieldMessages, locale);
 		
 		if (!violations.isEmpty()) {
 			for (ConstraintViolation<T> v : violations) {

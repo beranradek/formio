@@ -1,16 +1,16 @@
 Deploying snapshot
 ------------------
 
-To https://oss.sonatype.org/content/repositories/snapshots/ repository:
+To Sonatype Snapshots Repository:
 mvn clean deploy
 
-Snapshot repository:
+Repository in pom.xml:
 <repositories>
     <repository>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-      <id>sonatype-snapshots</id>
+      <id>sonatype-nexus-snapshots</id>
       <name>Sonatype Snapshots</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
@@ -22,3 +22,7 @@ Release
 mvn release:clean 
 mvn release:prepare
 mvn release:perform
+
+Log-in to https://oss.sonatype.org
+Review, Close and Release Staging repository for netformio, see doc:
+https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-8a.ReleaseIt
