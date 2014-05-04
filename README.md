@@ -20,7 +20,7 @@ http://search.maven.org/#search|ga|1|net.formio
 
 ## Get Started and Documentation
 
-http://formio.net
+http://www.formio.net
 
 ## Demo
 
