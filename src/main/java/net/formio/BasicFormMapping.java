@@ -36,7 +36,7 @@ import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
 import net.formio.security.PasswordGenerator;
 import net.formio.security.TokenMissingException;
-import net.formio.servlet.HttpServletRequestParams;
+import net.formio.servlet.ServletRequestParams;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ConstraintViolationMessage;
@@ -66,7 +66,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	final ValidationResult validationResult;
 	final boolean required;
 	final boolean secured;
-	final String formId;
 
 	/**
 	 * Construct the mapping from given builder.
@@ -78,7 +77,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.userDefinedConfig = builder.userDefinedConfig;
 		this.path = builder.path;
 		this.dataClass = builder.dataClass;
-		this.formId = builder.path + "-" + builder.dataClass.getSimpleName();
 		this.instantiator = builder.instantiator;
 		this.filledObject = builder.filledObject;
 		this.secured = builder.secured;
@@ -114,7 +112,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		}
 		this.path = newMappingPath;
 		this.dataClass = src.getDataClass();
-		this.formId = src.formId;
 		this.instantiator = src.getInstantiator();
 		this.filledObject = src.getFilledObject();
 		this.secured = src.secured;
@@ -145,7 +142,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		String newMappingPath = pathPrefix + "[" + index + "]" + src.path.substring(pathPrefix.length());
 		this.path = newMappingPath;
 		this.dataClass = src.dataClass;
-		this.formId = src.formId;
 		this.instantiator = src.instantiator;
 		this.filledObject = src.filledObject;
 		this.secured = src.secured;
@@ -177,7 +173,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.userDefinedConfig = true;
 		this.path = src.path;
 		this.dataClass = src.dataClass;
-		this.formId = src.formId;
 		this.instantiator = src.instantiator;
 		if (this.dataClass == null) throw new IllegalStateException("data class must be filled before configuring fields");
 		this.fields = configuredFields(src.fields, config);
@@ -262,56 +257,54 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, Locale locale, Class<?>... validationGroups) {
 		return bind(paramsProvider, locale, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups) {
 		return bind(paramsProvider, locale, (T)null, ctx, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, Class<?>... validationGroups) {
 		return bind(paramsProvider, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, RequestContext ctx, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups) {
 		return bind(paramsProvider, getDefaultLocale(), ctx, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, T instance, Class<?>... validationGroups) {
 		return bind(paramsProvider, instance, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups) {
 		return bind(paramsProvider, getDefaultLocale(), instance, ctx, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
 		return bind(paramsProvider, locale, instance, (RequestContext)null, validationGroups);
 	}
 
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups) {
 		if (paramsProvider == null) throw new IllegalArgumentException("paramsProvider cannot be null");
-		if (ctx == null && paramsProvider instanceof HttpServletRequestParams) {
-			// fallback to ctx retrieved from HttpServletRequestParams, so the user need not to specify ctx explicitly for bind method
-			ctx = ((HttpServletRequestParams)paramsProvider).getRequestContext();
+		if (ctx == null && paramsProvider instanceof ServletRequestParams) {
+			// fallback to ctx retrieved from ServletRequestParams, so the user need not to specify ctx explicitly for bind method
+			ctx = ((ServletRequestParams)paramsProvider).getRequestContext();
 		}
-		
-		verifyAuthTokenIfSecured(paramsProvider, ctx, false);
 		
 		final RequestProcessingError error = paramsProvider.getRequestError();
 		Map<String, BoundValuesInfo> values = prepareValuesToBindForFields(paramsProvider, locale);
 		
 		// binding (and validating) data from paramsProvider to objects for nested mappings
 		// and adding it to available values to bind
-		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, validationGroups);
+		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, ctx, validationGroups);
 		for (Map.Entry<String, FormData<?>> e : nestedFormData.entrySet()) {
 			values.put(e.getKey(), BoundValuesInfo.getInstance(
 				new Object[] { e.getValue().getData() } , 
@@ -319,6 +312,9 @@ class BasicFormMapping<T> implements FormMapping<T> {
 				(Formatter<Object>)null,
 				locale));
 		}
+		
+		// Must be executed after processing of nested mappings
+		verifyAuthTokenIfSecured(paramsProvider, ctx, false);
 		
 		// binding data from "values" to resulting object for this mapping
 		Instantiator<T> instantiator = this.instantiator;
@@ -457,9 +453,16 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return this.required;
 	}
 	
-	void verifyAuthTokenIfSecured(ParamsProvider paramsProvider, RequestContext ctx, boolean listMapping) {
-		if (isRootMapping() && this.secured) {
-			if (listMapping) {
+	/**
+	 * Verification of authorization token. Must be called after the verification is done on nested
+	 * mappings.
+	 * @param paramsProvider
+	 * @param ctx
+	 * @param listMapping
+	 */
+	void verifyAuthTokenIfSecured(RequestParams paramsProvider, RequestContext ctx, boolean listMapping) {
+		if (this.secured) {
+			if (isRootMapping() && listMapping) {
 				throw new UnsupportedOperationException("Verification of authorization token is not supported "
 					+ "in root list mapping. Please create SINGLE root mapping with nested list mapping.");
 			}
@@ -468,7 +471,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 					"defined as secured. Please specify not null context in bind method.");
 			}
 			String token = "";
-			String value = paramsProvider.getParamValue(this.path + Forms.PATH_SEP + Forms.AUTH_TOKEN_FIELD_NAME);
+			String value = paramsProvider.getParamValue(getRootMappingPath() + Forms.PATH_SEP + Forms.AUTH_TOKEN_FIELD_NAME);
 			if (value != null) {
 				token = value;
 			}
@@ -476,7 +479,13 @@ class BasicFormMapping<T> implements FormMapping<T> {
 				throw new TokenMissingException("Unauthorized attempt. Authorization token is missing! It should be posted as " + Forms.AUTH_TOKEN_FIELD_NAME + 
 					" field. Maybe this is blocked CSRF attempt or the required field with token is not rendered in the form correctly.");
 			}
-			String genSecret = ctx.getUserRelatedStorage().getAndDelete(this.formId);
+			String secretKey = getRootMappingSecretKey();
+			String genSecret = ctx.getUserRelatedStorage().get(secretKey);
+			if (isRootMapping()) {
+				// At the end, when the whole form is submitted and data bind,
+				// secret for token validation held on the server side is deleted
+				ctx.getUserRelatedStorage().delete(secretKey);
+			}
 			String secret = ctx.getRequestSecret(genSecret);
 			// InvalidTokenException is thrown for invalid token
 			this.config.getTokenAuthorizer().validateToken(token, secret);
@@ -494,9 +503,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	
 	Map<String, FormData<?>> loadDataForMappings(
 		Map<String, FormMapping<?>> mappings, 
-		ParamsProvider paramsProvider,
+		RequestParams paramsProvider,
 		Locale locale,
 		T instance,
+		RequestContext ctx,
 		Class<?> ... validationGroups) {
 		final Map<String, FormData<Object>> dataMap = new LinkedHashMap<String, FormData<Object>>();
 		// Transformation from ? to Object (to satisfy generics)
@@ -509,7 +519,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			if (instance != null) {
 				nestedInstance = nestedData(e.getKey(), instance); 
 			}
-			dataMap.put(e.getKey(), e.getValue().bind(paramsProvider, locale, nestedInstance, validationGroups));
+			dataMap.put(e.getKey(), e.getValue().bind(paramsProvider, locale, nestedInstance, ctx, validationGroups));
 		}
 		// Transformation from Object to ? (to satisfy generics)
 		final Map<String, FormData<?>> outputData = new LinkedHashMap<String, FormData<?>>();
@@ -520,7 +530,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
-		Map<String, FormMapping<?>> newNestedMappings = fillNestedMappings(editedObj, locale);
+		Map<String, FormMapping<?>> newNestedMappings = fillNestedMappings(editedObj, locale, ctx);
 		
 		// Preparing values for this mapping
 		Map<String, Object> propValues = gatherPropertyValues(editedObj.getData(), getAllowedProperties(fields), ctx);
@@ -556,7 +566,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 					"defined as secured. Please specify not null context in fill method.");
 			}
 			String genSecret = generateSecret();
-			ctx.getUserRelatedStorage().set(this.formId, genSecret);
+			ctx.getUserRelatedStorage().set(getRootMappingSecretKey(), genSecret);
 			String secret = ctx.getRequestSecret(genSecret);
 			String token = this.config.getTokenAuthorizer().generateToken(secret);
 			propValues.put(Forms.AUTH_TOKEN_FIELD_NAME, token);
@@ -569,6 +579,19 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	
 	boolean isRootMapping() {
 		return !this.path.contains(Forms.PATH_SEP);
+	}
+	
+	String getRootMappingPath() {
+		String p = this.path;
+		int idxOfSep = p.indexOf(Forms.PATH_SEP);
+		if (idxOfSep >= 0) {
+			p = p.substring(0, idxOfSep);
+		}
+		return p;
+	}
+	
+	String getRootMappingSecretKey() {
+		return "formio_secret_" + getRootMappingPath();
 	}
 
 	Map<String, FormField> fillFields(Map<String, Object> propValues, int indexInList, Locale locale) {
@@ -598,7 +621,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return filledFields;
 	}
 
-	Map<String, FormMapping<?>> fillNestedMappings(FormData<T> editedObj, Locale locale) {
+	Map<String, FormMapping<?>> fillNestedMappings(FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		// For each definition of nested mapping, fill this mapping with edited data -> filled mapping
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
@@ -606,7 +629,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			Object data = nestedData(e.getKey(), editedObj.getData());
 			FormData formData = new FormData<Object>(data, editedObj.getValidationResult()); // the outer report is propagated to nested
 			FormMapping newMapping = e.getValue();
-			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale));
+			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale, ctx));
 		}
 		return newNestedMappings;
 	}
@@ -669,7 +692,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return values;
 	}
 
-	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(ParamsProvider paramsProvider, Locale locale) {
+	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(RequestParams paramsProvider, Locale locale) {
 		Map<String, BoundValuesInfo> values = new HashMap<String, BoundValuesInfo>();
 		// Get values for each defined field
 		for (Map.Entry<String, FormField> e : fields.entrySet()) {

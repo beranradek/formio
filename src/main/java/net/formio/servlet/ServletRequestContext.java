@@ -25,12 +25,12 @@ import net.formio.data.UserRelatedStorage;
  * Implementation of {@link RequestContext} for servlet API.
  * @author Radek Beran
  */
-public class RequestCtx implements RequestContext {
+public class ServletRequestContext implements RequestContext {
 	
 	public static final String SEPARATOR = "_";
 	private final HttpServletRequest request;
 	
-	public RequestCtx(HttpServletRequest request) {
+	public ServletRequestContext(HttpServletRequest request) {
 		if (request == null) throw new IllegalArgumentException("request cannot be null");
 		this.request = request;
 	}

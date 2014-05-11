@@ -23,7 +23,7 @@ import net.formio.upload.UploadedFile;
  * Provides values for request parameters.
  * @author Radek Beran
  */
-public interface ParamsProvider {
+public interface RequestParams {
 	
 	/**
 	 * Returns names of all params available in the request (also params with uploaded files).

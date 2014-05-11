@@ -108,10 +108,10 @@ public interface FormMapping<T> {
 	 */
 	FormMapping<T> fill(FormData<T> formData);
 	
-	FormData<T> bind(ParamsProvider paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups);
-	FormData<T> bind(ParamsProvider paramsProvider, RequestContext ctx, Class<?>... validationGroups);
-	FormData<T> bind(ParamsProvider paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups);
-	FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups);
 	
 	/**
 	 * Binds and validates data from the form.
@@ -122,7 +122,7 @@ public interface FormMapping<T> {
 	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
 	 * @return
 	 */
-	FormData<T> bind(ParamsProvider paramsProvider, Locale locale, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Locale locale, Class<?>... validationGroups);
 	
 	/**
 	 * Binds and validates data from the form. Default locale is used.
@@ -132,7 +132,7 @@ public interface FormMapping<T> {
 	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
 	 * @return
 	 */
-	FormData<T> bind(ParamsProvider paramsProvider, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Class<?>... validationGroups);
 	
 	/**
 	 * Binds and validates data from the form.
@@ -144,7 +144,7 @@ public interface FormMapping<T> {
 	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
 	 * @return
 	 */
-	FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, Class<?>... validationGroups);
 	
 	/**
 	 * Binds and validates data from the form. Default locale is used.
@@ -155,7 +155,7 @@ public interface FormMapping<T> {
 	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
 	 * @return
 	 */
-	FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, T instance, Class<?>... validationGroups);
 	
 	/**
 	 * Returns result with validation messages, {@code null} if form data was not validated yet.

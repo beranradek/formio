@@ -27,7 +27,7 @@ import net.formio.upload.UploadedFile;
  * Simulates input from the user.
  * @author Radek Beran
  */
-public class MapParamsProvider implements ParamsProvider {
+public class MapParamsProvider implements RequestParams {
 	
 	private final Map<String, String[]> params;
 	private final Map<String, UploadedFile[]> files;

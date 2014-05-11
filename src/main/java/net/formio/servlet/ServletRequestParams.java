@@ -21,21 +21,21 @@ import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.formio.ParamsProvider;
+import net.formio.RequestParams;
 import net.formio.data.RequestContext;
 import net.formio.upload.FileUploadWrapper;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
 
 /**
- * Implementation of {@link ParamsProvider} for servlet request that
+ * Implementation of {@link RequestParams} for servlet request that
  * uses commons-fileupload library for uploading files. If this implementation
- * of {@link ParamsProvider} is used, servlet-api and commons-fileupload
+ * of {@link RequestParams} is used, servlet-api and commons-fileupload
  * libraries must be available in the classpath, otherwise they can be omitted.
  * 
  * @author Radek Beran
  */
-public class HttpServletRequestParams implements ParamsProvider {
+public class ServletRequestParams implements RequestParams {
 
 	/** Max. size per single file */
 	private static final int SINGLE_FILE_SIZE_MAX = 5242880; // 5 MB
@@ -56,7 +56,7 @@ public class HttpServletRequestParams implements ParamsProvider {
 	 * @param totalSizeMax maximum allowed size of the whole request in bytes
 	 * @param singleFileSizeMax maximum allowed size of a single uploaded file
 	 */
-	public HttpServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
+	public ServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
 		if (request == null) throw new IllegalArgumentException("request cannot be null");
 		String ctype = request.getHeader("Content-Type");
 		HttpServletRequest r = null;
@@ -72,19 +72,19 @@ public class HttpServletRequestParams implements ParamsProvider {
 		this.request = r;
 	}
 	
-	public HttpServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax) {
+	public ServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax) {
 		this(request, defaultEncoding, tempDir, sizeThreshold, totalSizeMax, SINGLE_FILE_SIZE_MAX);
 	}
 	
-	public HttpServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold) {
+	public ServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold) {
 		this(request, defaultEncoding, tempDir, sizeThreshold, TOTAL_SIZE_MAX);
 	}
 	
-	public HttpServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir) {
+	public ServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir) {
 		this(request, defaultEncoding, tempDir, SIZE_THRESHOLD);
 	}
 	
-	public HttpServletRequestParams(HttpServletRequest request) {
+	public ServletRequestParams(HttpServletRequest request) {
 		this(request, DEFAULT_ENCODING, new File(System.getProperty("java.io.tmpdir")));
 	}
 	
@@ -141,7 +141,7 @@ public class HttpServletRequestParams implements ParamsProvider {
 	 * @return request context
 	 */
 	public RequestContext getRequestContext() {
-		return new RequestCtx(this.request);
+		return new ServletRequestContext(this.request);
 	}
 	
 }

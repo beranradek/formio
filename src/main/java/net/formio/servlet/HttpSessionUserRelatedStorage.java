@@ -18,14 +18,13 @@ package net.formio.servlet;
 
 import javax.servlet.http.HttpSession;
 
-import net.formio.data.AbstractUserRelatedStorage;
 import net.formio.data.UserRelatedStorage;
 
 /**
  * Implementation of {@link UserRelatedStorage} using HTTP session.
  * @author Radek Beran
  */
-public class HttpSessionUserRelatedStorage extends AbstractUserRelatedStorage {
+public class HttpSessionUserRelatedStorage implements UserRelatedStorage {
 	
 	private final HttpSession session;
 	

@@ -39,14 +39,6 @@ public interface UserRelatedStorage {
 	String get(String key);
 	
 	/**
-	 * Returns the value for given key or {@code null}.
-	 * Deletes the value from the storage when it was found.
-	 * @param key
-	 * @return
-	 */
-	String getAndDelete(String key);
-	
-	/**
 	 * Deletes the value with given key.
 	 * @param key
 	 * @return true if the value for given key was found

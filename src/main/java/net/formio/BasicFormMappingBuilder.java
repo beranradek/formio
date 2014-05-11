@@ -289,12 +289,24 @@ public class BasicFormMappingBuilder<T> {
 								if (itemClass == null) 
 									throw new IllegalStateException("Cannot resolve item type of collection type of property " + 
 										propertyName + " in class " + this.dataClass.getName());
-								this.nested(Forms.automatic(itemClass, propertyName, null, MappingType.LIST).build(config));
+								BasicFormMapping<?> mapping = null;
+								if (this.secured) {
+									mapping = Forms.automaticSecured(itemClass, propertyName, null, MappingType.LIST).build(config);
+								} else {
+									mapping = Forms.automatic(itemClass, propertyName, null, MappingType.LIST).build(config);
+								}
+								this.nested(mapping);
 							}
 						} else {
 							// some complex or unknown type
 							assertValidComplexTypeProperty(propertyType, propertyName);
-							this.nested(Forms.automatic(propertyType, propertyName).build(config));
+							BasicFormMapping<?> mapping = null;
+							if (this.secured) {
+								mapping = Forms.automaticSecured(propertyType, propertyName).build(config);
+							} else {
+								mapping = Forms.automatic(propertyType, propertyName).build(config);
+							}
+							this.nested(mapping);
 						}
 					}
 				}

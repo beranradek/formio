@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.formio.data.RequestContext;
-import net.formio.servlet.HttpServletRequestParams;
+import net.formio.servlet.ServletRequestParams;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
 
@@ -83,28 +83,26 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, Class<?> ... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, Locale locale, Class<?> ... validationGroups) {
 		return bind(paramsProvider, locale, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, RequestContext ctx, Class<?> ... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?> ... validationGroups) {
 		return bind(paramsProvider, locale, (T)null, ctx, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
+	public FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
 		return bind(paramsProvider, locale, instance, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups) {
-		if (ctx == null && paramsProvider instanceof HttpServletRequestParams) {
-			// fallback to ctx retrieved from HttpServletRequestParams, so the user need not to specify ctx explicitly for bind method
-			ctx = ((HttpServletRequestParams)paramsProvider).getRequestContext();
+	public FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups) {
+		if (ctx == null && paramsProvider instanceof ServletRequestParams) {
+			// fallback to ctx retrieved from ServletRequestParams, so the user need not to specify ctx explicitly for bind method
+			ctx = ((ServletRequestParams)paramsProvider).getRequestContext();
 		}
-		
-		verifyAuthTokenIfSecured(paramsProvider, ctx, true);
 		
 		// Finding how many parameters are in the request - check for max. index available in request params name, 
 		// according to this mapping path
@@ -158,11 +156,14 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			if (instance instanceof List && index < ((List<T>)instance).size()) {
 				instanceForIndex = ((List<T>)instance).get(index);
 			}
-			FormData<T> formData = m.bind(paramsProvider, locale, instanceForIndex, validationGroups);
+			FormData<T> formData = m.bind(paramsProvider, locale, instanceForIndex, ctx, validationGroups);
 			data.add(formData.getData());
 			fieldMsgs.putAll(formData.getValidationResult().getFieldMessages());
 			globalMsgs.addAll(formData.getValidationResult().getGlobalMessages());
 		}
+		
+		// Must be executed after processing of nested mappings
+		verifyAuthTokenIfSecured(paramsProvider, ctx, true);
 		
 		ValidationResult validationRes = new ValidationResult(fieldMsgs, globalMsgs);
 		FormData<List<T>> formData = new FormData<List<T>>(data, validationRes);
@@ -190,7 +191,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
 			
 			// Create filled nested mappings for current list index (data at current index)
-			Map<String, FormMapping<?>> newNestedMappings = indexAndFillNestedMappings(index, formDataAtIndex, locale);
+			Map<String, FormMapping<?>> newNestedMappings = indexAndFillNestedMappings(index, formDataAtIndex, locale, ctx);
 			
 			// Prepare values for mapping that is constructed for current list index.
 			// Previously created filled nested mappings will be assigned to mapping for current list index.
@@ -260,7 +261,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		return new BasicListFormMapping<T>(this, config, required);
 	}
 	
-	Map<String, FormMapping<?>> indexAndFillNestedMappings(int index, FormData<T> editedObj, Locale locale) {
+	Map<String, FormMapping<?>> indexAndFillNestedMappings(int index, FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
 			// nested data - nested object or list of nested objects in case of mapping to list
@@ -272,7 +273,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			// We need take path of this mapping (without index) (registration-collegues),
 			// add the index to it and add the rest of current path (-regDate)
 			FormMapping newMapping = e.getValue().withIndexAfterPathPrefix(index, this.path);
-			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale));
+			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale, ctx));
 		}
 		return newNestedMappings;
 	}
