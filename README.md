@@ -12,6 +12,7 @@
 * Non-invasive, easy integration with frameworks, minimum dependencies.
 * Usable with various template frameworks, in environments with or without servlets.
 * Simply unit testable forms.
+* Protection of forms against CSRF attacks.
 * Inspired mainly by well-designed Play framework.
 
 ## Available in Maven Central
@@ -43,7 +44,7 @@ FormMapping<Person> filledForm = personForm.fill(formData);
 
 **3) Bind data edited by user back into an object:**
  ```java
-FormData<Person> formData = personForm.bind(new HttpServletRequestParams(request));
+FormData<Person> formData = personForm.bind(new ServletRequestParams(request));
 if (formData.isValid()) {
   // save the person: formData.getData()
 } else {
