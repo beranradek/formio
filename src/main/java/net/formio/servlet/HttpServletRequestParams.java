@@ -22,6 +22,7 @@ import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 
 import net.formio.ParamsProvider;
+import net.formio.data.RequestContext;
 import net.formio.upload.FileUploadWrapper;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
@@ -133,6 +134,14 @@ public class HttpServletRequestParams implements ParamsProvider {
 	@Override
 	public RequestProcessingError getRequestError() {
 		return error;
+	}
+	
+	/**
+	 * Convenience method for constructing a {@link RequestContext}.
+	 * @return request context
+	 */
+	public RequestContext getRequestContext() {
+		return new RequestCtx(this.request);
 	}
 	
 }

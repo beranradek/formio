@@ -29,11 +29,14 @@ Formio Pros:
 Formio Cons:
   * Can be redundant when already working in Spring environment or other frameworks with very good forms support.
   
+Another form libraries:
+https://code.google.com/p/jpaperwork/
 http://en.wikipedia.org/wiki/FormEngine
 http://cocoon.apache.org/2.1/userdocs/basics/
 http://www.devsphere.com/mapping/docs/guide/formspec.html
 http://jreform.sourceforge.net/
 http://en.wikibooks.org/wiki/Java_Web_Application_Development_With_Click_Framework/Introduction#Simple_Form_Example
+http://blog.trifork.com/2014/03/20/web-forms-with-java-angularjs-and-other-approaches/
 
 Immutable vs. mutable objects:
   * http://programmers.stackexchange.com/questions/151733/if-immutable-objects-are-good-why-do-people-keep-creating-mutable-objects

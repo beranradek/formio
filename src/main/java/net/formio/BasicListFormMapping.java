@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.formio.data.RequestContext;
+import net.formio.servlet.HttpServletRequestParams;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
 
@@ -81,7 +83,29 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, Class<?> ... validationGroups) {
+		return bind(paramsProvider, locale, (RequestContext)null, validationGroups);
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, RequestContext ctx, Class<?> ... validationGroups) {
+		return bind(paramsProvider, locale, (T)null, ctx, validationGroups);
+	}
+	
+	@Override
 	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
+		return bind(paramsProvider, locale, instance, (RequestContext)null, validationGroups);
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups) {
+		if (ctx == null && paramsProvider instanceof HttpServletRequestParams) {
+			// fallback to ctx retrieved from HttpServletRequestParams, so the user need not to specify ctx explicitly for bind method
+			ctx = ((HttpServletRequestParams)paramsProvider).getRequestContext();
+		}
+		
+		verifyAuthTokenIfSecured(paramsProvider, ctx, true);
+		
 		// Finding how many parameters are in the request - check for max. index available in request params name, 
 		// according to this mapping path
 		int maxIndex = findMaxIndex(paramsProvider.getParamNames());
@@ -93,8 +117,15 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		for (int index = 0; index <= maxIndex; index++) {
 			String indexedPath = getIndexedPath(index);
 			// constructing single mapping for index:
-			BasicFormMappingBuilder<T> builder = Forms.basic(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
-				.fields(getFieldsWithIndex(index)); // fields with indexed names
+			final Map<String, FormField> formFields = getFieldsWithIndex(index); // fields with indexed names
+			BasicFormMappingBuilder<T> builder = null;
+			if (this.secured) {
+				builder = Forms.basicSecured(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
+					.fields(formFields);
+			} else {
+				builder = Forms.basic(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
+					.fields(formFields);
+			}
 			
 			// Nested mappings must have index appended to their path (and to their fields)
 			Map<String, FormMapping<?>> nestedForIndex = new LinkedHashMap<String, FormMapping<?>>();
@@ -139,11 +170,6 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		return (FormData<T>)formData;
 	}
 	
-	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, Class<?> ... validationGroups) {
-		return bind(paramsProvider, locale, (T)null, validationGroups);
-	}
-	
 	Map<String, FormField> getFieldsWithIndex(int index) {
 		Map<String, FormField> flds = new LinkedHashMap<String, FormField>();
 		for (Map.Entry<String, FormField> e : fields.entrySet()) {
@@ -156,7 +182,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale) {
+	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		List<FormMapping<T>> newMappings = new ArrayList<FormMapping<T>>();
 		Set<String> allowedProps = getAllowedProperties(this.fields);
 		int index = 0;
@@ -168,7 +194,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			
 			// Prepare values for mapping that is constructed for current list index.
 			// Previously created filled nested mappings will be assigned to mapping for current list index.
-			Map<String, Object> propValues = this.getConfig().getBeanExtractor().extractBean(dataAtIndex, allowedProps);
+			Map<String, Object> propValues = gatherPropertyValues(dataAtIndex, allowedProps, ctx);
 			
 			// Fill the fields of this mapping with prepared values for current list index
 			Map<String, FormField> filledFields = fillFields(propValues, index, locale);
@@ -176,8 +202,15 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			// Returning copy of this mapping (for current index) that is filled with form data,
 			// but with single mapping type (for an index) and now without list mappings
 			String indexedPath = getIndexedPath(index);
-			BasicFormMappingBuilder<T> builder = Forms.basic(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
-				.fields(filledFields);
+			BasicFormMappingBuilder<T> builder = null;
+			if (this.secured) {
+				builder = Forms.basicSecured(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
+					.fields(filledFields);
+			} else {
+				builder = Forms.basic(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
+					.fields(filledFields);
+			}
+			
 			builder.nested = newNestedMappings;
 			builder.validationResult = formDataAtIndex.getValidationResult();
 			builder.filledObject = formDataAtIndex.getData();
@@ -187,13 +220,19 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			index++;
 		}
 		// unindexed fields (that are only recipes for indexed fields) will not be part of filled form
-		// as well as unindexed nested mappings -> empty maps are used: 
-		BasicFormMappingBuilder<T> builder = Forms.basic(getDataClass(), this.path, getInstantiator(), MappingType.LIST)
-			.fields(Collections.unmodifiableMap(Collections.<String, FormField>emptyMap()));
-			builder.nested = Collections.unmodifiableMap(Collections.<String, FormMapping<?>>emptyMap());
-			builder.validationResult = editedObj.getValidationResult();
-			builder.listOfMappings = newMappings;
-			builder.filledObject = editedObj.getData();
+		// as well as unindexed nested mappings -> empty maps are used:
+		Map<String, FormField> emptyFields = Collections.unmodifiableMap(Collections.<String, FormField>emptyMap());
+		BasicFormMappingBuilder<T> builder = null;
+		if (this.secured) {
+			builder = Forms.basicSecured(getDataClass(), this.path, getInstantiator(), MappingType.LIST).fields(emptyFields);
+		} else {
+			builder = Forms.basic(getDataClass(), this.path, getInstantiator(), MappingType.LIST).fields(emptyFields);
+		}
+		
+		builder.nested = Collections.unmodifiableMap(Collections.<String, FormMapping<?>>emptyMap());
+		builder.validationResult = editedObj.getValidationResult();
+		builder.listOfMappings = newMappings;
+		builder.filledObject = editedObj.getData();
 		return builder;
 	}
 	

@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import net.formio.Forms;
 import net.formio.binding.collection.BasicCollectionBuilders;
 import net.formio.binding.collection.CollectionBuilders;
 import net.formio.binding.collection.CollectionSpec;
@@ -291,7 +292,7 @@ public class DefaultBinder implements Binder {
 		}
 		// client-provided instance need not to use all the values from the form,
 		// because it can have constructor arguments already set to some different values
-		if (!clientProvidedInstance && !propertySet) {
+		if (!clientProvidedInstance && !Forms.AUTH_TOKEN_FIELD_NAME.equals(propertyName) && !propertySet) {
 			throw new BindingException("Setter for property " + propertyName
 					+ " was not found in " + obj.getClass().getSimpleName());
 		}

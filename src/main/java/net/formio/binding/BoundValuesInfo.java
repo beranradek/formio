@@ -52,6 +52,14 @@ public final class BoundValuesInfo {
 	public Object[] getValues() {
 		return values != null ? values.clone() : null;
 	}
+	
+	public Object getValue() {
+		Object value = null;
+		if (values != null && values.length > 0) {
+			value = values[0];
+		}
+		return value;
+	}
 
 	/**
 	 * Pattern for parsing a String value to target value. 

@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.validation.groups.Default;
 
 import net.formio.binding.Instantiator;
+import net.formio.data.RequestContext;
 import net.formio.validation.ValidationResult;
 
 /**
@@ -75,10 +76,29 @@ public interface FormMapping<T> {
 	 * Fills form with values from given object and returns new filled form
 	 * that can be populated to the template. 
 	 * @param formData object that holds data for the form and initial validation messages/report
+	 * @param locale locale for converting values to strings
+	 * @param ctx context of the request required for security features
+	 * @return
+	 */
+	FormMapping<T> fill(FormData<T> formData, Locale locale, RequestContext ctx);
+	
+	/**
+	 * Fills form with values from given object and returns new filled form
+	 * that can be populated to the template. 
+	 * @param formData object that holds data for the form and initial validation messages/report
 	 * @param locale locale for converting values to strings 
 	 * @return
 	 */
 	FormMapping<T> fill(FormData<T> formData, Locale locale);
+	
+	/**
+	 * Fills form with values from given object and returns new filled form
+	 * that can be populated to the template. 
+	 * @param formData object that holds data for the form and initial validation messages/report
+	 * @param ctx context of the request required for security features
+	 * @return
+	 */
+	FormMapping<T> fill(FormData<T> formData, RequestContext ctx);
 	
 	/**
 	 * Fills form with values from given object and returns new filled form
@@ -87,6 +107,11 @@ public interface FormMapping<T> {
 	 * @return
 	 */
 	FormMapping<T> fill(FormData<T> formData);
+	
+	FormData<T> bind(ParamsProvider paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(ParamsProvider paramsProvider, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(ParamsProvider paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups);
 	
 	/**
 	 * Binds and validates data from the form.

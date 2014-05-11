@@ -31,6 +31,8 @@ import net.formio.binding.collection.BasicCollectionBuilders;
 import net.formio.binding.collection.CollectionBuilders;
 import net.formio.format.BasicFormatters;
 import net.formio.format.Formatters;
+import net.formio.security.HashTokenAuthorizer;
+import net.formio.security.TokenAuthorizer;
 import net.formio.validation.BeanValidator;
 import net.formio.validation.ValidationApiBeanValidator;
 
@@ -48,6 +50,7 @@ public class Config {
 	private final BeanExtractor beanExtractor;
 	private final Binder binder;
 	private final BeanValidator beanValidator;
+	private final TokenAuthorizer tokenAuthorizer;
 	private final boolean inputTrimmed;
 	private final PropertyMethodRegex accessorRegex;
 	private final PropertyMethodRegex setterRegex;
@@ -61,6 +64,7 @@ public class Config {
 		this.beanExtractor = builder.beanExtractor;
 		this.binder = builder.binder;
 		this.beanValidator = builder.beanValidator;
+		this.tokenAuthorizer = builder.tokenAuthorizer;
 		this.inputTrimmed = builder.inputTrimmed;
 		this.accessorRegex = builder.accessorRegex;
 		this.setterRegex = builder.setterRegex;
@@ -78,6 +82,7 @@ public class Config {
 		BeanExtractor beanExtractor;
 		Binder binder;
 		BeanValidator beanValidator;
+		TokenAuthorizer tokenAuthorizer;
 		boolean extractorSpecified;
 		boolean binderSpecified;
 		boolean validatorSpecified;
@@ -143,6 +148,11 @@ public class Config {
 			return this;
 		}
 		
+		public Builder tokenAuthorizer(TokenAuthorizer tokenAuthorizer) {
+			this.tokenAuthorizer = tokenAuthorizer;
+			return this;
+		}
+		
 		public Builder inputTrimmed(boolean inputTrimmed) {
 			this.inputTrimmed = inputTrimmed;
 			return this;
@@ -159,6 +169,7 @@ public class Config {
 			if (this.beanExtractor == null) this.beanExtractor = defaultBeanExtractor(this.accessorRegex);
 			if (this.binder == null) this.binder = new DefaultBinder(this.formatters, this.collectionBuilders, this.argumentNameResolver, this.setterRegex);
 			if (this.beanValidator == null) this.beanValidator = new ValidationApiBeanValidator(Validation.buildDefaultValidatorFactory(), this.messageBundleName);
+			if (this.tokenAuthorizer == null) this.tokenAuthorizer = DEFAULT_TOKEN_AUTHORIZER;
 			
 			Config cfg = new Config(this);
 			if (cfg.getLocale() == null) throw new IllegalStateException("locale cannot be null");
@@ -169,6 +180,7 @@ public class Config {
 			if (cfg.getBeanExtractor() == null) throw new IllegalStateException("beanExtractor cannot be null");
 			if (cfg.getBinder() == null) throw new IllegalStateException("binder cannot be null");
 			if (cfg.getBeanValidator() == null) throw new IllegalStateException("beanValidator cannot be null");
+			if (cfg.getTokenAuthorizer() == null) throw new IllegalStateException("tokenAuthorizer cannot be null");
 			if (cfg.getAccessorRegex() == null) throw new IllegalStateException("accessorRegex cannot be null");
 			return cfg;
 		}
@@ -178,6 +190,7 @@ public class Config {
 		private static final String DEFAULT_MESSAGE_BUNDLE_NAME = "ValidationMessages";
 		private static final CollectionBuilders DEFAULT_COLLECTION_BUILDERS = new BasicCollectionBuilders();
 		private static final ArgumentNameResolver DEFAULT_ARGUMENT_NAME_RESOLVER = new AnnotationArgumentNameResolver();
+		private static final TokenAuthorizer DEFAULT_TOKEN_AUTHORIZER = new HashTokenAuthorizer();
 		private static BeanExtractor defaultBeanExtractor(PropertyMethodRegex accessorRegex) {
 			return new DefaultBeanExtractor(accessorRegex);
 		}
@@ -213,6 +226,10 @@ public class Config {
 
 	public BeanValidator getBeanValidator() {
 		return beanValidator;
+	}
+	
+	public TokenAuthorizer getTokenAuthorizer() {
+		return tokenAuthorizer;
 	}
 
 	/**

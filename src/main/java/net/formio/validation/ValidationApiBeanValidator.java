@@ -99,6 +99,9 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	
 	@Override
 	public boolean isRequired(Class<?> cls, String propertyName) {
+		if (propertyName.equals(Forms.AUTH_TOKEN_FIELD_NAME)) {
+			return false; // handled specially
+		}
 		boolean required = false;
 		try {
 			final Field fld = cls.getDeclaredField(propertyName);

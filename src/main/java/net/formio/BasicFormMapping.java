@@ -27,11 +27,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import net.formio.binding.ArrayUtils;
 import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.FilledData;
 import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
+import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
+import net.formio.security.PasswordGenerator;
+import net.formio.security.TokenMissingException;
+import net.formio.servlet.HttpServletRequestParams;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ConstraintViolationMessage;
@@ -46,6 +51,7 @@ import net.formio.validation.ValidationResult;
  */
 class BasicFormMapping<T> implements FormMapping<T> {
 
+	static final String ALLOWED_TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_@#$%^&*";
 	final String path;
 	final Class<T> dataClass;
 	final Instantiator<T> instantiator;
@@ -59,6 +65,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	final Map<String, FormMapping<?>> nested;
 	final ValidationResult validationResult;
 	final boolean required;
+	final boolean secured;
+	final String formId;
 
 	/**
 	 * Construct the mapping from given builder.
@@ -70,8 +78,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.userDefinedConfig = builder.userDefinedConfig;
 		this.path = builder.path;
 		this.dataClass = builder.dataClass;
+		this.formId = builder.path + "-" + builder.dataClass.getSimpleName();
 		this.instantiator = builder.instantiator;
 		this.filledObject = builder.filledObject;
+		this.secured = builder.secured;
 		if (this.dataClass == null) throw new IllegalStateException("data class must be filled before configuring fields");
 		this.fields = configuredFields(builder.fields, builder.config);
 		this.validationResult = builder.validationResult;
@@ -92,7 +102,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @param src
 	 * @param pathPrefix
 	 */
-	BasicFormMapping(FormMapping<T> src, String pathPrefix) {
+	BasicFormMapping(BasicFormMapping<T> src, String pathPrefix) {
 		if (pathPrefix == null) throw new IllegalArgumentException("pathPrefix cannot be null");
 		this.config = src.getConfig();
 		this.userDefinedConfig = src.isUserDefinedConfig();
@@ -104,8 +114,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		}
 		this.path = newMappingPath;
 		this.dataClass = src.getDataClass();
+		this.formId = src.formId;
 		this.instantiator = src.getInstantiator();
 		this.filledObject = src.getFilledObject();
+		this.secured = src.secured;
 		Map<String, FormField> newFields = new LinkedHashMap<String, FormField>();
 		for (Map.Entry<String, FormField> e : src.getFields().entrySet()) {
 			// copy of field with given prefix prepended
@@ -121,7 +133,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		}
 		this.nested = Collections.unmodifiableMap(newNestedMappings);
 		this.validationResult = src.getValidationResult();
-		this.required = src.isRequired();
+		this.required = src.required;
 	}
 	
 	BasicFormMapping(BasicFormMapping<T> src, int index, String pathPrefix) {
@@ -133,8 +145,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		String newMappingPath = pathPrefix + "[" + index + "]" + src.path.substring(pathPrefix.length());
 		this.path = newMappingPath;
 		this.dataClass = src.dataClass;
+		this.formId = src.formId;
 		this.instantiator = src.instantiator;
 		this.filledObject = src.filledObject;
+		this.secured = src.secured;
 		Map<String, FormField> newFields = new LinkedHashMap<String, FormField>();
 		for (Map.Entry<String, FormField> e : src.fields.entrySet()) {
 			// copy of field with given prefix prepended
@@ -163,11 +177,13 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.userDefinedConfig = true;
 		this.path = src.path;
 		this.dataClass = src.dataClass;
+		this.formId = src.formId;
 		this.instantiator = src.instantiator;
 		if (this.dataClass == null) throw new IllegalStateException("data class must be filled before configuring fields");
 		this.fields = configuredFields(src.fields, config);
 		this.validationResult = src.validationResult;
 		this.filledObject = src.filledObject;
+		this.secured = src.secured;
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		for (Map.Entry<String, FormMapping<?>> e : src.nested.entrySet()) {
 			Config nestedMappingConfig = chooseConfigForNestedMapping(e.getValue(), config);
@@ -226,8 +242,18 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
+	public BasicFormMapping<T> fill(FormData<T> editedObj, Locale locale, RequestContext ctx) {
+		return fillInternal(editedObj, locale, ctx).build(this.getConfig());
+	}
+	
+	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj, Locale locale) {
-		return fillInternal(editedObj, locale).build(this.getConfig());
+		return fill(editedObj, locale, null);
+	}
+	
+	@Override
+	public BasicFormMapping<T> fill(FormData<T> editedObj, RequestContext ctx) {
+		return fill(editedObj, getDefaultLocale(), ctx);
 	}
 	
 	@Override
@@ -237,17 +263,49 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	
 	@Override
 	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, Class<?>... validationGroups) {
-		return bind(paramsProvider, locale, (T)null, validationGroups);
+		return bind(paramsProvider, locale, (RequestContext)null, validationGroups);
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups) {
+		return bind(paramsProvider, locale, (T)null, ctx, validationGroups);
 	}
 	
 	@Override
 	public FormData<T> bind(ParamsProvider paramsProvider, Class<?>... validationGroups) {
-		return bind(paramsProvider, getDefaultLocale(), validationGroups);
+		return bind(paramsProvider, (RequestContext)null, validationGroups);
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, RequestContext ctx, Class<?>... validationGroups) {
+		return bind(paramsProvider, getDefaultLocale(), ctx, validationGroups);
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups) {
+		return bind(paramsProvider, instance, (RequestContext)null, validationGroups);
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups) {
+		return bind(paramsProvider, getDefaultLocale(), instance, ctx, validationGroups);
+	}
+	
+	@Override
+	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
+		return bind(paramsProvider, locale, instance, (RequestContext)null, validationGroups);
 	}
 
 	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
+	public FormData<T> bind(ParamsProvider paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups) {
 		if (paramsProvider == null) throw new IllegalArgumentException("paramsProvider cannot be null");
+		if (ctx == null && paramsProvider instanceof HttpServletRequestParams) {
+			// fallback to ctx retrieved from HttpServletRequestParams, so the user need not to specify ctx explicitly for bind method
+			ctx = ((HttpServletRequestParams)paramsProvider).getRequestContext();
+		}
+		
+		verifyAuthTokenIfSecured(paramsProvider, ctx, false);
+		
 		final RequestProcessingError error = paramsProvider.getRequestError();
 		Map<String, BoundValuesInfo> values = prepareValuesToBindForFields(paramsProvider, locale);
 		
@@ -255,7 +313,11 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		// and adding it to available values to bind
 		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, validationGroups);
 		for (Map.Entry<String, FormData<?>> e : nestedFormData.entrySet()) {
-			values.put(e.getKey(), BoundValuesInfo.getInstance(new Object[] { e.getValue().getData() } , (String)null, (Formatter<Object>)null, locale));
+			values.put(e.getKey(), BoundValuesInfo.getInstance(
+				new Object[] { e.getValue().getData() } , 
+				(String)null, 
+				(Formatter<Object>)null,
+				locale));
 		}
 		
 		// binding data from "values" to resulting object for this mapping
@@ -288,12 +350,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		}
 		return new FormData<T>(filledObject.getData(), new ValidationResult(fieldMsgs, globalMsgs));
 	}
-	
-	@Override
-	public FormData<T> bind(ParamsProvider paramsProvider, T instance, Class<?>... validationGroups) {
-		return bind(paramsProvider, getDefaultLocale(), instance, validationGroups);
-	}
-	
+
 	@Override
 	public String getLabelKey() {
 		return FormUtils.labelKeyForName(this.path);
@@ -400,6 +457,32 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return this.required;
 	}
 	
+	void verifyAuthTokenIfSecured(ParamsProvider paramsProvider, RequestContext ctx, boolean listMapping) {
+		if (isRootMapping() && this.secured) {
+			if (listMapping) {
+				throw new UnsupportedOperationException("Verification of authorization token is not supported "
+					+ "in root list mapping. Please create SINGLE root mapping with nested list mapping.");
+			}
+			if (ctx == null) {
+				throw new IllegalStateException(RequestContext.class.getSimpleName() + " is required when the form is " + 
+					"defined as secured. Please specify not null context in bind method.");
+			}
+			String token = "";
+			String value = paramsProvider.getParamValue(this.path + Forms.PATH_SEP + Forms.AUTH_TOKEN_FIELD_NAME);
+			if (value != null) {
+				token = value;
+			}
+			if ("".equals(token)) {
+				throw new TokenMissingException("Unauthorized attempt. Authorization token is missing! It should be posted as " + Forms.AUTH_TOKEN_FIELD_NAME + 
+					" field. Maybe this is blocked CSRF attempt or the required field with token is not rendered in the form correctly.");
+			}
+			String genSecret = ctx.getUserRelatedStorage().getAndDelete(this.formId);
+			String secret = ctx.getRequestSecret(genSecret);
+			// InvalidTokenException is thrown for invalid token
+			this.config.getTokenAuthorizer().validateToken(token, secret);
+		}
+	}
+	
 	Config chooseConfigForNestedMapping(FormMapping<?> mapping, Config outerConfig) {
 		Config nestedMappingConfig = mapping.getConfig();
 		if (!mapping.isUserDefinedConfig() && outerConfig != null) {
@@ -436,30 +519,70 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return outputData;
 	}
 	
-	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale) {
+	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		Map<String, FormMapping<?>> newNestedMappings = fillNestedMappings(editedObj, locale);
 		
 		// Preparing values for this mapping
-		Map<String, Object> propValues = this.getConfig().getBeanExtractor().extractBean(
-			editedObj.getData(), getAllowedProperties(fields));
-
+		Map<String, Object> propValues = gatherPropertyValues(editedObj.getData(), getAllowedProperties(fields), ctx);
+				
 		// Fill the definitions of fields of this mapping with prepared values
 		Map<String, FormField> filledFields = fillFields(propValues, -1, locale);
 
 		// Returning copy of this form that is filled with form data
-		BasicFormMappingBuilder<T> builder = Forms.basic(getDataClass(), this.path)
-			.fields(filledFields);
+		BasicFormMappingBuilder<T> builder = null;
+		if (this.secured) {
+			builder = Forms.basicSecured(getDataClass(), this.path, this.instantiator).fields(filledFields);
+		} else {
+			builder = Forms.basic(getDataClass(), this.path, this.instantiator).fields(filledFields);
+		}
 		builder.nested = newNestedMappings;
 		builder.validationResult = editedObj.getValidationResult();
 		builder.filledObject = editedObj.getData();
 		return builder;
 	}
 	
+	Map<String, Object> gatherPropertyValues(T editedData, Set<String> allowedProperties, RequestContext ctx) {
+		Map<String, Object> propValues = new HashMap<String, Object>();
+		Map<String, Object> beanValues = this.getConfig().getBeanExtractor().extractBean(editedData, allowedProperties);
+		propValues.putAll(beanValues);
+		putValueForAuthTokenIfSecured(propValues, ctx);
+		return Collections.unmodifiableMap(propValues);
+	}
+
+	void putValueForAuthTokenIfSecured(Map<String, Object> propValues, RequestContext ctx) {
+		if (isRootMapping() && this.secured) {
+			if (ctx == null) {
+				throw new IllegalStateException(RequestContext.class.getSimpleName() + " is required when the form is " + 
+					"defined as secured. Please specify not null context in fill method.");
+			}
+			String genSecret = generateSecret();
+			ctx.getUserRelatedStorage().set(this.formId, genSecret);
+			String secret = ctx.getRequestSecret(genSecret);
+			String token = this.config.getTokenAuthorizer().generateToken(secret);
+			propValues.put(Forms.AUTH_TOKEN_FIELD_NAME, token);
+		}
+	}
+	
+	String generateSecret() {
+		return PasswordGenerator.generatePassword(20, ALLOWED_TOKEN_CHARS);
+	}
+	
+	boolean isRootMapping() {
+		return !this.path.contains(Forms.PATH_SEP);
+	}
+
 	Map<String, FormField> fillFields(Map<String, Object> propValues, int indexInList, Locale locale) {
-		Map<String, FormField> filledFields = new HashMap<String, FormField>();
+		Map<String, FormField> filledFields = new LinkedHashMap<String, FormField>();
 		// For each field from form definition, let's fill this field with value -> filled form field
 		for (Map.Entry<String, FormField> fieldDefEntry : this.fields.entrySet()) {
 			final String propertyName = fieldDefEntry.getKey();
+			if (indexInList >= 0 && Forms.AUTH_TOKEN_FIELD_NAME.equals(propertyName)) {
+				if (isRootMapping() && this.secured) {
+					throw new UnsupportedOperationException("Verification of authorization token is not supported "
+						+ "in root list mapping. Please create SINGLE root mapping with nested list mapping.");
+				}
+			}
+			
 			final FormField field = fieldDefEntry.getValue();
 			Object value = propValues.get(propertyName);
 			String fieldName = field.getName();
@@ -539,47 +662,11 @@ class BasicFormMapping<T> implements FormMapping<T> {
 				values.add(v);
 			}
 		} else if (value != null && value.getClass().isArray()) {
-			fillValuesFromArrayValue(value, values);
+			values.addAll(ArrayUtils.convertPrimitiveArrayToList(value));
 	    } else {
 			values.add(value);
 		}
 		return values;
-	}
-
-	private void fillValuesFromArrayValue(Object array, List<Object> values) {
-		if (array.getClass().equals(boolean[].class)) {
-			boolean[] arr = (boolean[])array;
-			for (int i = 0; i < arr.length; i++)
-				values.add(Boolean.valueOf(arr[i]));
-		} else if (array.getClass().equals(byte[].class)) {
-			byte[] arr = (byte[])array;
-			for (int i = 0; i < arr.length; i++)
-				values.add(Byte.valueOf(arr[i]));
-		} else if (array.getClass().equals(short[].class)) { // NOPMD by Radek on 2.3.14 18:24
-			final short[] arr = (short[])array; // NOPMD by Radek on 2.3.14 18:25
-			for (int i = 0; i < arr.length; i++)
-				values.add(Short.valueOf(arr[i]));
-		} else if (array.getClass().equals(int[].class)) {
-			int[] arr = (int[])array;
-			for (int i = 0; i < arr.length; i++)
-				values.add(Integer.valueOf(arr[i]));
-		} else if (array.getClass().equals(long[].class)) {
-			long[] arr = (long[])array;
-			for (int i = 0; i < arr.length; i++)
-				values.add(Long.valueOf(arr[i]));
-		} else if (array.getClass().equals(float[].class)) {
-			float[] arr = (float[])array;
-			for (int i = 0; i < arr.length; i++)
-				values.add(Float.valueOf(arr[i]));
-		} else if (array.getClass().equals(double[].class)) {
-			double[] arr = (double[])array;
-			for (int i = 0; i < arr.length; i++)
-				values.add(Double.valueOf(arr[i]));
-		} else if (array.getClass().equals(char[].class)) {
-			char[] arr = (char[])array;
-			for (int i = 0; i < arr.length; i++)
-				values.add(Character.valueOf(arr[i]));
-		}
 	}
 
 	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(ParamsProvider paramsProvider, Locale locale) {

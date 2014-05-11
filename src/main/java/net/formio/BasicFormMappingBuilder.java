@@ -61,6 +61,7 @@ public class BasicFormMappingBuilder<T> {
 	MappingType mappingType;
 	Object filledObject;
 	boolean automatic;
+	boolean secured;
 
 	/**
 	 * Should be constructed only via {@link Forms} entry point of API.
@@ -78,6 +79,19 @@ public class BasicFormMappingBuilder<T> {
 	
 	BasicFormMappingBuilder(Class<T> objectClass, String formName, Instantiator<T> inst, boolean automatic) {
 		this(objectClass, formName, inst, automatic, MappingType.SINGLE);
+	}
+	
+	/**
+	 * True if this form should be secured with authorization token.
+	 * @param secured
+	 * @return
+	 */
+	public BasicFormMappingBuilder<T> secured(boolean secured) {
+		this.secured = secured;
+		if (secured) {
+			fieldForAuthToken();
+		}
+		return this;
 	}
 	
 	/**
@@ -271,7 +285,7 @@ public class BasicFormMappingBuilder<T> {
 							if (itemClass != null && isDataClassForField(itemClass, config)) {
 								this.field(propertyName); // multiple value field
 							} else {
-								// collection of complex types or unknown types
+								// nested collection of complex types or unknown types
 								if (itemClass == null) 
 									throw new IllegalStateException("Cannot resolve item type of collection type of property " + 
 										propertyName + " in class " + this.dataClass.getName());
@@ -286,6 +300,10 @@ public class BasicFormMappingBuilder<T> {
 				}
 			}
 		}
+	}
+	
+	void fieldForAuthToken() {
+		field(Forms.AUTH_TOKEN_FIELD_NAME, "hidden");
 	}
 
 	private void assertValidComplexTypeProperty(Class<?> propertyType, String propertyName) {

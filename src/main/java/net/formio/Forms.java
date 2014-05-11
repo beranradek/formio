@@ -25,6 +25,8 @@ import net.formio.binding.StaticFactoryMethod;
  */
 public final class Forms {
 	
+	public static final String AUTH_TOKEN_FIELD_NAME = "formAuthToken";
+	
 	/**
 	 * Separator of parts in the path (used in fully qualified field name).
 	 */
@@ -44,8 +46,8 @@ public final class Forms {
 	 * must be explicitly specified.
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator, MappingType mappingType) {
-		return mappingInternal(editedObjectClass, formName, instantiator, false, mappingType);
+	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator) {
+		return basic(editedObjectClass, formName, instantiator, MappingType.SINGLE);
 	}
 	
 	/**
@@ -53,8 +55,41 @@ public final class Forms {
 	 * must be explicitly specified.
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator) {
-		return basic(editedObjectClass, formName, instantiator, MappingType.SINGLE);
+	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator, MappingType mappingType) {
+		return mappingInternal(editedObjectClass, formName, instantiator, false, mappingType, false);
+	}
+	
+	/**
+	 * Like corresponding basic mapping, including CSRF protection.
+	 * @param editedObjectClass
+	 * @param formName
+	 * @return
+	 */
+	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String formName) {
+		return basicSecured(editedObjectClass, formName, (Instantiator<T>)null, MappingType.SINGLE);
+	}
+	
+	/**
+	 * Like corresponding basic mapping, including CSRF protection.
+	 * @param editedObjectClass
+	 * @param formName
+	 * @param instantiator
+	 * @return
+	 */
+	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator) {
+		return basicSecured(editedObjectClass, formName, instantiator, MappingType.SINGLE);
+	}
+	
+	/**
+	 * Like corresponding basic mapping, including CSRF protection.
+	 * @param editedObjectClass
+	 * @param formName
+	 * @param instantiator
+	 * @param mappingType
+	 * @return
+	 */
+	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator, MappingType mappingType) {
+		return mappingInternal(editedObjectClass, formName, instantiator, false, mappingType, true);
 	}
 	
 	/**
@@ -62,8 +97,8 @@ public final class Forms {
 	 * of given data class.
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator, MappingType mappingType) {
-		return mappingInternal(editedObjectClass, formName, instantiator, true, mappingType);
+	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String formName) {
+		return automatic(editedObjectClass, formName, (Instantiator<T>)null, MappingType.SINGLE);
 	}
 	
 	/**
@@ -80,8 +115,41 @@ public final class Forms {
 	 * of given data class.
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String formName) {
-		return automatic(editedObjectClass, formName, (Instantiator<T>)null, MappingType.SINGLE);
+	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator, MappingType mappingType) {
+		return mappingInternal(editedObjectClass, formName, instantiator, true, mappingType, false);
+	}
+	
+	/**
+	 * Like corresponding automatic mapping, including CSRF protection.
+	 * @param editedObjectClass
+	 * @param formName
+	 * @return
+	 */
+	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String formName) {
+		return automaticSecured(editedObjectClass, formName, (Instantiator<T>)null, MappingType.SINGLE);
+	}
+	
+	/**
+	 * Like corresponding automatic mapping, including CSRF protection.
+	 * @param editedObjectClass
+	 * @param formName
+	 * @param instantiator
+	 * @return
+	 */
+	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator) {
+		return automaticSecured(editedObjectClass, formName, instantiator, MappingType.SINGLE);
+	}
+	
+	/**
+	 * Like corresponding automatic mapping, including CSRF protection.
+	 * @param editedObjectClass
+	 * @param formName
+	 * @param instantiator
+	 * @param mappingType
+	 * @return
+	 */
+	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator, MappingType mappingType) {
+		return mappingInternal(editedObjectClass, formName, instantiator, true, mappingType, true);
 	}
 	
 	/**
@@ -132,8 +200,8 @@ public final class Forms {
 		return field(propertyName, (String)null);
 	}
 	
-	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String formName, Instantiator<T> instantiator, boolean automatic, MappingType mappingType) {
-		return new BasicFormMappingBuilder<T>(dataClass, formName, instantiator, automatic, mappingType);
+	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String formName, Instantiator<T> instantiator, boolean automatic, MappingType mappingType, boolean secured) {
+		return new BasicFormMappingBuilder<T>(dataClass, formName, instantiator, automatic, mappingType).secured(secured);
 	}
 	
 	private Forms() {
