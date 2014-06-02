@@ -14,29 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.constraints;
+package net.formio.validation.constraints.cz;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import static org.junit.Assert.*;
+import net.formio.validation.constraints.cz.RodneCisloValidation;
 
+import org.junit.Test;
 
-/**
- * Validation implementation for {@link RodneCislo}.
- * 
- * @author Radek Beran
- */
-public class RodneCisloConstraintValidator implements ConstraintValidator<RodneCislo, String> {
+public class RodneCisloValidationTest {
 
-    @Override
-	public void initialize(RodneCislo constraintAnnotation) {
-    	// no inicialization required
-    }
-
-    @Override
-	public boolean isValid(String rodneCislo, ConstraintValidatorContext ctx) {
-        if (rodneCislo == null || rodneCislo.isEmpty())
-            return true;
-        return RodneCisloValidation.isRodneCislo(rodneCislo);
-    }
+	@Test
+	public void testIsValidRc() {
+		assertFalse(RodneCisloValidation.isRodneCislo(null));
+		assertFalse(RodneCisloValidation.isRodneCislo(""));
+		assertFalse(RodneCisloValidation.isRodneCislo("4w4w4qw"));
+		
+		assertTrue(RodneCisloValidation.isRodneCislo("780123/3540")); // valid even if not divisible by 11
+		assertTrue(RodneCisloValidation.isRodneCislo("0531135099"));
+		assertTrue(RodneCisloValidation.isRodneCislo("0681186066"));
+	}
 
 }

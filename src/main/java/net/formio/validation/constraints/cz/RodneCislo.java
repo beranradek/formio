@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.constraints;
+package net.formio.validation.constraints.cz;
 
 import java.lang.annotation.Target;
 import java.lang.annotation.Retention;
