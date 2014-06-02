@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.formio.AbstractRequestParams;
 import net.formio.RequestParams;
 import net.formio.data.RequestContext;
 import net.formio.upload.FileUploadWrapper;
@@ -35,7 +36,7 @@ import net.formio.upload.UploadedFile;
  * 
  * @author Radek Beran
  */
-public class ServletRequestParams implements RequestParams {
+public class ServletRequestParams extends AbstractRequestParams {
 
 	/** Max. size per single file */
 	private static final int SINGLE_FILE_SIZE_MAX = 5242880; // 5 MB
@@ -101,16 +102,6 @@ public class ServletRequestParams implements RequestParams {
 	public String[] getParamValues(String paramName) {
 		return request.getParameterValues(paramName);
 	}
-	
-	@Override
-	public String getParamValue(String paramName) {
-		String value = null;
-		String[] values = this.getParamValues(paramName);
-		if (values != null && values.length > 0) {
-			value = values[0];
-		}
-		return value;
-	}
 
 	@Override
 	public UploadedFile[] getUploadedFiles(String paramName) {
@@ -119,16 +110,6 @@ public class ServletRequestParams implements RequestParams {
 			return w.getUploadedFiles(paramName);
 		}
 		return new UploadedFile[0];
-	}
-	
-	@Override
-	public UploadedFile getUploadedFile(String paramName) {
-		UploadedFile file = null;
-		UploadedFile[] files = this.getUploadedFiles(paramName);
-		if (files != null && files.length > 0) {
-			file = files[0];
-		}
-		return file;
 	}
 	
 	@Override
