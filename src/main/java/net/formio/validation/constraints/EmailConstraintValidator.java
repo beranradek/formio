@@ -16,30 +16,15 @@
  */
 package net.formio.validation.constraints;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
 /**
  * Validation implementation for {@link Email}.
  * 
  * @author Radek Beran
  */
-public class EmailConstraintValidator implements ConstraintValidator<Email, String> {
+public class EmailConstraintValidator extends AbstractConstraintValidator<Email> {
 
-    @Override
-	public void initialize(final Email constraintAnnot) {
-    	// no inicialization required
-    }
-
-    @Override
-	public boolean isValid(final String email, final ConstraintValidatorContext ctx) {
-        boolean valid = false;
-    	if (email == null || email.isEmpty()) {
-    		valid = true;
-    	} else {
-    		valid = EmailValidation.isEmail(email);
-    	}
-        return valid;
-    }
-
+	@Override
+	protected boolean isValidFilledInput(String input) {
+		return EmailValidation.isEmail(input);
+	}
 }

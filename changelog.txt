@@ -1,5 +1,9 @@
 # Changelog
 
+1.0.5 (upcoming)
+* AbstractRequestParams
+* Validators for phone, IPv4/6 address, URL
+
 1.0.4 (11.5.2014)
 * basicSecured, automaticSecured mappings for protection against CSRF in POST submits.
 

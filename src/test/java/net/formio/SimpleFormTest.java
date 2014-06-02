@@ -64,7 +64,7 @@ public class SimpleFormTest {
 	private static final FormMapping<Person> PERSON_FORM = Forms.basic(Person.class, "person") // NOPMD by Radek on 2.3.14 19:29
 		// whitelist of properties to bind
 		.fields("personId", "firstName", "lastName", "salary", "phone", "male", "nation")
-		.field(Forms.<Date>field("birthDate").formatter(CUSTOM_DATE_FORMATTER).type("text").build())
+		.field(Forms.<Date>field("birthDate", "text").formatter(CUSTOM_DATE_FORMATTER).build())
 		.build();
 
 	@Test
