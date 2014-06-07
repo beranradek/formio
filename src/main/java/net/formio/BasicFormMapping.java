@@ -232,6 +232,18 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
+	public <U> FormMapping<U> getNestedByProperty(Class<U> dataClass, String propertyName) {
+		Map<String, FormMapping<?>> nestedMappings = getNested();
+		FormMapping<?> mapping = nestedMappings.get(propertyName);
+		if (mapping != null) {
+			if (!dataClass.isAssignableFrom(mapping.getDataClass())) {
+				mapping = null;
+			}
+		}
+		return (FormMapping<U>)mapping;
+	}
+	
+	@Override
 	public List<FormMapping<T>> getList() {
 		return Collections.<FormMapping<T>>emptyList();
 	}

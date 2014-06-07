@@ -35,7 +35,9 @@ public final class Forms {
 	/**
 	 * Starts building basic mapping for which all the fields and nested mappings 
 	 * must be explicitly specified.
-	 * @return
+	 * @param editedObjectClass class of form mapping data
+	 * @param formName name of the form/property with nested data
+	 * @return form mapping builder
 	 */
 	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String formName) {
 		return basic(editedObjectClass, formName, (Instantiator<T>)null, MappingType.SINGLE);
@@ -44,7 +46,10 @@ public final class Forms {
 	/**
 	 * Starts building basic mapping for which all the fields and nested mappings 
 	 * must be explicitly specified.
-	 * @return
+	 * @param editedObjectClass class of form mapping data
+	 * @param formName name of the form/property with nested data
+	 * @param instantiator instantiator of form data
+	 * @return form mapping builder
 	 */
 	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator) {
 		return basic(editedObjectClass, formName, instantiator, MappingType.SINGLE);
@@ -53,7 +58,11 @@ public final class Forms {
 	/**
 	 * Starts building basic mapping for which all the fields and nested mappings 
 	 * must be explicitly specified.
-	 * @return
+	 * @param editedObjectClass
+	 * @param formName name of the form/property with nested data
+	 * @param instantiator instantiator of form data
+	 * @param mappingType type of nested mapping
+	 * @return form mapping builder
 	 */
 	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String formName, Instantiator<T> instantiator, MappingType mappingType) {
 		return mappingInternal(editedObjectClass, formName, instantiator, false, mappingType, false);

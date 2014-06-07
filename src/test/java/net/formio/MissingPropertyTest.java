@@ -22,13 +22,13 @@ import org.junit.Test;
 
 /**
  * Tests that an exception is thrown early from the form definition if some
- * specified field is missing in form data class.
+ * specified field has missing property in form data class.
  * @author Radek Beran
  */
-public class MissingFieldTest {
+public class MissingPropertyTest {
 
 	@Test(expected=ReflectionException.class)
-	public void testMissingField() {
+	public void testMissingProperty() {
 		Forms.basic(Person.class, "person")
 			// whitelist of properties to bind
 			.fields("personId", "firstName", "lastName", "salary", "phone", "male", "missingField")

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio;
+package net.formio.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,7 +27,7 @@ import java.io.Serializable;
  * Utility methods for Java serialization and deserialization.
  * @author Radek Beran
  */
-class SerializationUtils {
+public final class SerializationUtils {
 
 	/**
 	 * Serializes the object into its serialized form.
@@ -36,7 +36,7 @@ class SerializationUtils {
 	 *            serializable object
 	 * @return serialized form of object
 	 */
-	static byte[] serialize(Serializable obj) {
+	public static byte[] serialize(Serializable obj) {
 		try {
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -54,7 +54,7 @@ class SerializationUtils {
 	 *            serialized form of object
 	 * @return deserialized serializable object
 	 */
-	static Serializable deserialize(byte[] sf) {
+	public static Serializable deserialize(byte[] sf) {
 		try {
 			InputStream is = new ByteArrayInputStream(sf);
 			ObjectInputStream ois = new ObjectInputStream(is);

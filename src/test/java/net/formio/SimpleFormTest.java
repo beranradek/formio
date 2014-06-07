@@ -26,11 +26,11 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Logger;
 
+import net.formio.data.TestData;
+import net.formio.data.TestForms;
 import net.formio.domain.MarriedPerson;
 import net.formio.domain.Nation;
 import net.formio.domain.Person;
-import net.formio.format.Formatter;
-import net.formio.format.StringParseException;
 
 import org.junit.Test;
 
@@ -40,32 +40,6 @@ import org.junit.Test;
  */
 public class SimpleFormTest {
 	private static final Logger LOG = Logger.getLogger(SimpleFormTest.class.getName());
-	
-	private static final Formatter<Date> CUSTOM_DATE_FORMATTER = new Formatter<Date>() {
-		private static final String FIXED_FORMAT = "d-M-yyyy HH-mm";
-		
-		@Override
-		public Date parseFromString(String str, Class<Date> destClass,
-				String formatPattern, Locale locale) {
-			try {
-				return new SimpleDateFormat(FIXED_FORMAT).parse(str);
-			} catch (Exception ex) {
-				throw new StringParseException(Date.class, str, ex);
-			}
-		}
-		
-		@Override
-		public String makeString(Date value, String formatPattern, Locale locale) {
-			return new SimpleDateFormat(FIXED_FORMAT).format(value);
-		}
-	};
-	
-	// immutable definition of the form, can be freely shared/cached
-	private static final FormMapping<Person> PERSON_FORM = Forms.basic(Person.class, "person") // NOPMD by Radek on 2.3.14 19:29
-		// whitelist of properties to bind
-		.fields("personId", "firstName", "lastName", "salary", "phone", "male", "nation")
-		.field(Forms.<Date>field("birthDate", "text").formatter(CUSTOM_DATE_FORMATTER).build())
-		.build();
 
 	@Test
 	public void testFormProcessing() {
@@ -74,7 +48,8 @@ public class SimpleFormTest {
 			
 			// Filling form with initial data
 			FormData<Person> formData = new FormData<Person>(getInitData(), null);
-			FormMapping<Person> filledForm = PERSON_FORM.fill(formData, locale);
+			FormMapping<Person> personForm = TestForms.PERSON_FORM;
+			FormMapping<Person> filledForm = personForm.fill(formData, locale);
 			
 			LOG.info("Filled form: \n" + filledForm);
 			
@@ -86,10 +61,10 @@ public class SimpleFormTest {
 			assertInitDataAreFilled(initData, filledObject);
 			
 			// Preparing data (filled "by the user" into the form)
-			MapParamsProvider reqParams = getRequestParams();
+			MapParams reqParams = getRequestParams();
 					
 			// Binding data from request to model (Person)
-			FormData<Person> boundFormData = PERSON_FORM.bind(reqParams, locale);
+			FormData<Person> boundFormData = personForm.bind(reqParams, locale);
 			Person person = boundFormData.getData();
 			
 			assertEquals(1, person.getPersonId());
@@ -116,7 +91,8 @@ public class SimpleFormTest {
 		MarriedPerson personToFillFromForm = new MarriedPerson("Charlotte", "Stripes");
 		personToFillFromForm.setMarriageDate(new Date());
 		personToFillFromForm.setNation(Nation.SLOVAK);
-		FormData<Person> boundFormData = PERSON_FORM.bind(getRequestParams(), locale, personToFillFromForm);
+		FormMapping<Person> personForm = TestForms.PERSON_FORM;
+		FormData<Person> boundFormData = personForm.bind(getRequestParams(), locale, personToFillFromForm);
 		MarriedPerson person = (MarriedPerson)boundFormData.getData();
 		
 		// Constructor-settable properties are not overriden
@@ -134,8 +110,8 @@ public class SimpleFormTest {
 		assertEquals(personToFillFromForm, person);
 	}
 
-	private MapParamsProvider getRequestParams() {
-		MapParamsProvider reqParams = new MapParamsProvider();
+	private MapParams getRequestParams() {
+		MapParams reqParams = new MapParams();
 		String sep = Forms.PATH_SEP;
 		reqParams.put("person" + sep + "personId", "1");
 		reqParams.put("person" + sep + "firstName", "Michel");

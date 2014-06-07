@@ -176,6 +176,15 @@ public interface FormMapping<T> {
 	Map<String, FormMapping<?>> getNested();
 	
 	/**
+	 * Returns nested mapping with given property name, or {@code null} if such mapping
+	 * does not exist.
+	 * @param dataClass class of data object for nested mapping
+	 * @param propertyName name of property that is managed by nested mapping
+	 * @return nested mapping or {@code null}
+	 */
+	<U> FormMapping<U> getNestedByProperty(Class<U> dataClass, String propertyName);
+	
+	/**
 	 * List of mappings for individual filled data items if this is list mapping,
 	 * empty list otherwise.
 	 * @return

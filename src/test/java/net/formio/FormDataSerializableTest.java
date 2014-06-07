@@ -25,7 +25,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import junit.framework.Assert;
+import net.formio.data.TestData;
 import net.formio.domain.Person;
+import net.formio.utils.SerializationUtils;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.Severity;
 import net.formio.validation.ValidationResult;
@@ -36,9 +38,9 @@ import org.junit.Test;
  * Tests for {@link FormData}.
  * @author Radek Beran
  */
-public class FormDataTest {
+public class FormDataSerializableTest {
 
-	private static final Logger LOG = Logger.getLogger(FormDataTest.class.getName());
+	private static final Logger LOG = Logger.getLogger(FormDataSerializableTest.class.getName());
 	
 	@Test
 	public void testFormDataIsSerializable() {
