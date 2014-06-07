@@ -27,12 +27,12 @@ import net.formio.upload.UploadedFile;
  * Simulates input from the user.
  * @author Radek Beran
  */
-public class MapParamsProvider implements RequestParams {
+public class MapParams implements RequestParams {
 	
 	private final Map<String, String[]> params;
 	private final Map<String, UploadedFile[]> files;
 	
-	public MapParamsProvider() {
+	public MapParams() {
 		this.params = new LinkedHashMap<String, String[]>();
 		this.files = new LinkedHashMap<String, UploadedFile[]>();
 	}
