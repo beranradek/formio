@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import net.formio.common.FormUtils;
 import net.formio.data.RequestContext;
 import net.formio.servlet.ServletRequestParams;
 import net.formio.validation.ConstraintViolationMessage;
@@ -106,7 +105,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		
 		// Finding how many parameters are in the request - check for max. index available in request params name, 
 		// according to this mapping path
-		int maxIndex = findMaxIndex(paramsProvider.getParamNames());
+		int maxIndex = FormUtils.findMaxIndex(paramsProvider.getParamNames(), this.path);
 		
 		// Constructing mappings for each index up to max. index.
 		// Nested mapping of this list mapping will become nested mappings of each
@@ -115,7 +114,8 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		for (int index = 0; index <= maxIndex; index++) {
 			String indexedPath = getIndexedPath(index);
 			// constructing single mapping for index:
-			final Map<String, FormField> formFields = getFieldsWithIndex(index); // fields with indexed names
+			// fields with indexed names
+			final Map<String, FormField> formFields = fieldsWithIndexBeforeLastProperty(this.fields, index);
 			BasicFormMappingBuilder<T> builder = null;
 			if (this.secured) {
 				builder = Forms.basicSecured(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
@@ -171,21 +171,10 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		return (FormData<T>)formData;
 	}
 	
-	Map<String, FormField> getFieldsWithIndex(int index) {
-		Map<String, FormField> flds = new LinkedHashMap<String, FormField>();
-		for (Map.Entry<String, FormField> e : fields.entrySet()) {
-			FormField srcFld = e.getValue();
-			FormFieldImpl f = FormFieldImpl.getInstance(nameWithIndex(srcFld.getName(), index), 
-				srcFld.getType(), srcFld.getPattern(), srcFld.getFormatter(), srcFld.isRequired());
-			flds.put(nameWithIndex(e.getKey(), index), f);
-		}
-		return flds;
-	}
-	
 	@Override
 	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		List<FormMapping<T>> newMappings = new ArrayList<FormMapping<T>>();
-		Set<String> allowedProps = getAllowedProperties(this.fields);
+		Set<String> propNames = FormUtils.getPropertiesFromFields(this.fields);
 		int index = 0;
 		for (T dataAtIndex : (List<T>)editedObj.getData()) {
 			FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
@@ -195,7 +184,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			
 			// Prepare values for mapping that is constructed for current list index.
 			// Previously created filled nested mappings will be assigned to mapping for current list index.
-			Map<String, Object> propValues = gatherPropertyValues(dataAtIndex, allowedProps, ctx);
+			Map<String, Object> propValues = gatherPropertyValues(dataAtIndex, propNames, ctx);
 			
 			// Fill the fields of this mapping with prepared values for current list index
 			Map<String, FormField> filledFields = fillFields(propValues, index, locale);
@@ -278,26 +267,16 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		return newNestedMappings;
 	}
 	
-	/**
-	 * Finds maximum index for indexed path of this mapping that occurs in request parameters.
-	 * @param params
-	 * @return
-	 */
-	private int findMaxIndex(Iterable<String> params) {
-		Pattern indexedPathPattern = Pattern.compile(this.path + "\\[([0-9]+)\\].*");
-		List<Integer> indexes = new ArrayList<Integer>();
-		for (String param : params) {
-			Matcher m = indexedPathPattern.matcher(param);
-			if (m.matches()) {
-				Integer index = Integer.valueOf(m.group(1));
-				indexes.add(index);
-			}
+	Map<String, FormField> fieldsWithIndexBeforeLastProperty(Map<String, FormField> fields, int index) {
+		final Map<String, FormField> flds = new LinkedHashMap<String, FormField>();
+		for (Map.Entry<String, FormField> e : fields.entrySet()) {
+			FormField srcFld = e.getValue();
+			String indexedName = FormUtils.pathWithIndexBeforeLastProperty(srcFld.getName(), index);
+			final FormFieldImpl f = FormFieldImpl.getInstance(indexedName, 
+				srcFld.getType(), srcFld.getPattern(), srcFld.getFormatter(), srcFld.isRequired());
+			flds.put(e.getKey(), f);
 		}
-		if (indexes.isEmpty()) {
-			return -1;
-		}
-		Collections.sort(indexes);
-		return indexes.get(indexes.size() - 1).intValue();
+		return flds;
 	}
 	
 	private String getIndexedPath(int index) {

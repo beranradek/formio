@@ -17,7 +17,6 @@
 package net.formio;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -27,11 +26,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import net.formio.binding.ArrayUtils;
 import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.FilledData;
 import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
+import net.formio.common.FormUtils;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
 import net.formio.security.PasswordGenerator;
@@ -51,6 +50,7 @@ import net.formio.validation.ValidationResult;
  */
 class BasicFormMapping<T> implements FormMapping<T> {
 
+	static final String SECRET_KEY_PREFIX = "formio_secret_";
 	static final String ALLOWED_TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_@#$%^&*";
 	final String path;
 	final Class<T> dataClass;
@@ -345,7 +345,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			filledObject.getData(), 
 			this.path, 
 			requestFailures, 
-			flatten(filledObject.getPropertyBindErrors().values()),
+			FormUtils.flatten(filledObject.getPropertyBindErrors().values()),
 			locale,
 			validationGroups);
 		final Map<String, Set<ConstraintViolationMessage>> fieldMsgs = cloneFieldMessages(validationRep.getFieldMessages());
@@ -545,8 +545,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		Map<String, FormMapping<?>> newNestedMappings = fillNestedMappings(editedObj, locale, ctx);
 		
 		// Preparing values for this mapping
-		Map<String, Object> propValues = gatherPropertyValues(editedObj.getData(), getAllowedProperties(fields), ctx);
-				
+		Map<String, Object> propValues = gatherPropertyValues(editedObj.getData(), FormUtils.getPropertiesFromFields(fields), ctx);
+		
 		// Fill the definitions of fields of this mapping with prepared values
 		Map<String, FormField> filledFields = fillFields(propValues, -1, locale);
 
@@ -603,7 +603,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	String getRootMappingSecretKey() {
-		return "formio_secret_" + getRootMappingPath();
+		return SECRET_KEY_PREFIX + getRootMappingPath();
 	}
 
 	Map<String, FormField> fillFields(Map<String, Object> propValues, int indexInList, Locale locale) {
@@ -622,11 +622,11 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			Object value = propValues.get(propertyName);
 			String fieldName = field.getName();
 			if (indexInList >= 0) {
-				fieldName = nameWithIndex(field.getName(), indexInList);
+				fieldName = FormUtils.pathWithIndexBeforeLastProperty(field.getName(), indexInList);
 			}
 			final FormField filledField = FormFieldImpl.getFilledInstance(
 				fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.isRequired(),
-				fieldValues(value), locale, this.getConfig().getFormatters());
+				FormUtils.convertObjectToList(value), locale, this.getConfig().getFormatters());
 			filledFields.put(propertyName, filledField);
 		}
 		filledFields = Collections.unmodifiableMap(filledFields);
@@ -639,71 +639,32 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
 			// nested data - nested object or list of nested objects in case of mapping to list
 			Object data = nestedData(e.getKey(), editedObj.getData());
-			FormData formData = new FormData<Object>(data, editedObj.getValidationResult()); // the outer report is propagated to nested
+			FormData<Object> formData = new FormData<Object>(data, editedObj.getValidationResult()); // the outer report is propagated to nested
 			FormMapping newMapping = e.getValue();
 			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale, ctx));
 		}
 		return newNestedMappings;
 	}
-
-	Set<String> getAllowedProperties(Map<String, FormField> fields) {
-		Set<String> props = new LinkedHashSet<String>();
-		for (FormField field : fields.values()) {
-			// name of field is a full path, already prefixed with form name
-			String propName = FormUtils.fieldNameToPropertyName(field.getName());
-			props.add(propName);
-		}
-		return props;
-	}
 	
-	String nameWithIndex(String name, int indexInList) {
-		if (name == null) return null;
-		String retName = name;
-		int li = retName.lastIndexOf(Forms.PATH_SEP);
-		if (li >= 0) {
-			retName = retName.substring(0, li) + "[" + indexInList + "]" + retName.substring(li);
-		}
-		return retName;
-	}
-	
-	String propertyName() {
-		String pname = null;
-		int li = this.path.lastIndexOf(Forms.PATH_SEP);
-		if (li >= 0) {
-			pname = this.path.substring(li);
-		} else {
-			pname = this.path;
-		}
-		return pname;
-	}
-	
+	/**
+	 * Returns nested object extracted as value of given property of given data.
+	 * @param propName
+	 * @param data
+	 * @return
+	 */
 	<U> U nestedData(String propName, T data) {
 		Map<String, Object> props = this.getConfig().getBeanExtractor().extractBean(data, Collections.singleton(propName));
 		return (U)props.get(propName); // can be null if nested object is not required
 	}
-	
-	private <U> List<U> flatten(Collection<List<U>> collOfLists) {
-		List<U> res = new ArrayList<U>();
-		for (List<U> l : collOfLists) {
-			res.addAll(l);
-		}
-		return res;
-	}
-	
-	private List<Object> fieldValues(Object value) {
-		List<Object> values = new ArrayList<Object>();
-		if (value instanceof Iterable) {
-			for (Object v : ((Iterable<?>)value)) {
-				values.add(v);
-			}
-		} else if (value != null && value.getClass().isArray()) {
-			values.addAll(ArrayUtils.convertPrimitiveArrayToList(value));
-	    } else {
-			values.add(value);
-		}
-		return values;
-	}
 
+	/**
+	 * Converts parameters from request (RequestParams) using field definitions and given locale
+	 * to descriptions of values for individual properties, ready to bind to properties of form data object
+	 * via binder.
+	 * @param paramsProvider
+	 * @param locale
+	 * @return
+	 */
 	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(RequestParams paramsProvider, Locale locale) {
 		Map<String, BoundValuesInfo> values = new HashMap<String, BoundValuesInfo>();
 		// Get values for each defined field
@@ -728,7 +689,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 				String[] strValues = paramsProvider.getParamValues(formPrefixedName);
 				if (strValues == null) strValues = paramsProvider.getParamValues(formPrefixedName + "[]");
 				if (this.getConfig().isInputTrimmed()) {
-					strValues = trimValues(strValues);
+					strValues = FormUtils.trimValues(strValues);
 				}
 				paramValues = strValues;
 			}
@@ -738,16 +699,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		}
 		return values;
 	}
-
-	private String[] trimValues(String[] strValues) {
-		if (strValues == null) return null;
-		String[] trimmed = new String[strValues.length];
-		for (int i = 0; i < strValues.length; i++) {
-			trimmed[i] = strValues[i] != null ? strValues[i].trim() : null;
-		}
-		return trimmed;
-	}
 	
+	/** Creates new instance of map with validation messages. */
 	private Map<String, Set<ConstraintViolationMessage>> cloneFieldMessages(Map<String, Set<ConstraintViolationMessage>> fieldMsgs) {
 	  Map<String, Set<ConstraintViolationMessage>> fieldMsgCopy = new LinkedHashMap<String, Set<ConstraintViolationMessage>>();
 	  for (Map.Entry<String, Set<ConstraintViolationMessage>> entry : fieldMsgs.entrySet()) {
