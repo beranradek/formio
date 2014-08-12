@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 import net.formio.EncodingException;
-import net.formio.FormUtils;
+import net.formio.common.FormUtils;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;

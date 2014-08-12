@@ -44,11 +44,11 @@ import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import net.formio.FormUtils;
 import net.formio.Forms;
 import net.formio.ReflectionException;
 import net.formio.binding.HumanReadableType;
 import net.formio.binding.ParseError;
+import net.formio.common.FormUtils;
 import net.formio.upload.MaxFileSizeExceededError;
 import net.formio.upload.RequestProcessingError;
 
