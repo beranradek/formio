@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.common;
+package net.formio.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,11 +31,26 @@ import net.formio.Forms;
 
 /**
  * Utility methods for form processing.
+ * This class is NOT intended as a part of public API
+ * and should not be used outside the library.
  * @author Radek Beran
  */
-public final class FormUtils {
+public class FormUtils {
+	
+	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
+	 * Truncate String to maximum length
+	 * @param str input string
+	 * @param maxLength maximum allowed length in characters
+	 * @return truncated string
+	 */
+	public static String truncate(String str, int maxLength) {
+		if (str==null || str.length()<=maxLength) return str;
+		return str.substring(0, maxLength);
+	}
 
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Trims all given values and returns new array with trimmed values.
 	 * @param strValues
 	 * @return
@@ -50,6 +65,7 @@ public final class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Extracts property name located at the end of full field name (field
 	 * name is the whole path, with possible terminating brackets).
 	 * @param fieldName
@@ -66,6 +82,7 @@ public final class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Returns simple names of properties that are represented with given fields.
 	 * @param fields
 	 * @return
@@ -81,6 +98,7 @@ public final class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Constucts label key for given path.
 	 * @param path
 	 * @return
@@ -91,6 +109,7 @@ public final class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Removes possible brackets at the end of given string that
 	 * do not contain any index (for e.g. name[] will be transformed to name).
 	 * @param str
@@ -107,6 +126,7 @@ public final class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Decomposes object to list of objects.
 	 * @param value input object - can be iterable, array or single value
 	 * @return
@@ -126,6 +146,7 @@ public final class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Flattens collection of lists of elements to one list of elements.
 	 * @param collOfLists
 	 * @return
@@ -139,6 +160,7 @@ public final class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Returns path with index inserted before the last property in the path, or
 	 * unchanged path if there is only single property name in the path.
 	 * @param path
@@ -156,6 +178,7 @@ public final class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Finds maximum index for indexed path of mapping (with given path) that occurs in request parameters.
 	 * @param params
 	 * @return

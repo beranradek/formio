@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.common;
+package net.formio.internal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +23,9 @@ import java.util.List;
  * Utility methods for arrays.
  * @author Radek Beran
  */
-public final class ArrayUtils {
+final class ArrayUtils {
 
-	public static List<Object> convertPrimitiveArrayToList(Object array) {
+	static List<Object> convertPrimitiveArrayToList(Object array) {
 		List<Object> values = new ArrayList<Object>();
 		if (array.getClass().equals(boolean[].class)) {
 			boolean[] arr = (boolean[])array;
