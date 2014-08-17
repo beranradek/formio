@@ -10,7 +10,7 @@
 * Form definitions are immutable, composable, self-contained, can be easily shared and cached.
 * One simple entry point to API: Forms class.
 * Non-invasive, easy integration with frameworks, minimum dependencies.
-* Usable with various template frameworks, in environments with or without servlets, portlets.
+* Usable with various template frameworks, in environments with or without servlets, portlets, also in desktop applications.
 * Simply unit testable forms.
 * Protection of forms against CSRF attacks.
 * Inspired mainly by well-designed Play framework.
