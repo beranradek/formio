@@ -1,10 +1,12 @@
 # Changelog
 
-1.0.5 (upcoming)
+1.0.5 (17.8.2014)
 * AbstractRequestParams for more convenient implementation of RequestParams 
 * Validators for phone, IPv4/6 address, URL
 * SessionAttributeStorage
 * Support for portlet API (PortletRequest): PortletRequestParams including multipart request processing
+* Field properties (see FieldProperty), definable via FieldProps (in form of heterogeneous map)
+* Constants for content types (ContentTypes).
 
 1.0.4 (11.5.2014)
 * basicSecured, automaticSecured mappings for protection against CSRF in POST submits.
