@@ -1,8 +1,10 @@
 # Changelog
 
 1.0.5 (upcoming)
-* AbstractRequestParams
+* AbstractRequestParams for more convenient implementation of RequestParams 
 * Validators for phone, IPv4/6 address, URL
+* SessionAttributeStorage
+* Support for portlet API (PortletRequest): PortletRequestParams including multipart request processing
 
 1.0.4 (11.5.2014)
 * basicSecured, automaticSecured mappings for protection against CSRF in POST submits.

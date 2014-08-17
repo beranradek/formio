@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -29,68 +29,53 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-
 import net.formio.EncodingException;
-import net.formio.common.FormUtils;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 /**
- * Wrapper for a file upload request (before Servlet 3.0).
- * 
- * <p>
- * This class uses the Apache Commons <a
- * href='http://commons.apache.org/fileupload/'>File Upload tool</a>.
- * </p>
+ * Preprocesses multipart/form-data request to {@link RequestUploadedFile}(s) and
+ * string request parameters.
+ * @author Radek Beran
  */
-public class FileUploadWrapper extends HttpServletRequestWrapper {
+public class MultipartRequestPreprocessor {
 
+	/** Max. size per single file */
+	public static final int SINGLE_FILE_SIZE_MAX = 5242880; // 5 MB
+	/** Max. for total size of request. */
+	public static final int TOTAL_SIZE_MAX = 10485760; // 10 MB
+	/** Max. size of file that is stored only in memory. */
+	public static final int SIZE_THRESHOLD = 10240; // 10 KB
+	public static final String DEFAULT_ENCODING = "utf-8";
+	public static File getDefaultTempDir() { return new File(System.getProperty("java.io.tmpdir")); }
+	
 	private final String defaultEncoding;
 	private final RequestProcessingError error;
 
 	/**
 	 * Wrapper which preprocesses multipart request.
-	 * @param req request
+	 * @param parser multipart request parser
 	 * @param defaultEncoding header and request parameter encoding 
 	 * @param tempDir temporary directory to store files bigger than specified size threshold
 	 * @param sizeThreshold max size of file (in bytes) that is loaded into the memory and not temporarily stored to disk
 	 * @param totalSizeMax maximum allowed size of the whole request in bytes
 	 * @param singleFileSizeMax maximum allowed size of a single uploaded file
 	 */
-	public FileUploadWrapper(HttpServletRequest req, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
-		super(req);
+	public MultipartRequestPreprocessor(MultipartRequestParser parser, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
 		this.defaultEncoding = defaultEncoding;
 		final DiskFileItemFactory fif = new DiskFileItemFactory();
-		if (tempDir != null) fif.setRepository(tempDir);
-		if (sizeThreshold > 0) fif.setSizeThreshold(sizeThreshold);
-		final ServletFileUpload upload = new ServletFileUpload(fif);
-		// set overall request size constraint
-		// maximum allowed size of a single uploaded file
-		upload.setFileSizeMax(singleFileSizeMax);
-		// maximum allowed size of the whole request
-		upload.setSizeMax(totalSizeMax);
-		if (defaultEncoding != null) upload.setHeaderEncoding(defaultEncoding);
-		RequestProcessingError err = null;
+		if (tempDir != null) { 
+			fif.setRepository(tempDir);
+		}
+		if (sizeThreshold > 0) { 
+			fif.setSizeThreshold(sizeThreshold);
+		}
 		try {
-			// processing multipart/form-data stream:
-			List<FileItem> fileItems = upload.parseRequest(req);
+			List<FileItem> fileItems = parser.parseFileItems(fif, singleFileSizeMax, totalSizeMax, defaultEncoding);
 			convertToMaps(fileItems);
-		} catch (FileSizeLimitExceededException ex) {
-			err = new MaxFileSizeExceededError(ex.getMessage(), ex, 
-				ex.getActualSize(), ex.getPermittedSize(), FormUtils.removeTrailingBrackets(ex.getFieldName()));
-		} catch (SizeLimitExceededException ex) {
-			err = new MaxRequestSizeExceededError(ex.getMessage(), ex, ex.getActualSize(), ex.getPermittedSize());
-		} catch (FileUploadException ex) {
-			err = new RequestProcessingError(ex.getMessage(), ex);
 		} finally {
-			this.error = err;
+			this.error = parser.getError();
 		}
 	}
 
@@ -98,7 +83,6 @@ public class FileUploadWrapper extends HttpServletRequestWrapper {
 	 * Return all request parameter names, for both regular form fields and file
 	 * upload fields.
 	 */
-	@Override
 	public Enumeration<String> getParameterNames() {
 		Set<String> allNames = new LinkedHashSet<String>();
 		allNames.addAll(regularParams.keySet());
@@ -120,7 +104,6 @@ public class FileUploadWrapper extends HttpServletRequestWrapper {
 	 * If the parameter is multivalued, the first value that appears in the
 	 * request is returned.
 	 */
-	@Override
 	public String getParameter(String name) {
 		String result = null;
 		List<String> values = regularParams.get(name);
@@ -140,7 +123,6 @@ public class FileUploadWrapper extends HttpServletRequestWrapper {
 	 * Return the parameter values. Applies only to regular parameters, not to
 	 * file upload parameters.
 	 */
-	@Override
 	public String[] getParameterValues(String name) {
 		String[] result = null;
 		List<String> values = regularParams.get(name);
@@ -154,7 +136,6 @@ public class FileUploadWrapper extends HttpServletRequestWrapper {
 	 * Return a {@code Map<String, String[]>} for all regular parameters. Does
 	 * not return any file upload parameters at all.
 	 */
-	@Override
 	public Map<String, String[]> getParameterMap() {
 		Map<String, String[]> res = new LinkedHashMap<String, String[]>();
 		for (Map.Entry<String, List<String>> entry : regularParams.entrySet()) {
@@ -175,7 +156,7 @@ public class FileUploadWrapper extends HttpServletRequestWrapper {
 	}
 	
 	/**
-	 * Returns error from processing the request if there was one.
+	 * Returns error from processing the request if there was one, or {@code null}.
 	 * @return
 	 */
 	public RequestProcessingError getError() {

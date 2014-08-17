@@ -24,11 +24,11 @@ import javax.servlet.http.HttpSession;
  * Immutable typesafe facade for storage of Serializable object in HTTP session.
  * @author Radek Beran
  */
-public class SessionStorage<T extends Serializable> implements Serializable {
+public class SessionAttributeStorage<T extends Serializable> implements Serializable {
 	private static final long serialVersionUID = 8144508294489706687L;
 	private final String sessionAttribute;
 	
-	public SessionStorage(String sessionAttribute) {
+	public SessionAttributeStorage(String sessionAttribute) {
 		this.sessionAttribute = sessionAttribute;
 	}
 	
