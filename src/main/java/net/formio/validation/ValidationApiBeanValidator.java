@@ -27,7 +27,6 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,7 +47,7 @@ import net.formio.Forms;
 import net.formio.ReflectionException;
 import net.formio.binding.HumanReadableType;
 import net.formio.binding.ParseError;
-import net.formio.common.FormUtils;
+import net.formio.internal.FormUtils;
 import net.formio.upload.MaxFileSizeExceededError;
 import net.formio.upload.RequestProcessingError;
 
@@ -193,7 +192,7 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		HumanReadableType hrt = msg.getHumanReadableTargetType();
 		String humanReadableTargetType = interpolateMessage(msgInterpolator, humanReadableTypeToMsgTpl(hrt), 
 			Collections.<String, Serializable>emptyMap(), locale);
-		Map<String, Serializable> params = new HashMap<String, Serializable>();
+		Map<String, Serializable> params = new LinkedHashMap<String, Serializable>();
 		params.putAll(msg.getMessageParameters());
 		params.put("humanReadableTargetType", humanReadableTargetType);
 		return ValidationUtils.removeBraces(interpolateMessage(msgInterpolator, msg.getMessageKey(), params, locale));

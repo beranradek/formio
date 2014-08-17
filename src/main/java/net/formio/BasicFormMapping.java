@@ -30,9 +30,9 @@ import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.FilledData;
 import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
-import net.formio.common.FormUtils;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
+import net.formio.internal.FormUtils;
 import net.formio.security.PasswordGenerator;
 import net.formio.security.TokenMissingException;
 import net.formio.servlet.ServletRequestParams;
@@ -304,8 +304,9 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 
 	@Override
-	public FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups) {
+	public FormData<T> bind(final RequestParams paramsProvider, final Locale locale, final T instance, final RequestContext context, final Class<?>... validationGroups) {
 		if (paramsProvider == null) throw new IllegalArgumentException("paramsProvider cannot be null");
+		RequestContext ctx = context;
 		if (ctx == null && paramsProvider instanceof ServletRequestParams) {
 			// fallback to ctx retrieved from ServletRequestParams, so the user need not to specify ctx explicitly for bind method
 			ctx = ((ServletRequestParams)paramsProvider).getRequestContext();
@@ -411,53 +412,12 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	
 	@Override
 	public String toString(String indent) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(indent + path + " : " + getDataClass().getSimpleName() + " {");
-		boolean firstBlock = true;
-		if (fields != null && !fields.isEmpty()) {
-			sb.append("\n" + indent + "  fields {");
-			boolean first = true;
-			for (FormField f : fields.values()) {
-				if (!first) {
-					sb.append(",");
-				} else first = false;
-				sb.append("\n    " + indent + f);
-			}
-			sb.append("\n" + indent + "  }");
-			firstBlock = false;
-		}
-		if (nested != null && !nested.isEmpty()) {
-			if (!firstBlock) sb.append(", ");
-			sb.append("\n" + indent + "  nested {");
-			boolean first = true;
-			for (FormMapping<?> nm : nested.values()) {
-				if (!first) {
-					sb.append(",");
-				} else first = false;
-				sb.append("\n" + nm.toString(indent + "    "));
-			}
-			sb.append("\n" + indent + "  }");
-			firstBlock = false;
-		}
-		if (getList() != null && !getList().isEmpty()) {
-			if (!firstBlock) {  // NOPMD by Radek on 2.3.14 18:33
-				sb.append(", ");
-			}
-			sb.append("\n" + indent + "  list {");
-			boolean first = true;
-			for (FormMapping<?> m : getList()) {
-				if (!first) {
-					sb.append(",");
-				} else {
-					first = false;
-				}
-				sb.append("\n" + m.toString(indent + "    "));
-			}
-			sb.append("\n" + indent + "  }");
-			firstBlock = false;
-		}
-		sb.append("\n" + indent + "}");
-		return sb.toString();
+		return new MappingStringBuilder<T>(
+			getDataClass(), 
+			path,
+			fields,
+			nested, 
+			getList()).build(indent);
 	}
 	
 	@Override

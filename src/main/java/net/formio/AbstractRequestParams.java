@@ -16,6 +16,7 @@
  */
 package net.formio;
 
+import net.formio.internal.FormUtils;
 import net.formio.upload.UploadedFile;
 
 /**
@@ -42,5 +43,21 @@ public abstract class AbstractRequestParams implements RequestParams {
 			file = files[0];
 		}
 		return file;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		boolean first = true;
+		for (String paramName : getParamNames()) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append("\n");
+			}
+			String value = getParamValue(paramName);
+			sb.append(paramName + "=" + FormUtils.truncate(value, 60));
+		}
+		return sb.toString();
 	}
 }

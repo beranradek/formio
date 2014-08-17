@@ -25,8 +25,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import net.formio.common.FormUtils;
 import net.formio.data.RequestContext;
+import net.formio.internal.FormUtils;
 import net.formio.servlet.ServletRequestParams;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
@@ -97,7 +97,8 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups) {
+	public FormData<T> bind(final RequestParams paramsProvider, final Locale locale, final T instance, final RequestContext context, final Class<?>... validationGroups) {
+		RequestContext ctx = context;
 		if (ctx == null && paramsProvider instanceof ServletRequestParams) {
 			// fallback to ctx retrieved from ServletRequestParams, so the user need not to specify ctx explicitly for bind method
 			ctx = ((ServletRequestParams)paramsProvider).getRequestContext();
@@ -261,7 +262,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			// and nested mapping already has path registration-collegues-regDate.
 			// We need take path of this mapping (without index) (registration-collegues),
 			// add the index to it and add the rest of current path (-regDate)
-			FormMapping newMapping = e.getValue().withIndexAfterPathPrefix(index, this.path);
+			FormMapping<?> newMapping = e.getValue().withIndexAfterPathPrefix(index, this.path);
 			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale, ctx));
 		}
 		return newNestedMappings;

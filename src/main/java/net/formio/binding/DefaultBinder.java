@@ -19,7 +19,7 @@ package net.formio.binding;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -98,7 +98,7 @@ public class DefaultBinder implements Binder {
 	 */
 	@Override
 	public <T> FilledData<T> bindToNewInstance(Class<T> objClass, Instantiator<T> instantiator, Map<String, BoundValuesInfo> values) {
-		Map<String, List<ParseError>> propertyBindErrors = new HashMap<String, List<ParseError>>();
+		Map<String, List<ParseError>> propertyBindErrors = new LinkedHashMap<String, List<ParseError>>();
 		if (values == null) throw new IllegalArgumentException("values cannot be null");
 		Set<String> notBoundYetParamNames = values.keySet();
 		

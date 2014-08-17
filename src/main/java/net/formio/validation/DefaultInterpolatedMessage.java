@@ -17,7 +17,7 @@
 package net.formio.validation;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -43,6 +43,6 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 	 */
 	@Override
 	public Map<String, Serializable> getMessageParameters() {
-		return new HashMap<String, Serializable>();
+		return new LinkedHashMap<String, Serializable>();
 	}
 }

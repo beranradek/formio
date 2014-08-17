@@ -17,7 +17,7 @@
 package net.formio.upload;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -41,7 +41,7 @@ public class MaxSizeExceededError extends RequestProcessingError {
 	 */
 	@Override
 	public Map<String, Serializable> getMessageParameters() {
-		Map<String, Serializable> params = new HashMap<String, Serializable>();
+		Map<String, Serializable> params = new LinkedHashMap<String, Serializable>();
 		params.put("currentSize", humanReadableByteCount(getCurrentSize()));
 		params.put("maxSize", humanReadableByteCount(getMaxSize()));
 		return params;

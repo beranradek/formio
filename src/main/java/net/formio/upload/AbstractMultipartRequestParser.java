@@ -19,7 +19,7 @@ package net.formio.upload;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.formio.common.FormUtils;
+import net.formio.internal.FormUtils;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;

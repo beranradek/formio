@@ -60,9 +60,10 @@ public final class PasswordGenerator {
 	 * @throws IllegalArgumentException if any character of separator is contained in alphabet
 	 */
 	public static String generatePassword(int length, String digits, int grpSize, String grpSep) {
-		grpSep = testSeparator(digits, grpSep);
+		String groupSeparator = grpSep;
+		groupSeparator = testSeparator(digits, groupSeparator);
 		SecureRandom rnd = new SecureRandom();
-		return generateSinglePswd(length, digits, grpSize, grpSep, rnd);
+		return generateSinglePswd(length, digits, grpSize, groupSeparator, rnd);
 	}
 
 	protected static String generateSinglePswd(int length, String digits, int grpSize, String grpSep, SecureRandom rnd) {
@@ -81,9 +82,16 @@ public final class PasswordGenerator {
 	}
 
 	private static String testSeparator(String digits, String grpSep) {
-		if (grpSep==null) grpSep = "";
-		for (int i=0;i<grpSep.length();i++) if (digits.indexOf(grpSep.charAt(i))>=0) throw new IllegalArgumentException("Separator contains digits");
-		return grpSep;
+		String groupSeparator = grpSep;
+		if (groupSeparator==null) {
+			groupSeparator = "";
+		}
+		for (int i=0;i<groupSeparator.length();i++) { 
+			if (digits.indexOf(groupSeparator.charAt(i))>=0) { 
+				throw new IllegalArgumentException("Separator contains digits");
+			}
+		}
+		return groupSeparator;
 	}
 	
 	private PasswordGenerator() {

@@ -99,6 +99,47 @@ public class ValidationResult implements Serializable {
 		return globalMessages;
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		boolean first = true;
+		sb.append("globalMessages {\n");
+		for (ConstraintViolationMessage msg : globalMessages) {
+			if (msg != null) {
+				if (first) {
+					first = false;
+				} else {
+					sb.append(",\n");
+				}
+				sb.append("  " + msg.toString());
+			}
+		}
+		sb.append("\n}\n");
+		sb.append("fieldMessages {\n");
+		first = true;
+		for (Map.Entry<String, Set<ConstraintViolationMessage>> e : fieldMessages.entrySet()) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(",\n");
+			}
+			sb.append("  " + e.getKey() + "=");
+			boolean firstMsg = true;
+			for (ConstraintViolationMessage msg : e.getValue()) {
+				if (msg != null) {
+					if (firstMsg) {
+						firstMsg = false;
+					} else {
+						sb.append(";");
+					}
+					sb.append(msg.toString());
+				}
+			}
+		}
+		sb.append("\n}\n");
+		return sb.toString();
+	}
+	
 	private static final ValidationResult newEmptyValidationResult() {
 		return new ValidationResult(
 			Collections.unmodifiableMap(Collections.<String, Set<ConstraintViolationMessage>>emptyMap()),

@@ -27,7 +27,7 @@ import net.formio.upload.UploadedFile;
  * Simulates input from the user.
  * @author Radek Beran
  */
-public class MapParams implements RequestParams {
+public class MapParams extends AbstractRequestParams {
 	
 	private final Map<String, String[]> params;
 	private final Map<String, UploadedFile[]> files;
@@ -84,28 +84,8 @@ public class MapParams implements RequestParams {
 	}
 
 	@Override
-	public String getParamValue(String paramName) {
-		String value = null;
-		String[] values = getParamValues(paramName);
-		if (values != null && values.length > 0) {
-			value = values[0];
-		}
-		return value;
-	}
-
-	@Override
 	public UploadedFile[] getUploadedFiles(String paramName) {
 		return this.files.get(paramName);
-	}
-
-	@Override
-	public UploadedFile getUploadedFile(String paramName) {
-		UploadedFile value = null;
-		UploadedFile[] values = getUploadedFiles(paramName);
-		if (values != null && values.length > 0) {
-			value = values[0];
-		}
-		return value;
 	}
 
 	@Override

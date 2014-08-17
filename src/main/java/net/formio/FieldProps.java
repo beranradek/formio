@@ -32,6 +32,7 @@ public class FieldProps<T> implements Serializable {
 	private final String pattern;
 	private final Formatter<T> formatter;
 	
+	@SuppressWarnings("synthetic-access")
 	FieldProps(Builder<T> builder) {
 		this.propertyName = builder.propertyName;
 		this.type = builder.type;
