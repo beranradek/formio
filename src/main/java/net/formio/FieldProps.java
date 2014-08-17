@@ -18,7 +18,10 @@ package net.formio;
 
 import java.io.Serializable;
 
+import net.formio.common.heterog.HeterogCollections;
+import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
+import net.formio.props.FieldProperty;
 
 /**
  * Specification of properties used to construct a {@link FormField}.
@@ -31,6 +34,7 @@ public class FieldProps<T> implements Serializable {
 	private final String type;
 	private final String pattern;
 	private final Formatter<T> formatter;
+	private final HeterogMap<String> properties;
 	
 	@SuppressWarnings("synthetic-access")
 	FieldProps(Builder<T> builder) {
@@ -38,6 +42,7 @@ public class FieldProps<T> implements Serializable {
 		this.type = builder.type;
 		this.pattern = builder.pattern;
 		this.formatter = builder.formatter;
+		this.properties = HeterogCollections.unmodifiableMap(builder.properties);
 	}
 	
 	public static class Builder<T> {
@@ -45,6 +50,7 @@ public class FieldProps<T> implements Serializable {
 		private String type = null;
 		private String pattern = null;
 		private Formatter<T> formatter = null;
+		private final HeterogMap<String> properties;
 
 		Builder(String propertyName) {
 			this(propertyName, (String)null);
@@ -55,6 +61,7 @@ public class FieldProps<T> implements Serializable {
 			if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be specified");
 			this.propertyName = propertyName;
 			this.type = type;
+			this.properties = FieldProperty.createDefaultFieldProperties();
 		}
 		
 		public Builder<T> type(String type) {
@@ -69,6 +76,11 @@ public class FieldProps<T> implements Serializable {
 		
 		public Builder<T> formatter(Formatter<T> formatter) {
 			this.formatter = formatter;
+			return this;
+		}
+		
+		public <U> Builder<T> putProperty(FieldProperty<U> fieldProperty, U value) {
+			this.properties.putTyped(fieldProperty, value);
 			return this;
 		}
 		
@@ -112,5 +124,13 @@ public class FieldProps<T> implements Serializable {
 	 */
 	public Formatter<T> getFormatter() {
 		return this.formatter;
+	}
+	
+	/**
+	 * Field properties (flags like required, ... - see {@link FieldProperty}).
+	 * @return
+	 */
+	public HeterogMap<String> getProperties() {
+		return this.properties;
 	}
 }

@@ -18,6 +18,7 @@ package net.formio;
 
 import java.util.List;
 
+import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 
 /**
@@ -59,7 +60,11 @@ public interface FormField {
 	 */
 	boolean isRequired();
 	
-	// TODO: isDisabled
+	/**
+	 * Returns properties (flags) of this form field.
+	 * @return
+	 */
+	HeterogMap<String> getProperties();
 	
 	/**
 	 * Objects which this field is filled with. There are more objects if this

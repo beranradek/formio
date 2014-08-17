@@ -26,7 +26,7 @@ public class FieldPropertyTest {
 
 	@Test
 	public void testGetValues() {
-		List<Property<Object>> props = FieldProperty.getValues();
+		List<FieldProperty<Object>> props = FieldProperty.getValues();
 		assertTrue("field props should contain visible property", props.contains(FieldProperty.VISIBLE));
 		assertTrue("field props should contain enabled property", props.contains(FieldProperty.ENABLED));
 		assertTrue("field props should contain readonly property", props.contains(FieldProperty.READ_ONLY));

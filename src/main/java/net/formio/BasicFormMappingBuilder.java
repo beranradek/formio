@@ -102,7 +102,11 @@ public class BasicFormMappingBuilder<T> {
 	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> formField) {
 		String frmPrefixedName = formPrefixedName(formField.getPropertyName());
 		fields.put(formField.getPropertyName(), FormFieldImpl.getInstance(
-			frmPrefixedName, formField.getType(), formField.getPattern(), (Formatter<Object>)formField.getFormatter(), false));
+			frmPrefixedName, 
+			formField.getType(), 
+			formField.getPattern(), 
+			(Formatter<Object>)formField.getFormatter(), 
+			formField.getProperties()));
 		return this;
 	}
 	

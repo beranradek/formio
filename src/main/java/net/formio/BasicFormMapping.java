@@ -36,6 +36,7 @@ import net.formio.internal.FormUtils;
 import net.formio.security.PasswordGenerator;
 import net.formio.security.TokenMissingException;
 import net.formio.servlet.ServletRequestParams;
+import net.formio.upload.MaxSizeExceededError;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ConstraintViolationMessage;
@@ -326,8 +327,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 				locale));
 		}
 		
-		// Must be executed after processing of nested mappings
-		verifyAuthTokenIfSecured(paramsProvider, ctx, false);
+		if (!(error instanceof MaxSizeExceededError)) {
+			// Must be executed after processing of nested mappings
+			verifyAuthTokenIfSecured(paramsProvider, ctx, false);
+		}
 		
 		// binding data from "values" to resulting object for this mapping
 		Instantiator<T> instantiator = this.instantiator;
@@ -585,7 +588,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 				fieldName = FormUtils.pathWithIndexBeforeLastProperty(field.getName(), indexInList);
 			}
 			final FormField filledField = FormFieldImpl.getFilledInstance(
-				fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.isRequired(),
+				fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getProperties(),
 				FormUtils.convertObjectToList(value), locale, this.getConfig().getFormatters());
 			filledFields.put(propertyName, filledField);
 		}

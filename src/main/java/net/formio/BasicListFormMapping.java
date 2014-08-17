@@ -28,6 +28,8 @@ import java.util.Set;
 import net.formio.data.RequestContext;
 import net.formio.internal.FormUtils;
 import net.formio.servlet.ServletRequestParams;
+import net.formio.upload.MaxSizeExceededError;
+import net.formio.upload.RequestProcessingError;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
 
@@ -104,6 +106,8 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			ctx = ((ServletRequestParams)paramsProvider).getRequestContext();
 		}
 		
+		final RequestProcessingError error = paramsProvider.getRequestError();
+		
 		// Finding how many parameters are in the request - check for max. index available in request params name, 
 		// according to this mapping path
 		int maxIndex = FormUtils.findMaxIndex(paramsProvider.getParamNames(), this.path);
@@ -163,8 +167,10 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			globalMsgs.addAll(formData.getValidationResult().getGlobalMessages());
 		}
 		
-		// Must be executed after processing of nested mappings
-		verifyAuthTokenIfSecured(paramsProvider, ctx, true);
+		if (!(error instanceof MaxSizeExceededError)) {
+			// Must be executed after processing of nested mappings
+			verifyAuthTokenIfSecured(paramsProvider, ctx, true);
+		}
 		
 		ValidationResult validationRes = new ValidationResult(fieldMsgs, globalMsgs);
 		FormData<List<T>> formData = new FormData<List<T>>(data, validationRes);
@@ -274,7 +280,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			FormField srcFld = e.getValue();
 			String indexedName = FormUtils.pathWithIndexBeforeLastProperty(srcFld.getName(), index);
 			final FormFieldImpl f = FormFieldImpl.getInstance(indexedName, 
-				srcFld.getType(), srcFld.getPattern(), srcFld.getFormatter(), srcFld.isRequired());
+				srcFld.getType(), srcFld.getPattern(), srcFld.getFormatter(), srcFld.getProperties());
 			flds.put(e.getKey(), f);
 		}
 		return flds;

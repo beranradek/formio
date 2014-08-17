@@ -21,9 +21,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import net.formio.common.heterog.HeterogCollections;
+import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
 import net.formio.internal.FormUtils;
+import net.formio.props.FieldProperty;
 
 /**
  * Form field. Immutable.
@@ -36,21 +39,21 @@ class FormFieldImpl implements FormField {
 	private final String pattern;
 	private final Formatter<Object> formatter;
 	private final String strValue;
-	private final boolean required;
+	private final HeterogMap<String> properties;
 	
-	static FormFieldImpl getInstance(String name, String type, String pattern, Formatter<Object> formatter, boolean required) {
-		return new FormFieldImpl(name, type, pattern, formatter, required, Collections.emptyList(), null);
+	static FormFieldImpl getInstance(String name, String type, String pattern, Formatter<Object> formatter, HeterogMap<String> properties) {
+		return new FormFieldImpl(name, type, pattern, formatter, properties, Collections.emptyList(), null);
 	}
 	
-	static FormFieldImpl getFilledInstance(String name, String type, String pattern, Formatter<Object> formatter, boolean required, List<Object> values, Locale locale, Formatters formatters) {
+	static FormFieldImpl getFilledInstance(String name, String type, String pattern, Formatter<Object> formatter, HeterogMap<String> properties, List<Object> values, Locale locale, Formatters formatters) {
 		String strValue = null;
 		if (values.size() > 0) {
 			strValue = valueAsString(values.get(0), pattern, formatter, locale, formatters);
 		}
-		return new FormFieldImpl(name, type, pattern, formatter, required, values, strValue);
+		return new FormFieldImpl(name, type, pattern, formatter, properties, values, strValue);
 	}
 	
-	private FormFieldImpl(String name, String type, String pattern, Formatter<Object> formatter, boolean required, List<Object> values, String strValue) {
+	private FormFieldImpl(String name, String type, String pattern, Formatter<Object> formatter, HeterogMap<String> properties, List<Object> values, String strValue) {
 		if (values == null) throw new IllegalArgumentException("values cannot be null, only empty");
 		this.name = name;
 		this.type = type;
@@ -58,7 +61,7 @@ class FormFieldImpl implements FormField {
 		this.formatter = formatter;
 		this.filledObjects = values;
 		this.strValue = strValue;
-		this.required = required;
+		this.properties = properties;
 	}
 
 	/**
@@ -75,9 +78,9 @@ class FormFieldImpl implements FormField {
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
 		this.strValue = src.getValue();
-		this.required = src.isRequired();
+		this.properties = copyProperties(src.getProperties());
 	}
-	
+
 	/**
 	 * Returns copy of field with given required flag.
 	 * @param src
@@ -90,7 +93,7 @@ class FormFieldImpl implements FormField {
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
 		this.strValue = src.getValue();
-		this.required = required;
+		this.properties = copyProperties(src.getProperties(), required);
 	}
 
 	/**
@@ -110,7 +113,7 @@ class FormFieldImpl implements FormField {
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
 		this.strValue = src.getValue();
-		this.required = src.isRequired();
+		this.properties = copyProperties(src.getProperties());
 	}
 
 	/**
@@ -162,7 +165,12 @@ class FormFieldImpl implements FormField {
 	
 	@Override
 	public boolean isRequired() {
-		return required;
+		return this.properties.getTyped(FieldProperty.REQUIRED).booleanValue();
+	}
+	
+	@Override
+	public HeterogMap<String> getProperties() {
+		return this.properties;
 	}
 
 	@Override
@@ -224,6 +232,19 @@ class FormFieldImpl implements FormField {
 			str = formatters.makeString(value, pattern, locale);
 		}
 		return str;
+	}
+	
+	private HeterogMap<String> copyProperties(HeterogMap<String> source) {
+		HeterogMap<String> map = HeterogCollections.<String>newLinkedMap();
+		map.putAllFromSource(source);
+		return HeterogCollections.unmodifiableMap(map);
+	}
+	
+	private HeterogMap<String> copyProperties(HeterogMap<String> source, boolean required) {
+		HeterogMap<String> map = HeterogCollections.<String>newLinkedMap();
+		map.putAllFromSource(source);
+		map.putTyped(FieldProperty.REQUIRED, Boolean.valueOf(required));
+		return HeterogCollections.unmodifiableMap(map);
 	}
 
 }
