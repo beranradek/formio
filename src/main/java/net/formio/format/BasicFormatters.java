@@ -266,15 +266,19 @@ public class BasicFormatters implements Formatters {
 				public BigDecimal parseFromString(String str,
 						Class<BigDecimal> destClass, String formatPattern,
 						Locale locale) {
+					BigDecimal bd = null;
 					try {
 						DecimalFormat format = FormatsCache.getOrCreateDecimalFormat(
 							formatPattern, locale);
-						// Always isParseBigDecimal
-						return (BigDecimal) format.parse(amendDecimalPoint(str, locale),
-							new ParsePosition(0));
+						format.setParseBigDecimal(true);
+						bd = (BigDecimal) format.parse(amendDecimalPoint(str, locale), new ParsePosition(0));
 					} catch (Exception ex) {
 						throw new StringParseException(BigDecimal.class, str, ex);
 					}
+					if (bd == null && str != null) {
+						throw new StringParseException(BigDecimal.class, str, null);
+					}
+					return bd;
 				}
 				
 				@Override

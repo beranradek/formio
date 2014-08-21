@@ -61,6 +61,8 @@ public class BasicFormattersTest {
 		Assert.assertEquals(new BigDecimal("3.6"), bd2);
 	}
 	
+	
+	
 	@Test
 	public void testParseFromString() {
 		final BasicFormatters formatters = new BasicFormatters();
@@ -220,6 +222,13 @@ public class BasicFormattersTest {
 		Assert.assertEquals(12, cal2.get(Calendar.DAY_OF_MONTH));
 		Assert.assertEquals(3 - 1, cal2.get(Calendar.MONTH));
 		Assert.assertEquals(2014, cal2.get(Calendar.YEAR));
+	}
+	
+	@Test(expected=StringParseException.class)
+	public void testInvalidBigDecimal() {
+		final Locale locale = new Locale("cs", "CZ");
+		final BasicFormatters formatters = new BasicFormatters();
+		formatters.parseFromString("aaa", BigDecimal.class, locale);
 	}
 	
 	@Test
