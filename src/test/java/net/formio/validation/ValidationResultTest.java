@@ -43,7 +43,7 @@ public class ValidationResultTest {
 		
 		ValidationResult result = new ValidationResult(fieldMsgs, globalMsgs);
 		String str = result.toString();
-		System.out.println(str);
+		// System.out.println(str);
 	}
 
 }

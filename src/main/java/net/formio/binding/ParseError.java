@@ -32,6 +32,8 @@ import net.formio.validation.DefaultInterpolatedMessage;
  * @author Radek Beran
  */
 public final class ParseError extends DefaultInterpolatedMessage {
+	public static final String MSG_ARG_TARGET_TYPE = "targetType";
+	public static final String MSG_ARG_VALUE_AS_STRING = "valueAsString";
 	private static final long serialVersionUID = -667660744330342475L;
 	private final String propertyName;
 	private final Class<?> targetTypeClass;
@@ -66,7 +68,7 @@ public final class ParseError extends DefaultInterpolatedMessage {
 	}
 
 	/**
-	 * String that should be converted.
+	 * String that should be converted (original value entered by user).
 	 * 
 	 * @return
 	 */
@@ -82,8 +84,8 @@ public final class ParseError extends DefaultInterpolatedMessage {
 	@Override
 	public Map<String, Serializable> getMessageParameters() {
 		Map<String, Serializable> params = new LinkedHashMap<String, Serializable>();
-		params.put("valueAsString", getValueAsString());
-		params.put("targetType", getTargetTypeClass().getSimpleName());
+		params.put(MSG_ARG_VALUE_AS_STRING, getValueAsString());
+		params.put(MSG_ARG_TARGET_TYPE, getTargetTypeClass().getSimpleName());
 		return params;
 	}
 

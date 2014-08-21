@@ -45,9 +45,11 @@ class FormFieldImpl implements FormField {
 		return new FormFieldImpl(name, type, pattern, formatter, properties, Collections.emptyList(), null);
 	}
 	
-	static FormFieldImpl getFilledInstance(String name, String type, String pattern, Formatter<Object> formatter, HeterogMap<String> properties, List<Object> values, Locale locale, Formatters formatters) {
+	static FormFieldImpl getFilledInstance(String name, String type, String pattern, Formatter<Object> formatter, HeterogMap<String> properties, List<Object> values, Locale locale, Formatters formatters, String preferedStringValue) {
 		String strValue = null;
-		if (values.size() > 0) {
+		if (preferedStringValue != null) {
+			strValue = preferedStringValue; 
+		} else if (values.size() > 0) {
 			strValue = valueAsString(values.get(0), pattern, formatter, locale, formatters);
 		}
 		return new FormFieldImpl(name, type, pattern, formatter, properties, values, strValue);
@@ -117,7 +119,7 @@ class FormFieldImpl implements FormField {
 	}
 
 	/**
-	 * Name of edited property prefixed with form name (and following dot).
+	 * Name of edited property prefixed with form name.
 	 */
 	@Override
 	public String getName() {

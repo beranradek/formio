@@ -30,6 +30,7 @@ import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.FilledData;
 import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
+import net.formio.binding.ParseError;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
@@ -511,7 +512,12 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		Map<String, Object> propValues = gatherPropertyValues(editedObj.getData(), FormUtils.getPropertiesFromFields(fields), ctx);
 		
 		// Fill the definitions of fields of this mapping with prepared values
-		Map<String, FormField> filledFields = fillFields(propValues, -1, locale);
+		Map<String, FormField> filledFields = fillFields(
+			propValues, 
+			editedObj.getValidationResult() != null && editedObj.getValidationResult().getFieldMessages() != null ?
+				editedObj.getValidationResult().getFieldMessages() : new HashMap<String, Set<ConstraintViolationMessage>>(),
+			-1, 
+			locale);
 
 		// Returning copy of this form that is filled with form data
 		BasicFormMappingBuilder<T> builder = null;
@@ -569,7 +575,11 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return SECRET_KEY_PREFIX + getRootMappingPath();
 	}
 
-	Map<String, FormField> fillFields(Map<String, Object> propValues, int indexInList, Locale locale) {
+	Map<String, FormField> fillFields(
+		Map<String, Object> propValues, 
+		Map<String, Set<ConstraintViolationMessage>> fieldMsgs, 
+		int indexInList, 
+		Locale locale) {
 		Map<String, FormField> filledFields = new LinkedHashMap<String, FormField>();
 		// For each field from form definition, let's fill this field with value -> filled form field
 		for (Map.Entry<String, FormField> fieldDefEntry : this.fields.entrySet()) {
@@ -587,9 +597,14 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			if (indexInList >= 0) {
 				fieldName = FormUtils.pathWithIndexBeforeLastProperty(field.getName(), indexInList);
 			}
+			Set<ConstraintViolationMessage> fieldMessages = fieldMsgs.get(fieldName);
+			String preferedStringValue = null;
+			if (fieldMessages != null && !fieldMessages.isEmpty()) {
+				preferedStringValue = getOriginalStringValueFromParseError(fieldMessages);
+			}
 			final FormField filledField = FormFieldImpl.getFilledInstance(
 				fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getProperties(),
-				FormUtils.convertObjectToList(value), locale, this.getConfig().getFormatters());
+				FormUtils.convertObjectToList(value), locale, this.getConfig().getFormatters(), preferedStringValue);
 			filledFields.put(propertyName, filledField);
 		}
 		filledFields = Collections.unmodifiableMap(filledFields);
@@ -695,6 +710,18 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	
 	private Locale getDefaultLocale() {
 		return Locale.getDefault();
+	}
+	
+	private String getOriginalStringValueFromParseError(Set<ConstraintViolationMessage> fieldMessages) {
+		String value = null;
+		if (fieldMessages != null) {
+			for (ConstraintViolationMessage msg : fieldMessages) {
+				if (value == null && msg.getMsgArgs() != null) {
+					value = (String)msg.getMsgArgs().get(ParseError.MSG_ARG_VALUE_AS_STRING);
+				}
+			}
+		}
+		return value;
 	}
 
 }

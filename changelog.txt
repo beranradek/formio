@@ -1,6 +1,10 @@
 # Changelog
 
-1.0.5 (17.8.2014)
+1.1.1 (22.8.2014)
+* Fixed parsing of invalid BigDecimal (StringParseException should be thrown).
+* Filling field with original string value in case of parse error.
+
+1.1.0 (17.8.2014)
 * AbstractRequestParams for more convenient implementation of RequestParams 
 * Validators for phone, IPv4/6 address, URL
 * SessionAttributeStorage

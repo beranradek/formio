@@ -18,6 +18,7 @@ package net.formio;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -194,7 +195,12 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			Map<String, Object> propValues = gatherPropertyValues(dataAtIndex, propNames, ctx);
 			
 			// Fill the fields of this mapping with prepared values for current list index
-			Map<String, FormField> filledFields = fillFields(propValues, index, locale);
+			Map<String, FormField> filledFields = fillFields(
+				propValues, 
+				editedObj.getValidationResult() != null && editedObj.getValidationResult().getFieldMessages() != null ?
+					editedObj.getValidationResult().getFieldMessages() : new HashMap<String, Set<ConstraintViolationMessage>>(),
+				index, 
+				locale);
 			
 			// Returning copy of this mapping (for current index) that is filled with form data,
 			// but with single mapping type (for an index) and now without list mappings
