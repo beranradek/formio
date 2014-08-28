@@ -1,5 +1,8 @@
 # Changelog
 
+1.1.2 (?)
+* Generic FormField
+
 1.1.1 (22.8.2014)
 * Fixed parsing of invalid BigDecimal (StringParseException should be thrown).
 * Filling field with original string value in case of parse error.
