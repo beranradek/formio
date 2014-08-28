@@ -31,6 +31,7 @@ import net.formio.data.TestForms;
 import net.formio.domain.MarriedPerson;
 import net.formio.domain.Nation;
 import net.formio.domain.Person;
+import net.formio.validation.ValidationResult;
 
 import org.junit.Test;
 
@@ -47,7 +48,7 @@ public class SimpleFormTest {
 			final Locale locale = new Locale("en");
 			
 			// Filling form with initial data
-			FormData<Person> formData = new FormData<Person>(getInitData(), null);
+			FormData<Person> formData = new FormData<Person>(getInitData(), ValidationResult.empty);
 			FormMapping<Person> personForm = TestForms.PERSON_FORM;
 			FormMapping<Person> filledForm = personForm.fill(formData, locale);
 			
@@ -56,7 +57,7 @@ public class SimpleFormTest {
 			String filledBirthDate = filledForm.getFields().get("birthDate").getValue();
 			assertEquals("20-2-1982 11-20", filledBirthDate);
 			
-			Person filledObject = (Person)filledForm.getFilledObject();
+			Person filledObject = filledForm.getFilledObject();
 			Person initData = getInitData();
 			assertInitDataAreFilled(initData, filledObject);
 			

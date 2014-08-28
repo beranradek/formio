@@ -22,6 +22,7 @@ import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.MappingType;
 import net.formio.domain.Address;
+import net.formio.domain.BigDecimalValue;
 import net.formio.domain.Collegue;
 import net.formio.domain.NewCollegue;
 import net.formio.domain.Person;
@@ -63,6 +64,9 @@ public final class TestForms {
 		.fields("personId", "firstName", "lastName", "salary", "phone", "male", "nation")
 		.field(Forms.<Date>field("birthDate", "text").formatter(TestFormatters.CUSTOM_DATE_FORMATTER).build())
 		.build();
+	
+	public static final FormMapping<BigDecimalValue> VALUE_FORM = 
+		Forms.automatic(BigDecimalValue.class, "valueForm").build(); 
 	
 	private TestForms() {
 	}

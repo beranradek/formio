@@ -54,21 +54,28 @@ public class BasicFormattersTest {
 		BigDecimal bd = formatters.parseFromString("3,6", BigDecimal.class, locale);
 		Assert.assertNotNull("Result decimal is null", bd);
 		// Separator "," considered as thousands delimiter
-		Assert.assertEquals(new BigDecimal("36"), bd);
+		Assert.assertEquals(BigDecimal.valueOf(36L), bd);
 		
 		BigDecimal bd2 = formatters.parseFromString("3.6", BigDecimal.class, locale);
 		Assert.assertNotNull("Result decimal is null", bd2);
 		Assert.assertEquals(new BigDecimal("3.6"), bd2);
 	}
 	
-	
+	@Test
+	public void testMakeStringBigDecimal() {
+		final BasicFormatters formatters = new BasicFormatters();
+		final Locale csLocale = new Locale("cs");
+		final Locale enLocale = new Locale("en");
+		Assert.assertEquals("50,6", formatters.makeString(BigDecimal.valueOf(5060, 2), csLocale));
+		Assert.assertEquals("50.6", formatters.makeString(BigDecimal.valueOf(5060, 2), enLocale));
+	}
 	
 	@Test
 	public void testParseFromString() {
 		final BasicFormatters formatters = new BasicFormatters();
 		
-		Locale locale = new Locale("cs", "CZ");
-		Date date = formatters.parseFromString("12.3.2014 16:30", Date.class, "dd.MM.yyyy HH:mm", locale);
+		Locale csLocale = new Locale("cs", "CZ");
+		Date date = formatters.parseFromString("12.3.2014 16:30", Date.class, "dd.MM.yyyy HH:mm", csLocale);
 		Assert.assertNotNull("Result date is null", date);
 		Calendar cal = getCalendarForDate(date);
 		Assert.assertEquals(12, cal.get(Calendar.DAY_OF_MONTH));
@@ -77,15 +84,15 @@ public class BasicFormattersTest {
 		Assert.assertEquals(16, cal.get(Calendar.HOUR_OF_DAY));
 		Assert.assertEquals(30, cal.get(Calendar.MINUTE));
 		
-		BigDecimal bd = formatters.parseFromString("3,6", BigDecimal.class, "#.#", locale);
+		BigDecimal bd = formatters.parseFromString("3,6", BigDecimal.class, "#.#", csLocale);
 		Assert.assertNotNull("Result decimal is null", bd);
 		Assert.assertEquals(new BigDecimal("3.6"), bd);
 		
-		BigDecimal bd2 = formatters.parseFromString("3.6", BigDecimal.class, "#.#", locale);
+		BigDecimal bd2 = formatters.parseFromString("3.6", BigDecimal.class, "#.#", csLocale);
 		Assert.assertNotNull("Result decimal is null", bd2);
 		Assert.assertEquals(new BigDecimal("3.6"), bd2);
 		
-		BigDecimal bd3 = formatters.parseFromString("3.6", BigDecimal.class, locale);
+		BigDecimal bd3 = formatters.parseFromString("3.6", BigDecimal.class, csLocale);
 		Assert.assertNotNull("Result decimal is null", bd3);
 		Assert.assertEquals(new BigDecimal("3.6"), bd3);
 		
@@ -93,47 +100,47 @@ public class BasicFormattersTest {
 		Assert.assertNotNull("Result decimal is null", bd4);
 		Assert.assertEquals(new BigDecimal("3.6"), bd4);
 		
-		Double d = formatters.parseFromString("2.1", Double.class, locale);
+		Double d = formatters.parseFromString("2.1", Double.class, csLocale);
 		Assert.assertNotNull("Result double is null", d);
 		Assert.assertEquals(2.1, d.doubleValue(), 0.001);
 		
-		Double d2 = formatters.parseFromString("2,1", Double.class, locale);
+		Double d2 = formatters.parseFromString("2,1", Double.class, csLocale);
 		Assert.assertNotNull("Result double is null", d2);
 		Assert.assertEquals(2.1, d2.doubleValue(), 0.001);
 		
-		BigInteger bi = formatters.parseFromString("123", BigInteger.class, locale);
+		BigInteger bi = formatters.parseFromString("123", BigInteger.class, csLocale);
 		Assert.assertNotNull("Result big integer is null", bi);
 		Assert.assertEquals(BigInteger.valueOf(123), bi);
 		
-		BigInteger bi2 = formatters.parseFromString("123,3", BigInteger.class, locale);
+		BigInteger bi2 = formatters.parseFromString("123,3", BigInteger.class, csLocale);
 		Assert.assertNotNull("Result big integer is null", bi2);
 		Assert.assertEquals(BigInteger.valueOf(123), bi2);
 		
-		Short s = formatters.parseFromString("6", Short.class, locale);
+		Short s = formatters.parseFromString("6", Short.class, csLocale);
 		Assert.assertNotNull("Result Short is null", s);
 		Assert.assertEquals(Short.valueOf("6"), s);
 		
-		Short s2 = formatters.parseFromString("45.45", Short.class, locale);
+		Short s2 = formatters.parseFromString("45.45", Short.class, csLocale);
 		Assert.assertNotNull("Result Short is null", s2);
 		Assert.assertEquals(Short.valueOf("45"), s2);
 		
-		Integer i = formatters.parseFromString("45", Integer.class, locale);
+		Integer i = formatters.parseFromString("45", Integer.class, csLocale);
 		Assert.assertNotNull("Result Integer is null", i);
 		Assert.assertEquals(Integer.valueOf(45), i);
 		
-		Integer i2 = formatters.parseFromString("45.45", Integer.class, locale);
+		Integer i2 = formatters.parseFromString("45.45", Integer.class, csLocale);
 		Assert.assertNotNull("Result Integer is null", i2);
 		Assert.assertEquals(Integer.valueOf(45), i2);
 		
-		Long l = formatters.parseFromString("45", Long.class, locale);
+		Long l = formatters.parseFromString("45", Long.class, csLocale);
 		Assert.assertNotNull("Result Long is null", l);
 		Assert.assertEquals(Long.valueOf(45), l);
 		
-		Long l2 = formatters.parseFromString("45.45", Long.class, locale);
+		Long l2 = formatters.parseFromString("45.45", Long.class, csLocale);
 		Assert.assertNotNull("Result Long is null", l2);
 		Assert.assertEquals(Long.valueOf(45), l2);
 		
-		MluvnickyPad e = formatters.parseFromString("GENITIV", MluvnickyPad.class, locale);
+		MluvnickyPad e = formatters.parseFromString("GENITIV", MluvnickyPad.class, csLocale);
 		Assert.assertNotNull("Result Enum is null", e);
 		Assert.assertEquals(MluvnickyPad.GENITIV, e);
 	}
