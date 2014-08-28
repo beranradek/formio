@@ -34,6 +34,7 @@ import net.formio.format.BasicFormatters;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
 import net.formio.format.StringParseException;
+import net.formio.upload.UploadedFile;
 
 /**
  * Binds given values to new/existing instance of class.
@@ -215,6 +216,11 @@ public class DefaultBinder implements Binder {
 		Object resultValue = null;
 		if (!canBeImplicitlyConverted(formValue.getClass(), targetClass) 
 			&& formValue instanceof String && !targetClass.isInstance(formValue)) {
+			if (UploadedFile.class.isAssignableFrom(targetClass)) {
+				throw new IllegalStateException("Invalid String value for property '" + propertyName + "' of type " + 
+					UploadedFile.class.getSimpleName() + ". Did you forget to use POST method for the form with an uploaded file?");
+			}
+			
 			// Convert from the String to targetClass
 			String strValue = (String)formValue;
 			try {
@@ -235,7 +241,7 @@ public class DefaultBinder implements Binder {
 				parseErrors.add(new ParseError(propertyName, targetClass, strValue));
 			}
 		} else {
-			// if value is instanceof UploadedFile, it is automatically
+			// if form value is instanceof UploadedFile, it is automatically
 			// set to property of compatible type
 			// also list of values from list mapping is directly returned
 			resultValue = formValue;
