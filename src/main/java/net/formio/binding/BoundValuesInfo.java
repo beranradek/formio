@@ -30,7 +30,7 @@ public final class BoundValuesInfo {
 	private final Formatter<Object> formatter;
 	private final Locale locale;
 
-	public static BoundValuesInfo getInstance(Object[] values, String pattern, Formatter<Object> formatter, Locale locale) {
+	public static BoundValuesInfo getInstance(Object[] values, String pattern, Formatter<?> formatter, Locale locale) {
 		return new BoundValuesInfo(values, pattern, formatter, locale);
 	}
 	
@@ -42,10 +42,10 @@ public final class BoundValuesInfo {
 		return getInstance(values, null);
 	}
 	
-	private BoundValuesInfo(Object[] values, String pattern, Formatter<Object> formatter, Locale locale) {
+	private BoundValuesInfo(Object[] values, String pattern, Formatter<?> formatter, Locale locale) {
 		this.values = values;
 		this.pattern = pattern;
-		this.formatter = formatter;
+		this.formatter = (Formatter<Object>)formatter;
 		this.locale = locale;
 	}
 

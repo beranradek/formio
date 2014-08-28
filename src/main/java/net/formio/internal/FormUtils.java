@@ -87,9 +87,9 @@ public class FormUtils {
 	 * @param fields
 	 * @return
 	 */
-	public static Set<String> getPropertiesFromFields(Map<String, FormField> fields) {
+	public static <T> Set<String> getPropertiesFromFields(Map<String, FormField<?>> fields) {
 		final Set<String> props = new LinkedHashSet<String>();
-		for (FormField field : fields.values()) {
+		for (FormField<?> field : fields.values()) {
 			// name of field is a full path, already prefixed with form name
 			String propName = fieldNameToLastPropertyName(field.getName());
 			props.add(propName);
@@ -131,14 +131,14 @@ public class FormUtils {
 	 * @param value input object - can be iterable, array or single value
 	 * @return
 	 */
-	public static List<Object> convertObjectToList(Object value) {
-		List<Object> values = new ArrayList<Object>();
+	public static <T> List<T> convertObjectToList(T value) {
+		List<T> values = new ArrayList<T>();
 		if (value instanceof Iterable) {
-			for (Object v : ((Iterable<?>)value)) {
+			for (T v : ((Iterable<T>)value)) {
 				values.add(v);
 			}
 		} else if (value != null && value.getClass().isArray()) {
-			values.addAll(ArrayUtils.convertPrimitiveArrayToList(value));
+			values.addAll(ArrayUtils.<T>convertPrimitiveArrayToList(value));
 	    } else {
 			values.add(value);
 		}

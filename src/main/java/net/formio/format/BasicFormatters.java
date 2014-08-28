@@ -379,8 +379,7 @@ public class BasicFormatters implements Formatters {
 	static String amendDecimalPoint(String str, Locale locale) {
 		String amendedStr = str;
 		if (amendedStr != null && !amendedStr.isEmpty()) {
-			if (locale != null
-					&& locale.getLanguage().toLowerCase().equals("cs")) {
+			if (locale != null && locale.getLanguage().toLowerCase().equals("cs")) {
 				amendedStr = amendedStr.replaceAll("\\.", ",");
 			}
 		}

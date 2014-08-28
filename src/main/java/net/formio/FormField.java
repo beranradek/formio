@@ -25,7 +25,7 @@ import net.formio.format.Formatter;
  * Form field representation. All implementations are immutable.
  * @author Radek Beran
  */
-public interface FormField {
+public interface FormField<T> {
 
 	/**
 	 * Name of this field (full path from outer object to potentially nested property).
@@ -52,7 +52,7 @@ public interface FormField {
 	 * Single/first object which this field is filled with.
 	 * @return
 	 */
-	Object getFilledObject();
+	T getFilledObject();
 	
 	/**
 	 * Returns true if this field is required.
@@ -71,7 +71,7 @@ public interface FormField {
 	 * field represents multivalue field (group of checkboxes, multiselect).
 	 * @return
 	 */
-	List<Object> getFilledObjects();
+	List<T> getFilledObjects();
 	
 	/**
 	 * Single/first value of this field in text form.
@@ -89,6 +89,6 @@ public interface FormField {
 	 * Formatter that formats object to String and vice versa.
 	 * @return
 	 */
-	Formatter<Object> getFormatter();
+	Formatter<T> getFormatter();
 
 }

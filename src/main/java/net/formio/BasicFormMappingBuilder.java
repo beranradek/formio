@@ -33,7 +33,6 @@ import net.formio.binding.PrimitiveType;
 import net.formio.binding.PropertyMethodRegex;
 import net.formio.binding.collection.CollectionSpec;
 import net.formio.binding.collection.ItemsOrder;
-import net.formio.format.Formatter;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 
@@ -51,7 +50,7 @@ public class BasicFormMappingBuilder<T> {
 	Class<T> dataClass;
 	Instantiator<T> instantiator;
 	/** Mapping simple property names to fields. */
-	Map<String, FormField> fields = new LinkedHashMap<String, FormField>();
+	Map<String, FormField<?>> fields = new LinkedHashMap<String, FormField<?>>();
 	/** Mapping simple property names to nested mappings. Property name is a part of full path of nested mapping. */
 	Map<String, FormMapping<?>> nested = new LinkedHashMap<String, FormMapping<?>>();
 	List<FormMapping<T>> listOfMappings = new ArrayList<FormMapping<T>>();
@@ -59,7 +58,7 @@ public class BasicFormMappingBuilder<T> {
 	ValidationResult validationResult;
 	boolean userDefinedConfig;
 	MappingType mappingType;
-	Object filledObject;
+	T filledObject;
 	boolean automatic;
 	boolean secured;
 
@@ -96,17 +95,17 @@ public class BasicFormMappingBuilder<T> {
 	
 	/**
 	 * Adds form field specification.
-	 * @param formField
+	 * @param fieldProperties
 	 * @return
 	 */
-	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> formField) {
-		String frmPrefixedName = formPrefixedName(formField.getPropertyName());
-		fields.put(formField.getPropertyName(), FormFieldImpl.getInstance(
+	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> fieldProperties) {
+		String frmPrefixedName = formPrefixedName(fieldProperties.getPropertyName());
+		fields.put(fieldProperties.getPropertyName(), FormFieldImpl.getInstance(
 			frmPrefixedName, 
-			formField.getType(), 
-			formField.getPattern(), 
-			(Formatter<Object>)formField.getFormatter(), 
-			formField.getProperties()));
+			fieldProperties.getType(), 
+			fieldProperties.getPattern(), 
+			fieldProperties.getFormatter(), 
+			fieldProperties.getProperties()));
 		return this;
 	}
 	
@@ -203,11 +202,11 @@ public class BasicFormMappingBuilder<T> {
 	}
 	
 	/** Adding multiple form fields. Operation for internal use only. */
-	BasicFormMappingBuilder<T> fields(Map<String, FormField> fields) {
+	BasicFormMappingBuilder<T> fields(Map<String, FormField<?>> fields) {
 		if (fields == null) throw new IllegalArgumentException("fields cannot be null");
-		Map<String, FormField> flds = new HashMap<String, FormField>();
-		for (Map.Entry<String, FormField> e : fields.entrySet()) {
-			FormField f = e.getValue();
+		Map<String, FormField<?>> flds = new HashMap<String, FormField<?>>();
+		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
+			FormField<?> f = e.getValue();
 			if (!f.getName().startsWith(path + Forms.PATH_SEP)) {
 				throw new IllegalStateException("Field name '" + f.getName() + "' is not prefixed with form name '" + path + "'!");
 			}

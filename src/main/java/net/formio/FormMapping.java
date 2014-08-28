@@ -52,7 +52,7 @@ public interface FormMapping<T> {
 	 * Object filled in this mapping, or {@code null} if this mapping is not filled yet.
 	 * @return
 	 */
-	Object getFilledObject();
+	T getFilledObject();
 	
 	/**
 	 * Returns true if this is mapping for object that is required to fill.
@@ -167,7 +167,7 @@ public interface FormMapping<T> {
 	 * Fields in this mapping by their names.
 	 * @return
 	 */
-	Map<String, FormField> getFields();
+	Map<String, FormField<?>> getFields();
 	
 	/**
 	 * Nested mappings of this mapping.

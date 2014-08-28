@@ -59,10 +59,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	final Instantiator<T> instantiator;
 	final Config config;
 	final boolean userDefinedConfig;
-	final Object filledObject;
+	final T filledObject;
 	
 	/** Mapping simple property names to fields. */
-	final Map<String, FormField> fields;
+	final Map<String, FormField<?>> fields;
 	/** Mapping simple property names to nested mappings. Property name is a part of full path of nested mapping. */
 	final Map<String, FormMapping<?>> nested;
 	final ValidationResult validationResult;
@@ -117,10 +117,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.instantiator = src.getInstantiator();
 		this.filledObject = src.getFilledObject();
 		this.secured = src.secured;
-		Map<String, FormField> newFields = new LinkedHashMap<String, FormField>();
-		for (Map.Entry<String, FormField> e : src.getFields().entrySet()) {
+		Map<String, FormField<?>> newFields = new LinkedHashMap<String, FormField<?>>();
+		for (Map.Entry<String, FormField<?>> e : src.getFields().entrySet()) {
 			// copy of field with given prefix prepended
-			FormField field = new FormFieldImpl(e.getValue(), pathPrefix); // copy constructor
+			FormField<?> field = createFormField(pathPrefix, e.getValue()); // copy constructor
 			if (!field.getName().startsWith(newMappingPath + Forms.PATH_SEP))
 				throw new IllegalStateException("Field name '" + field.getName() + "' must start with prefix '" + newMappingPath + ".'");
 			newFields.put(e.getKey(), field); // key must be a simple property name (it is not changing)
@@ -147,10 +147,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.instantiator = src.instantiator;
 		this.filledObject = src.filledObject;
 		this.secured = src.secured;
-		Map<String, FormField> newFields = new LinkedHashMap<String, FormField>();
-		for (Map.Entry<String, FormField> e : src.fields.entrySet()) {
+		Map<String, FormField<?>> newFields = new LinkedHashMap<String, FormField<?>>();
+		for (Map.Entry<String, FormField<?>> e : src.fields.entrySet()) {
 			// copy of field with given prefix prepended
-			FormField field = new FormFieldImpl(e.getValue(), index, pathPrefix); // copy constructor
+			FormField<?> field = createFormField(index, pathPrefix, e.getValue()); // copy constructor
 			newFields.put(e.getKey(), field); // key must be a simple property name (it is not changing)
 		}
 		this.fields = Collections.unmodifiableMap(newFields);
@@ -216,7 +216,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @return
 	 */
 	@Override
-	public Map<String, FormField> getFields() {
+	public Map<String, FormField<?>> getFields() {
 		return fields;
 	}
 	
@@ -374,7 +374,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @return
 	 */
 	@Override
-	public Object getFilledObject() {
+	public T getFilledObject() {
 		return this.filledObject;
 	}
 	
@@ -484,22 +484,24 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		T instance,
 		RequestContext ctx,
 		Class<?> ... validationGroups) {
-		final Map<String, FormData<Object>> dataMap = new LinkedHashMap<String, FormData<Object>>();
+		final Map<String, FormData<?>> dataMap = new LinkedHashMap<String, FormData<?>>();
 		// Transformation from ? to Object (to satisfy generics)
-		final Map<String, FormMapping<Object>> inputMappings = new LinkedHashMap<String, FormMapping<Object>>();
+		final Map<String, FormMapping<?>> inputMappings = new LinkedHashMap<String, FormMapping<?>>();
 		for (Map.Entry<String, FormMapping<?>> e : mappings.entrySet()) {
-			inputMappings.put(e.getKey(), (FormMapping<Object>)e.getValue());
+			inputMappings.put(e.getKey(), e.getValue());
 		}
-		for (Map.Entry<String, FormMapping<Object>> e : inputMappings.entrySet()) {
+		for (Map.Entry<String, FormMapping<?>> e : inputMappings.entrySet()) {
 			Object nestedInstance = null;
 			if (instance != null) {
 				nestedInstance = nestedData(e.getKey(), instance); 
 			}
-			dataMap.put(e.getKey(), e.getValue().bind(paramsProvider, locale, nestedInstance, ctx, validationGroups));
+			FormMapping<Object> mapping = (FormMapping<Object>)e.getValue();
+			FormData<Object> formData = mapping.bind(paramsProvider, locale, nestedInstance, ctx, validationGroups);
+			dataMap.put(e.getKey(), formData);
 		}
 		// Transformation from Object to ? (to satisfy generics)
 		final Map<String, FormData<?>> outputData = new LinkedHashMap<String, FormData<?>>();
-		for (Map.Entry<String, FormData<Object>> e : dataMap.entrySet()) {
+		for (Map.Entry<String, FormData<?>> e : dataMap.entrySet()) {
 			outputData.put(e.getKey(), e.getValue());
 		}
 		return outputData;
@@ -512,7 +514,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		Map<String, Object> propValues = gatherPropertyValues(editedObj.getData(), FormUtils.getPropertiesFromFields(fields), ctx);
 		
 		// Fill the definitions of fields of this mapping with prepared values
-		Map<String, FormField> filledFields = fillFields(
+		Map<String, FormField<?>> filledFields = fillFields(
 			propValues, 
 			editedObj.getValidationResult() != null && editedObj.getValidationResult().getFieldMessages() != null ?
 				editedObj.getValidationResult().getFieldMessages() : new HashMap<String, Set<ConstraintViolationMessage>>(),
@@ -575,14 +577,14 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return SECRET_KEY_PREFIX + getRootMappingPath();
 	}
 
-	Map<String, FormField> fillFields(
+	Map<String, FormField<?>> fillFields(
 		Map<String, Object> propValues, 
 		Map<String, Set<ConstraintViolationMessage>> fieldMsgs, 
 		int indexInList, 
 		Locale locale) {
-		Map<String, FormField> filledFields = new LinkedHashMap<String, FormField>();
+		Map<String, FormField<?>> filledFields = new LinkedHashMap<String, FormField<?>>();
 		// For each field from form definition, let's fill this field with value -> filled form field
-		for (Map.Entry<String, FormField> fieldDefEntry : this.fields.entrySet()) {
+		for (Map.Entry<String, FormField<?>> fieldDefEntry : this.fields.entrySet()) {
 			final String propertyName = fieldDefEntry.getKey();
 			if (indexInList >= 0 && Forms.AUTH_TOKEN_FIELD_NAME.equals(propertyName)) {
 				if (isRootMapping() && this.secured) {
@@ -591,7 +593,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 				}
 			}
 			
-			final FormField field = fieldDefEntry.getValue();
+			final FormField<?> field = fieldDefEntry.getValue();
 			Object value = propValues.get(propertyName);
 			String fieldName = field.getName();
 			if (indexInList >= 0) {
@@ -602,9 +604,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			if (fieldMessages != null && !fieldMessages.isEmpty()) {
 				preferedStringValue = getOriginalStringValueFromParseError(fieldMessages);
 			}
-			final FormField filledField = FormFieldImpl.getFilledInstance(
-				fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getProperties(),
-				FormUtils.convertObjectToList(value), locale, this.getConfig().getFormatters(), preferedStringValue);
+			final FormField<?> filledField = createFormField(fieldName, (FormField<Object>)field, value, locale, preferedStringValue);
 			filledFields.put(propertyName, filledField);
 		}
 		filledFields = Collections.unmodifiableMap(filledFields);
@@ -618,7 +618,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			// nested data - nested object or list of nested objects in case of mapping to list
 			Object data = nestedData(e.getKey(), editedObj.getData());
 			FormData<Object> formData = new FormData<Object>(data, editedObj.getValidationResult()); // the outer report is propagated to nested
-			FormMapping newMapping = e.getValue();
+			FormMapping<Object> newMapping = (FormMapping<Object>)e.getValue();
 			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale, ctx));
 		}
 		return newNestedMappings;
@@ -646,8 +646,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(RequestParams paramsProvider, Locale locale) {
 		Map<String, BoundValuesInfo> values = new HashMap<String, BoundValuesInfo>();
 		// Get values for each defined field
-		for (Map.Entry<String, FormField> e : fields.entrySet()) {
-			FormField field = e.getValue();
+		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
+			FormField<?> field = e.getValue();
 			String formPrefixedName = field.getName(); // already prefixed with form name
 			if (!formPrefixedName.startsWith(this.path + Forms.PATH_SEP)) {
 				throw new IllegalStateException("Field name '"
@@ -694,18 +694,37 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @param cfg
 	 * @return
 	 */
-	private Map<String, FormField> configuredFields(Map<String, FormField> sourceFields, Config cfg) {
+	private Map<String, FormField<?>> configuredFields(Map<String, FormField<?>> sourceFields, Config cfg) {
 		if (cfg == null) throw new IllegalArgumentException("cfg cannot be null");
 		if (this.getDataClass() == null) throw new IllegalStateException("data class cannot be null");
 		
-		Map<String, FormField> fields = new LinkedHashMap<String, FormField>();
+		Map<String, FormField<?>> fields = new LinkedHashMap<String, FormField<?>>();
 		if (sourceFields != null) {
-			for (Map.Entry<String, FormField> e : sourceFields.entrySet()) {
-				FormField f = new FormFieldImpl(e.getValue(), cfg.getBeanValidator().isRequired(this.getDataClass(), e.getKey()));
+			for (Map.Entry<String, FormField<?>> e : sourceFields.entrySet()) {
+				FormField<?> f = createFormField(cfg, e);
 				fields.put(e.getKey(), f);
 			}
 		}
 		return Collections.unmodifiableMap(fields);
+	}
+	
+	private <U> FormField<U> createFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
+		return FormFieldImpl.<U>getFilledInstance(
+			fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getProperties(),
+			FormUtils.<U>convertObjectToList(value), locale, this.getConfig().getFormatters(), preferedStringValue);
+	}
+	
+	private <U> FormField<U> createFormField(int index, String pathPrefix, FormField<U> fld) {
+		return new FormFieldImpl<U>(fld, index, pathPrefix);
+	}
+
+	private <U> FormField<U> createFormField(Config cfg, Map.Entry<String, FormField<?>> e) {
+		boolean required = cfg.getBeanValidator().isRequired(this.getDataClass(), e.getKey());
+		return new FormFieldImpl<U>((FormField<U>)e.getValue(), required);
+	}
+	
+	private <U> FormField<U> createFormField(String pathPrefix, FormField<U> fld) {
+		return new FormFieldImpl<U>(fld, pathPrefix);
 	}
 	
 	private Locale getDefaultLocale() {

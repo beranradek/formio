@@ -25,40 +25,40 @@ import java.util.List;
  */
 final class ArrayUtils {
 
-	static List<Object> convertPrimitiveArrayToList(Object array) {
-		List<Object> values = new ArrayList<Object>();
+	static <T> List<T> convertPrimitiveArrayToList(Object array) {
+		List<T> values = new ArrayList<T>();
 		if (array.getClass().equals(boolean[].class)) {
 			boolean[] arr = (boolean[])array;
 			for (int i = 0; i < arr.length; i++)
-				values.add(Boolean.valueOf(arr[i]));
+				values.add((T)Boolean.valueOf(arr[i]));
 		} else if (array.getClass().equals(byte[].class)) {
 			byte[] arr = (byte[])array;
 			for (int i = 0; i < arr.length; i++)
-				values.add(Byte.valueOf(arr[i]));
+				values.add((T)Byte.valueOf(arr[i]));
 		} else if (array.getClass().equals(short[].class)) { // NOPMD by Radek on 2.3.14 18:24
 			final short[] arr = (short[])array; // NOPMD by Radek on 2.3.14 18:25
 			for (int i = 0; i < arr.length; i++)
-				values.add(Short.valueOf(arr[i]));
+				values.add((T)Short.valueOf(arr[i]));
 		} else if (array.getClass().equals(int[].class)) {
 			int[] arr = (int[])array;
 			for (int i = 0; i < arr.length; i++)
-				values.add(Integer.valueOf(arr[i]));
+				values.add((T)Integer.valueOf(arr[i]));
 		} else if (array.getClass().equals(long[].class)) {
 			long[] arr = (long[])array;
 			for (int i = 0; i < arr.length; i++)
-				values.add(Long.valueOf(arr[i]));
+				values.add((T)Long.valueOf(arr[i]));
 		} else if (array.getClass().equals(float[].class)) {
 			float[] arr = (float[])array;
 			for (int i = 0; i < arr.length; i++)
-				values.add(Float.valueOf(arr[i]));
+				values.add((T)Float.valueOf(arr[i]));
 		} else if (array.getClass().equals(double[].class)) {
 			double[] arr = (double[])array;
 			for (int i = 0; i < arr.length; i++)
-				values.add(Double.valueOf(arr[i]));
+				values.add((T)Double.valueOf(arr[i]));
 		} else if (array.getClass().equals(char[].class)) {
 			char[] arr = (char[])array;
 			for (int i = 0; i < arr.length; i++)
-				values.add(Character.valueOf(arr[i]));
+				values.add((T)Character.valueOf(arr[i]));
 		}
 		return values;
 	}

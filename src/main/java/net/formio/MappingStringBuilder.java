@@ -27,14 +27,14 @@ import java.util.Map;
 class MappingStringBuilder<T> {
 	private final Class<T> dataClass;
 	private final String path;
-	private final Map<String, FormField> fields;
+	private final Map<String, FormField<?>> fields;
 	private final Map<String, FormMapping<?>> nested;
 	private final List<FormMapping<T>> listMappings;
 	
 	MappingStringBuilder(
 		Class<T> dataClass,
 		String path,
-		Map<String, FormField> fields,
+		Map<String, FormField<?>> fields,
 		Map<String, FormMapping<?>> nested,
 		List<FormMapping<T>> listMappings) {
 		this.dataClass = dataClass;
@@ -51,7 +51,7 @@ class MappingStringBuilder<T> {
 		if (fields != null && !fields.isEmpty()) {
 			sb.append("\n" + indent + "  fields {");
 			boolean first = true;
-			for (FormField f : fields.values()) {
+			for (FormField<?> f : fields.values()) {
 				if (!first) {
 					sb.append(",");
 				} else first = false;

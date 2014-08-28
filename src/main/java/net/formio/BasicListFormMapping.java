@@ -121,7 +121,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			String indexedPath = getIndexedPath(index);
 			// constructing single mapping for index:
 			// fields with indexed names
-			final Map<String, FormField> formFields = fieldsWithIndexBeforeLastProperty(this.fields, index);
+			final Map<String, FormField<?>> formFields = fieldsWithIndexBeforeLastProperty(this.fields, index);
 			BasicFormMappingBuilder<T> builder = null;
 			if (this.secured) {
 				builder = Forms.basicSecured(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
@@ -159,8 +159,11 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		for (int index = 0; index < listMappings.size(); index++) {
 			FormMapping<T> m = listMappings.get(index);
 			T instanceForIndex = null;
-			if (instance instanceof List && index < ((List<T>)instance).size()) {
-				instanceForIndex = ((List<T>)instance).get(index);
+			if (instance instanceof List) {
+				List<T> listInstance = (List<T>)instance;
+				if (index < listInstance.size()) {
+					instanceForIndex = listInstance.get(index);
+				}
 			}
 			FormData<T> formData = m.bind(paramsProvider, locale, instanceForIndex, ctx, validationGroups);
 			data.add(formData.getData());
@@ -195,7 +198,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			Map<String, Object> propValues = gatherPropertyValues(dataAtIndex, propNames, ctx);
 			
 			// Fill the fields of this mapping with prepared values for current list index
-			Map<String, FormField> filledFields = fillFields(
+			Map<String, FormField<?>> filledFields = fillFields(
 				propValues, 
 				editedObj.getValidationResult() != null && editedObj.getValidationResult().getFieldMessages() != null ?
 					editedObj.getValidationResult().getFieldMessages() : new HashMap<String, Set<ConstraintViolationMessage>>(),
@@ -224,7 +227,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		}
 		// unindexed fields (that are only recipes for indexed fields) will not be part of filled form
 		// as well as unindexed nested mappings -> empty maps are used:
-		Map<String, FormField> emptyFields = Collections.unmodifiableMap(Collections.<String, FormField>emptyMap());
+		Map<String, FormField<?>> emptyFields = Collections.unmodifiableMap(Collections.<String, FormField<?>>emptyMap());
 		BasicFormMappingBuilder<T> builder = null;
 		if (this.secured) {
 			builder = Forms.basicSecured(getDataClass(), this.path, getInstantiator(), MappingType.LIST).fields(emptyFields);
@@ -280,12 +283,12 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		return newNestedMappings;
 	}
 	
-	Map<String, FormField> fieldsWithIndexBeforeLastProperty(Map<String, FormField> fields, int index) {
-		final Map<String, FormField> flds = new LinkedHashMap<String, FormField>();
-		for (Map.Entry<String, FormField> e : fields.entrySet()) {
-			FormField srcFld = e.getValue();
+	Map<String, FormField<?>> fieldsWithIndexBeforeLastProperty(Map<String, FormField<?>> fields, int index) {
+		final Map<String, FormField<?>> flds = new LinkedHashMap<String, FormField<?>>();
+		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
+			FormField<?> srcFld = e.getValue();
 			String indexedName = FormUtils.pathWithIndexBeforeLastProperty(srcFld.getName(), index);
-			final FormFieldImpl f = FormFieldImpl.getInstance(indexedName, 
+			final FormFieldImpl<?> f = FormFieldImpl.getInstance(indexedName, 
 				srcFld.getType(), srcFld.getPattern(), srcFld.getFormatter(), srcFld.getProperties());
 			flds.put(e.getKey(), f);
 		}

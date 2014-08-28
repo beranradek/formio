@@ -32,30 +32,30 @@ import net.formio.props.FieldProperty;
  * Form field. Immutable.
  * @author Radek Beran
  */
-class FormFieldImpl implements FormField {
+class FormFieldImpl<T> implements FormField<T> {
 	private final String name;
 	private final String type;
-	private final List<Object> filledObjects;
+	private final List<T> filledObjects;
 	private final String pattern;
-	private final Formatter<Object> formatter;
+	private final Formatter<T> formatter;
 	private final String strValue;
 	private final HeterogMap<String> properties;
 	
-	static FormFieldImpl getInstance(String name, String type, String pattern, Formatter<Object> formatter, HeterogMap<String> properties) {
-		return new FormFieldImpl(name, type, pattern, formatter, properties, Collections.emptyList(), null);
+	static <T> FormFieldImpl<T> getInstance(String name, String type, String pattern, Formatter<T> formatter, HeterogMap<String> properties) {
+		return new FormFieldImpl<T>(name, type, pattern, formatter, properties, Collections.<T>emptyList(), null);
 	}
 	
-	static FormFieldImpl getFilledInstance(String name, String type, String pattern, Formatter<Object> formatter, HeterogMap<String> properties, List<Object> values, Locale locale, Formatters formatters, String preferedStringValue) {
+	static <T> FormFieldImpl<T> getFilledInstance(String name, String type, String pattern, Formatter<T> formatter, HeterogMap<String> properties, List<T> values, Locale locale, Formatters formatters, String preferedStringValue) {
 		String strValue = null;
 		if (preferedStringValue != null) {
 			strValue = preferedStringValue; 
 		} else if (values.size() > 0) {
 			strValue = valueAsString(values.get(0), pattern, formatter, locale, formatters);
 		}
-		return new FormFieldImpl(name, type, pattern, formatter, properties, values, strValue);
+		return new FormFieldImpl<T>(name, type, pattern, formatter, properties, values, strValue);
 	}
 	
-	private FormFieldImpl(String name, String type, String pattern, Formatter<Object> formatter, HeterogMap<String> properties, List<Object> values, String strValue) {
+	private FormFieldImpl(String name, String type, String pattern, Formatter<T> formatter, HeterogMap<String> properties, List<T> values, String strValue) {
 		if (values == null) throw new IllegalArgumentException("values cannot be null, only empty");
 		this.name = name;
 		this.type = type;
@@ -72,11 +72,11 @@ class FormFieldImpl implements FormField {
 	 * @param namePrefix
 	 * @return
 	 */
-	FormFieldImpl(FormField src, String namePrefix) {
+	FormFieldImpl(FormField<T> src, String namePrefix) {
 		if (namePrefix == null) throw new IllegalArgumentException("namePrefix cannot be null");
 		this.name = namePrefix + Forms.PATH_SEP + src.getName();
 		this.type = src.getType();
-		this.filledObjects = new ArrayList<Object>(src.getFilledObjects());
+		this.filledObjects = new ArrayList<T>(src.getFilledObjects());
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
 		this.strValue = src.getValue();
@@ -88,10 +88,10 @@ class FormFieldImpl implements FormField {
 	 * @param src
 	 * @param required
 	 */
-	FormFieldImpl(FormField src, boolean required) {
+	FormFieldImpl(FormField<T> src, boolean required) {
 		this.name = src.getName();
 		this.type = src.getType();
-		this.filledObjects = new ArrayList<Object>(src.getFilledObjects());
+		this.filledObjects = new ArrayList<T>(src.getFilledObjects());
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
 		this.strValue = src.getValue();
@@ -105,13 +105,13 @@ class FormFieldImpl implements FormField {
 	 * @param namePrefix
 	 * @return
 	 */
-	FormFieldImpl(FormField src, int index, String namePrefix) {
+	FormFieldImpl(FormField<T> src, int index, String namePrefix) {
 		if (namePrefix == null) throw new IllegalArgumentException("namePrefix cannot be null");
 		if (!src.getName().startsWith(namePrefix))
 			throw new IllegalStateException("FormField name '" + src.getName() + "' must start with prefix '" + namePrefix + ".'");
 		this.name = namePrefix + "[" + index + "]" + src.getName().substring(namePrefix.length());
 		this.type = src.getType();
-		this.filledObjects = new ArrayList<Object>(src.getFilledObjects());
+		this.filledObjects = new ArrayList<T>(src.getFilledObjects());
 		this.pattern = src.getPattern();
 		this.formatter = src.getFormatter();
 		this.strValue = src.getValue();
@@ -137,13 +137,13 @@ class FormFieldImpl implements FormField {
 	}
 	
 	@Override
-	public List<Object> getFilledObjects() {
+	public List<T> getFilledObjects() {
 		return filledObjects;
 	}
 	
 	@Override
-	public Object getFilledObject() {
-		Object obj = null;
+	public T getFilledObject() {
+		T obj = null;
 		if (this.filledObjects != null && !this.filledObjects.isEmpty()) {
 			obj = this.filledObjects.get(0);
 		}
@@ -161,7 +161,7 @@ class FormFieldImpl implements FormField {
 	}
 	
 	@Override
-	public Formatter<Object> getFormatter() {
+	public Formatter<T> getFormatter() {
 		return formatter;
 	}
 	
@@ -191,7 +191,7 @@ class FormFieldImpl implements FormField {
 			return false;
 		if (!(obj instanceof FormFieldImpl))
 			return false;
-		FormFieldImpl other = (FormFieldImpl) obj;
+		FormFieldImpl<T> other = (FormFieldImpl<T>) obj;
 		if (name == null) {
 			if (other.name != null)
 				return false;
@@ -224,7 +224,7 @@ class FormFieldImpl implements FormField {
 		return sb.toString();
 	}
 	
-	private static String valueAsString(Object value, String pattern, Formatter<Object> formatter, Locale locale, Formatters formatters) {
+	private static <T> String valueAsString(T value, String pattern, Formatter<T> formatter, Locale locale, Formatters formatters) {
 		if (value == null) return null;
 		String str = null;
 		if (formatter != null) {

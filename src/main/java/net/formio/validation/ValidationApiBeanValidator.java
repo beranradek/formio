@@ -108,7 +108,8 @@ public class ValidationApiBeanValidator implements BeanValidator {
 				required = true;
 			}
 		} catch (NoSuchFieldException ex) {
-			throw new ReflectionException("Error while checking if property " + propertyName + " of class " + cls.getName() + " is required: " + ex.getMessage(), ex);
+			throw new ReflectionException("Error while checking if property " + propertyName + " of class " + cls.getName() + 
+				" is required, the corresponding field does not exist: " + ex.getMessage(), ex);
 		}
 		return required;
 	}
