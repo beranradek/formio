@@ -2,6 +2,7 @@
 
 1.1.2 (?)
 * Generic FormField
+* Convenience isVisible(), isEnabled(), isReadonly(), isRequired(), getHelp() methods in FormField.
 
 1.1.1 (22.8.2014)
 * Fixed parsing of invalid BigDecimal (StringParseException should be thrown).

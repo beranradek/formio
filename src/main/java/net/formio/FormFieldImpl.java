@@ -166,8 +166,28 @@ class FormFieldImpl<T> implements FormField<T> {
 	}
 	
 	@Override
+	public boolean isVisible() {
+		return this.properties.getTyped(FieldProperty.VISIBLE).booleanValue();
+	}
+	
+	@Override
+	public boolean isEnabled() {
+		return this.properties.getTyped(FieldProperty.ENABLED).booleanValue();
+	}
+	
+	@Override
+	public boolean isReadonly() {
+		return this.properties.getTyped(FieldProperty.READ_ONLY).booleanValue();
+	}
+	
+	@Override
 	public boolean isRequired() {
 		return this.properties.getTyped(FieldProperty.REQUIRED).booleanValue();
+	}
+	
+	@Override
+	public String getHelp() {
+		return this.properties.getTyped(FieldProperty.HELP);
 	}
 	
 	@Override

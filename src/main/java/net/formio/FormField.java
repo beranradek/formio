@@ -22,7 +22,8 @@ import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 
 /**
- * Form field representation. All implementations are immutable.
+ * Form field representation. Implementations must be immutable.
+ * @param T type of data filled into this form field; field can be filled with one or more values of type T
  * @author Radek Beran
  */
 public interface FormField<T> {
@@ -49,10 +50,22 @@ public interface FormField<T> {
 	String getLabelKey();
 	
 	/**
-	 * Single/first object which this field is filled with.
+	 * Returns true if this field is visible.
 	 * @return
 	 */
-	T getFilledObject();
+	boolean isVisible();
+	
+	/**
+	 * Returns true if this field is enabled.
+	 * @return
+	 */
+	boolean isEnabled();
+	
+	/**
+	 * Returns true if this field is read-only.
+	 * @return
+	 */
+	boolean isReadonly();
 	
 	/**
 	 * Returns true if this field is required.
@@ -61,10 +74,22 @@ public interface FormField<T> {
 	boolean isRequired();
 	
 	/**
+	 * Returns help for filling this field.
+	 * @return
+	 */
+	String getHelp();
+	
+	/**
 	 * Returns properties (flags) of this form field.
 	 * @return
 	 */
 	HeterogMap<String> getProperties();
+	
+	/**
+	 * Single/first object which this field is filled with.
+	 * @return
+	 */
+	T getFilledObject();
 	
 	/**
 	 * Objects which this field is filled with. There are more objects if this
