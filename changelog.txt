@@ -1,8 +1,10 @@
 # Changelog
 
-1.1.2 (?)
+1.1.2 (2.9.2014)
 * Generic FormField
 * Convenience isVisible(), isEnabled(), isReadonly(), isRequired(), getHelp() methods in FormField.
+* MapParams with another convenience constructors.
+* getField(Class<U> dataClass, String propertyName) method in FormMapping.
 
 1.1.1 (22.8.2014)
 * Fixed parsing of invalid BigDecimal (StringParseException should be thrown).
@@ -28,7 +30,7 @@
 * New version of fileupload dependency.
 * Fixed propagation of field definitions to the filled form for nested objects filled with "null" data.
 * Builder for FieldProps.
-* Type of form field in FieldProps and FormField.
+* Type of form field in FieldProps and FormField (e.g. "textarea", "select" can be specified directly in server side if desired).
 
 1.0.1 (9.4.2014)
 * First released version.
