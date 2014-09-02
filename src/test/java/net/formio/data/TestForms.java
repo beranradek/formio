@@ -23,11 +23,14 @@ import net.formio.Forms;
 import net.formio.MappingType;
 import net.formio.domain.Address;
 import net.formio.domain.BigDecimalValue;
+import net.formio.domain.Car;
 import net.formio.domain.Collegue;
+import net.formio.domain.Engine;
 import net.formio.domain.NewCollegue;
 import net.formio.domain.Person;
 import net.formio.domain.RegDate;
 import net.formio.domain.Registration;
+import net.formio.props.FieldProperty;
 
 /**
  * Form definitions for tests.
@@ -66,7 +69,20 @@ public final class TestForms {
 		.build();
 	
 	public static final FormMapping<BigDecimalValue> VALUE_FORM = 
-		Forms.automatic(BigDecimalValue.class, "valueForm").build(); 
+		Forms.automatic(BigDecimalValue.class, "valueForm").build();
+	
+	public static final FormMapping<Car> CAR_FORM =
+		Forms.automatic(Car.class, "carForm")
+		.field(Forms.field("brand").property(FieldProperty.READ_ONLY, Boolean.TRUE).build())
+		.field(Forms.field("maxSpeed").property(FieldProperty.ENABLED, Boolean.FALSE).build())
+		.field(Forms.field("productionYear").property(FieldProperty.VISIBLE, Boolean.FALSE).build())
+		// field "color" is automatically created and bound
+		// field "description" is automatically created and bound, it has no properties
+		.nested(Forms.automatic(Engine.class, "engine")
+			.field(Forms.field("cylinderCount").property(FieldProperty.REQUIRED, Boolean.TRUE).build())	
+			.field(Forms.field("volume").property(FieldProperty.HELP, "In units...").build())
+			.build())
+		.build();
 	
 	private TestForms() {
 	}

@@ -170,6 +170,16 @@ public interface FormMapping<T> {
 	Map<String, FormField<?>> getFields();
 	
 	/**
+	 * Returns form field with given property name, or {@code null} if such field
+	 * does not exist.
+	 * @param dataClass
+	 * @param propertyName
+	 * @return
+	 * @throws IllegalStateException if property value cannot be converted to requested class
+	 */
+	<U> FormField<U> getField(Class<U> dataClass, String propertyName);
+	
+	/**
 	 * Nested mappings of this mapping.
 	 * @return
 	 */
@@ -181,6 +191,7 @@ public interface FormMapping<T> {
 	 * @param dataClass class of data object for nested mapping
 	 * @param propertyName name of property that is managed by nested mapping
 	 * @return nested mapping or {@code null}
+	 * @throws IllegalStateException if nested mapping's object type cannot be converted to requested class
 	 */
 	<U> FormMapping<U> getNestedByProperty(Class<U> dataClass, String propertyName);
 	

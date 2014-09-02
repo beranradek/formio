@@ -79,7 +79,7 @@ public class FieldProps<T> implements Serializable {
 			return this;
 		}
 		
-		public <U> Builder<T> putProperty(FieldProperty<U> fieldProperty, U value) {
+		public <U> Builder<T> property(FieldProperty<U> fieldProperty, U value) {
 			this.properties.putTyped(fieldProperty, value);
 			return this;
 		}

@@ -220,6 +220,19 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return fields;
 	}
 	
+	@Override
+	public <U> FormField<U> getField(Class<U> dataClass, String propertyName) {
+		FormField<?> field = getFields().get(propertyName);
+		if (field != null) {
+			Object filledObject = field.getFilledObject();
+			if (filledObject != null && !dataClass.isAssignableFrom(filledObject.getClass())) {
+				throw new IllegalStateException("Type of value in field '" + propertyName + 
+					"' is not compatible with requested type " + dataClass.getName());
+			}
+		}
+		return (FormField<U>)field;
+	}
+	
 	/**
 	 * Returns nested mapping for nested complex objects.
 	 * @return
@@ -239,7 +252,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		FormMapping<?> mapping = nestedMappings.get(propertyName);
 		if (mapping != null) {
 			if (!dataClass.isAssignableFrom(mapping.getDataClass())) {
-				mapping = null;
+				throw new IllegalStateException("Type of object in nested mapping '" + propertyName + 
+					"' is not compatible with requested type " + dataClass.getName());
 			}
 		}
 		return (FormMapping<U>)mapping;
@@ -719,7 +733,11 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 
 	private <U> FormField<U> createFormField(Config cfg, Map.Entry<String, FormField<?>> e) {
-		boolean required = cfg.getBeanValidator().isRequired(this.getDataClass(), e.getKey());
+		boolean requiredConstraintPresent = cfg.getBeanValidator().isRequired(this.getDataClass(), e.getKey());
+		Boolean required = null;
+		if (requiredConstraintPresent) {
+			required = Boolean.TRUE;
+		} // else not specified, required remains null
 		return new FormFieldImpl<U>((FormField<U>)e.getValue(), required);
 	}
 	

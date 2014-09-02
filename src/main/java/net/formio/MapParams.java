@@ -23,8 +23,8 @@ import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
 
 /**
- * Provides "request parameters" from specified mapping. Useful for testing.
- * Simulates input from the user.
+ * Provides "request parameters" from specified mapping. Useful for testing or when all parameters
+ * are available simply as a map.
  * @author Radek Beran
  */
 public class MapParams extends AbstractRequestParams {
@@ -33,8 +33,20 @@ public class MapParams extends AbstractRequestParams {
 	private final Map<String, UploadedFile[]> files;
 	
 	public MapParams() {
-		this.params = new LinkedHashMap<String, String[]>();
-		this.files = new LinkedHashMap<String, UploadedFile[]>();
+		this(new LinkedHashMap<String, String[]>(), new LinkedHashMap<String, UploadedFile[]>());
+	}
+	
+	public MapParams(Map<String, String[]> params) {
+		this(params, new LinkedHashMap<String, UploadedFile[]>());
+	}
+	
+	public MapParams(Map<String, String[]> params, Map<String, UploadedFile[]> fileParams) {
+		final Map<String, String[]> p = new LinkedHashMap<String, String[]>();
+		p.putAll(params);
+		this.params = p;
+		final Map<String, UploadedFile[]> files = new LinkedHashMap<String, UploadedFile[]>();
+		files.putAll(fileParams);
+		this.files = files;
 	}
 	
 	public void put(String key, String value) {

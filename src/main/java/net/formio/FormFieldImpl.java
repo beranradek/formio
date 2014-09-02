@@ -86,9 +86,9 @@ class FormFieldImpl<T> implements FormField<T> {
 	/**
 	 * Returns copy of field with given required flag.
 	 * @param src
-	 * @param required
+	 * @param required null if required flag is not specified
 	 */
-	FormFieldImpl(FormField<T> src, boolean required) {
+	FormFieldImpl(FormField<T> src, Boolean required) {
 		this.name = src.getName();
 		this.type = src.getType();
 		this.filledObjects = new ArrayList<T>(src.getFilledObjects());
@@ -262,10 +262,13 @@ class FormFieldImpl<T> implements FormField<T> {
 		return HeterogCollections.unmodifiableMap(map);
 	}
 	
-	private HeterogMap<String> copyProperties(HeterogMap<String> source, boolean required) {
+	private HeterogMap<String> copyProperties(HeterogMap<String> source, Boolean required) {
 		HeterogMap<String> map = HeterogCollections.<String>newLinkedMap();
 		map.putAllFromSource(source);
-		map.putTyped(FieldProperty.REQUIRED, Boolean.valueOf(required));
+		if (required != null) {
+			// required flag is specified
+			map.putTyped(FieldProperty.REQUIRED, required);
+		}
 		return HeterogCollections.unmodifiableMap(map);
 	}
 
