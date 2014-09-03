@@ -84,6 +84,26 @@ public class FieldProps<T> implements Serializable {
 			return this;
 		}
 		
+		public Builder<T> visible(boolean visible) {
+			return property(FieldProperty.VISIBLE, Boolean.valueOf(visible));
+		}
+		
+		public Builder<T> enabled(boolean enabled) {
+			return property(FieldProperty.ENABLED, Boolean.valueOf(enabled));
+		}
+		
+		public Builder<T> readonly(boolean readonly) {
+			return property(FieldProperty.READ_ONLY, Boolean.valueOf(readonly));
+		}
+	
+		public Builder<T> required(boolean required) {
+			return property(FieldProperty.REQUIRED, Boolean.valueOf(required));
+		}
+		
+		public Builder<T> help(String help) {
+			return property(FieldProperty.HELP, help);
+		}
+		
 		public FieldProps<T> build() {
 			FieldProps<T> fieldProps = new FieldProps<T>(this);
 			return fieldProps;
