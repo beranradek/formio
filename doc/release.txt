@@ -26,3 +26,9 @@ mvn release:perform
 Log-in to https://oss.sonatype.org
 Review, Close and Release Staging repository for netformio, see doc:
 https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide#SonatypeOSSMavenRepositoryUsageGuide-8a.ReleaseIt
+
+Troubleshooting
+---------------
+Deleting tag in remote repository:
+git tag -d formio-1.1.2
+git push master :refs/tags/formio-1.1.2
