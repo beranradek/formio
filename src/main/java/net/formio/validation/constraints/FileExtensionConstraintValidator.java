@@ -18,7 +18,7 @@ public class FileExtensionConstraintValidator implements ConstraintValidator<Fil
 
 	@Override
 	public void initialize(FileExtension annotation) {
-		allowedExtensions = annotation.extensions();
+		allowedExtensions = annotation.value();
 		ignoreCase = annotation.ignoreCase();
 	}
 

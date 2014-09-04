@@ -31,13 +31,14 @@ import net.formio.binding.ParseError;
 import net.formio.upload.RequestProcessingError;
 import net.formio.validation.ValidationApiBeanValidator;
 import net.formio.validation.ValidationResult;
+import net.formio.validation.constraints.FileExtension;
 import net.formio.validation.constraints.NotEmpty;
 
 import org.junit.Test;
 
 /**
  * Tests for {@link ValidationApiBeanValidator}.
- * 
+ *
  * @author Radek Beran
  */
 public class ValidationApiBeanValidatorTest {
@@ -54,8 +55,9 @@ public class ValidationApiBeanValidatorTest {
 
 			Contact c = new Contact();
 			c.setEmail("e");
-			c.setName("n");
+			c.setName("na");
 			c.setPhone("p");
+			c.setExt("aa.txt");
 			c.setNewContact(false);
 			c.setAge(Integer.valueOf(0));
 			ValidationResult r = v.validate(c, "",
@@ -72,7 +74,7 @@ public class ValidationApiBeanValidatorTest {
 	static class Contact {
 
 		private boolean newContact;
-		
+
 		@NotNull
 		private Integer age;
 
@@ -81,6 +83,9 @@ public class ValidationApiBeanValidatorTest {
 
 		@NotEmpty
 		private String email;
+
+		@FileExtension({"jpg", "test"})
+		private String ext;
 
 		private String phone;
 
@@ -123,6 +128,16 @@ public class ValidationApiBeanValidatorTest {
 		public void setNewContact(boolean newContact) {
 			this.newContact = newContact;
 		}
+
+		public String getExt() {
+			return ext;
+		}
+
+		public void setExt(String ext) {
+			this.ext = ext;
+		}
+
+
 
 	}
 
