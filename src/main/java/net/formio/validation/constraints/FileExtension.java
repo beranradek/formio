@@ -48,4 +48,17 @@ public @interface FileExtension {
 	 * @return True if case is ignored.
 	 */
 	boolean ignoreCase() default true;
+
+	/**
+	 * Defines several {@link FileExtension} annotations on the same element.
+	 *
+	 * @see DecimalMin
+	 */
+	@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
+	@Retention(RUNTIME)
+	@Documented
+	@interface List {
+
+		FileExtension[] extensions();
+	}
 }
