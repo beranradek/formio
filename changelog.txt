@@ -1,5 +1,9 @@
 # Changelog
 
+1.1.3 (4.9.2014)
+* FileExtension, MaxFileSize constraints by Karel Stefan. 
+* visible, enabled, readonly, required, help convenience methods in FieldProps.
+
 1.1.2 (2.9.2014)
 * Generic FormField
 * Convenience isVisible(), isEnabled(), isReadonly(), isRequired(), getHelp() methods in FormField.

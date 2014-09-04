@@ -5,9 +5,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Max file size validation
+ * Max file size validation.
  *
- * @author stefan
+ * @author Karel Stefan
  */
 public class MaxFileSizeValidation {
 
@@ -42,7 +42,7 @@ public class MaxFileSizeValidation {
 		if (matcher.find()) {
 			BigDecimal number = new BigDecimal(matcher.group(1));
 			Unit unit = Unit.valueOf(matcher.group(4).toUpperCase());
-			return number.multiply(new BigDecimal("1024").pow(unit.power)).longValue();
+			return number.multiply(BigDecimal.valueOf(1024L).pow(unit.power)).longValue();
 		}
 		throw new IllegalArgumentException("Could not parse max file size.");
 	}
