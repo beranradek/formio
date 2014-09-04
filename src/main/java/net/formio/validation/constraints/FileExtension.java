@@ -52,7 +52,7 @@ public @interface FileExtension {
 	/**
 	 * Defines several {@link FileExtension} annotations on the same element.
 	 *
-	 * @see DecimalMin
+	 * @see FileExtension
 	 */
 	@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
 	@Retention(RUNTIME)
