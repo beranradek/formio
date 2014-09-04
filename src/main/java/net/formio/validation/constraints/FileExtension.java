@@ -40,9 +40,9 @@ public @interface FileExtension {
 	Class<? extends Payload>[] payload() default {};
 
 	/**
-	 * @return The allowed file extensions.
+	 * @return The allowed file extensions e.g. ["jpg", "png"]
 	 */
-	String[] extensions() default {};
+	String[] value() default {};
 
 	/**
 	 * @return True if case is ignored.
@@ -59,6 +59,6 @@ public @interface FileExtension {
 	@Documented
 	@interface List {
 
-		FileExtension[] extensions();
+		FileExtension[] value();
 	}
 }
