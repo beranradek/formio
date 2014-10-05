@@ -29,7 +29,8 @@ public interface BeanExtractor {
 	/**
 	 * Extracts values from given bean.
 	 * @param bean extracted bean
-	 * @param allowedProperties names of properties that should be extracted (whitelist)
+	 * @param allowedProperties names of properties that should be extracted (whitelist), 
+	 * does not influence order of returned entries
 	 * @return values by property names
 	 */
 	Map<String, Object> extractBean(Object bean, Set<String> allowedProperties);

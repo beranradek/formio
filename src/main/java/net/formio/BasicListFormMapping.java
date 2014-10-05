@@ -18,9 +18,7 @@ package net.formio;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -141,8 +139,8 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			ValidationResult res = null;
 			if (this.getValidationResult() != null) {
 				res = new ValidationResult(
-					new LinkedHashMap<String, Set<ConstraintViolationMessage>>(this.getValidationResult().getFieldMessages()),
-					new LinkedHashSet<ConstraintViolationMessage>(this.getValidationResult().getGlobalMessages()));
+					new LinkedHashMap<String, List<ConstraintViolationMessage>>(this.getValidationResult().getFieldMessages()),
+					new ArrayList<ConstraintViolationMessage>(this.getValidationResult().getGlobalMessages()));
 			}
 			builder.validationResult = res;
 			builder.mappingType = MappingType.SINGLE;
@@ -154,8 +152,8 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		// Loading data for constructed mappings for individual indexes
 		// Tie these nested objects together to a list
 		List<T> data = new ArrayList<T>();
-		Map<String, Set<ConstraintViolationMessage>> fieldMsgs = new LinkedHashMap<String, Set<ConstraintViolationMessage>>();
-		Set<ConstraintViolationMessage> globalMsgs = new LinkedHashSet<ConstraintViolationMessage>();
+		Map<String, List<ConstraintViolationMessage>> fieldMsgs = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
+		List<ConstraintViolationMessage> globalMsgs = new ArrayList<ConstraintViolationMessage>();
 		for (int index = 0; index < listMappings.size(); index++) {
 			FormMapping<T> m = listMappings.get(index);
 			T instanceForIndex = null;
@@ -201,7 +199,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			Map<String, FormField<?>> filledFields = fillFields(
 				propValues, 
 				editedObj.getValidationResult() != null && editedObj.getValidationResult().getFieldMessages() != null ?
-					editedObj.getValidationResult().getFieldMessages() : new HashMap<String, Set<ConstraintViolationMessage>>(),
+					editedObj.getValidationResult().getFieldMessages() : new LinkedHashMap<String, List<ConstraintViolationMessage>>(),
 				index, 
 				locale);
 			

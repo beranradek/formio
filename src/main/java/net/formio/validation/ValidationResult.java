@@ -24,11 +24,11 @@
 package net.formio.validation;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Report after validating an object. Immutable.
@@ -38,21 +38,21 @@ import java.util.Set;
 public class ValidationResult implements Serializable {
 	private static final long serialVersionUID = 5798813572430003173L;
 	
-	private final Map<String, Set<ConstraintViolationMessage>> fieldMessages;
-	private final Set<ConstraintViolationMessage> globalMessages;
+	private final Map<String, List<ConstraintViolationMessage>> fieldMessages;
+	private final List<ConstraintViolationMessage> globalMessages;
 	
 	public static final ValidationResult empty = newEmptyValidationResult();
 	
-	public ValidationResult(Map<String, Set<ConstraintViolationMessage>> fieldMessages, Set<ConstraintViolationMessage> globalMessages) {
+	public ValidationResult(Map<String, List<ConstraintViolationMessage>> fieldMessages, List<ConstraintViolationMessage> globalMessages) {
 		if (fieldMessages == null) throw new IllegalArgumentException("field messages cannot be null");
 		if (globalMessages == null) throw new IllegalArgumentException("global messages cannot be null");
-		Map<String, Set<ConstraintViolationMessage>> fieldMsgCopy = new LinkedHashMap<String, Set<ConstraintViolationMessage>>();
-		for (Map.Entry<String, Set<ConstraintViolationMessage>> entry : fieldMessages.entrySet()) {
-			fieldMsgCopy.put(entry.getKey(), new LinkedHashSet<ConstraintViolationMessage>(entry.getValue()));	
+		Map<String, List<ConstraintViolationMessage>> fieldMsgCopy = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
+		for (Map.Entry<String, List<ConstraintViolationMessage>> entry : fieldMessages.entrySet()) {
+			fieldMsgCopy.put(entry.getKey(), new ArrayList<ConstraintViolationMessage>(entry.getValue()));	
 		}
 		
 		this.fieldMessages = Collections.unmodifiableMap(fieldMsgCopy);
-		this.globalMessages = Collections.unmodifiableSet(new LinkedHashSet<ConstraintViolationMessage>(globalMessages));
+		this.globalMessages = Collections.unmodifiableList(new ArrayList<ConstraintViolationMessage>(globalMessages));
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class ValidationResult implements Serializable {
 	public boolean isSuccess() {
 		boolean errorFound = false;
 		if (fieldMessages != null && !fieldMessages.isEmpty()) {
-			for (Set<ConstraintViolationMessage> fieldMsgs : fieldMessages.values()) {
+			for (List<ConstraintViolationMessage> fieldMsgs : fieldMessages.values()) {
 				for (ConstraintViolationMessage msg : fieldMsgs) {
 					if (msg.getSeverity() == Severity.ERROR) {
 						errorFound = true;
@@ -87,7 +87,7 @@ public class ValidationResult implements Serializable {
 	 * Returns lists of messages for individual fields.
 	 * @return
 	 */
-	public Map<String, Set<ConstraintViolationMessage>> getFieldMessages() {
+	public Map<String, List<ConstraintViolationMessage>> getFieldMessages() {
 		return fieldMessages;
 	}
 	
@@ -95,7 +95,7 @@ public class ValidationResult implements Serializable {
 	 * Returns list of global validation messages (not related to one field).
 	 * @return
 	 */
-	public Set<ConstraintViolationMessage> getGlobalMessages() {
+	public List<ConstraintViolationMessage> getGlobalMessages() {
 		return globalMessages;
 	}
 	
@@ -117,7 +117,7 @@ public class ValidationResult implements Serializable {
 		sb.append("\n}\n");
 		sb.append("fieldMessages {\n");
 		first = true;
-		for (Map.Entry<String, Set<ConstraintViolationMessage>> e : fieldMessages.entrySet()) {
+		for (Map.Entry<String, List<ConstraintViolationMessage>> e : fieldMessages.entrySet()) {
 			if (first) {
 				first = false;
 			} else {
@@ -142,8 +142,8 @@ public class ValidationResult implements Serializable {
 	
 	private static final ValidationResult newEmptyValidationResult() {
 		return new ValidationResult(
-			Collections.unmodifiableMap(Collections.<String, Set<ConstraintViolationMessage>>emptyMap()),
-			Collections.unmodifiableSet(Collections.<ConstraintViolationMessage>emptySet())
+			Collections.unmodifiableMap(Collections.<String, List<ConstraintViolationMessage>>emptyMap()),
+			Collections.unmodifiableList(Collections.<ConstraintViolationMessage>emptyList())
 		);
 	}
 }

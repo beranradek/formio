@@ -17,10 +17,10 @@
 package net.formio;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,14 +45,14 @@ public class FormDataSerializableTest {
 	@Test
 	public void testFormDataIsSerializable() {
 		try {
-			Map<String, Set<ConstraintViolationMessage>> fieldMsgs = new LinkedHashMap<String, Set<ConstraintViolationMessage>>();
-			Set<ConstraintViolationMessage> emailMsgs = new LinkedHashSet<ConstraintViolationMessage>();
+			Map<String, List<ConstraintViolationMessage>> fieldMsgs = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
+			List<ConstraintViolationMessage> emailMsgs = new ArrayList<ConstraintViolationMessage>();
 			Map<String, Serializable> emailArgs = new LinkedHashMap<String, Serializable>();
 			emailArgs.put("value", "invalid-email.com");
 			String emailMsgTxt = "E-mail is not valid";
 			emailMsgs.add(new ConstraintViolationMessage(Severity.ERROR, emailMsgTxt, "constraints.Email.message", emailArgs));
 			fieldMsgs.put("email", emailMsgs);
-			Set<ConstraintViolationMessage> globalMsgs = new LinkedHashSet<ConstraintViolationMessage>();
+			List<ConstraintViolationMessage> globalMsgs = new ArrayList<ConstraintViolationMessage>();
 			ValidationResult result = new ValidationResult(fieldMsgs, globalMsgs);
 			Person person = TestData.newPerson();
 			FormData<Person> formData = new FormData<Person>(person, result);

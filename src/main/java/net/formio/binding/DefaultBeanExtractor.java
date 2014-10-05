@@ -70,7 +70,7 @@ public class DefaultBeanExtractor implements BeanExtractor {
 	}
 	
 	private Map<String, Method> getClassPropertiesInternal(Class<?> beanClass, Set<String> allowedProperties) {
-		final Map<String, Method> properties = new HashMap<String, Method>();
+		final Map<String, Method> properties = new LinkedHashMap<String, Method>();
         final Method[] objMethods = beanClass.getMethods();
         for (Method objMethod : objMethods) {
         	if (objMethod.getName().equals("getClass")) continue;

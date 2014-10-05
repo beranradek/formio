@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import net.formio.data.TestData;
@@ -161,7 +160,7 @@ public class AdvancedFormTest {
 		assertTrue(!boundFormData.isValid());
 		ValidationResult report = boundFormData.getValidationResult();
 		assertTrue(report.getFieldMessages().containsKey("registration" + sep + "email"));
-		Set<ConstraintViolationMessage> msgSet = report.getFieldMessages().get("registration" + sep + "email");
+		List<ConstraintViolationMessage> msgSet = report.getFieldMessages().get("registration" + sep + "email");
 		assertEquals(1, msgSet.size());
 		final ConstraintViolationMessage msg = msgSet.iterator().next();
 		assertEquals(Severity.ERROR, msg.getSeverity());

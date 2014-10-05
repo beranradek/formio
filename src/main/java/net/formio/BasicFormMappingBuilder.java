@@ -19,7 +19,6 @@ package net.formio;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -204,7 +203,7 @@ public class BasicFormMappingBuilder<T> {
 	/** Adding multiple form fields. Operation for internal use only. */
 	BasicFormMappingBuilder<T> fields(Map<String, FormField<?>> fields) {
 		if (fields == null) throw new IllegalArgumentException("fields cannot be null");
-		Map<String, FormField<?>> flds = new HashMap<String, FormField<?>>();
+		Map<String, FormField<?>> flds = new LinkedHashMap<String, FormField<?>>();
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
 			FormField<?> f = e.getValue();
 			if (!f.getName().startsWith(path + Forms.PATH_SEP)) {

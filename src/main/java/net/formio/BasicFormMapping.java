@@ -18,9 +18,7 @@ package net.formio;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,6 +50,7 @@ import net.formio.validation.ValidationResult;
  */
 class BasicFormMapping<T> implements FormMapping<T> {
 
+	/** Prefix of key under which the secret is stored. */
 	static final String SECRET_KEY_PREFIX = "formio_secret_";
 	static final String ALLOWED_TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_@#$%^&*";
 	final String path;
@@ -367,10 +366,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			FormUtils.flatten(filledObject.getPropertyBindErrors().values()),
 			locale,
 			validationGroups);
-		final Map<String, Set<ConstraintViolationMessage>> fieldMsgs = cloneFieldMessages(validationRep.getFieldMessages());
+		final Map<String, List<ConstraintViolationMessage>> fieldMsgs = cloneFieldMessages(validationRep.getFieldMessages());
 		
 		// gather validation messages from nested mappings
-		Set<ConstraintViolationMessage> globalMsgs = new LinkedHashSet<ConstraintViolationMessage>(validationRep.getGlobalMessages());
+		List<ConstraintViolationMessage> globalMsgs = new ArrayList<ConstraintViolationMessage>(validationRep.getGlobalMessages());
 		for (FormData<?> formData : nestedFormData.values()) {
 			fieldMsgs.putAll(formData.getValidationResult().getFieldMessages());
 			globalMsgs.addAll(formData.getValidationResult().getGlobalMessages());
@@ -531,7 +530,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		Map<String, FormField<?>> filledFields = fillFields(
 			propValues, 
 			editedObj.getValidationResult() != null && editedObj.getValidationResult().getFieldMessages() != null ?
-				editedObj.getValidationResult().getFieldMessages() : new HashMap<String, Set<ConstraintViolationMessage>>(),
+				editedObj.getValidationResult().getFieldMessages() : new LinkedHashMap<String, List<ConstraintViolationMessage>>(),
 			-1, 
 			locale);
 
@@ -548,9 +547,16 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return builder;
 	}
 	
-	Map<String, Object> gatherPropertyValues(T editedData, Set<String> allowedProperties, RequestContext ctx) {
-		Map<String, Object> propValues = new HashMap<String, Object>();
-		Map<String, Object> beanValues = this.getConfig().getBeanExtractor().extractBean(editedData, allowedProperties);
+	/**
+	 * Gather values of object's properties.
+	 * @param object
+	 * @param allowedProperties set of allowed properties, does not influence order of returned entries
+	 * @param ctx request context
+	 * @return
+	 */
+	Map<String, Object> gatherPropertyValues(T object, Set<String> allowedProperties, RequestContext ctx) {
+		Map<String, Object> propValues = new LinkedHashMap<String, Object>();
+		Map<String, Object> beanValues = this.getConfig().getBeanExtractor().extractBean(object, allowedProperties);
 		propValues.putAll(beanValues);
 		putValueForAuthTokenIfSecured(propValues, ctx);
 		return Collections.unmodifiableMap(propValues);
@@ -593,7 +599,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 
 	Map<String, FormField<?>> fillFields(
 		Map<String, Object> propValues, 
-		Map<String, Set<ConstraintViolationMessage>> fieldMsgs, 
+		Map<String, List<ConstraintViolationMessage>> fieldMsgs, 
 		int indexInList, 
 		Locale locale) {
 		Map<String, FormField<?>> filledFields = new LinkedHashMap<String, FormField<?>>();
@@ -613,7 +619,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			if (indexInList >= 0) {
 				fieldName = FormUtils.pathWithIndexBeforeLastProperty(field.getName(), indexInList);
 			}
-			Set<ConstraintViolationMessage> fieldMessages = fieldMsgs.get(fieldName);
+			List<ConstraintViolationMessage> fieldMessages = fieldMsgs.get(fieldName);
 			String preferedStringValue = null;
 			if (fieldMessages != null && !fieldMessages.isEmpty()) {
 				preferedStringValue = getOriginalStringValueFromParseError(fieldMessages);
@@ -658,7 +664,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @return
 	 */
 	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(RequestParams paramsProvider, Locale locale) {
-		Map<String, BoundValuesInfo> values = new HashMap<String, BoundValuesInfo>();
+		Map<String, BoundValuesInfo> values = new LinkedHashMap<String, BoundValuesInfo>();
 		// Get values for each defined field
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
 			FormField<?> field = e.getValue();
@@ -693,12 +699,12 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	/** Creates new instance of map with validation messages. */
-	private Map<String, Set<ConstraintViolationMessage>> cloneFieldMessages(Map<String, Set<ConstraintViolationMessage>> fieldMsgs) {
-	  Map<String, Set<ConstraintViolationMessage>> fieldMsgCopy = new LinkedHashMap<String, Set<ConstraintViolationMessage>>();
-	  for (Map.Entry<String, Set<ConstraintViolationMessage>> entry : fieldMsgs.entrySet()) {
-		  fieldMsgCopy.put(entry.getKey(), new LinkedHashSet<ConstraintViolationMessage>(entry.getValue()));	
-	  }
-	  return fieldMsgCopy;
+	private Map<String, List<ConstraintViolationMessage>> cloneFieldMessages(Map<String, List<ConstraintViolationMessage>> fieldMsgs) {
+		Map<String, List<ConstraintViolationMessage>> fieldMsgCopy = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
+		for (Map.Entry<String, List<ConstraintViolationMessage>> entry : fieldMsgs.entrySet()) {
+			fieldMsgCopy.put(entry.getKey(), new ArrayList<ConstraintViolationMessage>(entry.getValue()));	
+		}
+		return fieldMsgCopy;
 	}
 	
 	/**
@@ -749,7 +755,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return Locale.getDefault();
 	}
 	
-	private String getOriginalStringValueFromParseError(Set<ConstraintViolationMessage> fieldMessages) {
+	private String getOriginalStringValueFromParseError(List<ConstraintViolationMessage> fieldMessages) {
 		String value = null;
 		if (fieldMessages != null) {
 			for (ConstraintViolationMessage msg : fieldMessages) {

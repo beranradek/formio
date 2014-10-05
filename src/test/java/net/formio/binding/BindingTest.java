@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.formio.domain.Nation;
@@ -35,7 +35,7 @@ public class BindingTest {
 
 	@Test
 	public void testBindToNewEmptyPerson() {
-		Map<String, BoundValuesInfo> values = new HashMap<String, BoundValuesInfo>();
+		Map<String, BoundValuesInfo> values = new LinkedHashMap<String, BoundValuesInfo>();
 		values.put("personId", BoundValuesInfo.getInstance(new Object[] { Long.valueOf(1) }));
 		values.put("firstName", BoundValuesInfo.getInstance(new Object[] { "Michael" }));
 		values.put("lastName", BoundValuesInfo.getInstance(new Object[] { "Cane" }));
@@ -50,7 +50,7 @@ public class BindingTest {
 	
 	@Test
 	public void testBindToNewPerson() throws ParseException {
-		Map<String, BoundValuesInfo> values = new HashMap<String, BoundValuesInfo>();
+		Map<String, BoundValuesInfo> values = new LinkedHashMap<String, BoundValuesInfo>();
 		String firstName = "Michael";
 		String lastName = "Cane";
 		String birthDate = "28.1.2013 23:51:30";

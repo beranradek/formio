@@ -26,9 +26,9 @@ package net.formio.validation;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -84,8 +84,13 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		}
 		MessageInterpolator msgInterpolator = createMessageInterpolator(this.validatorFactory, this.messageBundleName, locale);
 		Validator validator = createValidator(this.validatorFactory, msgInterpolator);
-		Set<ConstraintViolation<T>> violations = validator.validate(inst, groups);
-		return buildReport(msgInterpolator, violations, requestFailures, parseErrors, propPrefix, locale);
+		
+		// Unfortunately, implementation of bean validation API can return violations 
+		// in nondeterministic order as a HashSet (Hibernate validator)
+		final Set<ConstraintViolation<T>> violations = validator.validate(inst, groups);
+		final List<ConstraintViolation<T>> violationsList = new ArrayList<ConstraintViolation<T>>(violations);
+		Collections.sort(violationsList, constraintViolationComparator);
+		return buildReport(msgInterpolator, violationsList, requestFailures, parseErrors, propPrefix, locale);
 	}
 	
 	public <T> ValidationResult validate(T inst, Locale locale, Class<?> ... groups) {
@@ -149,13 +154,13 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	protected void processRequestErrors(
 			MessageInterpolator msgInterpolator,
 			List<RequestProcessingError> requestFailures, String propPrefix,
-			Map<String, Set<ConstraintViolationMessage>> fieldMessages,
-			Set<ConstraintViolationMessage> globalMessages,
+			Map<String, List<ConstraintViolationMessage>> fieldMessages,
+			List<ConstraintViolationMessage> globalMessages,
 			Locale locale) {
 		for (RequestProcessingError error : requestFailures) {
 			if (error instanceof MaxFileSizeExceededError) {
 				MaxFileSizeExceededError err = (MaxFileSizeExceededError)error;
-				Set<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, err.getFieldName());
+				List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, err.getFieldName());
 				msgs.add(new ConstraintViolationMessage(Severity.ERROR, 
 					interpolateMsg(msgInterpolator, error, locale),
 					error.getMessageKey(),
@@ -175,11 +180,11 @@ public class ValidationApiBeanValidator implements BeanValidator {
 			MessageInterpolator msgInterpolator,
 			List<ParseError> parseErrors,
 			String propPrefix,
-			Map<String, Set<ConstraintViolationMessage>> fieldMessages,
+			Map<String, List<ConstraintViolationMessage>> fieldMessages,
 			Locale locale) {
 		for (ParseError err : parseErrors) {
 			String formPrefixedPropName = pathPrefixedName(propPrefix, err.getPropertyName());
-			Set<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, formPrefixedPropName);
+			List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, formPrefixedPropName);
 			msgs.add(new ConstraintViolationMessage(
 				Severity.ERROR, 
 				interpolateParseErrorMsg(msgInterpolator, err, locale), 
@@ -207,21 +212,21 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		return "{type." + hrt.name() + "}";
 	}
 	
-	private Set<ConstraintViolationMessage> getOrCreateFieldMessages(Map<String, Set<ConstraintViolationMessage>> fieldMsgs, String fieldName) {
-		Set<ConstraintViolationMessage> msgs = fieldMsgs.get(fieldName);
+	private List<ConstraintViolationMessage> getOrCreateFieldMessages(Map<String, List<ConstraintViolationMessage>> fieldMsgs, String fieldName) {
+		List<ConstraintViolationMessage> msgs = fieldMsgs.get(fieldName);
 		if (msgs == null) {
-			msgs = new LinkedHashSet<ConstraintViolationMessage>();
+			msgs = new ArrayList<ConstraintViolationMessage>();
 		}
 		return msgs;
 	}
 	
-	private <T> ValidationResult buildReport(MessageInterpolator msgInterpolator, Set<ConstraintViolation<T>> violations, 
+	private <T> ValidationResult buildReport(MessageInterpolator msgInterpolator, List<ConstraintViolation<T>> violations, 
 		List<RequestProcessingError> requestFailures,
 		List<ParseError> parseErrors,	
 		String propPrefix,
 		Locale locale) {
-		Map<String, Set<ConstraintViolationMessage>> fieldMessages = new LinkedHashMap<String, Set<ConstraintViolationMessage>>();
-		Set<ConstraintViolationMessage> globalMessages = new LinkedHashSet<ConstraintViolationMessage>();
+		Map<String, List<ConstraintViolationMessage>> fieldMessages = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
+		List<ConstraintViolationMessage> globalMessages = new ArrayList<ConstraintViolationMessage>();
 		
 		// request processing errors
 		processRequestErrors(msgInterpolator, requestFailures, propPrefix, fieldMessages, globalMessages, locale);
@@ -259,13 +264,13 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		return new ValidationResult(fieldMessages, globalMessages);
 	}
 	
-	private void appendFieldMsg(Map<String, Set<ConstraintViolationMessage>> fieldMessages, String fieldName, ConstraintViolationMessage msg) {
+	private void appendFieldMsg(Map<String, List<ConstraintViolationMessage>> fieldMessages, String fieldName, ConstraintViolationMessage msg) {
 		if (fieldMessages.containsKey(fieldName)) {
 			fieldMessages.get(fieldName).add(msg);
 		} else {
-			Set<ConstraintViolationMessage> msgSet = new LinkedHashSet<ConstraintViolationMessage>();
-			msgSet.add(msg);
-			fieldMessages.put(fieldName, msgSet);
+			List<ConstraintViolationMessage> msgs = new ArrayList<ConstraintViolationMessage>();
+			msgs.add(msg);
+			fieldMessages.put(fieldName, msgs);
 		}
 	}
 	
@@ -299,4 +304,6 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		}
 		return required;
 	}
+	
+	private static final ConstraintViolationComparator constraintViolationComparator = new ConstraintViolationComparator(); 
 }
