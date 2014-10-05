@@ -35,6 +35,6 @@ public interface RequestContext {
 	 * @param generatedSecret
 	 * @return
 	 */
-	String getRequestSecret(String generatedSecret);
+	String convertToRequestSecret(String generatedSecret);
 	
 }

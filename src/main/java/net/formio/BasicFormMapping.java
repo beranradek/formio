@@ -32,8 +32,6 @@ import net.formio.binding.ParseError;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
-import net.formio.security.PasswordGenerator;
-import net.formio.security.TokenMissingException;
 import net.formio.servlet.ServletRequestParams;
 import net.formio.upload.MaxSizeExceededError;
 import net.formio.upload.RequestProcessingError;
@@ -50,9 +48,6 @@ import net.formio.validation.ValidationResult;
  */
 class BasicFormMapping<T> implements FormMapping<T> {
 
-	/** Prefix of key under which the secret is stored. */
-	static final String SECRET_KEY_PREFIX = "formio_secret_";
-	static final String ALLOWED_TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_@#$%^&*";
 	final String path;
 	final Class<T> dataClass;
 	final Instantiator<T> instantiator;
@@ -341,9 +336,9 @@ class BasicFormMapping<T> implements FormMapping<T> {
 				locale));
 		}
 		
-		if (!(error instanceof MaxSizeExceededError)) {
+		if (!(error instanceof MaxSizeExceededError) && this.secured) {
 			// Must be executed after processing of nested mappings
-			verifyAuthTokenIfSecured(paramsProvider, ctx, false);
+			AuthTokens.verifyAuthToken(ctx, this.getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
 		}
 		
 		// binding data from "values" to resulting object for this mapping
@@ -442,45 +437,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return this.required;
 	}
 	
-	/**
-	 * Verification of authorization token. Must be called after the verification is done on nested
-	 * mappings.
-	 * @param paramsProvider
-	 * @param ctx
-	 * @param listMapping
-	 */
-	void verifyAuthTokenIfSecured(RequestParams paramsProvider, RequestContext ctx, boolean listMapping) {
-		if (this.secured) {
-			if (isRootMapping() && listMapping) {
-				throw new UnsupportedOperationException("Verification of authorization token is not supported "
-					+ "in root list mapping. Please create SINGLE root mapping with nested list mapping.");
-			}
-			if (ctx == null) {
-				throw new IllegalStateException(RequestContext.class.getSimpleName() + " is required when the form is " + 
-					"defined as secured. Please specify not null context in bind method.");
-			}
-			String token = "";
-			String value = paramsProvider.getParamValue(getRootMappingPath() + Forms.PATH_SEP + Forms.AUTH_TOKEN_FIELD_NAME);
-			if (value != null) {
-				token = value;
-			}
-			if ("".equals(token)) {
-				throw new TokenMissingException("Unauthorized attempt. Authorization token is missing! It should be posted as " + Forms.AUTH_TOKEN_FIELD_NAME + 
-					" field. Maybe this is blocked CSRF attempt or the required field with token is not rendered in the form correctly.");
-			}
-			String secretKey = getRootMappingSecretKey();
-			String genSecret = ctx.getUserRelatedStorage().get(secretKey);
-			if (isRootMapping()) {
-				// At the end, when the whole form is submitted and data bind,
-				// secret for token validation held on the server side is deleted
-				ctx.getUserRelatedStorage().delete(secretKey);
-			}
-			String secret = ctx.getRequestSecret(genSecret);
-			// InvalidTokenException is thrown for invalid token
-			this.config.getTokenAuthorizer().validateToken(token, secret);
-		}
-	}
-	
 	Config chooseConfigForNestedMapping(FormMapping<?> mapping, Config outerConfig) {
 		Config nestedMappingConfig = mapping.getConfig();
 		if (!mapping.isUserDefinedConfig() && outerConfig != null) {
@@ -558,26 +514,11 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		Map<String, Object> propValues = new LinkedHashMap<String, Object>();
 		Map<String, Object> beanValues = this.getConfig().getBeanExtractor().extractBean(object, allowedProperties);
 		propValues.putAll(beanValues);
-		putValueForAuthTokenIfSecured(propValues, ctx);
-		return Collections.unmodifiableMap(propValues);
-	}
-
-	void putValueForAuthTokenIfSecured(Map<String, Object> propValues, RequestContext ctx) {
-		if (isRootMapping() && this.secured) {
-			if (ctx == null) {
-				throw new IllegalStateException(RequestContext.class.getSimpleName() + " is required when the form is " + 
-					"defined as secured. Please specify not null context in fill method.");
-			}
-			String genSecret = generateSecret();
-			ctx.getUserRelatedStorage().set(getRootMappingSecretKey(), genSecret);
-			String secret = ctx.getRequestSecret(genSecret);
-			String token = this.config.getTokenAuthorizer().generateToken(secret);
-			propValues.put(Forms.AUTH_TOKEN_FIELD_NAME, token);
+		if (isRootMapping() && secured) {
+			propValues.put(Forms.AUTH_TOKEN_FIELD_NAME, 
+				AuthTokens.generateAuthToken(ctx, this.config.getTokenAuthorizer(), getRootMappingPath()));
 		}
-	}
-	
-	String generateSecret() {
-		return PasswordGenerator.generatePassword(20, ALLOWED_TOKEN_CHARS);
+		return Collections.unmodifiableMap(propValues);
 	}
 	
 	boolean isRootMapping() {
@@ -591,10 +532,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			p = p.substring(0, idxOfSep);
 		}
 		return p;
-	}
-	
-	String getRootMappingSecretKey() {
-		return SECRET_KEY_PREFIX + getRootMappingPath();
 	}
 
 	Map<String, FormField<?>> fillFields(

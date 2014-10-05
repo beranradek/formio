@@ -171,7 +171,13 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		
 		if (!(error instanceof MaxSizeExceededError)) {
 			// Must be executed after processing of nested mappings
-			verifyAuthTokenIfSecured(paramsProvider, ctx, true);
+			if (this.secured && isRootMapping()) {
+				throw new UnsupportedOperationException("Verification of authorization token is not supported "
+					+ "in root list mapping. Please create SINGLE root mapping with nested list mapping.");
+			}
+			if (this.secured) {
+				AuthTokens.verifyAuthToken(ctx, this.getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
+			}
 		}
 		
 		ValidationResult validationRes = new ValidationResult(fieldMsgs, globalMsgs);

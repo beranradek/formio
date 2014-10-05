@@ -47,7 +47,7 @@ public class PortletRequestContext implements RequestContext {
 	}
 	
 	@Override
-	public String getRequestSecret(String generatedSecret) {
+	public String convertToRequestSecret(String generatedSecret) {
 		return generatedSecret + SEPARATOR + getUserRequestIdentification();
 	}
 	
