@@ -1,3 +1,6 @@
+Supler library by Adam Warski and Tomek Szimano:
+  * http://www.warski.org/blog/2014/09/introducing-supler-a-functional-reactive-form-library/
+
 Play! framework
   * http://www.playframework.com/documentation/2.2.x/JavaForms
 

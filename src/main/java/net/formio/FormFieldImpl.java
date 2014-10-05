@@ -41,11 +41,27 @@ class FormFieldImpl<T> implements FormField<T> {
 	private final String strValue;
 	private final HeterogMap<String> properties;
 	
-	static <T> FormFieldImpl<T> getInstance(String name, String type, String pattern, Formatter<T> formatter, HeterogMap<String> properties) {
-		return new FormFieldImpl<T>(name, type, pattern, formatter, properties, Collections.<T>emptyList(), null);
+	static <T> FormFieldImpl<T> getInstance(
+		String name, 
+		String type, 
+		String pattern, 
+		Formatter<T> formatter, 
+		HeterogMap<String> properties) {
+		return getFilledInstance(name, type, pattern, formatter, properties, 
+			Collections.<T>emptyList(), (Locale)null, (Formatters)null, (String)null);
 	}
 	
-	static <T> FormFieldImpl<T> getFilledInstance(String name, String type, String pattern, Formatter<T> formatter, HeterogMap<String> properties, List<T> values, Locale locale, Formatters formatters, String preferedStringValue) {
+	static <T> FormFieldImpl<T> getFilledInstance(
+		String name, 
+		String type, 
+		String pattern, 
+		Formatter<T> formatter, 
+		HeterogMap<String> properties, 
+		List<T> values, 
+		Locale locale, 
+		Formatters formatters, 
+		String preferedStringValue) {
+		
 		String strValue = null;
 		if (preferedStringValue != null) {
 			strValue = preferedStringValue; 
@@ -54,34 +70,6 @@ class FormFieldImpl<T> implements FormField<T> {
 		}
 		return new FormFieldImpl<T>(name, type, pattern, formatter, properties, values, strValue);
 	}
-	
-	private FormFieldImpl(String name, String type, String pattern, Formatter<T> formatter, HeterogMap<String> properties, List<T> values, String strValue) {
-		if (values == null) throw new IllegalArgumentException("values cannot be null, only empty");
-		this.name = name;
-		this.type = type;
-		this.pattern = pattern;
-		this.formatter = formatter;
-		this.filledObjects = values;
-		this.strValue = strValue;
-		this.properties = properties;
-	}
-
-	/**
-	 * Returns copy of given field with new name that has given prefix prepended.
-	 * @param src
-	 * @param namePrefix
-	 * @return
-	 */
-	FormFieldImpl(FormField<T> src, String namePrefix) {
-		if (namePrefix == null) throw new IllegalArgumentException("namePrefix cannot be null");
-		this.name = namePrefix + Forms.PATH_SEP + src.getName();
-		this.type = src.getType();
-		this.filledObjects = new ArrayList<T>(src.getFilledObjects());
-		this.pattern = src.getPattern();
-		this.formatter = src.getFormatter();
-		this.strValue = src.getValue();
-		this.properties = copyProperties(src.getProperties());
-	}
 
 	/**
 	 * Returns copy of field with given required flag.
@@ -89,33 +77,68 @@ class FormFieldImpl<T> implements FormField<T> {
 	 * @param required null if required flag is not specified
 	 */
 	FormFieldImpl(FormField<T> src, Boolean required) {
-		this.name = src.getName();
-		this.type = src.getType();
-		this.filledObjects = new ArrayList<T>(src.getFilledObjects());
-		this.pattern = src.getPattern();
-		this.formatter = src.getFormatter();
-		this.strValue = src.getValue();
-		this.properties = copyProperties(src.getProperties(), required);
+		this(src, src.getName(), (String)null, required);
 	}
 
 	/**
 	 * Returns copy of this field with new name that contains index after given name prefix.
 	 * @param src
 	 * @param index
-	 * @param namePrefix
+	 * @param namePrefixWithoutIndex
 	 * @return
 	 */
-	FormFieldImpl(FormField<T> src, int index, String namePrefix) {
-		if (namePrefix == null) throw new IllegalArgumentException("namePrefix cannot be null");
-		if (!src.getName().startsWith(namePrefix))
-			throw new IllegalStateException("FormField name '" + src.getName() + "' must start with prefix '" + namePrefix + ".'");
-		this.name = namePrefix + "[" + index + "]" + src.getName().substring(namePrefix.length());
-		this.type = src.getType();
-		this.filledObjects = new ArrayList<T>(src.getFilledObjects());
-		this.pattern = src.getPattern();
-		this.formatter = src.getFormatter();
-		this.strValue = src.getValue();
-		this.properties = copyProperties(src.getProperties());
+	FormFieldImpl(FormField<T> src, int index, String namePrefixWithoutIndex) {
+		this(src, namePrefixWithoutIndex + "[" + index + "]" + src.getName().substring(namePrefixWithoutIndex.length()), 
+			namePrefixWithoutIndex, (Boolean)null);
+	}
+	
+	/**
+	 * Returns copy of given field with new name that has given prefix 
+	 * prepended to the previous name of source field.
+	 * @param src
+	 * @param namePrefixToPrepend
+	 * @return
+	 */
+	FormFieldImpl(FormField<T> src, String namePrefixToPrepend) {
+		this(src, namePrefixToPrepend + Forms.PATH_SEP + src.getName(), namePrefixToPrepend, (Boolean)null);
+	}
+	
+	/**
+	 * Returns copy of given field with given name.
+	 * @param src copied form field
+	 * @param name full name of form field
+	 * @param namePrefix if not null, name must start with this prefix
+	 * @param required null if required flag is not specified
+	 * @return
+	 */
+	private FormFieldImpl(FormField<T> src, String name, String namePrefix, Boolean required) {
+		this(validateName(name, namePrefix), 
+			src.getType(), 
+			src.getPattern(), 
+			src.getFormatter(), 
+			copyProperties(src.getProperties(), required), 
+			new ArrayList<T>(src.getFilledObjects()), 
+			src.getValue());
+	}
+	
+	private FormFieldImpl(
+		String name, 
+		String type, 
+		String pattern, 
+		Formatter<T> formatter, 
+		HeterogMap<String> properties, 
+		List<T> filledObjects, 
+		String strValue) {
+			
+		if (properties == null) throw new IllegalArgumentException("properties cannot be null, only empty");
+		if (filledObjects == null) throw new IllegalArgumentException("filledObjects cannot be null, only empty");
+		this.name = name;
+		this.type = type;
+		this.pattern = pattern;
+		this.formatter = formatter;
+		this.filledObjects = filledObjects;
+		this.strValue = strValue;
+		this.properties = properties;
 	}
 
 	/**
@@ -222,26 +245,7 @@ class FormFieldImpl<T> implements FormField<T> {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(name);
-		boolean firstParam = true;
-		sb.append(" (");
-		if (pattern != null && !pattern.isEmpty()) {
-			if (!firstParam) sb.append(", ");
-			sb.append("pattern=" + pattern);
-			firstParam = false;
-		}
-		if (strValue != null && !strValue.isEmpty()) {
-			if (!firstParam) sb.append(", ");
-			int cnt = 0;
-			if (filledObjects != null) {
-				cnt = filledObjects.size();
-			}
-			sb.append("value=" + (strValue.length() > 17 ? strValue.substring(0, 17) + "..." : strValue) + " /count: " + cnt  + "/");
-			firstParam = false;
-		}
-		sb.append(")");
-		return sb.toString();
+		return new FormFieldStringBuilder().build(this);
 	}
 	
 	private static <T> String valueAsString(T value, String pattern, Formatter<T> formatter, Locale locale, Formatters formatters) {
@@ -256,13 +260,7 @@ class FormFieldImpl<T> implements FormField<T> {
 		return str;
 	}
 	
-	private HeterogMap<String> copyProperties(HeterogMap<String> source) {
-		HeterogMap<String> map = HeterogCollections.<String>newLinkedMap();
-		map.putAllFromSource(source);
-		return HeterogCollections.unmodifiableMap(map);
-	}
-	
-	private HeterogMap<String> copyProperties(HeterogMap<String> source, Boolean required) {
+	private static HeterogMap<String> copyProperties(HeterogMap<String> source, Boolean required) {
 		HeterogMap<String> map = HeterogCollections.<String>newLinkedMap();
 		map.putAllFromSource(source);
 		if (required != null) {
@@ -270,6 +268,14 @@ class FormFieldImpl<T> implements FormField<T> {
 			map.putTyped(FieldProperty.REQUIRED, required);
 		}
 		return HeterogCollections.unmodifiableMap(map);
+	}
+	
+	private static String validateName(String name, String namePrefix) {
+		if (name == null) throw new IllegalArgumentException("name cannot be null");
+		if (namePrefix != null && !name.startsWith(namePrefix)) { 
+			throw new IllegalArgumentException("name '" + name + "' does not start with given name prefix '" + namePrefix + "'");
+		}
+		return name;
 	}
 
 }
