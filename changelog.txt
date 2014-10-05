@@ -1,5 +1,9 @@
 # Changelog
 
+1.2.0 (5.10.2014)
+* ValidationResult contains List of ConstraintViolationMessages instead of a Set.
+* Ensuring deterministic order of ConstraintViolationMessages and their arguments (the order coming from bean validation API implementation can be non-deterministic).
+
 1.1.3 (4.9.2014)
 * FileExtension, MaxFileSize constraints by Karel Stefan. 
 * visible, enabled, readonly, required, help convenience methods in FieldProps.
