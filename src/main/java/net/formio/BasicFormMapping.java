@@ -111,20 +111,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.instantiator = src.getInstantiator();
 		this.filledObject = src.getFilledObject();
 		this.secured = src.secured;
-		Map<String, FormField<?>> newFields = new LinkedHashMap<String, FormField<?>>();
-		for (Map.Entry<String, FormField<?>> e : src.getFields().entrySet()) {
-			// copy of field with given prefix prepended
-			FormField<?> field = createFormField(pathPrefix, e.getValue()); // copy constructor
-			if (!field.getName().startsWith(newMappingPath + Forms.PATH_SEP))
-				throw new IllegalStateException("Field name '" + field.getName() + "' must start with prefix '" + newMappingPath + ".'");
-			newFields.put(e.getKey(), field); // key must be a simple property name (it is not changing)
-		}
-		this.fields = Collections.unmodifiableMap(newFields);
-		final Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
-		for (Map.Entry<String, FormMapping<?>> e : src.getNested().entrySet()) {
-			newNestedMappings.put(e.getKey(), e.getValue().withPathPrefix(pathPrefix));
-		}
-		this.nested = Collections.unmodifiableMap(newNestedMappings);
+		this.fields = CloneUtils.fieldsWithPrependedPathPrefix(src.fields, pathPrefix, newMappingPath);
+		this.nested = CloneUtils.mappingsWithPrependedPathPrefix(src.nested, pathPrefix);
 		this.validationResult = src.getValidationResult();
 		this.required = src.required;
 	}
@@ -141,18 +129,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.instantiator = src.instantiator;
 		this.filledObject = src.filledObject;
 		this.secured = src.secured;
-		Map<String, FormField<?>> newFields = new LinkedHashMap<String, FormField<?>>();
-		for (Map.Entry<String, FormField<?>> e : src.fields.entrySet()) {
-			// copy of field with given prefix prepended
-			FormField<?> field = createFormField(index, pathPrefix, e.getValue()); // copy constructor
-			newFields.put(e.getKey(), field); // key must be a simple property name (it is not changing)
-		}
-		this.fields = Collections.unmodifiableMap(newFields);
-		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
-		for (Map.Entry<String, FormMapping<?>> e : src.nested.entrySet()) {
-			newNestedMappings.put(e.getKey(), e.getValue().withIndexAfterPathPrefix(index, pathPrefix));
-		}
-		this.nested = newNestedMappings;
+		this.fields = CloneUtils.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix);
+		this.nested = CloneUtils.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix);
 		this.validationResult = src.validationResult;
 		this.required = src.required;
 	}
@@ -233,11 +211,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 */
 	@Override
 	public Map<String, FormMapping<?>> getNested() {
-		Map<String, FormMapping<?>> mappingsMap = new LinkedHashMap<String, FormMapping<?>>();
-		for (Map.Entry<String, FormMapping<?>> entry : nested.entrySet()) {
-			mappingsMap.put(entry.getKey(), entry.getValue());
-		}
-		return Collections.unmodifiableMap(mappingsMap);
+		return Collections.unmodifiableMap(nested);
 	}
 	
 	@Override
@@ -354,22 +328,15 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		if (error != null) {
 			requestFailures.add(error);
 		}
-		ValidationResult validationRep = this.getConfig().getBeanValidator().validate(
+		ValidationResult validationRes = this.getConfig().getBeanValidator().validate(
 			filledObject.getData(), 
 			this.path, 
 			requestFailures, 
 			FormUtils.flatten(filledObject.getPropertyBindErrors().values()),
 			locale,
 			validationGroups);
-		final Map<String, List<ConstraintViolationMessage>> fieldMsgs = cloneFieldMessages(validationRep.getFieldMessages());
-		
-		// gather validation messages from nested mappings
-		List<ConstraintViolationMessage> globalMsgs = new ArrayList<ConstraintViolationMessage>(validationRep.getGlobalMessages());
-		for (FormData<?> formData : nestedFormData.values()) {
-			fieldMsgs.putAll(formData.getValidationResult().getFieldMessages());
-			globalMsgs.addAll(formData.getValidationResult().getGlobalMessages());
-		}
-		return new FormData<T>(filledObject.getData(), new ValidationResult(fieldMsgs, globalMsgs));
+		return new FormData<T>(filledObject.getData(), 
+			CloneUtils.mergedValidationResults(validationRes, nestedFormData));
 	}
 
 	@Override
@@ -635,15 +602,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return values;
 	}
 	
-	/** Creates new instance of map with validation messages. */
-	private Map<String, List<ConstraintViolationMessage>> cloneFieldMessages(Map<String, List<ConstraintViolationMessage>> fieldMsgs) {
-		Map<String, List<ConstraintViolationMessage>> fieldMsgCopy = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
-		for (Map.Entry<String, List<ConstraintViolationMessage>> entry : fieldMsgs.entrySet()) {
-			fieldMsgCopy.put(entry.getKey(), new ArrayList<ConstraintViolationMessage>(entry.getValue()));	
-		}
-		return fieldMsgCopy;
-	}
-	
 	/**
 	 * Returns copy of form fields that are updated with static information from configuration
 	 * (like required flags). 
@@ -670,10 +628,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getProperties(),
 			FormUtils.<U>convertObjectToList(value), locale, this.getConfig().getFormatters(), preferedStringValue);
 	}
-	
-	private <U> FormField<U> createFormField(int index, String pathPrefix, FormField<U> fld) {
-		return new FormFieldImpl<U>(fld, index, pathPrefix);
-	}
 
 	private <U> FormField<U> createFormField(Config cfg, Map.Entry<String, FormField<?>> e) {
 		boolean requiredConstraintPresent = cfg.getBeanValidator().isRequired(this.getDataClass(), e.getKey());
@@ -682,10 +636,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			required = Boolean.TRUE;
 		} // else not specified, required remains null
 		return new FormFieldImpl<U>((FormField<U>)e.getValue(), required);
-	}
-	
-	private <U> FormField<U> createFormField(String pathPrefix, FormField<U> fld) {
-		return new FormFieldImpl<U>(fld, pathPrefix);
 	}
 	
 	private Locale getDefaultLocale() {

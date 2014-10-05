@@ -25,7 +25,7 @@ import net.formio.security.TokenMissingException;
  * Operations with authorization tokens.
  * @author Radek Beran
  */
-class AuthTokens {
+final class AuthTokens {
 	
 	/** Prefix of key under which the secret is stored. */
 	static final String SECRET_KEY_PREFIX = "formio_secret_";
