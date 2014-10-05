@@ -94,14 +94,14 @@ public class ResBundleMessageInterpolator implements MessageInterpolator {
 		// probably no need for caching, but it could be done by parameters since the map
 		// is immutable and uniquely built per Validation definition, the comparison has to be based on == and not equals though
 		return interpolateMessage(message, 
-			ConstraintViolationMessage.convertToSerializableArgs(context.getConstraintDescriptor().getAttributes()), 
+			ConstraintViolationMessage.toSortedSerializableArgs(context.getConstraintDescriptor().getAttributes()), 
 			defaultLocale);
 	}
 
 	@Override
 	public String interpolate(String message, Context context, Locale locale) {
 		return interpolateMessage(message, 
-			ConstraintViolationMessage.convertToSerializableArgs(context.getConstraintDescriptor().getAttributes()), 
+			ConstraintViolationMessage.toSortedSerializableArgs(context.getConstraintDescriptor().getAttributes()), 
 			locale);
 	}
 

@@ -25,7 +25,10 @@
 package net.formio.validation;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.ConstraintViolation;
@@ -46,7 +49,7 @@ public class ConstraintViolationMessage implements Serializable {
 		this(Severity.fromViolation(cv), 
 		ValidationUtils.getMsgText(cv), 
 		cv.getMessageTemplate(),
-		convertToSerializableArgs(cv.getConstraintDescriptor().getAttributes()));
+		toSortedSerializableArgs(cv.getConstraintDescriptor().getAttributes()));
 	}
 
 	public ConstraintViolationMessage(Severity severity, String text, String msgKey, Map<String, Serializable> msgArgs) {
@@ -55,7 +58,7 @@ public class ConstraintViolationMessage implements Serializable {
 		this.msgKey = ValidationUtils.removeBraces(msgKey);
 		Map<String, Serializable> args = new LinkedHashMap<String, Serializable>();
 		if (msgArgs != null) {
-			args.putAll(msgArgs);
+			args.putAll(toSortedSerializableArgs(msgArgs));
 		}
 		this.msgArgs = args; 
 	}
@@ -92,17 +95,22 @@ public class ConstraintViolationMessage implements Serializable {
 		return severity + ": " + resultTxt;
 	}
 	
-	static Map<String, Serializable> convertToSerializableArgs(
-		Map<String, Object> attributes) {
+	static Map<String, Serializable> toSortedSerializableArgs(
+		Map<String, ? extends Object> attributes) {
 		Map<String, Serializable> args = new LinkedHashMap<String, Serializable>();
 		if (attributes != null) {
-			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-				if (entry.getValue() != null && !(entry.getValue() instanceof Serializable)) {
-					throw new IllegalArgumentException("Constraint argument '" + entry.getKey() + 
+			// Ensuring deterministic order: Implementation of bean validation API (like Hibernate validator)
+			// can return attributes as HashMap.
+			final List<String> attKeys = new ArrayList<String>(attributes.keySet());
+			Collections.sort(attKeys);
+			for (String attKey : attKeys) {
+				Object value = attributes.get(attKey);
+				if (value != null && !(value instanceof Serializable)) {
+					throw new IllegalArgumentException("Message argument value for key '" + attKey + 
 						"' is not serializable so the " + ConstraintViolationMessage.class.getSimpleName() + 
 						" cannot be serializable.");
 				}
-				args.put(entry.getKey(), (Serializable)entry.getValue());
+				args.put(attKey, (Serializable)value);
 			}
 		}
 		return args;
