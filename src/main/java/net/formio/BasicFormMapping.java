@@ -62,25 +62,24 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	final ValidationResult validationResult;
 	final boolean required;
 	final boolean secured;
-
+	
 	/**
 	 * Construct the mapping from given builder.
 	 * @param builder
 	 */
 	BasicFormMapping(BasicFormMappingBuilder<T> builder) {
-		if (builder.config == null) throw new IllegalArgumentException("config cannot be null");
-		this.config = builder.config;
-		this.userDefinedConfig = builder.userDefinedConfig;
-		this.path = builder.path;
-		this.dataClass = builder.dataClass;
-		this.instantiator = builder.instantiator;
-		this.filledObject = builder.filledObject;
-		this.secured = builder.secured;
-		if (this.dataClass == null) throw new IllegalStateException("data class must be filled before configuring fields");
-		this.fields = configuredFields(builder.fields, builder.config);
-		this.validationResult = builder.validationResult;
-		this.nested = Clones.mappingsWithPropagatedConfig(builder.nested, builder.dataClass, builder.config);
-		this.required = false;
+		this(builder.config,
+			builder.userDefinedConfig,
+			builder.path,
+			builder.dataClass,
+			builder.instantiator,
+			builder.filledObject,
+			builder.secured,
+			Clones.configuredFormFields(builder.fields, builder.config, builder.dataClass),
+			Clones.mappingsWithPropagatedConfig(builder.nested, builder.dataClass, builder.config),
+			builder.validationResult,
+			builder.required
+		);
 	}
 	
 	/**
@@ -89,42 +88,33 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @param pathPrefix
 	 */
 	BasicFormMapping(BasicFormMapping<T> src, String pathPrefix) {
-		if (pathPrefix == null) throw new IllegalArgumentException("pathPrefix cannot be null");
-		this.config = src.getConfig();
-		this.userDefinedConfig = src.isUserDefinedConfig();
-		String newMappingPath = null;
-		if (!pathPrefix.isEmpty()) {
-			newMappingPath = pathPrefix + Forms.PATH_SEP + src.getName();
-		} else {
-			newMappingPath = src.getName();
-		}
-		this.path = newMappingPath;
-		this.dataClass = src.getDataClass();
-		this.instantiator = src.getInstantiator();
-		this.filledObject = src.getFilledObject();
-		this.secured = src.secured;
-		this.fields = Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix, newMappingPath);
-		this.nested = Clones.mappingsWithPrependedPathPrefix(src.nested, pathPrefix);
-		this.validationResult = src.getValidationResult();
-		this.required = src.required;
+		this(src.getConfig(),
+			src.isUserDefinedConfig(),
+			pathWithPrefix(src.getName(), pathPrefix),
+			src.getDataClass(),
+			src.getInstantiator(),
+			src.getFilledObject(),
+			src.secured,
+			Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix, pathWithPrefix(src.getName(), pathPrefix)),
+			Clones.mappingsWithPrependedPathPrefix(src.nested, pathPrefix),
+			src.validationResult,
+			src.required
+		);
 	}
 	
 	BasicFormMapping(BasicFormMapping<T> src, int index, String pathPrefix) {
-		if (pathPrefix == null) throw new IllegalArgumentException("pathPrefix cannot be null");
-		this.config = src.getConfig();
-		this.userDefinedConfig = src.isUserDefinedConfig();
-		if (!src.path.startsWith(pathPrefix))
-			throw new IllegalStateException("Mapping path '" + src.path + "' must start with prefix '" + pathPrefix + ".'");
-		String newMappingPath = pathPrefix + "[" + index + "]" + src.path.substring(pathPrefix.length());
-		this.path = newMappingPath;
-		this.dataClass = src.dataClass;
-		this.instantiator = src.instantiator;
-		this.filledObject = src.filledObject;
-		this.secured = src.secured;
-		this.fields = Clones.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix);
-		this.nested = Clones.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix);
-		this.validationResult = src.validationResult;
-		this.required = src.required;
+		this(src.getConfig(),
+			src.isUserDefinedConfig(),
+			pathWithIndex(src.path, index, pathPrefix),
+			src.dataClass,
+			src.instantiator,
+			src.filledObject,
+			src.secured,
+			Clones.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix),
+			Clones.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix),
+			src.validationResult,
+			src.required
+		);
 	}
 	
 	/**
@@ -134,18 +124,42 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @param required
 	 */
 	BasicFormMapping(BasicFormMapping<T> src, Config config, boolean required) {
-		if (config == null) throw new IllegalArgumentException("config cannot be null");
-		this.config = config;
-		this.userDefinedConfig = true;
-		this.path = src.path;
-		this.dataClass = src.dataClass;
-		this.instantiator = src.instantiator;
-		if (this.dataClass == null) throw new IllegalStateException("data class must be filled before configuring fields");
-		this.fields = configuredFields(src.fields, config);
-		this.validationResult = src.validationResult;
-		this.filledObject = src.filledObject;
-		this.secured = src.secured;
-		this.nested = Clones.mappingsWithPropagatedConfig(src.nested, src.dataClass, config);
+		this(config,
+			true,
+			src.path,
+			src.dataClass,
+			src.instantiator,
+			src.filledObject,
+			src.secured,
+			Clones.configuredFormFields(src.fields, config, src.dataClass),
+			Clones.mappingsWithPropagatedConfig(src.nested, src.dataClass, config),
+			src.validationResult,
+			required
+		);
+	}
+	
+	private BasicFormMapping(
+		Config config, 
+		boolean userDefinedConfig, 
+		String path, 
+		Class<T> dataClass, 
+		Instantiator<T> instantiator, 
+		T filledObject,
+		boolean secured,
+		Map<String, FormField<?>> fields,
+		Map<String, FormMapping<?>> nested,
+		ValidationResult validationResult,
+		boolean required) {
+		this.config = assertNotNullArg(config, "config cannot be null");
+		this.userDefinedConfig = userDefinedConfig;
+		this.path = path;
+		this.dataClass = assertNotNullArg(dataClass, "data class must be filled before configuring fields");
+		this.instantiator = instantiator;
+		this.filledObject = filledObject;
+		this.secured = secured;
+		this.fields = fields;
+		this.nested = nested;
+		this.validationResult = validationResult;
 		this.required = required;
 	}
 
@@ -441,9 +455,9 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		} else {
 			builder = Forms.basic(getDataClass(), this.path, this.instantiator).fields(filledFields);
 		}
-		builder.nested = newNestedMappings;
-		builder.validationResult = editedObj.getValidationResult();
-		builder.filledObject = editedObj.getData();
+		builder.nested(newNestedMappings)
+			.validationResult(editedObj.getValidationResult())
+			.filledObject(editedObj.getData());
 		return builder;
 	}
 	
@@ -579,40 +593,10 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		return values;
 	}
 	
-	/**
-	 * Returns copy of form fields that are updated with static information from configuration
-	 * (like required flags). 
-	 * @param sourceFields
-	 * @param cfg
-	 * @return
-	 */
-	private Map<String, FormField<?>> configuredFields(Map<String, FormField<?>> sourceFields, Config cfg) {
-		if (cfg == null) throw new IllegalArgumentException("cfg cannot be null");
-		if (this.getDataClass() == null) throw new IllegalStateException("data class cannot be null");
-		
-		Map<String, FormField<?>> fields = new LinkedHashMap<String, FormField<?>>();
-		if (sourceFields != null) {
-			for (Map.Entry<String, FormField<?>> e : sourceFields.entrySet()) {
-				FormField<?> f = createFormField(cfg, e);
-				fields.put(e.getKey(), f);
-			}
-		}
-		return Collections.unmodifiableMap(fields);
-	}
-	
 	private <U> FormField<U> createFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
 		return FormFieldImpl.<U>getFilledInstance(
 			fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getProperties(),
 			FormUtils.<U>convertObjectToList(value), locale, this.getConfig().getFormatters(), preferedStringValue);
-	}
-
-	private <U> FormField<U> createFormField(Config cfg, Map.Entry<String, FormField<?>> e) {
-		boolean requiredConstraintPresent = cfg.getBeanValidator().isRequired(this.getDataClass(), e.getKey());
-		Boolean required = null;
-		if (requiredConstraintPresent) {
-			required = Boolean.TRUE;
-		} // else not specified, required remains null
-		return new FormFieldImpl<U>((FormField<U>)e.getValue(), required);
 	}
 	
 	private Locale getDefaultLocale() {
@@ -629,6 +613,28 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			}
 		}
 		return value;
+	}
+	
+	private static <U> U assertNotNullArg(U arg, String message) {
+		if (arg == null) throw new IllegalArgumentException(message);
+		return arg;
+	}
+	
+	private static String pathWithPrefix(String path, String pathPrefix) {
+		String newMappingPath = null;
+		if (!pathPrefix.isEmpty()) {
+			newMappingPath = pathPrefix + Forms.PATH_SEP + path;
+		} else {
+			newMappingPath = path;
+		}
+		return newMappingPath;
+	}
+	
+	private static String pathWithIndex(String path, int index, String pathPrefix) {
+		assertNotNullArg(pathPrefix, "pathPrefix cannot be null");
+		if (!path.startsWith(pathPrefix))
+			throw new IllegalStateException("Mapping path '" + path + "' must start with prefix '" + pathPrefix + ".'");
+		return pathPrefix + "[" + index + "]" + path.substring(pathPrefix.length());
 	}
 
 }

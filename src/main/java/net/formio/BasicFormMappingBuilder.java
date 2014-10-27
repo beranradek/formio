@@ -60,6 +60,7 @@ public class BasicFormMappingBuilder<T> {
 	T filledObject;
 	boolean automatic;
 	boolean secured;
+	boolean required;
 
 	/**
 	 * Should be constructed only via {@link Forms} entry point of API.
@@ -89,6 +90,22 @@ public class BasicFormMappingBuilder<T> {
 		if (secured) {
 			fieldForAuthToken();
 		}
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> required(boolean required) {
+		this.required = required;
+		return this;
+	} 
+	
+	public BasicFormMappingBuilder<T> filledObject(T filledObject) {
+		this.filledObject = filledObject;
+		return this;
+	}
+	
+	public BasicFormMappingBuilder<T> validationResult(ValidationResult validationResult) {
+		this.validationResult = validationResult;
 		return this;
 	}
 	
@@ -172,6 +189,12 @@ public class BasicFormMappingBuilder<T> {
 				nested(b);
 			}
 		}
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> nested(Map<String, FormMapping<?>> nested) {
+		this.nested = Collections.unmodifiableMap(nested);
 		return this;
 	}
 

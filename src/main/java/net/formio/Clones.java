@@ -124,6 +124,35 @@ final class Clones {
 		return Collections.unmodifiableMap(newNestedMappings);
 	}
 	
+	/**
+	 * Returns copy of form fields that are updated with static information from configuration
+	 * (like required flags). 
+	 * @param srcFields
+	 * @param cfg
+	 * @return
+	 */
+	static <T> Map<String, FormField<?>> configuredFormFields(Map<String, FormField<?>> srcFields, Config cfg, Class<T> dataClass) {
+		if (cfg == null) throw new IllegalArgumentException("cfg cannot be null");
+		if (dataClass == null) throw new IllegalStateException("data class cannot be null");
+		
+		Map<String, FormField<?>> fields = new LinkedHashMap<String, FormField<?>>();
+		if (srcFields != null) {
+			for (Map.Entry<String, FormField<?>> e : srcFields.entrySet()) {
+				FormField<?> f = configuredFormField(cfg, e.getKey(), e.getValue(), dataClass);
+				fields.put(e.getKey(), f);
+			}
+		}
+		return Collections.unmodifiableMap(fields);
+	}
+	
+	private static <T, U> FormField<U> configuredFormField(Config cfg, String propertyName, FormField<U> field, Class<T> dataClass) {
+		Boolean required = null; // not specified
+		if (cfg.getBeanValidator().isRequired(dataClass, propertyName)) {
+			required = Boolean.TRUE;
+		} // else not specified, required remains null
+		return new FormFieldImpl<U>(field, required);
+	}
+	
 	private static Config chooseConfigForNestedMapping(FormMapping<?> mapping, Config outerConfig) {
 		Config cfg = mapping.getConfig();
 		if (!mapping.isUserDefinedConfig() && outerConfig != null) {
