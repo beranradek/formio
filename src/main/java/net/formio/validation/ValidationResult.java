@@ -44,8 +44,8 @@ public class ValidationResult implements Serializable {
 	public static final ValidationResult empty = newEmptyValidationResult();
 	
 	public ValidationResult(Map<String, List<ConstraintViolationMessage>> fieldMessages, List<ConstraintViolationMessage> globalMessages) {
-		if (fieldMessages == null) throw new IllegalArgumentException("field messages cannot be null");
-		if (globalMessages == null) throw new IllegalArgumentException("global messages cannot be null");
+		if (fieldMessages == null) throw new IllegalArgumentException("field messages cannot be null, only empty");
+		if (globalMessages == null) throw new IllegalArgumentException("global messages cannot be null, only empty");
 		Map<String, List<ConstraintViolationMessage>> fieldMsgCopy = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
 		for (Map.Entry<String, List<ConstraintViolationMessage>> entry : fieldMessages.entrySet()) {
 			fieldMsgCopy.put(entry.getKey(), new ArrayList<ConstraintViolationMessage>(entry.getValue()));	

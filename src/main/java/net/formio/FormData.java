@@ -32,9 +32,14 @@ public class FormData<T> implements Serializable {
 	private final T data; // T is not required to be Serializable for every use cases
 	private final ValidationResult validationResult;
 	
-	public FormData(T data, ValidationResult validationResult) {
+	public FormData(final T data, final ValidationResult validationResult) {
 		this.data = data;
-		this.validationResult = validationResult;
+		ValidationResult res = validationResult;
+		if (res == null) {
+			res = ValidationResult.empty;
+		}
+		if (res == null) throw new IllegalArgumentException("validation result cannot be null");
+		this.validationResult = res;
 	}
 
 	public T getData() {

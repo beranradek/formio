@@ -127,6 +127,17 @@ public class FormUtils {
 	
 	/**
 	 * This method is NOT intended as a part of public API and should not be used outside the library!
+	 * Removes possible brackets from given string.
+	 * @param str
+	 * @return
+	 */
+	public static String removeBrackets(String str) {
+		if (str == null) return null;
+		return str.replaceAll("\\[[^\\]]*\\]", "");
+	}
+	
+	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Decomposes object to list of objects.
 	 * @param value input object - can be iterable, array or single value
 	 * @return

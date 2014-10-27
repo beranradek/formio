@@ -43,10 +43,12 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	/**
 	 * Construct the mapping from given builder.
 	 * @param builder
+	 * @param simpleCopy true if simple copy of builder's data should be constructed, otherwise propagation
+	 * of configuration into fields and nested mappings is processed
 	 */
-	BasicListFormMapping(BasicFormMappingBuilder<T> builder) {
-		super(builder);
-		this.listOfMappings = new ArrayList<FormMapping<T>>(builder.listOfMappings);
+	BasicListFormMapping(BasicFormMappingBuilder<T> builder, boolean simpleCopy) {
+		super(builder, simpleCopy);
+		this.listOfMappings = newListOfMappings(builder.listOfMappings);
 	}
 	
 	/**
@@ -56,7 +58,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	 */
 	BasicListFormMapping(BasicListFormMapping<T> src, String pathPrefix) {
 		super(src, pathPrefix);
-		this.listOfMappings = new ArrayList<FormMapping<T>>(src.listOfMappings);
+		this.listOfMappings = newListOfMappings(src.listOfMappings);
 	}
 	
 	/**
@@ -68,7 +70,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	 */
 	BasicListFormMapping(BasicListFormMapping<T> src, int index, String pathPrefix) {
 		super(src, index, pathPrefix);
-		this.listOfMappings = new ArrayList<FormMapping<T>>(src.listOfMappings);
+		this.listOfMappings = newListOfMappings(src.listOfMappings);
 	}
 	
 	/**
@@ -79,7 +81,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	 */
 	BasicListFormMapping(BasicListFormMapping<T> src, Config config, boolean required) {
 		super(src, config, required);
-		this.listOfMappings = new ArrayList<FormMapping<T>>(src.listOfMappings);
+		this.listOfMappings = newListOfMappings(src.listOfMappings);
 	}
 	
 	@Override
@@ -275,7 +277,8 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
 			// nested data - nested object or list of nested objects in case of mapping to list
 			Object data = nestedData(e.getKey(), editedObj.getData());
-			FormData formData = new FormData<Object>(data, editedObj.getValidationResult()); // the outer report is propagated to nested
+			// the outer report is propagated to nested
+			FormData formData = new FormData<Object>(data, editedObj.getValidationResult());
 			
 			// Path of this mapping is for e.g. registration-collegues
 			// and nested mapping already has path registration-collegues-regDate.
@@ -301,5 +304,9 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	
 	private String getIndexedPath(int index) {
 		return this.path + "[" + index + "]";
+	}
+	
+	private List<FormMapping<T>> newListOfMappings(List<FormMapping<T>> listOfMappings) {
+		return new ArrayList<FormMapping<T>>(listOfMappings);
 	}
 }

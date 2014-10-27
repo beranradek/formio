@@ -32,6 +32,7 @@ import net.formio.binding.PrimitiveType;
 import net.formio.binding.PropertyMethodRegex;
 import net.formio.binding.collection.CollectionSpec;
 import net.formio.binding.collection.ItemsOrder;
+import net.formio.internal.FormUtils;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 
@@ -71,13 +72,31 @@ public class BasicFormMappingBuilder<T> {
 		if (mappingType == null) throw new IllegalArgumentException("mappingType must be filled");
 		this.dataClass = dataClass;
 		this.path = formName;
-		this.instantiator = inst; // can be null
+		Instantiator<T> instantiator = inst;
+		if (instantiator == null) {
+			// using some public constructor as default instantiation strategy
+			instantiator = new ConstructorInstantiator<T>(dataClass);
+		}
+		this.instantiator = instantiator;
 		this.mappingType = mappingType;
 		this.automatic = automatic;
 	}
 	
 	BasicFormMappingBuilder(Class<T> objectClass, String formName, Instantiator<T> inst, boolean automatic) {
 		this(objectClass, formName, inst, automatic, MappingType.SINGLE);
+	}
+	
+	BasicFormMappingBuilder(BasicFormMapping<T> src, Map<String, FormField<?>> fields, Map<String, FormMapping<?>> nested) {
+		// src already contains composed/created fields -> automatic = false for this case
+		this(src.dataClass, src.path, src.instantiator, false, 
+			(src instanceof BasicListFormMapping) ? MappingType.LIST : MappingType.SINGLE);
+		config(src.config, src.userDefinedConfig);
+		filledObject(src.filledObject);
+		fields(fields);
+		nestedWithFinalPath(nested);
+		secured(src.secured);
+		validationResult(src.validationResult);
+		required(src.required);
 	}
 	
 	/**
@@ -97,14 +116,41 @@ public class BasicFormMappingBuilder<T> {
 	BasicFormMappingBuilder<T> required(boolean required) {
 		this.required = required;
 		return this;
-	} 
+	}
 	
-	public BasicFormMappingBuilder<T> filledObject(T filledObject) {
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> path(String path) {
+		this.path = path;
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> dataClass(Class<T> dataClass) {
+		this.dataClass = dataClass;
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> instantiator(Instantiator<T> instantiator) {
+		this.instantiator = instantiator;
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> config(Config config, boolean userDefinedConfig) {
+		this.config = config;
+		this.userDefinedConfig = userDefinedConfig;
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> filledObject(T filledObject) {
 		this.filledObject = filledObject;
 		return this;
 	}
 	
-	public BasicFormMappingBuilder<T> validationResult(ValidationResult validationResult) {
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> validationResult(ValidationResult validationResult) {
 		this.validationResult = validationResult;
 		return this;
 	}
@@ -170,6 +216,7 @@ public class BasicFormMappingBuilder<T> {
 	
 	/**
 	 * Registers form mapping for nested object in form data.
+	 * Path of this mapping is added as a prefix to given nested mapping.
 	 * @param mapping nested mapping - with class of nested object and form name that is
 	 * equal to name of property in outer mapped object
 	 * @return
@@ -180,6 +227,7 @@ public class BasicFormMappingBuilder<T> {
 	
 	/**
 	 * Registers form mappings for nested objects in form data.
+	 * Path of this mapping is added as a prefix to given nested mappings.
 	 * @param mappings nested mappings
 	 * @return
 	 */
@@ -192,27 +240,46 @@ public class BasicFormMappingBuilder<T> {
 		return this;
 	}
 	
-	/** Only for internal usage. */
-	BasicFormMappingBuilder<T> nested(Map<String, FormMapping<?>> nested) {
+	/**
+	 * Registers form mappings for nested objects in form data.
+	 * Mappings must have final path (the path is not changed - prefixed with path of this mapping).
+	 * Only for internal usage.
+	 */
+	BasicFormMappingBuilder<T> nestedWithFinalPath(Map<String, FormMapping<?>> nested) {
 		this.nested = Collections.unmodifiableMap(nested);
 		return this;
 	}
 
 	public FormMapping<T> build() {
-		return buildInternal(
-			Forms.config()
+		Config cfg = this.config;
+		boolean userDefined = this.userDefinedConfig;
+		if (cfg == null) {
+			// default config
+			cfg = Forms.config()
 				.messageBundleName(dataClass.getName().replace(".", "/"))
-				.build(), false
-		); // default config
+				.build();
+			userDefined = false;
+		}
+		boolean plainCopy = false;
+		return buildInternal(cfg, userDefined, plainCopy);
 	}
 	
+	/**
+	 * Builds form mapping with given user-defined configuration.
+	 * @param config
+	 * @return
+	 */
 	public BasicFormMapping<T> build(Config config) {
-		return buildInternal(config, true);
+		boolean plainCopy = false;
+		return buildInternal(config, true, plainCopy);
 	}
 	
 	<U> BasicFormMappingBuilder<T> nestedInternal(FormMapping<U> nestedMapping) {
-		// nested mapping is defined with path that is one simple name that corresponds to the name of the property
-		String propertyName = getFirstPathName(nestedMapping.getName());
+		if (nestedMapping.getName().contains(Forms.PATH_SEP)) {
+			throw new IllegalStateException("Nested mapping should be defined with path that is one simple name " + 
+				"that corresponds to the name of the property");
+		}
+		String propertyName = nestedMapping.getName();
 		
 		// Name of nested mapping and names of its fields must be prefixed by path of this mapping
 		// (and recursively - nested mapping can have its own nested mappings).
@@ -225,11 +292,15 @@ public class BasicFormMappingBuilder<T> {
 	
 	/** Adding multiple form fields. Operation for internal use only. */
 	BasicFormMappingBuilder<T> fields(Map<String, FormField<?>> fields) {
+		if (path == null) throw new IllegalArgumentException("path cannot be null");
 		if (fields == null) throw new IllegalArgumentException("fields cannot be null");
 		Map<String, FormField<?>> flds = new LinkedHashMap<String, FormField<?>>();
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
 			FormField<?> f = e.getValue();
-			if (!f.getName().startsWith(path + Forms.PATH_SEP)) {
+			String fieldNameWithoutBrackets = FormUtils.removeBrackets(f.getName());
+			String pathWithoutBrackets = FormUtils.removeBrackets(path);
+			if (!fieldNameWithoutBrackets.startsWith(pathWithoutBrackets + Forms.PATH_SEP) 
+				&& !fieldNameWithoutBrackets.contains(Forms.PATH_SEP + pathWithoutBrackets + Forms.PATH_SEP)) {
 				throw new IllegalStateException("Field name '" + f.getName() + "' is not prefixed with form name '" + path + "'!");
 			}
 			flds.put(e.getKey(), f);
@@ -238,20 +309,38 @@ public class BasicFormMappingBuilder<T> {
 		return this;
 	}
 	
-	BasicFormMapping<T> buildInternal(Config config, boolean userDefinedConfig) {
+	/**
+	 * Only for internal usage.
+	 * @param fields
+	 * @return
+	 */
+	BasicFormMappingBuilder<T> fieldsReplaceAll(Map<String, FormField<?>> fields) {
+		this.fields = Collections.unmodifiableMap(fields);
+		return this;
+	}
+	
+	/**
+	 * Builds form mapping.
+	 * @param config
+	 * @param userDefinedConfig
+	 * @param simpleCopy true if simple copy of builder's data should be constructed, otherwise propagation
+	 * of configuration into fields and nested mappings is processed
+	 * @return
+	 */
+	BasicFormMapping<T> buildInternal(Config config, boolean userDefinedConfig, boolean simpleCopy) {
 		if (config == null) throw new IllegalArgumentException("config cannot be null");
 		this.userDefinedConfig = userDefinedConfig;
 		this.config = config;
 		
 		if (this.automatic) {
-			buildFieldsAndNestedMappings(config);
+			buildFieldsAndNestedMappingsAutomatically(config);
 		}
 		
 		BasicFormMapping<T> mapping = null;
 		if (this.mappingType == MappingType.LIST) {
-			mapping = new BasicListFormMapping<T>(this);
+			mapping = new BasicListFormMapping<T>(this, simpleCopy);
 		} else {
-			mapping = new BasicFormMapping<T>(this);
+			mapping = new BasicFormMapping<T>(this, simpleCopy);
 		}
 		return mapping;
 	}
@@ -276,18 +365,11 @@ public class BasicFormMappingBuilder<T> {
 		return Collections.unmodifiableMap(properties);
 	}
 	
-	void buildFieldsAndNestedMappings(Config config) {
+	void buildFieldsAndNestedMappingsAutomatically(Config config) {
 		if (config == null) throw new IllegalArgumentException("config cannot be null");
 		Map<String, Method> propertiesByNames = getClassProperties(this.dataClass, config.getBeanExtractor(), config.getAccessorRegex());
 		
-		Instantiator<T> inst = null;
-		if (this.instantiator == null) {
-			// using some public constructor as default instantiation strategy
-			inst = new ConstructorInstantiator<T>(this.dataClass);
-		} else {
-			// user defined instantiator
-			inst = this.instantiator;
-		}
+		final Instantiator<T> inst = this.instantiator;
 		ConstructionDescription constrDesc = inst.getDescription(config.getArgumentNameResolver());
 		
 		Method[] methods = this.dataClass.getMethods();
@@ -340,7 +422,9 @@ public class BasicFormMappingBuilder<T> {
 	}
 	
 	void fieldForAuthToken() {
-		field(Forms.AUTH_TOKEN_FIELD_NAME, "hidden");
+		if (!fields.containsKey(Forms.AUTH_TOKEN_FIELD_NAME)) {
+			field(Forms.AUTH_TOKEN_FIELD_NAME, "hidden");
+		}
 	}
 
 	private void assertValidComplexTypeProperty(Class<?> propertyType, String propertyName) {
@@ -391,17 +475,6 @@ public class BasicFormMappingBuilder<T> {
 			|| PrimitiveType.byWrapperClass(retType) != null 
 			|| config.getFormatters().canHandle(retType)
 			|| UploadedFile.class.isAssignableFrom(retType);
-	}
-	
-	private String getFirstPathName(String path) {
-		String name = null;
-		int indexOfSep = path.indexOf(Forms.PATH_SEP);
-		if (indexOfSep < 0) {
-			name = path;
-		} else {
-			name = path.substring(0, indexOfSep);
-		}
-		return name;
 	}
 	
 	private String formPrefixedName(String name) {

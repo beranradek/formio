@@ -64,22 +64,23 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	final boolean secured;
 	
 	/**
-	 * Construct the mapping from given builder.
+	 * Constructs a mapping from the given builder.
 	 * @param builder
+	 * @param simpleCopy true if simple copy of builder's data should be constructed, otherwise propagation
+	 * of configuration into fields and nested mappings is processed
 	 */
-	BasicFormMapping(BasicFormMappingBuilder<T> builder) {
-		this(builder.config,
-			builder.userDefinedConfig,
-			builder.path,
-			builder.dataClass,
-			builder.instantiator,
-			builder.filledObject,
-			builder.secured,
-			Clones.configuredFormFields(builder.fields, builder.config, builder.dataClass),
-			Clones.mappingsWithPropagatedConfig(builder.nested, builder.dataClass, builder.config),
-			builder.validationResult,
-			builder.required
-		);
+	BasicFormMapping(BasicFormMappingBuilder<T> builder, boolean simpleCopy) {
+		this.config = assertNotNullArg(builder.config, "config cannot be null");
+		this.userDefinedConfig = builder.userDefinedConfig;
+		this.path = builder.path;
+		this.dataClass = assertNotNullArg(builder.dataClass, "data class must be filled before configuring fields");
+		this.instantiator = builder.instantiator;
+		this.filledObject = builder.filledObject;
+		this.secured = builder.secured;
+		this.fields = simpleCopy ? builder.fields : Clones.configuredFormFields(builder.fields, builder.config, builder.dataClass);
+		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithPropagatedConfig(builder.nested, builder.dataClass, builder.config);
+		this.validationResult = builder.validationResult;
+		this.required = builder.required;
 	}
 	
 	/**
@@ -88,33 +89,19 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @param pathPrefix
 	 */
 	BasicFormMapping(BasicFormMapping<T> src, String pathPrefix) {
-		this(src.getConfig(),
-			src.isUserDefinedConfig(),
-			pathWithPrefix(src.getName(), pathPrefix),
-			src.getDataClass(),
-			src.getInstantiator(),
-			src.getFilledObject(),
-			src.secured,
-			Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix, pathWithPrefix(src.getName(), pathPrefix)),
-			Clones.mappingsWithPrependedPathPrefix(src.nested, pathPrefix),
-			src.validationResult,
-			src.required
-		);
+		this(new BasicFormMappingBuilder<T>(src, 
+			Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix, pathWithPrefix(src.getName(), pathPrefix)), 
+			Clones.mappingsWithPrependedPathPrefix(src.nested, pathPrefix))
+			.path(pathWithPrefix(src.getName(), pathPrefix)), 
+			true); // true = simple copy of builder's data
 	}
 	
 	BasicFormMapping(BasicFormMapping<T> src, int index, String pathPrefix) {
-		this(src.getConfig(),
-			src.isUserDefinedConfig(),
-			pathWithIndex(src.path, index, pathPrefix),
-			src.dataClass,
-			src.instantiator,
-			src.filledObject,
-			src.secured,
-			Clones.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix),
-			Clones.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix),
-			src.validationResult,
-			src.required
-		);
+		this(new BasicFormMappingBuilder<T>(src, 
+			Clones.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix), 
+			Clones.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix))
+			.path(pathWithIndex(src.path, index, pathPrefix)), 
+			true); // true = simple copy of builder's data
 	}
 	
 	/**
@@ -124,43 +111,12 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	 * @param required
 	 */
 	BasicFormMapping(BasicFormMapping<T> src, Config config, boolean required) {
-		this(config,
-			true,
-			src.path,
-			src.dataClass,
-			src.instantiator,
-			src.filledObject,
-			src.secured,
-			Clones.configuredFormFields(src.fields, config, src.dataClass),
-			Clones.mappingsWithPropagatedConfig(src.nested, src.dataClass, config),
-			src.validationResult,
-			required
-		);
-	}
-	
-	private BasicFormMapping(
-		Config config, 
-		boolean userDefinedConfig, 
-		String path, 
-		Class<T> dataClass, 
-		Instantiator<T> instantiator, 
-		T filledObject,
-		boolean secured,
-		Map<String, FormField<?>> fields,
-		Map<String, FormMapping<?>> nested,
-		ValidationResult validationResult,
-		boolean required) {
-		this.config = assertNotNullArg(config, "config cannot be null");
-		this.userDefinedConfig = userDefinedConfig;
-		this.path = path;
-		this.dataClass = assertNotNullArg(dataClass, "data class must be filled before configuring fields");
-		this.instantiator = instantiator;
-		this.filledObject = filledObject;
-		this.secured = secured;
-		this.fields = fields;
-		this.nested = nested;
-		this.validationResult = validationResult;
-		this.required = required;
+		this(new BasicFormMappingBuilder<T>(src, 
+			Clones.configuredFormFields(src.fields, config, src.dataClass), 
+			Clones.mappingsWithPropagatedConfig(src.nested, src.dataClass, config))
+			.config(config, true)
+			.required(required), 
+			true); // true = simple copy of builder's data
 	}
 
 	@Override
@@ -443,8 +399,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		// Fill the definitions of fields of this mapping with prepared values
 		Map<String, FormField<?>> filledFields = fillFields(
 			propValues, 
-			editedObj.getValidationResult() != null && editedObj.getValidationResult().getFieldMessages() != null ?
-				editedObj.getValidationResult().getFieldMessages() : new LinkedHashMap<String, List<ConstraintViolationMessage>>(),
+			editedObj.getValidationResult().getFieldMessages(),
 			-1, 
 			locale);
 
@@ -455,7 +410,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		} else {
 			builder = Forms.basic(getDataClass(), this.path, this.instantiator).fields(filledFields);
 		}
-		builder.nested(newNestedMappings)
+		builder.nestedWithFinalPath(newNestedMappings)
 			.validationResult(editedObj.getValidationResult())
 			.filledObject(editedObj.getData());
 		return builder;
@@ -532,7 +487,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
 			// nested data - nested object or list of nested objects in case of mapping to list
 			Object data = nestedData(e.getKey(), editedObj.getData());
-			FormData<Object> formData = new FormData<Object>(data, editedObj.getValidationResult()); // the outer report is propagated to nested
+			// the outer report is propagated to nested
+			FormData<Object> formData = new FormData<Object>(data, editedObj.getValidationResult());
 			FormMapping<Object> newMapping = (FormMapping<Object>)e.getValue();
 			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale, ctx));
 		}
