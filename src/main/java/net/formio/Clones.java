@@ -29,7 +29,7 @@ import net.formio.validation.ValidationResult;
  * Auxiliary cloning methods.
  * @author Radek Beran
  */
-final class CloneUtils {
+final class Clones {
 
 	/** Creates new instance of map with validation messages. */
 	static Map<String, List<ConstraintViolationMessage>> cloneFieldMessages(Map<String, List<ConstraintViolationMessage>> fieldMsgs) {
@@ -40,6 +40,12 @@ final class CloneUtils {
 		return fieldMsgCopy;
 	}
 	
+	/**
+	 * Returns validation result merged with validation results from nested form data.
+	 * @param validationRes
+	 * @param nestedFormData
+	 * @return
+	 */
 	static ValidationResult mergedValidationResults(
 		ValidationResult validationRes,
 		Map<String, FormData<?>> nestedFormData) {
@@ -69,15 +75,6 @@ final class CloneUtils {
 		return Collections.unmodifiableMap(newFields);
 	}
 	
-	static Map<String, FormMapping<?>> mappingsWithPrependedPathPrefix(
-		Map<String, FormMapping<?>> mappings, String pathPrefix) {
-		final Map<String, FormMapping<?>> newMappings = new LinkedHashMap<String, FormMapping<?>>();
-		for (Map.Entry<String, FormMapping<?>> e : mappings.entrySet()) {
-			newMappings.put(e.getKey(), e.getValue().withPathPrefix(pathPrefix));
-		}
-		return Collections.unmodifiableMap(newMappings);
-	}
-	
 	static Map<String, FormField<?>> fieldsWithIndexAfterPathPrefix(
 		Map<String, FormField<?>> fields, int index, String pathPrefix) {
 		Map<String, FormField<?>> newFields = new LinkedHashMap<String, FormField<?>>();
@@ -97,6 +94,45 @@ final class CloneUtils {
 		return Collections.unmodifiableMap(newMappings);
 	}
 	
+	static Map<String, FormMapping<?>> mappingsWithPrependedPathPrefix(
+		Map<String, FormMapping<?>> mappings, String pathPrefix) {
+		final Map<String, FormMapping<?>> newMappings = new LinkedHashMap<String, FormMapping<?>>();
+		for (Map.Entry<String, FormMapping<?>> e : mappings.entrySet()) {
+			newMappings.put(e.getKey(), e.getValue().withPathPrefix(pathPrefix));
+		}
+		return Collections.unmodifiableMap(newMappings);
+	}
+	
+	/**
+	 * Returns copy of nested mappings with propagated user defined config or default (outer) config if they have 
+	 * not their own user defined configs.
+	 * @param nestedMappings
+	 * @param outerClass
+	 * @param outerConfig
+	 * @return
+	 */
+	static <T> Map<String, FormMapping<?>> mappingsWithPropagatedConfig(Map<String, FormMapping<?>> nestedMappings, Class<T> outerClass, Config outerConfig) {
+		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
+		for (Map.Entry<String, FormMapping<?>> e : nestedMappings.entrySet()) {
+			final String propertyName = e.getKey();
+			final FormMapping<?> nestedMapping = e.getValue();
+			final boolean requiredProp = outerConfig.getBeanValidator().isRequired(outerClass, propertyName);
+			final Config cfg = chooseConfigForNestedMapping(nestedMapping, outerConfig);
+			// put copy of nested form mapping with new (propagated) config 
+			newNestedMappings.put(propertyName, nestedMapping.withConfig(cfg, requiredProp));
+		}
+		return Collections.unmodifiableMap(newNestedMappings);
+	}
+	
+	private static Config chooseConfigForNestedMapping(FormMapping<?> mapping, Config outerConfig) {
+		Config cfg = mapping.getConfig();
+		if (!mapping.isUserDefinedConfig() && outerConfig != null) {
+			// config for nested mapping was not explicitly defined, we will pass outer config to nested mapping
+			cfg = outerConfig;
+		}
+		return cfg;
+	}
+	
 	private static <U> FormField<U> createFormField(int index, String pathPrefix, FormField<U> fld) {
 		return new FormFieldImpl<U>(fld, index, pathPrefix);
 	}
@@ -105,7 +141,7 @@ final class CloneUtils {
 		return new FormFieldImpl<U>(fld, pathPrefix);
 	}
 	
-	private CloneUtils() {
+	private Clones() {
 		throw new AssertionError("Not instantiable, use static members");
 	}
 }

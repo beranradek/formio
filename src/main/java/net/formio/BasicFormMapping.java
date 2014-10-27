@@ -79,15 +79,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		if (this.dataClass == null) throw new IllegalStateException("data class must be filled before configuring fields");
 		this.fields = configuredFields(builder.fields, builder.config);
 		this.validationResult = builder.validationResult;
-		// propagate user defined or default config to nested mappings if they have
-		// not their own user defined configs
-		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
-		for (Map.Entry<String, FormMapping<?>> e : builder.nested.entrySet()) {
-			Config nestedMappingConfig = chooseConfigForNestedMapping(e.getValue(), builder.config);
-			boolean required = nestedMappingConfig.getBeanValidator().isRequired(builder.dataClass, e.getKey());
-			newNestedMappings.put(e.getKey(), e.getValue().withConfig(nestedMappingConfig, required));
-		}
-		this.nested = Collections.unmodifiableMap(newNestedMappings);
+		this.nested = Clones.mappingsWithPropagatedConfig(builder.nested, builder.dataClass, builder.config);
 		this.required = false;
 	}
 	
@@ -111,8 +103,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.instantiator = src.getInstantiator();
 		this.filledObject = src.getFilledObject();
 		this.secured = src.secured;
-		this.fields = CloneUtils.fieldsWithPrependedPathPrefix(src.fields, pathPrefix, newMappingPath);
-		this.nested = CloneUtils.mappingsWithPrependedPathPrefix(src.nested, pathPrefix);
+		this.fields = Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix, newMappingPath);
+		this.nested = Clones.mappingsWithPrependedPathPrefix(src.nested, pathPrefix);
 		this.validationResult = src.getValidationResult();
 		this.required = src.required;
 	}
@@ -129,8 +121,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.instantiator = src.instantiator;
 		this.filledObject = src.filledObject;
 		this.secured = src.secured;
-		this.fields = CloneUtils.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix);
-		this.nested = CloneUtils.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix);
+		this.fields = Clones.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix);
+		this.nested = Clones.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix);
 		this.validationResult = src.validationResult;
 		this.required = src.required;
 	}
@@ -153,13 +145,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.validationResult = src.validationResult;
 		this.filledObject = src.filledObject;
 		this.secured = src.secured;
-		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
-		for (Map.Entry<String, FormMapping<?>> e : src.nested.entrySet()) {
-			Config nestedMappingConfig = chooseConfigForNestedMapping(e.getValue(), config);
-			boolean req = nestedMappingConfig.getBeanValidator().isRequired(src.dataClass, e.getKey());
-			newNestedMappings.put(e.getKey(), e.getValue().withConfig(nestedMappingConfig, req));
-		}
-		this.nested = Collections.unmodifiableMap(newNestedMappings);
+		this.nested = Clones.mappingsWithPropagatedConfig(src.nested, src.dataClass, config);
 		this.required = required;
 	}
 
@@ -336,7 +322,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			locale,
 			validationGroups);
 		return new FormData<T>(filledObject.getData(), 
-			CloneUtils.mergedValidationResults(validationRes, nestedFormData));
+			Clones.mergedValidationResults(validationRes, nestedFormData));
 	}
 
 	@Override
@@ -402,15 +388,6 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	@Override
 	public boolean isRequired() {
 		return this.required;
-	}
-	
-	Config chooseConfigForNestedMapping(FormMapping<?> mapping, Config outerConfig) {
-		Config nestedMappingConfig = mapping.getConfig();
-		if (!mapping.isUserDefinedConfig() && outerConfig != null) {
-			// config for nested mapping was not explicitly defined, we will pass outer config to nested mapping
-			nestedMappingConfig = outerConfig;
-		}
-		return nestedMappingConfig;
 	}
 	
 	Map<String, FormData<?>> loadDataForMappings(
