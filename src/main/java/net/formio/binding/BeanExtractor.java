@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Extracts values from bean's properties.
+ * Extracts values from bean's formProperties.
  * @author Radek Beran
  */
 public interface BeanExtractor {
@@ -29,7 +29,7 @@ public interface BeanExtractor {
 	/**
 	 * Extracts values from given bean.
 	 * @param bean extracted bean
-	 * @param allowedProperties names of properties that should be extracted (whitelist), 
+	 * @param allowedProperties names of formProperties that should be extracted (whitelist), 
 	 * does not influence order of returned entries
 	 * @return values by property names
 	 */

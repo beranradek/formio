@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Extracts values from properties using regular expression for an accessor.
+ * Extracts values from formProperties using regular expression for an accessor.
  * @author Radek Beran
  */
 public class DefaultBeanExtractor implements BeanExtractor {

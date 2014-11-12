@@ -16,7 +16,11 @@
  */
 package net.formio.domain;
 
-public class Engine {
+import java.io.Serializable;
+
+public class Engine implements Serializable {
+	private static final long serialVersionUID = 962929460236617803L;
+
 	private int cylinderCount;
 
 	private int volume;

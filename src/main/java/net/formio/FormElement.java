@@ -16,22 +16,22 @@
  */
 package net.formio;
 
-import net.formio.domain.Person;
-
-import org.junit.Test;
-
 /**
- * Tests that an exception is thrown early from the form definition if some
- * specified field has missing property in form data class.
+ * Element in a form - form field, group of fields (form mapping), ...
  * @author Radek Beran
  */
-public class MissingPropertyTest {
-
-	@Test(expected=ReflectionException.class)
-	public void testMissingProperty() {
-		Forms.basic(Person.class, "person")
-			// whitelist of formProperties to bind
-			.fields("personId", "firstName", "lastName", "salary", "phone", "male", "missingField")
-			.build();
-	}
+public interface FormElement extends FormProperties {
+	
+	/**
+	 * Name of this form element (full path from outer object to potentially nested property).
+	 * It represents an identifier of this element in the form.
+	 * @return
+	 */
+	String getName();
+	
+	/**
+	 * Returns view with properties of this form element.
+	 * @return
+	 */
+	FormProperties getFormProperties();
 }

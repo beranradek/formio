@@ -35,7 +35,7 @@ import net.formio.validation.ValidationResult;
 import org.junit.Test;
 
 /**
- * Test form with various field properties.
+ * Test form with various field formProperties.
  * @author Radek Beran
  */
 public class FieldPropertiesFormTest {
@@ -60,7 +60,7 @@ public class FieldPropertiesFormTest {
 			assertTrue("cylinderCount should be required", filledForm.getNestedByProperty(Engine.class, "engine").getField(Integer.class, "cylinderCount").isRequired());
 			assertEquals("In units...", filledForm.getNestedByProperty(Engine.class, "engine").getField(Integer.class, "volume").getHelp());
 			
-			// Default properties:
+			// Default formProperties:
 			FormField<String> descriptionField = filledForm.getField(String.class, "description");
 			assertFalse("description field should not be readonly", descriptionField.isReadonly());
 			assertTrue("description field should be enabled", descriptionField.isEnabled());

@@ -16,11 +16,16 @@
  */
 package net.formio.validation;
 
+import java.util.Collection;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Payload;
 
+/**
+ * Severity of validation message.
+ * @author Radek Beran
+ */
 public enum Severity implements Payload {
 
 	// Must be ordered from the least to most severe errors
@@ -54,5 +59,23 @@ public enum Severity implements Payload {
 			}
 		}
 		return sev;
+	}
+	
+	/**
+	 * Returns maximum severity of given messages.
+	 * @param msgs
+	 * @return maximum severity or {@code null} if no messages are available
+	 */
+	public static Severity max(Collection<ConstraintViolationMessage> msgs) {
+		Severity maxSeverity = null;
+		if (msgs != null && !msgs.isEmpty()) {
+			maxSeverity = Severity.INFO;
+			for (ConstraintViolationMessage m : msgs) {
+				if (m.getSeverity().ordinal() > maxSeverity.ordinal()) {
+					maxSeverity = m.getSeverity(); 
+				}
+			}
+		}
+		return maxSeverity;
 	}
 }

@@ -16,9 +16,15 @@
  */
 package net.formio.domain;
 
+import java.io.Serializable;
+
 import net.formio.validation.constraints.NotEmpty;
 
-public class Car {
+public class Car implements Serializable {
+	private static final long serialVersionUID = -4971576602203269772L;
+
+	private Long carId;
+
 	private String brand;
 
 	private Engine engine;
@@ -31,6 +37,16 @@ public class Car {
 	private int color;
 
 	private String description;
+
+	private CarDimensions dimensions;
+
+	public Long getCarId() {
+		return carId;
+	}
+
+	public void setCarId(Long carId) {
+		this.carId = carId;
+	}
 
 	public String getBrand() {
 		return brand;
@@ -78,6 +94,14 @@ public class Car {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public CarDimensions getDimensions() {
+		return dimensions;
+	}
+
+	public void setDimensions(CarDimensions dimensions) {
+		this.dimensions = dimensions;
 	}
 
 }

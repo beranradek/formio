@@ -14,24 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio;
+package net.formio.debug;
 
-import net.formio.domain.Person;
-
-import org.junit.Test;
+import net.formio.FormMapping;
 
 /**
- * Tests that an exception is thrown early from the form definition if some
- * specified field has missing property in form data class.
+ * Mappings in path to form field.
  * @author Radek Beran
  */
-public class MissingPropertyTest {
+public class ParentMappings {
+	private final FormMapping<?> rootMapping;
+	private final FormMapping<?> parentMapping;
 
-	@Test(expected=ReflectionException.class)
-	public void testMissingProperty() {
-		Forms.basic(Person.class, "person")
-			// whitelist of formProperties to bind
-			.fields("personId", "firstName", "lastName", "salary", "phone", "male", "missingField")
-			.build();
+	public ParentMappings(FormMapping<?> rootMapping, FormMapping<?> parentMapping) {
+		if (rootMapping == null) throw new IllegalArgumentException("rootMapping cannot be null");
+		this.rootMapping = rootMapping;
+		this.parentMapping = parentMapping; // can be null (only root mapping available)
 	}
+
+	public FormMapping<?> getRootMapping() {
+		return rootMapping;
+	}
+
+	public FormMapping<?> getParentMapping() {
+		return parentMapping;
+	}
+
 }

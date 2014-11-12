@@ -25,7 +25,10 @@ import java.util.Set;
 
 import net.formio.domain.Address;
 import net.formio.domain.AttendanceReason;
+import net.formio.domain.Car;
+import net.formio.domain.CarDimensions;
 import net.formio.domain.Collegue;
+import net.formio.domain.Engine;
 import net.formio.domain.Nation;
 import net.formio.domain.NewCollegue;
 import net.formio.domain.Person;
@@ -72,6 +75,26 @@ public final class TestData {
 		
 		reg.setNewCollegue(new NewCollegue());
 		return reg;
+	}
+	
+	public static Car newCar() {
+		Car car = new Car();
+		car.setCarId(Long.valueOf(200));
+		car.setBrand("Porsche 911 Turbo");
+		car.setColor(25);
+		car.setDescription("Great model");
+		car.setMaxSpeed(315);
+		car.setProductionYear(2013);
+		Engine engine = new Engine();
+		engine.setCylinderCount(6);
+		engine.setVolume(3800);
+		car.setEngine(engine);
+		CarDimensions dimensions = new CarDimensions();
+		dimensions.setLength(4506);
+		dimensions.setWidth(1880);
+		dimensions.setHeight(1295);
+		car.setDimensions(dimensions);
+		return car;
 	}
 	
 	private TestData() {

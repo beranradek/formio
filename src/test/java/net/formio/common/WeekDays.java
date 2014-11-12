@@ -14,24 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio;
+package net.formio.common;
 
-import net.formio.domain.Person;
-
-import org.junit.Test;
+import java.util.Locale;
 
 /**
- * Tests that an exception is thrown early from the form definition if some
- * specified field has missing property in form data class.
+ * Days of week.
  * @author Radek Beran
  */
-public class MissingPropertyTest {
-
-	@Test(expected=ReflectionException.class)
-	public void testMissingProperty() {
-		Forms.basic(Person.class, "person")
-			// whitelist of formProperties to bind
-			.fields("personId", "firstName", "lastName", "salary", "phone", "male", "missingField")
-			.build();
+public enum WeekDays {
+	MONDAY("mo"),
+	TUESDAY("tu"),
+	WEDNESDAY("we"),
+	THURSDAY("th"),
+	FRIDAY("fr"),
+	SATURDAY("sa"),
+	SUNDAY("su");
+	
+	private static final MessageTranslator tr = new MessageTranslator(WeekDays.class);
+	private final String shortcut;
+	
+	private WeekDays(String shortcut) {
+		this.shortcut = shortcut;
+	}
+	
+	public String getDayLocalized(Locale locale) {
+		return tr.getMessage(shortcut, locale);
 	}
 }

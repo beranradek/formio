@@ -96,14 +96,14 @@ public class SimpleFormTest {
 		FormData<Person> boundFormData = personForm.bind(getRequestParams(), locale, personToFillFromForm);
 		MarriedPerson person = (MarriedPerson)boundFormData.getData();
 		
-		// Constructor-settable properties are not overriden
+		// Constructor-settable formProperties are not overriden
 		assertEquals("Charlotte", person.getFirstName());
 		assertEquals("Stripes", person.getLastName());
 		assertEquals(40000, person.getSalary());
 		assertEquals("728111222", person.getPhone());
 		assertEquals(Boolean.FALSE, Boolean.valueOf(person.isMale()));
 		
-		// Other properties are overriden from request params
+		// Other formProperties are overriden from request params
 		assertEquals(Nation.JEDI_KNIGHT, person.getNation());
 		
 		assertNotNull("Marriage date should be filled", person.getMarriageDate());

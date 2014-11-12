@@ -32,7 +32,10 @@ import net.formio.binding.PrimitiveType;
 import net.formio.binding.PropertyMethodRegex;
 import net.formio.binding.collection.CollectionSpec;
 import net.formio.binding.collection.ItemsOrder;
+import net.formio.common.heterog.HeterogCollections;
+import net.formio.common.heterog.HeterogMap;
 import net.formio.internal.FormUtils;
+import net.formio.props.FieldProperty;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 
@@ -61,7 +64,7 @@ public class BasicFormMappingBuilder<T> {
 	T filledObject;
 	boolean automatic;
 	boolean secured;
-	boolean required;
+	HeterogMap<String> properties;
 
 	/**
 	 * Should be constructed only via {@link Forms} entry point of API.
@@ -80,6 +83,7 @@ public class BasicFormMappingBuilder<T> {
 		this.instantiator = instantiator;
 		this.mappingType = mappingType;
 		this.automatic = automatic;
+		this.properties = FieldProperty.createDefaultFieldProperties();
 	}
 	
 	BasicFormMappingBuilder(Class<T> objectClass, String formName, Instantiator<T> inst, boolean automatic) {
@@ -96,7 +100,9 @@ public class BasicFormMappingBuilder<T> {
 		nestedWithFinalPath(nested);
 		secured(src.secured);
 		validationResult(src.validationResult);
-		required(src.required);
+		final HeterogMap<String> properties = HeterogCollections.<String>newLinkedMap();
+		properties.putAllFromSource(src.formProperties.getProperties());
+		this.properties = properties;
 	}
 	
 	/**
@@ -109,12 +115,6 @@ public class BasicFormMappingBuilder<T> {
 		if (secured) {
 			fieldForAuthToken();
 		}
-		return this;
-	}
-	
-	/** Only for internal usage. */
-	BasicFormMappingBuilder<T> required(boolean required) {
-		this.required = required;
 		return this;
 	}
 	
@@ -157,17 +157,17 @@ public class BasicFormMappingBuilder<T> {
 	
 	/**
 	 * Adds form field specification.
-	 * @param fieldProperties
+	 * @param fieldProps
 	 * @return
 	 */
-	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> fieldProperties) {
-		String frmPrefixedName = formPrefixedName(fieldProperties.getPropertyName());
-		fields.put(fieldProperties.getPropertyName(), FormFieldImpl.getInstance(
+	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> fieldProps) {
+		String frmPrefixedName = formPrefixedName(fieldProps.getPropertyName());
+		fields.put(fieldProps.getPropertyName(), FormFieldImpl.getInstance(
 			frmPrefixedName, 
-			fieldProperties.getType(), 
-			fieldProperties.getPattern(), 
-			fieldProperties.getFormatter(), 
-			fieldProperties.getProperties()));
+			fieldProps.getType(), 
+			fieldProps.getPattern(), 
+			fieldProps.getFormatter(), 
+			new FormPropertiesImpl(fieldProps.getProperties())));
 		return this;
 	}
 	
@@ -238,6 +238,31 @@ public class BasicFormMappingBuilder<T> {
 			}
 		}
 		return this;
+	}
+	
+	public <U> BasicFormMappingBuilder<T> property(FieldProperty<U> fieldProperty, U value) {
+		this.properties.putTyped(fieldProperty, value);
+		return this;
+	}
+	
+	public BasicFormMappingBuilder<T> visible(boolean visible) {
+		return property(FieldProperty.VISIBLE, Boolean.valueOf(visible));
+	}
+	
+	public BasicFormMappingBuilder<T> enabled(boolean enabled) {
+		return property(FieldProperty.ENABLED, Boolean.valueOf(enabled));
+	}
+	
+	public BasicFormMappingBuilder<T> readonly(boolean readonly) {
+		return property(FieldProperty.READ_ONLY, Boolean.valueOf(readonly));
+	}
+
+	public BasicFormMappingBuilder<T> required(boolean required) {
+		return property(FieldProperty.REQUIRED, Boolean.valueOf(required));
+	}
+	
+	public BasicFormMappingBuilder<T> help(String help) {
+		return property(FieldProperty.HELP, help);
 	}
 	
 	/**

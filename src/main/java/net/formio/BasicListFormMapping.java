@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import net.formio.common.heterog.HeterogCollections;
 import net.formio.data.RequestContext;
 import net.formio.internal.FormUtils;
 import net.formio.servlet.ServletRequestParams;
@@ -32,8 +33,17 @@ import net.formio.upload.RequestProcessingError;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
 
-// TODO RBe: Another type parameter for element of list (this is new parameter) and for the list itself = T.
-class BasicListFormMapping<T> extends BasicFormMapping<T> {
+/**
+ * Implementation of {@link FormMapping} that is expanded to list of indexed mappings 
+ * when filled with data (list of objects). Immutable when not filled.
+ * After the filling, new instance of mapping is created and its immutability 
+ * depends on the character of filled data.
+ * 
+ * @author Radek Beran
+ */
+public class BasicListFormMapping<T> extends BasicFormMapping<T> {
+	// public because of introspection required by some template frameworks, constructors are not public
+	// make another type parameter for element of list (this is new parameter) and for the list itself = T?
 	
 	/**
 	 * Mappings for individual elements in list of edited objects.
@@ -227,6 +237,8 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.validationResult = formDataAtIndex.getValidationResult();
 			builder.filledObject = formDataAtIndex.getData();
 			builder.mappingType = MappingType.SINGLE;
+			builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
+			
 			builder.userDefinedConfig = this.userDefinedConfig;
 			newMappings.add(builder.build(this.getConfig()));
 			index++;
@@ -245,6 +257,8 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		builder.validationResult = editedObj.getValidationResult();
 		builder.listOfMappings = newMappings;
 		builder.filledObject = editedObj.getData();
+		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
+		builder.config(this.config, this.userDefinedConfig);
 		return builder;
 	}
 	
@@ -296,7 +310,7 @@ class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			FormField<?> srcFld = e.getValue();
 			String indexedName = FormUtils.pathWithIndexBeforeLastProperty(srcFld.getName(), index);
 			final FormFieldImpl<?> f = FormFieldImpl.getInstance(indexedName, 
-				srcFld.getType(), srcFld.getPattern(), srcFld.getFormatter(), srcFld.getProperties());
+				srcFld.getType(), srcFld.getPattern(), srcFld.getFormatter(), srcFld.getFormProperties());
 			flds.put(e.getKey(), f);
 		}
 		return flds;

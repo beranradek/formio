@@ -16,10 +16,13 @@
  */
 package net.formio.common.heterog;
 
+import static org.junit.Assert.*;
+
 import java.math.BigDecimal;
 import java.util.Map;
 
-import org.junit.Assert;
+import net.formio.props.FieldProperty;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,22 +44,51 @@ public class DefaultHeterogMapTest {
 		config.putTyped(INT_KEY, new Integer(15));
 		config.putTyped(HELLO_KEY, "Hello");
 		config.putTyped(ANOTHER_INT_KEY, new Integer(10));
-		Assert.assertEquals(3, config.size());
+		assertEquals(3, config.size());
 		Integer i1 = config.getTyped(INT_KEY);
 		String str = config.getTyped(HELLO_KEY);
 		Integer i2 = config.getTyped(ANOTHER_INT_KEY);
-		Assert.assertEquals(15, i1.intValue());
-		Assert.assertEquals("Hello", str);
-		Assert.assertEquals(10, i2.intValue());
+		assertEquals(15, i1.intValue());
+		assertEquals("Hello", str);
+		assertEquals(10, i2.intValue());
+	}
+	
+	@Test
+	public void testPutAllValues() {
+		final HeterogMap<String> properties = HeterogCollections.<String>newLinkedMap();
+		properties.putTyped(FieldProperty.VISIBLE, Boolean.FALSE);
+		properties.putTyped(FieldProperty.ENABLED, Boolean.TRUE);
+		properties.putTyped(FieldProperty.REQUIRED, Boolean.FALSE);
+		properties.putTyped(FieldProperty.READ_ONLY, Boolean.FALSE);
+		final HeterogMap<String> copy = HeterogCollections.<String>newLinkedMap();
+		copy.putAllFromSource(properties);
+		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.VISIBLE));
+		assertEquals(Boolean.TRUE, copy.getTyped(FieldProperty.ENABLED));
+		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.REQUIRED));
+		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.READ_ONLY));
+	}
+	
+	@Test
+	public void testCopyConstructor() {
+		final DefaultHeterogMap<String> properties = new DefaultHeterogMap<String>();
+		properties.putTyped(FieldProperty.VISIBLE, Boolean.FALSE);
+		properties.putTyped(FieldProperty.ENABLED, Boolean.TRUE);
+		properties.putTyped(FieldProperty.REQUIRED, Boolean.FALSE);
+		properties.putTyped(FieldProperty.READ_ONLY, Boolean.FALSE);
+		final DefaultHeterogMap<String> copy = new DefaultHeterogMap<String>(properties);
+		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.VISIBLE));
+		assertEquals(Boolean.TRUE, copy.getTyped(FieldProperty.ENABLED));
+		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.REQUIRED));
+		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.READ_ONLY));
 	}
 	
 	@Test
 	public void testContainsKey() {
-		Assert.assertFalse("Container should not contain key", config.containsKey(INT_KEY));
-		Assert.assertFalse("Container should not contain key", config.containsKey(MISSING_KEY));
+		assertFalse("Container should not contain key", config.containsKey(INT_KEY));
+		assertFalse("Container should not contain key", config.containsKey(MISSING_KEY));
 		config.putTyped(INT_KEY, new Integer(15));
-		Assert.assertTrue("Container should contain key", config.containsKey(INT_KEY));
-		Assert.assertFalse("Container should not contain key", config.containsKey(MISSING_KEY));
+		assertTrue("Container should contain key", config.containsKey(INT_KEY));
+		assertFalse("Container should not contain key", config.containsKey(MISSING_KEY));
 	}
 	
 	@Test
@@ -65,9 +97,9 @@ public class DefaultHeterogMapTest {
 		config.putTyped(HELLO_KEY, "Hello");
 		config.putTyped(ANOTHER_INT_KEY, new Integer(10));
 		String s = config.toString();
-		Assert.assertTrue("toString result should contain expected text", s.contains("java.lang.Integer"));
-		Assert.assertTrue("toString result should contain expected text", s.contains("15"));
-		Assert.assertTrue("toString result should contain expected text", config.toString().contains("Hello"));
+		assertTrue("toString result should contain expected text", s.contains("java.lang.Integer"));
+		assertTrue("toString result should contain expected text", s.contains("15"));
+		assertTrue("toString result should contain expected text", config.toString().contains("Hello"));
 	}
 	
 	@Test(expected = ClassCastException.class)

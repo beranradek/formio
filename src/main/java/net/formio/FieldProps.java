@@ -24,7 +24,7 @@ import net.formio.format.Formatter;
 import net.formio.props.FieldProperty;
 
 /**
- * Specification of properties used to construct a {@link FormField}.
+ * Specification of formProperties used to construct a {@link FormField}.
  * 
  * @author Radek Beran
  */
@@ -147,7 +147,7 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	/**
-	 * Field properties (flags like required, ... - see {@link FieldProperty}).
+	 * Field formProperties (flags like required, ... - see {@link FieldProperty}).
 	 * @return
 	 */
 	public HeterogMap<String> getProperties() {

@@ -83,7 +83,7 @@ public class FormUtils {
 	
 	/**
 	 * This method is NOT intended as a part of public API and should not be used outside the library!
-	 * Returns simple names of properties that are represented with given fields.
+	 * Returns simple names of formProperties that are represented with given fields.
 	 * @param fields
 	 * @return
 	 */

@@ -25,7 +25,7 @@ import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 
 /**
- * Common field properties.
+ * Common field formProperties.
  * @author Radek Beran
  */
 public class FieldProperty<T> extends AbstractTypedKey<String, T> implements Property<T> {
@@ -68,7 +68,7 @@ public class FieldProperty<T> extends AbstractTypedKey<String, T> implements Pro
 	}
 	
 	/**
-	 * Returns new heterogeneous map with default properties for form field.
+	 * Returns new heterogeneous map with default formProperties for form field.
 	 * @return
 	 */
 	public static HeterogMap<String> createDefaultFieldProperties() {

@@ -14,24 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio;
+package net.formio.domain;
 
-import net.formio.domain.Person;
+import java.io.Serializable;
 
-import org.junit.Test;
+public class CarDimensions implements Serializable {
+	private static final long serialVersionUID = 6409104980170682251L;
 
-/**
- * Tests that an exception is thrown early from the form definition if some
- * specified field has missing property in form data class.
- * @author Radek Beran
- */
-public class MissingPropertyTest {
+	private int length;
+	private int width;
+	private int height;
 
-	@Test(expected=ReflectionException.class)
-	public void testMissingProperty() {
-		Forms.basic(Person.class, "person")
-			// whitelist of formProperties to bind
-			.fields("personId", "firstName", "lastName", "salary", "phone", "male", "missingField")
-			.build();
+	public int getLength() {
+		return length;
 	}
+
+	public void setLength(int length) {
+		this.length = length;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
 }

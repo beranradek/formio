@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
@@ -32,21 +31,23 @@ import net.formio.props.FieldProperty;
  * Form field. Immutable.
  * @author Radek Beran
  */
-class FormFieldImpl<T> implements FormField<T> {
+public class FormFieldImpl<T> implements FormField<T> {
+	// public because of introspection required by some template frameworks, constructors are not public
+	
 	private final String name;
 	private final String type;
 	private final List<T> filledObjects;
 	private final String pattern;
 	private final Formatter<T> formatter;
 	private final String strValue;
-	private final HeterogMap<String> properties;
+	private final FormProperties formProperties;
 	
 	static <T> FormFieldImpl<T> getInstance(
 		String name, 
 		String type, 
 		String pattern, 
 		Formatter<T> formatter, 
-		HeterogMap<String> properties) {
+		FormProperties properties) {
 		return getFilledInstance(name, type, pattern, formatter, properties, 
 			Collections.<T>emptyList(), (Locale)null, (Formatters)null, (String)null);
 	}
@@ -56,7 +57,7 @@ class FormFieldImpl<T> implements FormField<T> {
 		String type, 
 		String pattern, 
 		Formatter<T> formatter, 
-		HeterogMap<String> properties, 
+		FormProperties properties, 
 		List<T> values, 
 		Locale locale, 
 		Formatters formatters, 
@@ -115,8 +116,12 @@ class FormFieldImpl<T> implements FormField<T> {
 		this(validateName(name, namePrefix), 
 			src.getType(), 
 			src.getPattern(), 
-			src.getFormatter(), 
-			copyProperties(src.getProperties(), required), 
+			src.getFormatter(),
+			// Override required only in case required != null, so the required flag from field props is not
+			// overriden by missing NotNull annotation...
+			required != null ? 
+				((FormPropertiesImpl)src.getFormProperties()).withProperty(FieldProperty.REQUIRED, required) :
+				src.getFormProperties(),
 			new ArrayList<T>(src.getFilledObjects()), 
 			src.getValue());
 	}
@@ -126,11 +131,11 @@ class FormFieldImpl<T> implements FormField<T> {
 		String type, 
 		String pattern, 
 		Formatter<T> formatter, 
-		HeterogMap<String> properties, 
+		FormProperties properties, 
 		List<T> filledObjects, 
 		String strValue) {
 			
-		if (properties == null) throw new IllegalArgumentException("properties cannot be null, only empty");
+		if (properties == null) throw new IllegalArgumentException("formProperties cannot be null, only empty");
 		if (filledObjects == null) throw new IllegalArgumentException("filledObjects cannot be null, only empty");
 		this.name = name;
 		this.type = type;
@@ -138,7 +143,7 @@ class FormFieldImpl<T> implements FormField<T> {
 		this.formatter = formatter;
 		this.filledObjects = filledObjects;
 		this.strValue = strValue;
-		this.properties = properties;
+		this.formProperties = properties;
 	}
 
 	/**
@@ -190,32 +195,37 @@ class FormFieldImpl<T> implements FormField<T> {
 	
 	@Override
 	public boolean isVisible() {
-		return this.properties.getTyped(FieldProperty.VISIBLE).booleanValue();
+		return this.formProperties.isVisible();
 	}
 	
 	@Override
 	public boolean isEnabled() {
-		return this.properties.getTyped(FieldProperty.ENABLED).booleanValue();
+		return this.formProperties.isEnabled();
 	}
 	
 	@Override
 	public boolean isReadonly() {
-		return this.properties.getTyped(FieldProperty.READ_ONLY).booleanValue();
+		return this.formProperties.isReadonly();
 	}
 	
 	@Override
 	public boolean isRequired() {
-		return this.properties.getTyped(FieldProperty.REQUIRED).booleanValue();
+		return this.formProperties.isRequired();
 	}
 	
 	@Override
 	public String getHelp() {
-		return this.properties.getTyped(FieldProperty.HELP);
+		return this.formProperties.getHelp();
 	}
 	
 	@Override
 	public HeterogMap<String> getProperties() {
-		return this.properties;
+		return this.formProperties.getProperties();
+	}
+	
+	@Override
+	public FormProperties getFormProperties() {
+		return this.formProperties;
 	}
 
 	@Override
@@ -258,16 +268,6 @@ class FormFieldImpl<T> implements FormField<T> {
 			str = formatters.makeString(value, pattern, locale);
 		}
 		return str;
-	}
-	
-	private static HeterogMap<String> copyProperties(HeterogMap<String> source, Boolean required) {
-		HeterogMap<String> map = HeterogCollections.<String>newLinkedMap();
-		map.putAllFromSource(source);
-		if (required != null) {
-			// required flag is specified
-			map.putTyped(FieldProperty.REQUIRED, required);
-		}
-		return HeterogCollections.unmodifiableMap(map);
 	}
 	
 	private static String validateName(String name, String namePrefix) {

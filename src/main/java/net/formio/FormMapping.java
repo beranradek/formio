@@ -33,13 +33,7 @@ import net.formio.validation.ValidationResult;
  * 
  * @author Radek Beran
  */
-public interface FormMapping<T> {
-	
-	/**
-	 * Name of this mapping (full path from the most outer mapping to this potentially nested mapping).
-	 * @return
-	 */
-	String getName();
+public interface FormMapping<T> extends FormElement {
 	
 	/**
 	 * Key for the label for filled object (or list of objects).
@@ -53,12 +47,6 @@ public interface FormMapping<T> {
 	 * @return
 	 */
 	T getFilledObject();
-	
-	/**
-	 * Returns true if this is mapping for object that is required to fill.
-	 * @return
-	 */
-	boolean isRequired();
 	
 	/**
 	 * Class of edited object (form data).

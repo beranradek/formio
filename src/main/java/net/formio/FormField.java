@@ -18,7 +18,6 @@ package net.formio;
 
 import java.util.List;
 
-import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 
 /**
@@ -26,13 +25,7 @@ import net.formio.format.Formatter;
  * @param T type of data filled into this form field; field can be filled with one or more values of type T
  * @author Radek Beran
  */
-public interface FormField<T> {
-
-	/**
-	 * Name of this field (full path from outer object to potentially nested property).
-	 * @return
-	 */
-	String getName();
+public interface FormField<T> extends FormElement {
 	
 	/**
 	 * Type of form field, for e.g.: text, checkbox, textarea, ..., or {@code null} if not specified.
@@ -48,42 +41,6 @@ public interface FormField<T> {
 	 * @return
 	 */
 	String getLabelKey();
-	
-	/**
-	 * Returns true if this field is visible.
-	 * @return
-	 */
-	boolean isVisible();
-	
-	/**
-	 * Returns true if this field is enabled.
-	 * @return
-	 */
-	boolean isEnabled();
-	
-	/**
-	 * Returns true if this field is read-only.
-	 * @return
-	 */
-	boolean isReadonly();
-	
-	/**
-	 * Returns true if this field is required.
-	 * @return
-	 */
-	boolean isRequired();
-	
-	/**
-	 * Returns help for filling this field.
-	 * @return
-	 */
-	String getHelp();
-	
-	/**
-	 * Returns properties (flags) of this form field.
-	 * @return
-	 */
-	HeterogMap<String> getProperties();
 	
 	/**
 	 * Single/first object which this field is filled with.
@@ -115,5 +72,4 @@ public interface FormField<T> {
 	 * @return
 	 */
 	Formatter<T> getFormatter();
-
 }

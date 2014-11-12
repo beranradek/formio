@@ -35,7 +35,7 @@ public interface BeanValidator {
 	 * Validates object and returns result with validation errors.
 	 * @param <T> 
 	 * @param inst filled object
-	 * @param propPrefix path to validated object (properties of validated object should be prefixed by this path
+	 * @param propPrefix path to validated object (formProperties of validated object should be prefixed by this path
 	 * when constructing resulting validation error messages)
 	 * @param requestErrors request processing errors that should be translated to field or global messages
 	 * @param parseErrors parse errors that should be translated to field messages

@@ -29,6 +29,8 @@ import net.formio.binding.FilledData;
 import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
 import net.formio.binding.ParseError;
+import net.formio.common.heterog.HeterogCollections;
+import net.formio.common.heterog.HeterogMap;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
@@ -46,7 +48,8 @@ import net.formio.validation.ValidationResult;
  * 
  * @author Radek Beran
  */
-class BasicFormMapping<T> implements FormMapping<T> {
+public class BasicFormMapping<T> implements FormMapping<T> {
+	// public because of introspection required by some template frameworks, constructors are not public
 
 	final String path;
 	final Class<T> dataClass;
@@ -60,7 +63,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	/** Mapping simple property names to nested mappings. Property name is a part of full path of nested mapping. */
 	final Map<String, FormMapping<?>> nested;
 	final ValidationResult validationResult;
-	final boolean required;
+	final FormProperties formProperties;
 	final boolean secured;
 	
 	/**
@@ -80,7 +83,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		this.fields = simpleCopy ? builder.fields : Clones.configuredFormFields(builder.fields, builder.config, builder.dataClass);
 		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithPropagatedConfig(builder.nested, builder.dataClass, builder.config);
 		this.validationResult = builder.validationResult;
-		this.required = builder.required;
+		this.formProperties = new FormPropertiesImpl(builder.properties);
 	}
 	
 	/**
@@ -356,8 +359,38 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
+	public boolean isVisible() {
+		return this.formProperties.isVisible();
+	}
+	
+	@Override
+	public boolean isEnabled() {
+		return this.formProperties.isEnabled();
+	}
+	
+	@Override
+	public boolean isReadonly() {
+		return this.formProperties.isReadonly();
+	}
+	
+	@Override
 	public boolean isRequired() {
-		return this.required;
+		return this.formProperties.isRequired();
+	}
+	
+	@Override
+	public String getHelp() {
+		return this.formProperties.getHelp();
+	}
+	
+	@Override
+	public HeterogMap<String> getProperties() {
+		return this.formProperties.getProperties();
+	}
+	
+	@Override
+	public FormProperties getFormProperties() {
+		return this.formProperties;
 	}
 	
 	Map<String, FormData<?>> loadDataForMappings(
@@ -412,14 +445,16 @@ class BasicFormMapping<T> implements FormMapping<T> {
 		}
 		builder.nestedWithFinalPath(newNestedMappings)
 			.validationResult(editedObj.getValidationResult())
-			.filledObject(editedObj.getData());
+			.filledObject(editedObj.getData())
+			.config(this.config, this.userDefinedConfig);
+		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
 		return builder;
 	}
 	
 	/**
-	 * Gather values of object's properties.
+	 * Gather values of object's formProperties.
 	 * @param object
-	 * @param allowedProperties set of allowed properties, does not influence order of returned entries
+	 * @param allowedProperties set of allowed formProperties, does not influence order of returned entries
 	 * @param ctx request context
 	 * @return
 	 */
@@ -489,8 +524,8 @@ class BasicFormMapping<T> implements FormMapping<T> {
 			Object data = nestedData(e.getKey(), editedObj.getData());
 			// the outer report is propagated to nested
 			FormData<Object> formData = new FormData<Object>(data, editedObj.getValidationResult());
-			FormMapping<Object> newMapping = (FormMapping<Object>)e.getValue();
-			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale, ctx));
+			FormMapping<Object> mapping = (FormMapping<Object>)e.getValue();
+			newNestedMappings.put(e.getKey(), mapping.fill(formData, locale, ctx));
 		}
 		return newNestedMappings;
 	}
@@ -508,7 +543,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 
 	/**
 	 * Converts parameters from request (RequestParams) using field definitions and given locale
-	 * to descriptions of values for individual properties, ready to bind to properties of form data object
+	 * to descriptions of values for individual formProperties, ready to bind to formProperties of form data object
 	 * via binder.
 	 * @param paramsProvider
 	 * @param locale
@@ -551,7 +586,7 @@ class BasicFormMapping<T> implements FormMapping<T> {
 	
 	private <U> FormField<U> createFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
 		return FormFieldImpl.<U>getFilledInstance(
-			fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getProperties(),
+			fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getFormProperties(),
 			FormUtils.<U>convertObjectToList(value), locale, this.getConfig().getFormatters(), preferedStringValue);
 	}
 	

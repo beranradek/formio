@@ -45,5 +45,14 @@ public class FieldPropertyTest {
 		assertEquals(FieldProperty.ENABLED, FieldProperty.fromName("enabled"));
 		assertEquals(null, FieldProperty.fromName("unknown"));
 	}
+	
+	@Test
+	public void testDefaultProperties() {
+		assertTrue(FieldProperty.VISIBLE.getDefaultValue().booleanValue());
+		assertTrue(FieldProperty.ENABLED.getDefaultValue().booleanValue());
+		assertFalse(FieldProperty.REQUIRED.getDefaultValue().booleanValue());
+		assertFalse(FieldProperty.READ_ONLY.getDefaultValue().booleanValue());
+		assertEquals("", FieldProperty.HELP.getDefaultValue());
+	}
 
 }

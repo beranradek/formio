@@ -24,6 +24,7 @@ import net.formio.MappingType;
 import net.formio.domain.Address;
 import net.formio.domain.BigDecimalValue;
 import net.formio.domain.Car;
+import net.formio.domain.CarDimensions;
 import net.formio.domain.Collegue;
 import net.formio.domain.Engine;
 import net.formio.domain.NewCollegue;
@@ -41,7 +42,7 @@ public final class TestForms {
 	private static final FormMapping<RegDate> REG_DATE_MAPPING = Forms.basic(RegDate.class, "regDate").fields("month", "year").build();
 	public static final FormMapping<Registration> BASIC_REG_FORM = 
 		Forms.basic(Registration.class, "registration")
-		  // whitelist of properties to bind
+		  // whitelist of formProperties to bind
 		  .fields("attendanceReasons", "cv", "certificates", "interests", "email")
 		  .nested(Forms.basic(Address.class, "contactAddress", Forms.factoryMethod(Address.class, "getInstance"))
 			.fields("street", "city", "zipCode").build())
@@ -62,7 +63,7 @@ public final class TestForms {
 			.build();
 	
 	public static final FormMapping<Person> PERSON_FORM = Forms.basic(Person.class, "person") // NOPMD by Radek on 2.3.14 19:29
-		// whitelist of properties to bind
+		// whitelist of formProperties to bind
 		.fields("personId", "firstName", "lastName", "salary", "phone", "male", "nation")
 		.field(Forms.<Date>field("birthDate", "text").formatter(TestFormatters.CUSTOM_DATE_FORMATTER).build())
 		.build();
@@ -76,12 +77,32 @@ public final class TestForms {
 		.field(Forms.field("maxSpeed").enabled(false).build())
 		.field(Forms.field("productionYear").visible(false).build())
 		// field "color" is automatically created and bound
-		// field "description" is automatically created and bound, it has no properties
+		// field "description" is automatically created and bound, it has no formProperties
 		.nested(Forms.automatic(Engine.class, "engine")
 			.field(Forms.field("cylinderCount").required(true).build())	
 			.field(Forms.field("volume").help("In units...").build())
 			.build())
 		.build();
+	
+	public static final FormMapping<Car> CAR_ACCESSIBILITY_FORM =
+		Forms.basic(Car.class, "carForm")
+			.field("carId", "hidden")
+			.field(Forms.field("brand").readonly(true).build())
+			.field(Forms.field("maxSpeed").enabled(false).build())
+			.field("productionYear")
+			.field(Forms.field("color").visible(false).build())
+			.field("description", "textarea")
+			.nested(Forms.basic(Engine.class, "engine")
+				.field(Forms.field("cylinderCount").required(true).build())	
+				.field(Forms.field("volume").help("In units...").build())
+				.build())
+			.nested(Forms.basic(CarDimensions.class, "dimensions")
+				.field("length")	
+				.field("width")
+				.field("height")
+				.visible(false)
+				.build())
+			.build();
 	
 	private TestForms() {
 	}

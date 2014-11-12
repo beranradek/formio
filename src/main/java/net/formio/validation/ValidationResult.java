@@ -25,6 +25,7 @@ package net.formio.validation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,6 +82,14 @@ public class ValidationResult implements Serializable {
 			}
 		}
 		return !errorFound;
+	}
+	
+	/**
+	 * Returns true if both global and field validation messages are empty.
+	 * @return
+	 */
+	public boolean isEmpty() {
+		return getGlobalMessages().isEmpty() && getFieldMessages().isEmpty();
 	}
 	
 	/**

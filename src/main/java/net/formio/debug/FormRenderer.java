@@ -14,24 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio;
+package net.formio.debug;
 
-import net.formio.domain.Person;
+import java.util.List;
+import java.util.Locale;
 
-import org.junit.Test;
+import net.formio.FormField;
+import net.formio.FormMapping;
+import net.formio.validation.ConstraintViolationMessage;
+import net.formio.validation.ValidationResult;
 
 /**
- * Tests that an exception is thrown early from the form definition if some
- * specified field has missing property in form data class.
+ * Renders form and its parts. 
  * @author Radek Beran
  */
-public class MissingPropertyTest {
-
-	@Test(expected=ReflectionException.class)
-	public void testMissingProperty() {
-		Forms.basic(Person.class, "person")
-			// whitelist of formProperties to bind
-			.fields("personId", "firstName", "lastName", "salary", "phone", "male", "missingField")
-			.build();
-	}
+public interface FormRenderer {
+	<T> String renderForm(FormMapping<T> filledForm, FormMethod method, String actionUrl, Locale locale);
+	
+	String renderGlobalMessages(ValidationResult validationResult);
+	
+	<T> String renderMapping(FormMapping<T> mapping, ParentMappings parentMappings, Locale locale);
+	
+	<T> String renderField(FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings, Locale locale);
+	
+	String renderSubmit();
 }
