@@ -50,6 +50,7 @@ import net.formio.binding.ParseError;
 import net.formio.internal.FormUtils;
 import net.formio.upload.MaxFileSizeExceededError;
 import net.formio.upload.RequestProcessingError;
+import net.formio.validation.constraints.NotEmpty;
 
 /**
  * Object validator using {@link ValidatorFactory}.
@@ -293,6 +294,10 @@ public class ValidationApiBeanValidator implements BeanValidator {
 						}
 					} else if (ann instanceof NotNull) {
 						required = true;
+						break;
+					} else if (ann instanceof NotEmpty) {
+						required = true;
+						break;
 					} else {
 						if (isRequired(ann.annotationType().getAnnotations(), level + 1)) {
 							required = true;
