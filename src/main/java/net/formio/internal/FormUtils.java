@@ -66,23 +66,6 @@ public class FormUtils {
 	
 	/**
 	 * This method is NOT intended as a part of public API and should not be used outside the library!
-	 * Extracts property name located at the end of full field name (field
-	 * name is the whole path, with possible terminating brackets).
-	 * @param fieldName
-	 * @return
-	 */
-	public static String fieldNameToLastPropertyName(String fieldName) {
-		if (fieldName == null) return null;
-		int lastDot = fieldName.lastIndexOf(Forms.PATH_SEP);
-		String propName = fieldName;
-		if (lastDot >= 0) {
-			propName = fieldName.substring(lastDot + 1);
-		}
-		return removeTrailingBrackets(propName);
-	}
-	
-	/**
-	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Returns simple names of formProperties that are represented with given fields.
 	 * @param fields
 	 * @return
@@ -209,6 +192,22 @@ public class FormUtils {
 		}
 		Collections.sort(indexes);
 		return indexes.get(indexes.size() - 1).intValue();
+	}
+	
+	/**
+	 * Extracts property name located at the end of full field name (field
+	 * name is the whole path, with possible terminating brackets).
+	 * @param fieldName
+	 * @return
+	 */
+	private static String fieldNameToLastPropertyName(String fieldName) {
+		if (fieldName == null) return null;
+		int lastDot = fieldName.lastIndexOf(Forms.PATH_SEP);
+		String propName = fieldName;
+		if (lastDot >= 0) {
+			propName = fieldName.substring(lastDot + 1);
+		}
+		return removeTrailingBrackets(propName);
 	}
 	
 	private FormUtils() {
