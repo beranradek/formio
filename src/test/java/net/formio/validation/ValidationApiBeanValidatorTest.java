@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.validation.Validation;
 import javax.validation.constraints.NotNull;
@@ -29,8 +30,6 @@ import javax.validation.constraints.Size;
 
 import net.formio.binding.ParseError;
 import net.formio.upload.RequestProcessingError;
-import net.formio.validation.ValidationApiBeanValidator;
-import net.formio.validation.ValidationResult;
 import net.formio.validation.constraints.NotEmpty;
 
 import org.junit.Test;
@@ -51,6 +50,10 @@ public class ValidationApiBeanValidatorTest {
 			assertTrue("email is required", v.isRequired(Contact.class, "email"));
 			assertTrue("age is required", v.isRequired(Contact.class, "age"));
 			assertFalse("phone is not required", v.isRequired(Contact.class, "phone"));
+			assertTrue("sizes are required", v.isRequired(Contact.class, "sizes"));
+			assertFalse("sizes2 are not required", v.isRequired(Contact.class, "sizes2"));
+			assertTrue("interests are required", v.isRequired(Contact.class, "interests"));
+			assertFalse("interestsByCodes are not required", v.isRequired(Contact.class, "interestsByCodes"));
 
 			Contact c = new Contact();
 			c.setEmail("e");
@@ -58,6 +61,9 @@ public class ValidationApiBeanValidatorTest {
 			c.setPhone("p");
 			c.setNewContact(false);
 			c.setAge(Integer.valueOf(0));
+			c.setSizes(new int[] {90, 60, 90});
+			c.setSizes2(new int[] {});
+			c.setInterests(new String[] {"a", "b", "c"});
 			ValidationResult r = v.validate(c, "",
 				Collections.<RequestProcessingError> emptyList(),
 				Collections.<ParseError> emptyList(),
@@ -83,6 +89,16 @@ public class ValidationApiBeanValidatorTest {
 		private String email;
 
 		private String phone;
+		
+		@NotEmpty
+		private int[] sizes;
+		
+		private int[] sizes2;
+		
+		@NotEmpty
+		private String[] interests;
+		
+		private Map<String, String> interestsByCodes;
 
 		public Integer getAge() {
 			return age;
@@ -122,6 +138,38 @@ public class ValidationApiBeanValidatorTest {
 
 		public void setNewContact(boolean newContact) {
 			this.newContact = newContact;
+		}
+
+		public int[] getSizes() {
+			return sizes;
+		}
+
+		public void setSizes(int[] sizes) {
+			this.sizes = sizes;
+		}
+
+		public int[] getSizes2() {
+			return sizes2;
+		}
+
+		public void setSizes2(int[] sizes2) {
+			this.sizes2 = sizes2;
+		}
+
+		public String[] getInterests() {
+			return interests;
+		}
+
+		public void setInterests(String[] interests) {
+			this.interests = interests;
+		}
+
+		public Map<String, String> getInterestsByCodes() {
+			return interestsByCodes;
+		}
+
+		public void setInterestsByCodes(Map<String, String> interestsByCodes) {
+			this.interestsByCodes = interestsByCodes;
 		}
 
 	}
