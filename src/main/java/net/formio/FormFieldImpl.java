@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
@@ -41,7 +42,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	private final List<T> filledObjects;
 	private final String pattern;
 	private final Formatter<T> formatter;
-	/** Renderer of items, if this form field represents a choice from a codebook. */
+	private final ChoiceProvider<T> choiceProvider;
 	private final ChoiceRenderer<T> choiceRenderer;
 	private final String strValue;
 	private final FormProperties formProperties;
@@ -51,9 +52,17 @@ public class FormFieldImpl<T> implements FormField<T> {
 		String type, 
 		String pattern, 
 		Formatter<T> formatter,
+		ChoiceProvider<T> choiceProvider,
 		ChoiceRenderer<T> choiceRenderer,
 		FormProperties properties) {
-		return getFilledInstance(name, type, pattern, formatter, choiceRenderer, properties, 
+		return getFilledInstance(
+			name, 
+			type, 
+			pattern, 
+			formatter, 
+			choiceProvider,
+			choiceRenderer, 
+			properties, 
 			Collections.<T>emptyList(), (Locale)null, (Formatters)null, (String)null);
 	}
 	
@@ -62,6 +71,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 		String type, 
 		String pattern, 
 		Formatter<T> formatter,
+		ChoiceProvider<T> choiceProvider,
 		ChoiceRenderer<T> choiceRenderer,
 		FormProperties properties, 
 		List<T> values, 
@@ -75,7 +85,16 @@ public class FormFieldImpl<T> implements FormField<T> {
 		} else if (values.size() > 0) {
 			strValue = valueAsString(values.get(0), pattern, formatter, locale, formatters);
 		}
-		return new FormFieldImpl<T>(name, type, pattern, formatter, choiceRenderer, properties, values, strValue);
+		return new FormFieldImpl<T>(
+			name, 
+			type, 
+			pattern, 
+			formatter, 
+			choiceProvider, 
+			choiceRenderer, 
+			properties, 
+			values, 
+			strValue);
 	}
 
 	/**
@@ -123,6 +142,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 			src.getType(), 
 			src.getPattern(), 
 			src.getFormatter(),
+			src.getChoiceProvider(),
 			src.getChoiceRenderer(),
 			// Override required only in case required != null, so the required flag from field props is not
 			// overriden by missing NotNull annotation...
@@ -138,6 +158,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 		String type, 
 		String pattern, 
 		Formatter<T> formatter, 
+		ChoiceProvider<T> choiceProvider,
 		ChoiceRenderer<T> choiceRenderer,
 		FormProperties properties, 
 		List<T> filledObjects, 
@@ -149,6 +170,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 		this.type = type;
 		this.pattern = pattern;
 		this.formatter = formatter;
+		this.choiceProvider = choiceProvider;
 		this.choiceRenderer = choiceRenderer;
 		this.filledObjects = filledObjects;
 		this.strValue = strValue;
@@ -200,6 +222,11 @@ public class FormFieldImpl<T> implements FormField<T> {
 	@Override
 	public Formatter<T> getFormatter() {
 		return formatter;
+	}
+	
+	@Override
+	public ChoiceProvider<T> getChoiceProvider() {
+		return choiceProvider;
 	}
 	
 	@Override

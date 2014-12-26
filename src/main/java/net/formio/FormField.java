@@ -18,6 +18,7 @@ package net.formio;
 
 import java.util.List;
 
+import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.format.Formatter;
 
@@ -73,6 +74,13 @@ public interface FormField<T> extends FormElement {
 	 * @return
 	 */
 	Formatter<T> getFormatter();
+	
+	/**
+	 * Returns provider of all possible codebook items used when rendering this form field;
+	 * or {@code null}.
+	 * @return
+	 */
+	ChoiceProvider<T> getChoiceProvider();
 	
 	/**
 	 * Returns renderer that prepares ids and titles of items when this

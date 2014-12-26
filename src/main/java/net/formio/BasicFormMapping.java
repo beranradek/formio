@@ -586,7 +586,13 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	
 	private <U> FormField<U> createFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
 		return FormFieldImpl.<U>getFilledInstance(
-			fieldName, field.getType(), field.getPattern(), field.getFormatter(), field.getChoiceRenderer(), field.getFormProperties(),
+			fieldName, 
+			field.getType(), 
+			field.getPattern(), 
+			field.getFormatter(),
+			field.getChoiceProvider(),
+			field.getChoiceRenderer(), 
+			field.getFormProperties(),
 			FormUtils.<U>convertObjectToList(value), locale, this.getConfig().getFormatters(), preferedStringValue);
 	}
 	

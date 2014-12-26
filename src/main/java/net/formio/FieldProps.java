@@ -18,6 +18,7 @@ package net.formio;
 
 import java.io.Serializable;
 
+import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
@@ -35,6 +36,7 @@ public class FieldProps<T> implements Serializable {
 	private final String type;
 	private final String pattern;
 	private final Formatter<T> formatter;
+	private final ChoiceProvider<T> choiceProvider;
 	private final ChoiceRenderer<T> choiceRenderer;
 	private final HeterogMap<String> properties;
 	
@@ -44,6 +46,7 @@ public class FieldProps<T> implements Serializable {
 		this.type = builder.type;
 		this.pattern = builder.pattern;
 		this.formatter = builder.formatter;
+		this.choiceProvider = builder.choiceProvider;
 		this.choiceRenderer = builder.choiceRenderer;
 		this.properties = HeterogCollections.unmodifiableMap(builder.properties);
 	}
@@ -53,7 +56,8 @@ public class FieldProps<T> implements Serializable {
 		private String type = null;
 		private String pattern = null;
 		private Formatter<T> formatter = null;
-		private ChoiceRenderer<T> choiceRenderer = null;
+		private ChoiceProvider<T> choiceProvider = null;
+ 		private ChoiceRenderer<T> choiceRenderer = null;
 		private final HeterogMap<String> properties;
 
 		Builder(String propertyName) {
@@ -80,6 +84,11 @@ public class FieldProps<T> implements Serializable {
 		
 		public Builder<T> formatter(Formatter<T> formatter) {
 			this.formatter = formatter;
+			return this;
+		}
+		
+		public Builder<T> choiceProvider(ChoiceProvider<T> choiceProvider) {
+			this.choiceProvider = choiceProvider;
 			return this;
 		}
 		
@@ -153,6 +162,15 @@ public class FieldProps<T> implements Serializable {
 	 */
 	public Formatter<T> getFormatter() {
 		return this.formatter;
+	}
+	
+	/**
+	 * Returns provider of all possible codebook items used when rendering this form field;
+	 * or {@code null}.
+	 * @return
+	 */
+	public ChoiceProvider<T> getChoiceProvider() {
+		return this.choiceProvider;
 	}
 	
 	/**

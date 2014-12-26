@@ -24,10 +24,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.data.RequestContext;
-import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
 import net.formio.servlet.ServletRequestParams;
 import net.formio.upload.MaxSizeExceededError;
@@ -315,6 +315,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 				srcFld.getType(), 
 				srcFld.getPattern(), 
 				srcFld.getFormatter(), 
+				(ChoiceProvider)srcFld.getChoiceProvider(),
 				(ChoiceRenderer)srcFld.getChoiceRenderer(), 
 				srcFld.getFormProperties());
 			flds.put(e.getKey(), f);
