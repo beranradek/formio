@@ -14,27 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.debug;
-
-import java.util.List;
-
-import net.formio.FormField;
-import net.formio.FormMapping;
-import net.formio.validation.ConstraintViolationMessage;
-import net.formio.validation.ValidationResult;
+package net.formio;
 
 /**
- * Renders form and its parts. 
+ * Type of form component.
  * @author Radek Beran
  */
-public interface FormRenderer {
-	<T> String renderForm(RenderContext<T> ctx);
+public enum FormComponent {
+	LABEL("label"),
+	TEXT_FIELD("text"),
+	TEXT_AREA("textarea"),
+	PASSWORD("password"),
+	HIDDEN_FIELD("hidden"),
+	CHECK_BOX("checkbox"),
+	MULTIPLE_CHECK_BOX("checkbox_multiple"),
+	RADIO_CHOICE("radio"),
+	DROP_DOWN_CHOICE("select"),
+	MULTIPLE_CHOICE("select_multiple"),
+	BUTTON("submit"),
+	LINK("link"),
+	DATE_PICKER("date"),
+	FILE_UPLOAD("file");
 	
-	String renderGlobalMessages(ValidationResult validationResult);
+	private final String type;
 	
-	<T> String renderMapping(RenderContext<?> ctx, FormMapping<T> mapping, ParentMappings parentMappings);
-	
-	<T> String renderField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings);
-	
-	String renderSubmit();
+	private FormComponent(String type) {
+		this.type = type;
+	}
+
+	public String getType() {
+		return type;
+	}
 }

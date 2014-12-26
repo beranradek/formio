@@ -35,9 +35,12 @@ public class FieldPropertyTest {
 	@Test
 	public void testEquality() {
 		assertEquals(FieldProperty.ENABLED, FieldProperty.ENABLED);
-		Property<Boolean> prop = FieldProperty.ENABLED;
-		assertTrue(FieldProperty.ENABLED == prop); 
+		Property<Boolean> prop = FieldProperty.ENABLED; 
 		assertFalse(FieldProperty.READ_ONLY == prop);
+		assertFalse(FieldProperty.REQUIRED == prop);
+		assertFalse(FieldProperty.VISIBLE == prop);
+		Property<Boolean> prop2 = prop;
+		assertTrue(FieldProperty.ENABLED == prop2);
 	}
 	
 	@Test

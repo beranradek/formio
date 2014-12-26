@@ -18,6 +18,7 @@ package net.formio;
 
 import java.io.Serializable;
 
+import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
@@ -34,6 +35,7 @@ public class FieldProps<T> implements Serializable {
 	private final String type;
 	private final String pattern;
 	private final Formatter<T> formatter;
+	private final ChoiceRenderer<T> choiceRenderer;
 	private final HeterogMap<String> properties;
 	
 	@SuppressWarnings("synthetic-access")
@@ -42,6 +44,7 @@ public class FieldProps<T> implements Serializable {
 		this.type = builder.type;
 		this.pattern = builder.pattern;
 		this.formatter = builder.formatter;
+		this.choiceRenderer = builder.choiceRenderer;
 		this.properties = HeterogCollections.unmodifiableMap(builder.properties);
 	}
 	
@@ -50,6 +53,7 @@ public class FieldProps<T> implements Serializable {
 		private String type = null;
 		private String pattern = null;
 		private Formatter<T> formatter = null;
+		private ChoiceRenderer<T> choiceRenderer = null;
 		private final HeterogMap<String> properties;
 
 		Builder(String propertyName) {
@@ -76,6 +80,11 @@ public class FieldProps<T> implements Serializable {
 		
 		public Builder<T> formatter(Formatter<T> formatter) {
 			this.formatter = formatter;
+			return this;
+		}
+		
+		public Builder<T> choiceRenderer(ChoiceRenderer<T> choiceRenderer) {
+			this.choiceRenderer = choiceRenderer;
 			return this;
 		}
 		
@@ -144,6 +153,16 @@ public class FieldProps<T> implements Serializable {
 	 */
 	public Formatter<T> getFormatter() {
 		return this.formatter;
+	}
+	
+	/**
+	 * Returns renderer that prepares ids and titles of items when this
+	 * form field represents a choice from the codebook item(s); or {@code null} if this
+	 * form field does not represent such a choice.
+	 * @return
+	 */
+	public ChoiceRenderer<T> getChoiceRenderer() {
+		return this.choiceRenderer;
 	}
 	
 	/**

@@ -18,6 +18,7 @@ package net.formio;
 
 import java.util.List;
 
+import net.formio.choice.ChoiceRenderer;
 import net.formio.format.Formatter;
 
 /**
@@ -72,4 +73,12 @@ public interface FormField<T> extends FormElement {
 	 * @return
 	 */
 	Formatter<T> getFormatter();
+	
+	/**
+	 * Returns renderer that prepares ids and titles of items when this
+	 * form field represents a choice from the codebook item(s); or {@code null} if this
+	 * form field does not represent such a choice.
+	 * @return
+	 */
+	ChoiceRenderer<T> getChoiceRenderer();
 }

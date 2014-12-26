@@ -84,7 +84,7 @@ public class MessageTranslator {
 	 * @param locale
 	 */
 	public MessageTranslator(Class<?> cls, Locale locale) {
-		this(cls.getName().replace(".", "/"), locale);
+		this(classToBundleName(cls), locale);
 	}
 	
 	/**
@@ -102,7 +102,7 @@ public class MessageTranslator {
 	 * @param cls class for which the resource bundle is searched
 	 */
 	public MessageTranslator(Class<?> cls) {
-		this(cls.getName().replace(".", "/"));
+		this(classToBundleName(cls));
 	}
 	
 	/**
@@ -152,6 +152,11 @@ public class MessageTranslator {
 		return getMessage(msgKey, this.locale, args);
 	}
 	
+	public static String classToBundleName(Class<?> cls) {
+		if (cls == null) return null;
+		return cls.getName().replace(".", "/");
+	}
+	
 	private String createMissingMessage(String msgKey) {
 		return "???" + msgKey + "???";
 	}
@@ -160,10 +165,5 @@ public class MessageTranslator {
 		// getBundle caches resulting bundles
 		ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale);
 		return bundle.getString(msgKey);
-	}
-	
-	private static String classToBundleName(Class<?> cls) {
-		if (cls == null) return null;
-		return cls.getName().replace(".", "/");
 	}
 }

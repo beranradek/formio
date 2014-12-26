@@ -167,6 +167,7 @@ public class BasicFormMappingBuilder<T> {
 			fieldProps.getType(), 
 			fieldProps.getPattern(), 
 			fieldProps.getFormatter(), 
+			fieldProps.getChoiceRenderer(),
 			new FormPropertiesImpl(fieldProps.getProperties())));
 		return this;
 	}

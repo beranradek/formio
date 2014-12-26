@@ -14,27 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.debug;
-
-import java.util.List;
-
-import net.formio.FormField;
-import net.formio.FormMapping;
-import net.formio.validation.ConstraintViolationMessage;
-import net.formio.validation.ValidationResult;
+package net.formio.choice;
 
 /**
- * Renders form and its parts. 
+ * Renders items for a form choice - ids and titles.
  * @author Radek Beran
+ *
+ * @param <T>
  */
-public interface FormRenderer {
-	<T> String renderForm(RenderContext<T> ctx);
+public interface ChoiceRenderer<T> {
 	
-	String renderGlobalMessages(ValidationResult validationResult);
+	/**
+	 * Returns id of choice item.
+	 * The id can be extracted from the object like a primary key; or if the list is stable 
+	 * you can return an item index as a String.
+	 * @param item
+	 * @param itemIndex
+	 * @return
+	 */
+	String getId(T item, int itemIndex);
 	
-	<T> String renderMapping(RenderContext<?> ctx, FormMapping<T> mapping, ParentMappings parentMappings);
-	
-	<T> String renderField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings);
-	
-	String renderSubmit();
+	/**
+	 * Returns displayed title of choice item.
+	 * @param item
+	 * @param itemIndex
+	 * @return
+	 */
+	Object getTitle(T item, int itemIndex);
 }

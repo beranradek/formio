@@ -262,18 +262,6 @@ public final class Forms {
 		return field(propertyName, (String)null);
 	}
 	
-	/**
-	 * Experimental rendering of form's HTML markup (for debugging purposes only).
-	 * @param renderer
-	 * @param form
-	 * @param method
-	 * @param actionUrl
-	 * @return
-	 */
-	// static FormRenderer renderer() {
-	// 	return new BasicFormRenderer();
-	// }
-	
 	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String formName, Instantiator<T> instantiator, boolean automatic, MappingType mappingType, boolean secured) {
 		return new BasicFormMappingBuilder<T>(dataClass, formName, instantiator, automatic, mappingType).secured(secured);
 	}

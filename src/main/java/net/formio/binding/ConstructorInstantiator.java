@@ -18,6 +18,7 @@ package net.formio.binding;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class ConstructorInstantiator<T> extends AbstractInstantiator<T> {
 	@Override
 	public T instantiate(ConstructionDescription cd, Object ... args) {
 		if (cd.getArgTypes().length != args.length) {
-			throw new IllegalStateException("Number of argument types " + cd.getArgTypes() + 
+			throw new IllegalStateException("Number of argument types " + Arrays.toString(cd.getArgTypes()) + 
 				" is not equal to number of arguments " + args.length + 
 				" for constructor " + cd.getConstructionMethod());
 		}

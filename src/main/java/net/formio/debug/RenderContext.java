@@ -16,25 +16,51 @@
  */
 package net.formio.debug;
 
-import java.util.List;
+import java.util.Locale;
 
-import net.formio.FormField;
 import net.formio.FormMapping;
-import net.formio.validation.ConstraintViolationMessage;
-import net.formio.validation.ValidationResult;
 
 /**
- * Renders form and its parts. 
+ * Context with common data for rendering a form.
  * @author Radek Beran
+ *
+ * @param <T>
  */
-public interface FormRenderer {
-	<T> String renderForm(RenderContext<T> ctx);
-	
-	String renderGlobalMessages(ValidationResult validationResult);
-	
-	<T> String renderMapping(RenderContext<?> ctx, FormMapping<T> mapping, ParentMappings parentMappings);
-	
-	<T> String renderField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings);
-	
-	String renderSubmit();
+public class RenderContext<T> {
+	private FormMapping<T> filledForm;
+	private FormMethod method;
+	private String actionUrl;
+	private Locale locale;
+
+	public FormMapping<T> getFilledForm() {
+		return filledForm;
+	}
+
+	public void setFilledForm(FormMapping<T> filledForm) {
+		this.filledForm = filledForm;
+	}
+
+	public FormMethod getMethod() {
+		return method;
+	}
+
+	public void setMethod(FormMethod method) {
+		this.method = method;
+	}
+
+	public String getActionUrl() {
+		return actionUrl;
+	}
+
+	public void setActionUrl(String actionUrl) {
+		this.actionUrl = actionUrl;
+	}
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
 }

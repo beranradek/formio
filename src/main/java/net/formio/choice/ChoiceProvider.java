@@ -14,27 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.debug;
+package net.formio.choice;
 
 import java.util.List;
 
-import net.formio.FormField;
-import net.formio.FormMapping;
-import net.formio.validation.ConstraintViolationMessage;
-import net.formio.validation.ValidationResult;
-
 /**
- * Renders form and its parts. 
+ * Provides data for a form choice.
  * @author Radek Beran
  */
-public interface FormRenderer {
-	<T> String renderForm(RenderContext<T> ctx);
-	
-	String renderGlobalMessages(ValidationResult validationResult);
-	
-	<T> String renderMapping(RenderContext<?> ctx, FormMapping<T> mapping, ParentMappings parentMappings);
-	
-	<T> String renderField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings);
-	
-	String renderSubmit();
+public interface ChoiceProvider<T> {
+	List<? extends T> getItems();
 }

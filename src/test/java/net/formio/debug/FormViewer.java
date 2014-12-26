@@ -16,13 +16,7 @@
  */
 package net.formio.debug;
 
-import java.awt.Desktop;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.URI;
 import java.util.Locale;
 import java.util.logging.Logger;
 
@@ -31,6 +25,7 @@ import net.formio.FormMapping;
 import net.formio.data.TestData;
 import net.formio.data.TestForms;
 import net.formio.domain.Car;
+import net.formio.utils.TestUtils;
 import net.formio.validation.ValidationResult;
 
 /**
@@ -39,41 +34,15 @@ import net.formio.validation.ValidationResult;
  */
 public class FormViewer {
 	
-	private static final Logger LOG = Logger.getLogger(BasicFormRenderer.class.getName());
+	private static final Logger LOG = Logger.getLogger(FormViewer.class.getName());
 
-	public static void main(String ... args) throws Exception {
+	public static void main(String ... args) {
 		FormData<Car> formData = new FormData<Car>(TestData.newCar(), ValidationResult.empty);
 		FormMapping<Car> filledForm = TestForms.CAR_ACCESSIBILITY_FORM.fill(formData);
 		String html = new BasicFormRenderer().renderHtmlPage(filledForm, FormMethod.POST, "/save", Locale.getDefault());
-		File f = new File(new File(System.getProperty("java.io.tmpdir")), "test_form_view.html");
+		File f = new File(TestUtils.getTempDir(), "test_form_view.html");
 		LOG.info("Writing form HTML to " + f.getAbsolutePath());
-		saveContentToTextFile(f, html, "UTF-8");
-		openInBrowser("file:///" + f.getAbsolutePath().replace("\\", "/"));
-	}
-	
-	private static void openInBrowser(String uri) {
-		if (Desktop.isDesktopSupported()) {
-			Desktop desktop = Desktop.getDesktop();
-			if (desktop.isSupported(Desktop.Action.BROWSE)) {
-				try {
-					desktop.browse(new URI(uri));
-	            } catch (Exception ex) {
-	            	ex.printStackTrace();
-	            }
-			}
-		}
-	}
-	
-	private static void saveContentToTextFile(File file, String content, String encoding) throws IOException {
-		BufferedWriter bw = null;
-		try {
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), encoding));
-			bw.write(content);
-		} finally {
-			if (bw != null) {
-				bw.flush();
-				bw.close();
-			}
-		}
+		TestUtils.saveContentToTextFile(f, html, "UTF-8");
+		TestUtils.openInBrowser("file:///" + f.getAbsolutePath().replace("\\", "/"));
 	}
 }
