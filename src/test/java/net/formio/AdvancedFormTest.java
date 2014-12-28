@@ -127,9 +127,8 @@ public class AdvancedFormTest {
 		assertEquals("filled root mapping should have correct data class", Registration.class, filledForm.getDataClass());
 		assertEquals("filled root mapping should have correct label key", "registration", filledForm.getLabelKey());
 		assertNotNull("filled object should not be null", filledForm.getFilledObject());
-		assertTrue("filled object should be of appropriate class", filledForm.getFilledObject() instanceof Registration);
 		
-		Registration filledObject = (Registration)filledForm.getFilledObject();
+		Registration filledObject = filledForm.getFilledObject();
 		Registration initData = TestData.newRegistration();
 		assertEquals(initData.getAttendanceReasons(), filledObject.getAttendanceReasons());
 		assertEquals(initData.getInterests().length, filledObject.getInterests().length);
