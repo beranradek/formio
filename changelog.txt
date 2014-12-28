@@ -1,5 +1,11 @@
 # Changelog
 
+1.2.2 (?)
+* getElements method of mapping returning form elements in order as declared in form definition
+* Increased test coverage (including file uploads for servlets and portlets).
+* Simplified internal construction using builders.
+* ChoiceProvider and ChoiceRenderer definable for form fields (can be used in form rendering as a support for codebooks).
+
 1.2.1 (13.11.2014)
 * Definable properties also for form mappings (in addition to fields).
 * Public implementation classes passed to the templates due to instrospection required by some template frameworks (constructors remain with restricted accessibility).
