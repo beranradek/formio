@@ -509,7 +509,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			if (fieldMessages != null && !fieldMessages.isEmpty()) {
 				preferedStringValue = getOriginalStringValueFromParseError(fieldMessages);
 			}
-			final FormField<?> filledField = createFormField(fieldName, (FormField<Object>)field, value, locale, preferedStringValue);
+			final FormField<?> filledField = createFilledFormField(fieldName, (FormField<Object>)field, value, locale, preferedStringValue);
 			filledFields.put(propertyName, filledField);
 		}
 		filledFields = Collections.unmodifiableMap(filledFields);
@@ -584,7 +584,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return values;
 	}
 	
-	private <U> FormField<U> createFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
+	private <U> FormField<U> createFilledFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
 		return new FieldProps<U>(field, 
 			FormUtils.<U>convertObjectToList(value), 
 			locale, 

@@ -76,18 +76,6 @@ public class FieldProps<T> implements Serializable {
 		// "this" cannot be used before this initialization of fields:
 		initFromField(field).value(strValue);
 	}
-	
-	// only for internal usage
-	FieldProps<T> name(String name) {
-		this.name = name;
-		return this;
-	}
-	
-	// only for internal usage
-	FieldProps<T> value(String value) {
-		this.strValue = value;
-		return this;
-	}
 		
 	public FieldProps<T> type(String type) {
 		this.type = type;
@@ -137,6 +125,24 @@ public class FieldProps<T> implements Serializable {
 	
 	public FieldProps<T> help(String help) {
 		return property(FieldProperty.HELP, help);
+	}
+	
+	// only for internal usage
+	FieldProps<T> name(String name) {
+		this.name = name;
+		return this;
+	}
+	
+	// only for internal usage
+	FieldProps<T> value(String value) {
+		this.strValue = value;
+		return this;
+	}
+	
+	// for internal usage
+	<U> FieldProps<T> properties(FormProperties properties) {
+		this.formProperties = properties;
+		return this;
 	}
 
 	/**

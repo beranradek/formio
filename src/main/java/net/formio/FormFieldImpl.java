@@ -76,30 +76,6 @@ public class FormFieldImpl<T> implements FormField<T> {
 		this(src, namePrefixToPrepend + Forms.PATH_SEP + src.getName(), namePrefixToPrepend, (Boolean)null);
 	}
 	
-	/**
-	 * Returns copy of given field with given name.
-	 * @param src copied form field
-	 * @param name full name of form field
-	 * @param namePrefix if not null, name must start with this prefix
-	 * @param required null if required flag is not specified
-	 * @return
-	 */
-	private FormFieldImpl(FormField<T> src, String name, String namePrefix, Boolean required) {
-		this(validateName(name, namePrefix), 
-			src.getType(), 
-			src.getPattern(), 
-			src.getFormatter(),
-			src.getChoiceProvider(),
-			src.getChoiceRenderer(),
-			// Override required only in case required != null, so the required flag from field props is not
-			// overriden by missing NotNull annotation...
-			required != null ? 
-				((FormPropertiesImpl)src.getFormProperties()).withProperty(FieldProperty.REQUIRED, required) :
-				src.getFormProperties(),
-			new ArrayList<T>(src.getFilledObjects()), 
-			src.getValue());
-	}
-	
 	FormFieldImpl(FieldProps<T> fieldProps, String parentPath) {
 		fieldProps.checkConsistentNames();
 		String name = null;
@@ -126,32 +102,26 @@ public class FormFieldImpl<T> implements FormField<T> {
 		this.strValue = fieldProps.strValue;
 	}
 	
-	FormFieldImpl(FieldProps<T> fieldProps) {
-		this(fieldProps, null);
+	/**
+	 * Returns copy of given field with given name.
+	 * @param src copied form field
+	 * @param name full name of form field
+	 * @param namePrefix if not null, name must start with this prefix
+	 * @param required null if required flag is not specified
+	 * @return
+	 */
+	private FormFieldImpl(FormField<T> src, String name, String namePrefix, Boolean required) {
+		this(new FieldProps<T>(src).name(validateName(name, namePrefix)).properties(
+			// Override required only in case required != null, so the required flag from field props is not
+			// overriden by missing NotNull annotation...
+			required != null ? 
+				((FormPropertiesImpl)src.getFormProperties()).withProperty(FieldProperty.REQUIRED, required) :
+				src.getFormProperties()
+		));
 	}
 	
-	private FormFieldImpl(
-		String name, 
-		String type, 
-		String pattern, 
-		Formatter<T> formatter, 
-		ChoiceProvider<T> choiceProvider,
-		ChoiceRenderer<T> choiceRenderer,
-		FormProperties properties, 
-		List<T> filledObjects, 
-		String strValue) {
-			
-		if (properties == null) throw new IllegalArgumentException("formProperties cannot be null, only empty");
-		if (filledObjects == null) throw new IllegalArgumentException("filledObjects cannot be null, only empty");
-		this.name = name;
-		this.type = type;
-		this.pattern = pattern;
-		this.formatter = formatter;
-		this.choiceProvider = choiceProvider;
-		this.choiceRenderer = choiceRenderer;
-		this.filledObjects = filledObjects;
-		this.strValue = strValue;
-		this.formProperties = properties;
+	private FormFieldImpl(FieldProps<T> fieldProps) {
+		this(fieldProps, null);
 	}
 
 	/**
@@ -276,7 +246,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 		return new FormFieldStringBuilder().build(this);
 	}
 	
-	private static String validateName(String name, String namePrefix) {
+	private static String validateName(final String name, final String namePrefix) {
 		if (name == null) throw new IllegalArgumentException("name cannot be null");
 		if (namePrefix != null && !name.startsWith(namePrefix)) { 
 			throw new IllegalArgumentException("name '" + name + "' does not start with given name prefix '" + namePrefix + "'");
