@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.utils;
+package net.formio.servlet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * Creates mock HTTP servlet requests.
  * @author Radek Beran
  */
-public final class MockServletRequest {
+public final class MockServletRequests {
 
 	/**
 	 * Creates new servlet request that contains given resource as multi part.
@@ -45,7 +45,7 @@ public final class MockServletRequest {
 			MockHttpServletRequest request = new MockHttpServletRequest();
 		    // Load resource being uploaded
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		    Streams.copy(MockServletRequest.class.getResourceAsStream(resourceName), bos, true);
+		    Streams.copy(MockServletRequests.class.getResourceAsStream(resourceName), bos, true);
 		    byte[] fileContent = bos.toByteArray();
 		    
 		    // Create part & entity from resource
@@ -68,7 +68,7 @@ public final class MockServletRequest {
 		}
 	}
 	
-	private MockServletRequest() {
+	private MockServletRequests() {
 	}
 			
 }
