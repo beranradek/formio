@@ -17,15 +17,12 @@
 package net.formio;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
-import net.formio.format.Formatters;
 import net.formio.internal.FormUtils;
 import net.formio.props.FieldProperty;
 
@@ -46,56 +43,6 @@ public class FormFieldImpl<T> implements FormField<T> {
 	private final ChoiceRenderer<T> choiceRenderer;
 	private final String strValue;
 	private final FormProperties formProperties;
-	
-	static <T> FormFieldImpl<T> getInstance(
-		String name, 
-		String type, 
-		String pattern, 
-		Formatter<T> formatter,
-		ChoiceProvider<T> choiceProvider,
-		ChoiceRenderer<T> choiceRenderer,
-		FormProperties properties) {
-		return getFilledInstance(
-			name, 
-			type, 
-			pattern, 
-			formatter, 
-			choiceProvider,
-			choiceRenderer, 
-			properties, 
-			Collections.<T>emptyList(), (Locale)null, (Formatters)null, (String)null);
-	}
-	
-	static <T> FormFieldImpl<T> getFilledInstance(
-		String name, 
-		String type, 
-		String pattern, 
-		Formatter<T> formatter,
-		ChoiceProvider<T> choiceProvider,
-		ChoiceRenderer<T> choiceRenderer,
-		FormProperties properties, 
-		List<T> values, 
-		Locale locale, 
-		Formatters formatters, 
-		String preferedStringValue) {
-		
-		String strValue = null;
-		if (preferedStringValue != null) {
-			strValue = preferedStringValue; 
-		} else if (values.size() > 0) {
-			strValue = valueAsString(values.get(0), pattern, formatter, locale, formatters);
-		}
-		return new FormFieldImpl<T>(
-			name, 
-			type, 
-			pattern, 
-			formatter, 
-			choiceProvider, 
-			choiceRenderer, 
-			properties, 
-			values, 
-			strValue);
-	}
 
 	/**
 	 * Returns copy of field with given required flag.
@@ -327,18 +274,6 @@ public class FormFieldImpl<T> implements FormField<T> {
 	@Override
 	public String toString() {
 		return new FormFieldStringBuilder().build(this);
-	}
-	
-	private static <T> String valueAsString(T value, String pattern, Formatter<T> formatter, Locale locale, Formatters formatters) {
-		if (value == null) return null;
-		String str = null;
-		if (formatter != null) {
-			// formatter is specified by user
-			str = formatter.makeString(value, pattern, locale);
-		} else {
-			str = formatters.makeString(value, pattern, locale);
-		}
-		return str;
 	}
 	
 	private static String validateName(String name, String namePrefix) {

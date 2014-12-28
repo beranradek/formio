@@ -19,10 +19,12 @@ package net.formio;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.format.Formatter;
+import net.formio.format.Formatters;
 import net.formio.internal.FormUtils;
 import net.formio.props.FieldProperty;
 
@@ -54,6 +56,37 @@ public class FieldProps<T> implements Serializable {
 		if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be specified");
 		this.propertyName = propertyName;
 		this.type = type;
+	}
+	
+	FieldProps(FormField<T> field) {
+		initFromField(field);
+	}
+	
+	FieldProps(FormField<T> field, 
+		List<T> values, 
+		Locale locale, 
+		Formatters formatters, 
+		String preferedStringValue) {
+		String strValue = null;
+		if (preferedStringValue != null) {
+			strValue = preferedStringValue; 
+		} else if (values.size() > 0) {
+			strValue = valueAsString(values.get(0), field.getPattern(), field.getFormatter(), locale, formatters);
+		}
+		// "this" cannot be used before this initialization of fields:
+		initFromField(field).value(strValue);
+	}
+	
+	// only for internal usage
+	FieldProps<T> name(String name) {
+		this.name = name;
+		return this;
+	}
+	
+	// only for internal usage
+	FieldProps<T> value(String value) {
+		this.strValue = value;
+		return this;
 	}
 		
 	public FieldProps<T> type(String type) {
@@ -207,5 +240,32 @@ public class FieldProps<T> implements Serializable {
 				throw new IllegalStateException("Property name '" + propertyName + "' is not consistent with full field name '" + name + "'!");
 			}
 		}
+	}
+	
+	private static <T> String valueAsString(T value, String pattern, Formatter<T> formatter, Locale locale, Formatters formatters) {
+		if (value == null) return null;
+		String str = null;
+		if (formatter != null) {
+			// formatter is specified explicitly by user
+			str = formatter.makeString(value, pattern, locale);
+		} else {
+			// choose a suitable formatter from available formatters
+			str = formatters.makeString(value, pattern, locale);
+		}
+		return str;
+	}
+	
+	private FieldProps<T> initFromField(FormField<T> field) {
+		this.propertyName = null;
+		this.name = field.getName();
+		this.type = field.getType();
+		this.pattern = field.getPattern();
+		this.formatter = field.getFormatter();
+		this.choiceProvider = field.getChoiceProvider();
+		this.choiceRenderer = field.getChoiceRenderer();
+		this.formProperties = field.getFormProperties();
+		this.filledObjects = field.getFilledObjects();
+		this.strValue = field.getValue();
+		return this;
 	}
 }

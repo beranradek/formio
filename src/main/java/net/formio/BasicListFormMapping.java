@@ -24,8 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import net.formio.choice.ChoiceProvider;
-import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.data.RequestContext;
 import net.formio.internal.FormUtils;
@@ -311,13 +309,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
 			FormField<?> srcFld = e.getValue();
 			String indexedName = FormUtils.pathWithIndexBeforeLastProperty(srcFld.getName(), index);
-			final FormFieldImpl<?> f = FormFieldImpl.getInstance(indexedName, 
-				srcFld.getType(), 
-				srcFld.getPattern(), 
-				srcFld.getFormatter(), 
-				(ChoiceProvider)srcFld.getChoiceProvider(),
-				(ChoiceRenderer)srcFld.getChoiceRenderer(), 
-				srcFld.getFormProperties());
+			final FormField<?> f = new FieldProps(srcFld).name(indexedName).build(); 
 			flds.put(e.getKey(), f);
 		}
 		return flds;
