@@ -46,6 +46,7 @@ public class FieldProps<T> implements Serializable {
 	private FormProperties formProperties = new FormPropertiesImpl(FieldProperty.createDefaultFieldProperties());
 	List<T> filledObjects = new ArrayList<T>();
 	String strValue;
+	int order;
 	
 	FieldProps(String propertyName) {
 		this(propertyName, (String)null);
@@ -130,6 +131,12 @@ public class FieldProps<T> implements Serializable {
 	// only for internal usage
 	FieldProps<T> name(String name) {
 		this.name = name;
+		return this;
+	}
+	
+	// only for internal usage
+	FieldProps<T> order(int order) {
+		this.order = order;
 		return this;
 	}
 	
@@ -223,19 +230,27 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	/**
-	 * Constructs new immutable form field.
+	 * Returns ordinal index of this form element.
 	 * @return
 	 */
-	public FormField<T> build() {
-		return build(null);
+	public int getOrder() {
+		return this.order;
 	}
 	
 	/**
 	 * Constructs new immutable form field.
 	 * @return
 	 */
-	FormField<T> build(String parentPath) {
-		return new FormFieldImpl<T>(this, parentPath);
+	public FormField<T> build() {
+		return build(null, this.order);
+	}
+	
+	/**
+	 * Constructs new immutable form field.
+	 * @return
+	 */
+	FormField<T> build(String parentPath, int order) {
+		return new FormFieldImpl<T>(this, parentPath, order);
 	}
 	
 	void checkConsistentNames() {
@@ -272,6 +287,7 @@ public class FieldProps<T> implements Serializable {
 		this.formProperties = field.getFormProperties();
 		this.filledObjects = field.getFilledObjects();
 		this.strValue = field.getValue();
+		this.order = field.getOrder();
 		return this;
 	}
 }

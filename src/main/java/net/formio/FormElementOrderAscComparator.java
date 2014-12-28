@@ -16,28 +16,18 @@
  */
 package net.formio;
 
+import java.util.Comparator;
+
 /**
- * Element in a form - form field, group of fields (form mapping), ...
+ * Compares form elements according their order attributes in ascendant direction.
  * @author Radek Beran
  */
-public interface FormElement extends FormProperties {
-	
-	/**
-	 * Name of this form element (full path from outer object to potentially nested property).
-	 * It represents an identifier of this element in the form.
-	 * @return
-	 */
-	String getName();
-	
-	/**
-	 * Returns view with properties of this form element.
-	 * @return
-	 */
-	FormProperties getFormProperties();
-	
-	/**
-	 * Returns ordinal index of this form element.
-	 * @return
-	 */
-	int getOrder();
+class FormElementOrderAscComparator implements Comparator<FormElement> {
+
+	@Override
+	public int compare(FormElement e1, FormElement e2) {
+		// e1 and e2 should not be null
+		return Integer.compare(e1.getOrder(), e2.getOrder());
+	}
+
 }

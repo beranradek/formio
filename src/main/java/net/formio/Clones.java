@@ -99,7 +99,7 @@ final class Clones {
 		Map<String, FormMapping<?>> mappings, String pathPrefix) {
 		final Map<String, FormMapping<?>> newMappings = new LinkedHashMap<String, FormMapping<?>>();
 		for (Map.Entry<String, FormMapping<?>> e : mappings.entrySet()) {
-			newMappings.put(e.getKey(), e.getValue().withPathPrefix(pathPrefix));
+			newMappings.put(e.getKey(), e.getValue().withPathPrefix(pathPrefix, e.getValue().getOrder()));
 		}
 		return Collections.unmodifiableMap(newMappings);
 	}
@@ -180,7 +180,7 @@ final class Clones {
 				throw new IllegalStateException("Field's name '" + fld.getName() + "' already starts with property name '" + lastName + "'");
 			}
 		}
-		return new FormFieldImpl<U>(fld, pathPrefix);
+		return new FormFieldImpl<U>(fld, pathPrefix, fld.getOrder());
 	}
 	
 	private Clones() {

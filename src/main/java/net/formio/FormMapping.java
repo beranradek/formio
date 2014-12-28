@@ -152,7 +152,15 @@ public interface FormMapping<T> extends FormElement {
 	ValidationResult getValidationResult();
 	
 	/**
-	 * Fields in this mapping by their names.
+	 * Returns form elements (both fields and mappings) nested in this mapping in correct order
+	 * (in the same order as the elements were declared in form definition).
+	 * @return
+	 */
+	List<FormElement> getElements();
+	
+	/**
+	 * Fields in this mapping by their property names.
+	 * Can be used in template to construct markup of form fields.
 	 * @return
 	 */
 	Map<String, FormField<?>> getFields();
@@ -207,9 +215,10 @@ public interface FormMapping<T> extends FormElement {
 	 * Returns copy of this mapping with new path that has given prefix prepended.
 	 * Given prefix is applied to all nested mappings recursively.
 	 * @param pathPrefix
+	 * @param order
 	 * @return
 	 */
-	FormMapping<T> withPathPrefix(String pathPrefix);
+	FormMapping<T> withPathPrefix(String pathPrefix, int order);
 	
 	/**
 	 * Returns copy of this mapping with new path that contains index after given path prefix.

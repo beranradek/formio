@@ -65,9 +65,10 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	 * Returns copy with given path prefix prepended.
 	 * @param src
 	 * @param pathPrefix
+	 * @param order
 	 */
-	BasicListFormMapping(BasicListFormMapping<T> src, String pathPrefix) {
-		super(src, pathPrefix);
+	BasicListFormMapping(BasicListFormMapping<T> src, String pathPrefix, int order) {
+		super(src, pathPrefix, order);
 		this.listOfMappings = newListOfMappings(src.listOfMappings);
 	}
 	
@@ -158,6 +159,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.mappingType = MappingType.SINGLE;
 			// no filledObject - already loading data from request in the following code 
 			builder.userDefinedConfig = this.userDefinedConfig;
+			builder.order = index;
 			listMappings.add(builder.build(this.getConfig()));
 		}
 		
@@ -240,6 +242,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
 			
 			builder.userDefinedConfig = this.userDefinedConfig;
+			builder.order = index;
 			newMappings.add(builder.build(this.getConfig()));
 			index++;
 		}
@@ -258,7 +261,9 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		builder.listOfMappings = newMappings;
 		builder.filledObject = editedObj.getData();
 		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
-		builder.config(this.config, this.userDefinedConfig);
+		builder.config = this.config;
+		builder.userDefinedConfig = this.userDefinedConfig;
+		builder.order = this.order;
 		return builder;
 	}
 	
@@ -277,8 +282,8 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public BasicListFormMapping<T> withPathPrefix(String pathPrefix) {
-		return new BasicListFormMapping<T>(this, pathPrefix);
+	public BasicListFormMapping<T> withPathPrefix(String pathPrefix, int order) {
+		return new BasicListFormMapping<T>(this, pathPrefix, order);
 	}
 	
 	@Override

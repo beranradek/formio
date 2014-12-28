@@ -65,6 +65,8 @@ public class BasicFormMappingBuilder<T> {
 	boolean automatic;
 	boolean secured;
 	HeterogMap<String> properties;
+	int order;
+	private int nextNestedElementOrder;
 
 	/**
 	 * Should be constructed only via {@link Forms} entry point of API.
@@ -94,15 +96,17 @@ public class BasicFormMappingBuilder<T> {
 		// src already contains composed/created fields -> automatic = false for this case
 		this(src.dataClass, src.path, src.instantiator, false, 
 			(src instanceof BasicListFormMapping) ? MappingType.LIST : MappingType.SINGLE);
-		config(src.config, src.userDefinedConfig);
-		filledObject(src.filledObject);
-		fields(fields);
-		nestedWithFinalPath(nested);
-		secured(src.secured);
-		validationResult(src.validationResult);
+		this.config = src.config;
+		this.userDefinedConfig = src.userDefinedConfig;
+		this.filledObject = src.filledObject;
+		this.fields = fields;
+		this.nested = Collections.unmodifiableMap(nested);
+		this.secured = src.secured;
+		this.validationResult = src.validationResult;
 		final HeterogMap<String> properties = HeterogCollections.<String>newLinkedMap();
 		properties.putAllFromSource(src.formProperties.getProperties());
 		this.properties = properties;
+		this.order = src.order;
 	}
 	
 	/**
@@ -121,6 +125,12 @@ public class BasicFormMappingBuilder<T> {
 	/** Only for internal usage. */
 	BasicFormMappingBuilder<T> path(String path) {
 		this.path = path;
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> order(int order) {
+		this.order = order;
 		return this;
 	}
 	
@@ -161,7 +171,7 @@ public class BasicFormMappingBuilder<T> {
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> fieldProps) {
-		fields.put(fieldProps.getPropertyName(), fieldProps.build(path));
+		fields.put(fieldProps.getPropertyName(), fieldProps.build(path, nextNestedElementOrder++));
 		return this;
 	}
 	
@@ -176,7 +186,7 @@ public class BasicFormMappingBuilder<T> {
 				+ "of bound property (without full path). "
 				+ "Name of outer mapping is automatically prepended to it.");
 		}
-		fields.put(formField.getName(), new FormFieldImpl<U>(formField, this.path));
+		fields.put(formField.getName(), new FormFieldImpl<U>(formField, this.path, this.nextNestedElementOrder++));
 		return this;
 	}
 	
@@ -273,16 +283,6 @@ public class BasicFormMappingBuilder<T> {
 	public BasicFormMappingBuilder<T> help(String help) {
 		return property(FieldProperty.HELP, help);
 	}
-	
-	/**
-	 * Registers form mappings for nested objects in form data.
-	 * Mappings must have final path (the path is not changed - prefixed with path of this mapping).
-	 * Only for internal usage.
-	 */
-	BasicFormMappingBuilder<T> nestedWithFinalPath(Map<String, FormMapping<?>> nested) {
-		this.nested = Collections.unmodifiableMap(nested);
-		return this;
-	}
 
 	public FormMapping<T> build() {
 		Config cfg = this.config;
@@ -317,7 +317,7 @@ public class BasicFormMappingBuilder<T> {
 		
 		// Name of nested mapping and names of its fields must be prefixed by path of this mapping
 		// (and recursively - nested mapping can have its own nested mappings).
-		this.nested.put(propertyName, nestedMapping.withPathPrefix(this.path));
+		this.nested.put(propertyName, nestedMapping.withPathPrefix(this.path, nextNestedElementOrder++));
 		
 		// should return BasicFormMappingBuilder, not ConfigurableBasicFormMappingBuilder
 		// all configurable dependencies are taken from outer mapping

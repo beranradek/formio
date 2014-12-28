@@ -65,6 +65,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	final ValidationResult validationResult;
 	final FormProperties formProperties;
 	final boolean secured;
+	final int order;
 	
 	/**
 	 * Constructs a mapping from the given builder.
@@ -84,18 +85,21 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithPropagatedConfig(builder.nested, builder.dataClass, builder.config);
 		this.validationResult = builder.validationResult;
 		this.formProperties = new FormPropertiesImpl(builder.properties);
+		this.order = builder.order;
 	}
 	
 	/**
 	 * Returns copy with given path prefix prepended.
 	 * @param src
 	 * @param pathPrefix
+	 * @param order
 	 */
-	BasicFormMapping(BasicFormMapping<T> src, String pathPrefix) {
+	BasicFormMapping(BasicFormMapping<T> src, String pathPrefix, int order) {
 		this(new BasicFormMappingBuilder<T>(src, 
 			Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix),  
 			Clones.mappingsWithPrependedPathPrefix(src.nested, pathPrefix))
-			.path(pathWithPrefix(src.getName(), pathPrefix)), 
+			.path(pathWithPrefix(src.getName(), pathPrefix))
+			.order(order), 
 			true); // true = simple copy of builder's data
 	}
 	
@@ -142,10 +146,15 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return validationResult;
 	}
 	
-	/**
-	 * Returns form fields. Can be used in template to construct markup of form fields.
-	 * @return
-	 */
+	@Override
+	public List<FormElement> getElements() {
+		List<FormElement> elems = new ArrayList<FormElement>();
+		elems.addAll(this.nested.values());
+		elems.addAll(this.fields.values());
+		Collections.sort(elems, new FormElementOrderAscComparator());
+		return Collections.unmodifiableList(elems);
+	}
+	
 	@Override
 	public Map<String, FormField<?>> getFields() {
 		return fields;
@@ -164,10 +173,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return (FormField<U>)field;
 	}
 	
-	/**
-	 * Returns nested mapping for nested complex objects.
-	 * @return
-	 */
 	@Override
 	public Map<String, FormMapping<?>> getNested() {
 		return Collections.unmodifiableMap(nested);
@@ -327,15 +332,9 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return toString("");
 	}
 	
-	/**
-	 * Returns copy of this mapping with new path that has given prefix prepended.
-	 * Given prefix is applied to all nested mappings recursively.
-	 * @param pathPrefix
-	 * @return
-	 */
 	@Override
-	public BasicFormMapping<T> withPathPrefix(String pathPrefix) {
-		return new BasicFormMapping<T>(this, pathPrefix);
+	public BasicFormMapping<T> withPathPrefix(String pathPrefix, int order) {
+		return new BasicFormMapping<T>(this, pathPrefix, order);
 	}
 	
 	@Override
@@ -353,6 +352,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return new MappingStringBuilder<T>(
 			getDataClass(), 
 			path,
+			order,
 			fields,
 			nested, 
 			getList()).build(indent);
@@ -391,6 +391,11 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	@Override
 	public FormProperties getFormProperties() {
 		return this.formProperties;
+	}
+	
+	@Override
+	public int getOrder() {
+		return this.order;
 	}
 	
 	Map<String, FormData<?>> loadDataForMappings(
@@ -443,11 +448,13 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		} else {
 			builder = Forms.basic(getDataClass(), this.path, this.instantiator).fields(filledFields);
 		}
-		builder.nestedWithFinalPath(newNestedMappings)
-			.validationResult(editedObj.getValidationResult())
-			.filledObject(editedObj.getData())
-			.config(this.config, this.userDefinedConfig);
+		builder.nested = Collections.unmodifiableMap(newNestedMappings);
+		builder.validationResult = editedObj.getValidationResult();
+		builder.filledObject = editedObj.getData();
+		builder.config = this.config;
+		builder.userDefinedConfig = this.userDefinedConfig;
 		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
+		builder.order = this.order;
 		return builder;
 	}
 	

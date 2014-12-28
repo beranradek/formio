@@ -27,6 +27,7 @@ import java.util.Map;
 class MappingStringBuilder<T> {
 	private final Class<T> dataClass;
 	private final String path;
+	private final int order;
 	private final Map<String, FormField<?>> fields;
 	private final Map<String, FormMapping<?>> nested;
 	private final List<FormMapping<T>> listMappings;
@@ -34,11 +35,13 @@ class MappingStringBuilder<T> {
 	MappingStringBuilder(
 		Class<T> dataClass,
 		String path,
+		int order,
 		Map<String, FormField<?>> fields,
 		Map<String, FormMapping<?>> nested,
 		List<FormMapping<T>> listMappings) {
 		this.dataClass = dataClass;
 		this.path = path;
+		this.order = order;
 		this.fields = fields;
 		this.nested = nested;
 		this.listMappings = listMappings;
@@ -48,6 +51,7 @@ class MappingStringBuilder<T> {
 		StringBuilder sb = new StringBuilder();
 		sb.append(indent + path + " : " + dataClass.getSimpleName() + " {");
 		boolean firstBlock = true;
+		sb.append("\n" + indent + "  order : " + order + ",");
 		if (fields != null && !fields.isEmpty()) {
 			sb.append("\n" + indent + "  fields {");
 			boolean first = true;

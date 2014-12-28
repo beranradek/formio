@@ -40,6 +40,7 @@ class FormFieldStringBuilder {
 			sb.append("value=" + (field.getValue().length() > 17 ? field.getValue().substring(0, 17) + "..." : field.getValue()) + " /count: " + cnt  + "/");
 			firstParam = false;
 		}
+		sb.append(", order=" + field.getOrder());
 		sb.append(")");
 		return sb.toString();
 	}

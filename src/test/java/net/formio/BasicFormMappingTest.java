@@ -19,9 +19,17 @@ package net.formio;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
+import net.formio.data.TestData;
 import net.formio.data.TestForms;
+import net.formio.domain.Address;
+import net.formio.domain.Collegue;
 import net.formio.domain.Engine;
 import net.formio.domain.Person;
+import net.formio.domain.Registration;
+import net.formio.validation.ValidationResult;
 
 import org.junit.Test;
 
@@ -71,7 +79,7 @@ public class BasicFormMappingTest {
 	@Test
 	public void testWithPathPrefix() {
 		FormMapping<Person> person = TestForms.PERSON_FORM;
-		FormMapping<Person> student = person.withPathPrefix("student");
+		FormMapping<Person> student = person.withPathPrefix("student", 0);
 		assertEquals("New mapping should have path prefix prepended in its name", 
 			"student" + Forms.PATH_SEP + person.getName(), student.getName());
 		assertEquals("Form field should have path prefix prepended in its name",
@@ -85,5 +93,52 @@ public class BasicFormMappingTest {
 		FormMapping<Engine> engine = TestForms.CAR_FORM.getNestedByProperty(Engine.class, "engine");
 		FormMapping<Engine> engineForIndex = engine.withIndexAfterPathPrefix(0, "carForm");
 		assertEquals("carForm[0]" + Forms.PATH_SEP + "engine", engineForIndex.getName());
+	}
+	
+	@Test
+	public void testGetElements() {
+		FormMapping<Registration> form = TestForms.BASIC_REG_FORM;
+		testBasicRegFormElements(form);
+		
+		FormMapping<Registration> filledForm = TestForms.BASIC_REG_FORM.fill(
+			new FormData<Registration>(TestData.newRegistration(), ValidationResult.empty));
+		testBasicRegFormElements(filledForm);
+	}
+	
+	private void testBasicRegFormElements(FormMapping<Registration> mapping) {
+		String pathSep = Forms.PATH_SEP;
+		String rootMappingName = "registration";
+		List<FormElement> elements = mapping.getElements();
+		assertEquals(8, elements.size());
+		assertEquals(rootMappingName + pathSep + "attendanceReasons", elements.get(0).getName());
+		assertEquals(rootMappingName + pathSep + "cv", elements.get(1).getName());
+		assertEquals(rootMappingName + pathSep + "certificates", elements.get(2).getName());
+		assertEquals(rootMappingName + pathSep + "interests", elements.get(3).getName());
+		assertEquals(rootMappingName + pathSep + "email", elements.get(4).getName());
+		assertEquals(rootMappingName + pathSep + "contactAddress", elements.get(5).getName());
+		assertEquals(rootMappingName + pathSep + "collegues", elements.get(6).getName());
+		assertEquals(rootMappingName + pathSep + "newCollegue", elements.get(7).getName());
+		int index = 0;
+		for (FormElement el : elements) {
+			assertEquals(index, el.getOrder());
+			index++;
+		}
+		
+		FormMapping<Address> contactAddress = mapping.getNestedByProperty(Address.class, "contactAddress");
+		List<FormElement> addressElements = contactAddress.getElements();
+		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "street", addressElements.get(0).getName());
+		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "city", addressElements.get(1).getName());
+		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "zipCode", addressElements.get(2).getName());
+		
+		FormMapping<Collegue> collegues = mapping.getNestedByProperty(Collegue.class, "collegues");
+		index = 0;
+		for (FormMapping<Collegue> indexedCollegues : collegues.getList()) {
+			assertEquals(index, indexedCollegues.getOrder());
+			List<FormElement> elems = indexedCollegues.getElements();
+			assertEquals(rootMappingName + pathSep + "collegues[" + index + "]" + pathSep + "name", elems.get(0).getName());
+			assertEquals(rootMappingName + pathSep + "collegues[" + index + "]" + pathSep + "email", elems.get(1).getName());
+			assertEquals(rootMappingName + pathSep + "collegues[" + index + "]" + pathSep + "regDate", elems.get(2).getName());
+			index++;
+		}
 	}
 }

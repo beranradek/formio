@@ -30,11 +30,11 @@ import net.formio.validation.ValidationResult;
 public interface FormRenderer {
 	<T> String renderForm(RenderContext<T> ctx);
 	
-	String renderGlobalMessages(ValidationResult validationResult);
+	String renderGlobalMessages(RenderContext<?> ctx, ValidationResult validationResult);
 	
 	<T> String renderMapping(RenderContext<?> ctx, FormMapping<T> mapping, ParentMappings parentMappings);
 	
 	<T> String renderField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings);
 	
-	String renderSubmit();
+	String renderSubmit(RenderContext<?> ctx);
 }

@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import net.formio.FormComponent;
 import net.formio.FormElement;
@@ -41,15 +40,15 @@ class BasicFormRenderer implements FormRenderer {
 	public <T> String renderForm(RenderContext<T> ctx) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(renderFormTag(ctx));
-		sb.append(renderGlobalMessages(ctx.getFilledForm().getValidationResult()));
+		sb.append(renderGlobalMessages(ctx, ctx.getFilledForm().getValidationResult()));
 		sb.append(renderMapping(ctx, ctx.getFilledForm(), new ParentMappings(ctx.getFilledForm(), null)));
-		sb.append(renderSubmit());
+		sb.append(renderSubmit(ctx));
 		sb.append("</form>" + newLine());
 		return sb.toString();
 	}
 	
 	@Override
-	public String renderGlobalMessages(ValidationResult validationResult) {
+	public String renderGlobalMessages(RenderContext<?> ctx, ValidationResult validationResult) {
 		StringBuilder sb = new StringBuilder();
 		if (!validationResult.isEmpty() && !validationResult.isSuccess()) {
 			sb.append("<div class=\"alert alert-danger\">" + newLine());
@@ -68,13 +67,16 @@ class BasicFormRenderer implements FormRenderer {
 		if (mapping.isVisible()) {
 			sb.append("<div id=\"" + renderElementBoxId(mapping) + "\">" + newLine());
 			ParentMappings nestedParents = new ParentMappings(parentMappings.getRootMapping(), mapping);
-			for (Map.Entry<String, FormField<?>> e : mapping.getFields().entrySet()) {
-				FormField<?> field = e.getValue();
-				sb.append(renderField(ctx, field, mapping.getValidationResult().getFieldMessages().get(field.getName()), nestedParents));
-			}
-			for (Map.Entry<String, FormMapping<?>> e : mapping.getNested().entrySet()) {
-				FormMapping<?> nestedMapping = e.getValue();
-				sb.append(renderMapping(ctx, nestedMapping, nestedParents));
+			for (FormElement el : mapping.getElements()) {
+				if (el instanceof FormField) {
+					FormField<?> field = (FormField<?>)el;
+					sb.append(renderField(ctx, field, mapping.getValidationResult().getFieldMessages().get(field.getName()), nestedParents));
+				} else if (el instanceof FormMapping) {
+					FormMapping<?> nestedMapping = (FormMapping<?>)el;
+					sb.append(renderMapping(ctx, nestedMapping, nestedParents));
+				} else {
+					throw new UnsupportedOperationException("Unsupported form element " + el.getClass().getName());
+				}
 			}
 			sb.append("</div>" + newLine());
 		} else {
@@ -105,7 +107,7 @@ class BasicFormRenderer implements FormRenderer {
 	}
 	
 	@Override
-	public String renderSubmit() {
+	public String renderSubmit(RenderContext<?> ctx) {
 		return "<button type=\"submit\">Submit</button>" + newLine();
 	}
 	

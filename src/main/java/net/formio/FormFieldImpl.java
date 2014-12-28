@@ -43,6 +43,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	private final ChoiceRenderer<T> choiceRenderer;
 	private final String strValue;
 	private final FormProperties formProperties;
+	private final int order;
 
 	/**
 	 * Returns copy of field with given required flag.
@@ -50,7 +51,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	 * @param required null if required flag is not specified
 	 */
 	FormFieldImpl(FormField<T> src, Boolean required) {
-		this(src, src.getName(), (String)null, required);
+		this(src, src.getName(), (String)null, src.getOrder(), required);
 	}
 
 	/**
@@ -62,7 +63,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	 */
 	FormFieldImpl(FormField<T> src, int index, String namePrefixWithoutIndex) {
 		this(src, namePrefixWithoutIndex + "[" + index + "]" + src.getName().substring(namePrefixWithoutIndex.length()), 
-			namePrefixWithoutIndex, (Boolean)null);
+			namePrefixWithoutIndex, src.getOrder(), (Boolean)null);
 	}
 	
 	/**
@@ -70,13 +71,14 @@ public class FormFieldImpl<T> implements FormField<T> {
 	 * prepended to the previous name of source field.
 	 * @param src
 	 * @param namePrefixToPrepend
+	 * @param order
 	 * @return
 	 */
-	FormFieldImpl(FormField<T> src, String namePrefixToPrepend) {
-		this(src, namePrefixToPrepend + Forms.PATH_SEP + src.getName(), namePrefixToPrepend, (Boolean)null);
+	FormFieldImpl(FormField<T> src, String namePrefixToPrepend, int order) {
+		this(src, namePrefixToPrepend + Forms.PATH_SEP + src.getName(), namePrefixToPrepend, order, (Boolean)null);
 	}
 	
-	FormFieldImpl(FieldProps<T> fieldProps, String parentPath) {
+	FormFieldImpl(FieldProps<T> fieldProps, String parentPath, int order) {
 		fieldProps.checkConsistentNames();
 		String name = null;
 		if (parentPath != null && !parentPath.isEmpty() && fieldProps.getPropertyName() != null && !fieldProps.getPropertyName().isEmpty()) {
@@ -100,6 +102,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 		this.formProperties = new FormPropertiesImpl(fieldProps.getFormProperties());
 		this.filledObjects = new ArrayList<T>(fieldProps.filledObjects);
 		this.strValue = fieldProps.strValue;
+		this.order = order;
 	}
 	
 	/**
@@ -107,21 +110,26 @@ public class FormFieldImpl<T> implements FormField<T> {
 	 * @param src copied form field
 	 * @param name full name of form field
 	 * @param namePrefix if not null, name must start with this prefix
+	 * @param order
 	 * @param required null if required flag is not specified
 	 * @return
 	 */
-	private FormFieldImpl(FormField<T> src, String name, String namePrefix, Boolean required) {
-		this(new FieldProps<T>(src).name(validateName(name, namePrefix)).properties(
-			// Override required only in case required != null, so the required flag from field props is not
-			// overriden by missing NotNull annotation...
-			required != null ? 
-				((FormPropertiesImpl)src.getFormProperties()).withProperty(FieldProperty.REQUIRED, required) :
-				src.getFormProperties()
-		));
+	private FormFieldImpl(FormField<T> src, String name, String namePrefix, int order, Boolean required) {
+		this(new FieldProps<T>(src)
+			.name(validateName(name, namePrefix))
+			.order(order)
+			.properties(
+				// Override required only in case required != null, so the required flag from field props is not
+				// overriden by missing NotNull annotation...
+				required != null ? 
+					((FormPropertiesImpl)src.getFormProperties()).withProperty(FieldProperty.REQUIRED, required) :
+					src.getFormProperties()
+			)
+		);
 	}
 	
 	private FormFieldImpl(FieldProps<T> fieldProps) {
-		this(fieldProps, null);
+		this(fieldProps, null, fieldProps.getOrder());
 	}
 
 	/**
@@ -214,6 +222,11 @@ public class FormFieldImpl<T> implements FormField<T> {
 	@Override
 	public FormProperties getFormProperties() {
 		return this.formProperties;
+	}
+	
+	@Override
+	public int getOrder() {
+		return this.order;
 	}
 
 	@Override
