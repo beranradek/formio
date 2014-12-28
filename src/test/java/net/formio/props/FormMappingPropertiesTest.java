@@ -30,7 +30,7 @@ import net.formio.validation.ValidationResult;
 import org.junit.Test;
 
 /**
- * Test form with various field formProperties.
+ * Test mappings with various properties.
  * @author Radek Beran
  */
 public class FormMappingPropertiesTest {
