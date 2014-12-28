@@ -16,6 +16,8 @@
  */
 package net.formio;
 
+import java.io.Serializable;
+
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.props.FieldProperty;
@@ -24,8 +26,10 @@ import net.formio.props.FieldProperty;
  * Default implementation of {@link FormProperties}. Immutable.
  * @author Radek Beran
  */
-public class FormPropertiesImpl implements FormProperties {
+public class FormPropertiesImpl implements FormProperties, Serializable {
 	// public because of introspection required by some template frameworks, constructors are not public
+	
+	private static final long serialVersionUID = 8353865315646591562L;
 	
 	private final HeterogMap<String> properties;
 	
