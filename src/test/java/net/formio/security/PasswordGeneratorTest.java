@@ -33,6 +33,12 @@ public class PasswordGeneratorTest {
 	private static final String ALLOWED_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_@#$%^&*";
 	
 	@Test
+	public void testGeneratePassword() {
+		String pwd = PasswordGenerator.generatePassword();
+		assertEquals(PasswordGenerator.DEFAULT_PWD_LENGTH, pwd.length());
+	}
+	
+	@Test
 	public void testGeneratePasswordWithLength() {
 		assertEquals(4, PasswordGenerator.generatePassword(4).length());
 		String pwd = PasswordGenerator.generatePassword(20, ALLOWED_CHARS);

@@ -23,7 +23,7 @@ public class FileExtensionConstraintValidator implements ConstraintValidator<Fil
 	}
 
 	@Override
-	public boolean isValid(Object input, ConstraintValidatorContext ctx) {
+	public boolean isValid(Object input, ConstraintValidatorContext ignored) {
 		if (input == null) {
 			 return true;
 		} else if (input instanceof String) {
@@ -33,12 +33,20 @@ public class FileExtensionConstraintValidator implements ConstraintValidator<Fil
 		}
 		throw new IllegalStateException("FileExtensionValidator is not applicable to the field type " + getClass().getName());
 	}
+	
+	protected String[] getAllowedExtensions() {
+		return allowedExtensions;
+	}
+
+	protected boolean isIgnoreCase() {
+		return ignoreCase;
+	}
 
 	private boolean isValidStr(String input) {
 		if (input.isEmpty()) {
 			return true;
 		}
-		return FileExtensionValidation.hasFileExtension(input, allowedExtensions, ignoreCase);
+		return FileExtensionValidation.hasFileExtension(input, getAllowedExtensions(), isIgnoreCase());
 	}
 
 }

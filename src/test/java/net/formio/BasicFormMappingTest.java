@@ -52,6 +52,11 @@ public class BasicFormMappingTest {
 	}
 	
 	@Test
+	public void testGetRootMappingPath() {
+		assertEquals("carForm", ((BasicFormMapping<Engine>)TestForms.CAR_FORM.getNestedByProperty(Engine.class, "engine")).getRootMappingPath());
+	}
+	
+	@Test
 	public void testGetName() {
 		assertEquals("person", TestForms.PERSON_FORM.getName());
 		assertEquals("carForm" + Forms.PATH_SEP + "engine", TestForms.CAR_FORM.getNestedByProperty(Engine.class, "engine").getName());
