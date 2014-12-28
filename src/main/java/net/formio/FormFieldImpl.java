@@ -153,6 +153,36 @@ public class FormFieldImpl<T> implements FormField<T> {
 			src.getValue());
 	}
 	
+	FormFieldImpl(FieldProps<T> fieldProps, String parentPath) {
+		fieldProps.checkConsistentNames();
+		String name = null;
+		if (parentPath != null && !parentPath.isEmpty() && fieldProps.getPropertyName() != null && !fieldProps.getPropertyName().isEmpty()) {
+			name = formPrefixedName(parentPath, fieldProps.getPropertyName());
+			validateName(name, parentPath);
+		} else if (fieldProps.getName() != null && !fieldProps.getName().isEmpty()) {
+			name = fieldProps.getName();
+		} else if (fieldProps.getPropertyName() != null && !fieldProps.getPropertyName().isEmpty()) {
+			// parentPath is null or empty
+			// Can occur when the form field is defined by user - path is not complete before building the whole form mapping
+			name = fieldProps.getPropertyName();
+		} else {
+			throw new IllegalArgumentException("Cannot determine form field name!");
+		}
+		this.name = name;
+		this.type = fieldProps.getType();
+		this.pattern = fieldProps.getPattern();
+		this.formatter = fieldProps.getFormatter();
+		this.choiceProvider = fieldProps.getChoiceProvider();
+		this.choiceRenderer = fieldProps.getChoiceRenderer();
+		this.formProperties = new FormPropertiesImpl(fieldProps.getFormProperties());
+		this.filledObjects = new ArrayList<T>(fieldProps.filledObjects);
+		this.strValue = fieldProps.strValue;
+	}
+	
+	FormFieldImpl(FieldProps<T> fieldProps) {
+		this(fieldProps, null);
+	}
+	
 	private FormFieldImpl(
 		String name, 
 		String type, 
@@ -285,7 +315,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 			return false;
 		if (!(obj instanceof FormFieldImpl))
 			return false;
-		FormFieldImpl<T> other = (FormFieldImpl<T>) obj;
+		FormFieldImpl<?> other = (FormFieldImpl<?>) obj;
 		if (name == null) {
 			if (other.name != null)
 				return false;
@@ -317,6 +347,11 @@ public class FormFieldImpl<T> implements FormField<T> {
 			throw new IllegalArgumentException("name '" + name + "' does not start with given name prefix '" + namePrefix + "'");
 		}
 		return name;
+	}
+	
+	private static String formPrefixedName(String parentPath, String propertyName) {
+		if (propertyName == null) return null;
+		return parentPath + Forms.PATH_SEP + propertyName;
 	}
 
 }

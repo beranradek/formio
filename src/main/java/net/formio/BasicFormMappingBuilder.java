@@ -161,15 +161,22 @@ public class BasicFormMappingBuilder<T> {
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> fieldProps) {
-		String frmPrefixedName = formPrefixedName(fieldProps.getPropertyName());
-		fields.put(fieldProps.getPropertyName(), FormFieldImpl.getInstance(
-			frmPrefixedName, 
-			fieldProps.getType(), 
-			fieldProps.getPattern(), 
-			fieldProps.getFormatter(), 
-			fieldProps.getChoiceProvider(),
-			fieldProps.getChoiceRenderer(),
-			new FormPropertiesImpl(fieldProps.getProperties())));
+		fields.put(fieldProps.getPropertyName(), fieldProps.build(path));
+		return this;
+	}
+	
+	/**
+	 * Adds form field specification.
+	 * @param form field with specified property name - without full path (name)
+	 * @return
+	 */
+	public <U> BasicFormMappingBuilder<T> field(FormField<U> formField) {
+		if (formField.getName().contains(Forms.PATH_SEP)) {
+			throw new IllegalStateException("Name of specified form field should contain only name "
+				+ "of bound property (without full path). "
+				+ "Name of outer mapping is automatically prepended to it.");
+		}
+		fields.put(formField.getName(), new FormFieldImpl<U>(formField, this.path));
 		return this;
 	}
 	
@@ -180,7 +187,7 @@ public class BasicFormMappingBuilder<T> {
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(String propertyName, String type) {
-		return field(Forms.field(propertyName, type).build());
+		return field(Forms.field(propertyName, type));
 	}
 	
 	/**
@@ -369,6 +376,7 @@ public class BasicFormMappingBuilder<T> {
 		} else {
 			mapping = new BasicFormMapping<T>(this, simpleCopy);
 		}
+		checkValidFormMapping(mapping);
 		return mapping;
 	}
 
@@ -453,6 +461,25 @@ public class BasicFormMappingBuilder<T> {
 			field(Forms.AUTH_TOKEN_FIELD_NAME, "hidden");
 		}
 	}
+	
+	private void checkValidFormMapping(BasicFormMapping<T> mapping) {
+		// All fields must have names prefixed with mapping path
+		if (mapping.path == null || mapping.path.isEmpty()) {
+			throw new IllegalStateException("Mapping path must not be empty");
+		}
+		for (FormField<?> field : mapping.fields.values()) {
+			if (field.getName() == null || field.getName().isEmpty()) {
+				throw new IllegalStateException("Field name must not be empty");
+			}
+			if (!field.getName().contains(Forms.PATH_SEP)) {
+				throw new IllegalStateException("Full path (name) of field '" + field.getName() + "' must contain at least one path separator that separates mapping path '" + 
+					mapping.path + "' from property name (or more complex path) mapped to field");
+			}
+			if (!field.getName().startsWith(mapping.path)) {
+				throw new IllegalStateException("Field name '" + field.getName() + "' does not start with mapping path '" + mapping.path + "'");
+			}
+		}
+	}
 
 	private void assertValidComplexTypeProperty(Class<?> propertyType, String propertyName) {
 		if (String.class.isAssignableFrom(propertyType))
@@ -502,11 +529,6 @@ public class BasicFormMappingBuilder<T> {
 			|| PrimitiveType.byWrapperClass(retType) != null 
 			|| config.getFormatters().canHandle(retType)
 			|| UploadedFile.class.isAssignableFrom(retType);
-	}
-	
-	private String formPrefixedName(String name) {
-		if (name == null) return null;
-		return path + Forms.PATH_SEP + name;
 	}
 }
 

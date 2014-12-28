@@ -195,12 +195,13 @@ public class FormUtils {
 	}
 	
 	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Extracts property name located at the end of full field name (field
 	 * name is the whole path, with possible terminating brackets).
 	 * @param fieldName
 	 * @return
 	 */
-	private static String fieldNameToLastPropertyName(String fieldName) {
+	public static String fieldNameToLastPropertyName(String fieldName) {
 		if (fieldName == null) return null;
 		int lastDot = fieldName.lastIndexOf(Forms.PATH_SEP);
 		String propName = fieldName;

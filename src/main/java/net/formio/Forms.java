@@ -249,8 +249,8 @@ public final class Forms {
 	 * @param type
 	 * @return
 	 */
-	public static <T> FieldProps.Builder<T> field(String propertyName, String type) {
-		return new FieldProps.Builder<T>(propertyName, type);
+	public static <T> FieldProps<T> field(String propertyName, String type) {
+		return new FieldProps<T>(propertyName, type);
 	}
 	
 	/**
@@ -258,7 +258,7 @@ public final class Forms {
 	 * @param propertyName
 	 * @return
 	 */
-	public static <T> FieldProps.Builder<T> field(String propertyName) {
+	public static <T> FieldProps<T> field(String propertyName) {
 		return field(propertyName, (String)null);
 	}
 	

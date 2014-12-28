@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.formio.internal.FormUtils;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
 
@@ -63,13 +64,13 @@ final class Clones {
 	}
 	
 	static Map<String, FormField<?>> fieldsWithPrependedPathPrefix(
-		Map<String, FormField<?>> fields, String pathPrefix, String mappingPath) {
+		Map<String, FormField<?>> fields, String pathPrefix) {
 		Map<String, FormField<?>> newFields = new LinkedHashMap<String, FormField<?>>();
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
 			// copy of field with given prefix prepended
 			FormField<?> field = createFormField(pathPrefix, e.getValue()); // copy constructor
-			if (!field.getName().startsWith(mappingPath + Forms.PATH_SEP))
-				throw new IllegalStateException("Field name '" + field.getName() + "' must start with prefix '" + mappingPath + ".'");
+			if (!field.getName().startsWith(pathPrefix + Forms.PATH_SEP))
+				throw new IllegalStateException("Field name '" + field.getName() + "' must start with prefix '" + pathPrefix + ".'");
 			newFields.put(e.getKey(), field); // key must be a simple property name (it is not changing)
 		}
 		return Collections.unmodifiableMap(newFields);
@@ -167,6 +168,18 @@ final class Clones {
 	}
 	
 	private static <U> FormField<U> createFormField(String pathPrefix, FormField<U> fld) {
+		if (pathPrefix == null || pathPrefix.isEmpty()) {
+			throw new IllegalArgumentException("pathPrefix cannot be empty");
+		}
+		if (fld.getName().startsWith(pathPrefix + Forms.PATH_SEP) || fld.getName().equals(pathPrefix)) {
+			throw new IllegalStateException("Field's name '" + fld.getName() + "' already starts with prefix '" + pathPrefix + "'");
+		}
+		String lastName = FormUtils.fieldNameToLastPropertyName(pathPrefix);
+		if (lastName != null && !lastName.isEmpty()) {
+			if (fld.getName().startsWith(lastName + Forms.PATH_SEP) || fld.getName().equals(lastName)) {
+				throw new IllegalStateException("Field's name '" + fld.getName() + "' already starts with property name '" + lastName + "'");
+			}
+		}
 		return new FormFieldImpl<U>(fld, pathPrefix);
 	}
 	

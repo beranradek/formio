@@ -17,115 +17,93 @@
 package net.formio;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
-import net.formio.common.heterog.HeterogCollections;
-import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
+import net.formio.internal.FormUtils;
 import net.formio.props.FieldProperty;
 
 /**
- * Specification of formProperties used to construct a {@link FormField}.
+ * Specification of properties used to construct a {@link FormField}.
+ * Builder of {@link FormField}.
  * 
  * @author Radek Beran
  */
 public class FieldProps<T> implements Serializable {
 	private static final long serialVersionUID = 2328756250255932689L;
-	private final String propertyName;
-	private final String type;
-	private final String pattern;
-	private final Formatter<T> formatter;
-	private final ChoiceProvider<T> choiceProvider;
-	private final ChoiceRenderer<T> choiceRenderer;
-	private final HeterogMap<String> properties;
+	private String propertyName;
+	private String name;
+	private String type;
+	private String pattern;
+	private Formatter<T> formatter;
+	private ChoiceProvider<T> choiceProvider;
+	private ChoiceRenderer<T> choiceRenderer;
+	private FormProperties formProperties = new FormPropertiesImpl(FieldProperty.createDefaultFieldProperties());
+	List<T> filledObjects = new ArrayList<T>();
+	String strValue;
 	
-	@SuppressWarnings("synthetic-access")
-	FieldProps(Builder<T> builder) {
-		this.propertyName = builder.propertyName;
-		this.type = builder.type;
-		this.pattern = builder.pattern;
-		this.formatter = builder.formatter;
-		this.choiceProvider = builder.choiceProvider;
-		this.choiceRenderer = builder.choiceRenderer;
-		this.properties = HeterogCollections.unmodifiableMap(builder.properties);
+	FieldProps(String propertyName) {
+		this(propertyName, (String)null);
+	}
+		
+	FieldProps(String propertyName, String type) {
+		// package-default access so only Forms (and classes in current package) can create the builder
+		if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be specified");
+		this.propertyName = propertyName;
+		this.type = type;
+	}
+		
+	public FieldProps<T> type(String type) {
+		this.type = type;
+		return this;
+	}
+		
+	public FieldProps<T> pattern(String pattern) {
+		this.pattern = pattern;
+		return this;
+	}
+		
+	public FieldProps<T> formatter(Formatter<T> formatter) {
+		this.formatter = formatter;
+		return this;
 	}
 	
-	public static class Builder<T> {
-		private final String propertyName;
-		private String type = null;
-		private String pattern = null;
-		private Formatter<T> formatter = null;
-		private ChoiceProvider<T> choiceProvider = null;
- 		private ChoiceRenderer<T> choiceRenderer = null;
-		private final HeterogMap<String> properties;
-
-		Builder(String propertyName) {
-			this(propertyName, (String)null);
-		}
-		
-		Builder(String propertyName, String type) {
-			// package-default access so only Forms (and classes in current package) can create the builder
-			if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be specified");
-			this.propertyName = propertyName;
-			this.type = type;
-			this.properties = FieldProperty.createDefaultFieldProperties();
-		}
-		
-		public Builder<T> type(String type) {
-			this.type = type;
-			return this;
-		}
-		
-		public Builder<T> pattern(String pattern) {
-			this.pattern = pattern;
-			return this;
-		}
-		
-		public Builder<T> formatter(Formatter<T> formatter) {
-			this.formatter = formatter;
-			return this;
-		}
-		
-		public Builder<T> choiceProvider(ChoiceProvider<T> choiceProvider) {
-			this.choiceProvider = choiceProvider;
-			return this;
-		}
-		
-		public Builder<T> choiceRenderer(ChoiceRenderer<T> choiceRenderer) {
-			this.choiceRenderer = choiceRenderer;
-			return this;
-		}
-		
-		public <U> Builder<T> property(FieldProperty<U> fieldProperty, U value) {
-			this.properties.putTyped(fieldProperty, value);
-			return this;
-		}
-		
-		public Builder<T> visible(boolean visible) {
-			return property(FieldProperty.VISIBLE, Boolean.valueOf(visible));
-		}
-		
-		public Builder<T> enabled(boolean enabled) {
-			return property(FieldProperty.ENABLED, Boolean.valueOf(enabled));
-		}
-		
-		public Builder<T> readonly(boolean readonly) {
-			return property(FieldProperty.READ_ONLY, Boolean.valueOf(readonly));
-		}
+	public FieldProps<T> choiceProvider(ChoiceProvider<T> choiceProvider) {
+		this.choiceProvider = choiceProvider;
+		return this;
+	}
 	
-		public Builder<T> required(boolean required) {
-			return property(FieldProperty.REQUIRED, Boolean.valueOf(required));
-		}
-		
-		public Builder<T> help(String help) {
-			return property(FieldProperty.HELP, help);
-		}
-		
-		public FieldProps<T> build() {
-			FieldProps<T> fieldProps = new FieldProps<T>(this);
-			return fieldProps;
-		}
+	public FieldProps<T> choiceRenderer(ChoiceRenderer<T> choiceRenderer) {
+		this.choiceRenderer = choiceRenderer;
+		return this;
+	}
+	
+	public <U> FieldProps<T> property(FieldProperty<U> fieldProperty, U value) {
+		this.formProperties = new FormPropertiesImpl(this.formProperties, fieldProperty, value);
+		return this;
+	}
+	
+	public FieldProps<T> visible(boolean visible) {
+		return property(FieldProperty.VISIBLE, Boolean.valueOf(visible));
+	}
+	
+	public FieldProps<T> enabled(boolean enabled) {
+		return property(FieldProperty.ENABLED, Boolean.valueOf(enabled));
+	}
+	
+	public FieldProps<T> readonly(boolean readonly) {
+		return property(FieldProperty.READ_ONLY, Boolean.valueOf(readonly));
+	}
+
+	public FieldProps<T> required(boolean required) {
+		return property(FieldProperty.REQUIRED, Boolean.valueOf(required));
+	}
+	
+	public FieldProps<T> help(String help) {
+		return property(FieldProperty.HELP, help);
 	}
 
 	/**
@@ -134,7 +112,21 @@ public class FieldProps<T> implements Serializable {
 	 * @return
 	 */
 	public String getPropertyName() {
-		return this.propertyName;
+		String propName = null;
+		if (this.propertyName != null && !this.propertyName.isEmpty()) {
+			propName = this.propertyName;
+		} else if (this.name != null && !this.name.isEmpty()) {
+			propName = FormUtils.fieldNameToLastPropertyName(this.name);
+		}
+		return propName;
+	}
+	
+	/**
+	 * Whole path (name) of form field.
+	 * @return
+	 */
+	public String getName() {
+		return this.name;
 	}
 
 	/**
@@ -184,10 +176,36 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	/**
-	 * Field formProperties (flags like required, ... - see {@link FieldProperty}).
+	 * Field form properties (flags like required, ... - see {@link FieldProperty}).
 	 * @return
 	 */
-	public HeterogMap<String> getProperties() {
-		return this.properties;
+	public FormProperties getFormProperties() {
+		return this.formProperties;
+	}
+	
+	/**
+	 * Constructs new immutable form field.
+	 * @return
+	 */
+	public FormField<T> build() {
+		return build(null);
+	}
+	
+	/**
+	 * Constructs new immutable form field.
+	 * @return
+	 */
+	FormField<T> build(String parentPath) {
+		return new FormFieldImpl<T>(this, parentPath);
+	}
+	
+	void checkConsistentNames() {
+		if (name != null && !name.isEmpty() && 
+			propertyName != null && !propertyName.isEmpty()) {
+			String propNameFromFullName = FormUtils.fieldNameToLastPropertyName(name);
+			if (!propNameFromFullName.equals(propertyName)) {
+				throw new IllegalStateException("Property name '" + propertyName + "' is not consistent with full field name '" + name + "'!");
+			}
+		}
 	}
 }

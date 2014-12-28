@@ -93,7 +93,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 */
 	BasicFormMapping(BasicFormMapping<T> src, String pathPrefix) {
 		this(new BasicFormMappingBuilder<T>(src, 
-			Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix, pathWithPrefix(src.getName(), pathPrefix)), 
+			Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix),  
 			Clones.mappingsWithPrependedPathPrefix(src.nested, pathPrefix))
 			.path(pathWithPrefix(src.getName(), pathPrefix)), 
 			true); // true = simple copy of builder's data
@@ -617,9 +617,12 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return arg;
 	}
 	
-	private static String pathWithPrefix(String path, String pathPrefix) {
+	static String pathWithPrefix(String path, String pathPrefix) {
 		String newMappingPath = null;
 		if (!pathPrefix.isEmpty()) {
+			if (path.startsWith(pathPrefix + Forms.PATH_SEP) || path.equals(pathPrefix)) {
+				throw new IllegalStateException("path '" + path + "' already starts with prefix '" + pathPrefix + "'");
+			}
 			newMappingPath = pathPrefix + Forms.PATH_SEP + path;
 		} else {
 			newMappingPath = path;
@@ -627,7 +630,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return newMappingPath;
 	}
 	
-	private static String pathWithIndex(String path, int index, String pathPrefix) {
+	static String pathWithIndex(String path, int index, String pathPrefix) {
 		assertNotNullArg(pathPrefix, "pathPrefix cannot be null");
 		if (!path.startsWith(pathPrefix))
 			throw new IllegalStateException("Mapping path '" + path + "' must start with prefix '" + pathPrefix + ".'");

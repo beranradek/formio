@@ -35,7 +35,11 @@ public class FormPropertiesImpl implements FormProperties {
 	}
 	
 	FormPropertiesImpl(final FormProperties src) {
-		this(copyProperties(src.getProperties(), null, null));
+		this(src, (FieldProperty<?>)null, null);
+	}
+	
+	<T> FormPropertiesImpl(final FormProperties src, FieldProperty<T> property, T value) {
+		this(copyProperties(src.getProperties(), property, value));
 	}
 	
 	@Override
