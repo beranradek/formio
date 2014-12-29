@@ -56,7 +56,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	final Class<T> dataClass;
 	final Instantiator<T> instantiator;
 	final Config config;
-	final boolean userDefinedConfig;
 	final T filledObject;
 	
 	/** Mapping simple property names to fields. */
@@ -72,12 +71,11 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 * Constructs a mapping from the given builder.
 	 * @param builder
 	 * @param simpleCopy true if simple copy of builder's data should be constructed, otherwise propagation
-	 * of configuration into fields and nested mappings is processed
+	 * of parent mapping into fields and nested mappings is processed
 	 */
 	BasicFormMapping(BasicFormMappingBuilder<T> builder, boolean simpleCopy) {
 		this.parent = builder.parent;
-		this.config = assertNotNullArg(builder.config, "config cannot be null");
-		this.userDefinedConfig = builder.userDefinedConfig;
+		this.config = builder.config;
 		this.path = builder.path;
 		this.dataClass = assertNotNullArg(builder.dataClass, "data class must be filled before configuring fields");
 		this.instantiator = builder.instantiator;
@@ -86,8 +84,8 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		this.validationResult = builder.validationResult;
 		this.formProperties = new FormPropertiesImpl(builder.properties);
 		this.order = builder.order;
-		this.fields = simpleCopy ? builder.fields : Clones.fieldsWithParent(this, builder.fields, builder.config, builder.dataClass);
-		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithParent(this, builder.nested, builder.dataClass, builder.config);
+		this.fields = simpleCopy ? builder.fields : Clones.fieldsWithParent(this, builder.fields, getConfig(), builder.dataClass);
+		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithParent(this, builder.nested, builder.dataClass, getConfig());
 	}
 	
 	/**
@@ -125,14 +123,13 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 * @param config
 	 * @param required
 	 */
-	BasicFormMapping(BasicFormMapping<T> src, FormMapping<?> parent, Config config, boolean required) {
+	BasicFormMapping(BasicFormMapping<T> src, FormMapping<?> parent, boolean required) {
 		this(new BasicFormMappingBuilder<T>(src, 
 			src.fields, 
 			src.nested)
 			.parent(parent)
-			.config(config, true)
 			.required(required), 
-			false); // false = config and parent will be propagated to nested elements
+			false); // false = parent will be propagated to nested elements
 	}
 	
 	@Override
@@ -333,12 +330,15 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	
 	@Override
 	public Config getConfig() {
-		return config;
-	}
-	
-	@Override
-	public boolean isUserDefinedConfig() {
-		return userDefinedConfig;
+		Config cfg = this.config;
+		if (cfg == null && this.parent != null) {
+			cfg = this.parent.getConfig();
+		}
+		if (cfg == null) {
+			// fallback to default config
+			cfg = Forms.defaultConfig(this.dataClass);
+		}
+		return cfg;
 	}
 	
 	@Override
@@ -357,8 +357,8 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
-	public BasicFormMapping<T> withParent(FormMapping<?> parent, Config config, boolean required) {
-		return new BasicFormMapping<T>(this, parent, config, required);
+	public BasicFormMapping<T> withParent(FormMapping<?> parent, boolean required) {
+		return new BasicFormMapping<T>(this, parent, required);
 	}
 	
 	@Override
@@ -467,7 +467,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		builder.validationResult = editedObj.getValidationResult();
 		builder.filledObject = editedObj.getData();
 		builder.config = this.config;
-		builder.userDefinedConfig = this.userDefinedConfig;
 		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
 		builder.order = this.order;
 		return builder;

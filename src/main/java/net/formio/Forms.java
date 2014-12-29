@@ -244,6 +244,17 @@ public final class Forms {
 	}
 	
 	/**
+	 * Creates default configuration for form processing.
+	 * @param dataClass
+	 * @return
+	 */
+	public static Config defaultConfig(Class<?> dataClass) {
+		return Forms.config()
+			.messageBundleName(dataClass.getName().replace(".", "/"))
+			.build();
+	}
+	
+	/**
 	 * Creates specification of form field.
 	 * @param propertyName
 	 * @param type

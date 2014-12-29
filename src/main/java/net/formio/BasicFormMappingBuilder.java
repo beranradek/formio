@@ -61,7 +61,6 @@ public class BasicFormMappingBuilder<T> {
 	List<FormMapping<T>> listOfMappings = new ArrayList<FormMapping<T>>();
 	Config config;
 	ValidationResult validationResult;
-	boolean userDefinedConfig;
 	MappingType mappingType;
 	T filledObject;
 	boolean automatic;
@@ -100,7 +99,6 @@ public class BasicFormMappingBuilder<T> {
 			(src instanceof BasicListFormMapping) ? MappingType.LIST : MappingType.SINGLE);
 		this.parent = src.parent;
 		this.config = src.config;
-		this.userDefinedConfig = src.userDefinedConfig;
 		this.filledObject = src.filledObject;
 		this.fields = fields;
 		this.nested = Collections.unmodifiableMap(nested);
@@ -156,9 +154,8 @@ public class BasicFormMappingBuilder<T> {
 	}
 	
 	/** Only for internal usage. */
-	BasicFormMappingBuilder<T> config(Config config, boolean userDefinedConfig) {
+	BasicFormMappingBuilder<T> config(Config config) {
 		this.config = config;
-		this.userDefinedConfig = userDefinedConfig;
 		return this;
 	}
 	
@@ -294,17 +291,8 @@ public class BasicFormMappingBuilder<T> {
 	}
 
 	public FormMapping<T> build() {
-		Config cfg = this.config;
-		boolean userDefined = this.userDefinedConfig;
-		if (cfg == null) {
-			// default config
-			cfg = Forms.config()
-				.messageBundleName(dataClass.getName().replace(".", "/"))
-				.build();
-			userDefined = false;
-		}
 		boolean plainCopy = false;
-		return buildInternal(cfg, userDefined, plainCopy);
+		return buildInternal(this.config, plainCopy);
 	}
 	
 	/**
@@ -314,7 +302,7 @@ public class BasicFormMappingBuilder<T> {
 	 */
 	public BasicFormMapping<T> build(Config config) {
 		boolean plainCopy = false;
-		return buildInternal(config, true, plainCopy);
+		return buildInternal(config, plainCopy);
 	}
 	
 	<U> BasicFormMappingBuilder<T> nestedInternal(FormMapping<U> nestedMapping) {
@@ -365,18 +353,19 @@ public class BasicFormMappingBuilder<T> {
 	/**
 	 * Builds form mapping.
 	 * @param config
-	 * @param userDefinedConfig
 	 * @param simpleCopy true if simple copy of builder's data should be constructed, otherwise propagation
-	 * of configuration into fields and nested mappings is processed
+	 * of parent mapping into fields and nested mappings is processed
 	 * @return
 	 */
-	BasicFormMapping<T> buildInternal(Config config, boolean userDefinedConfig, boolean simpleCopy) {
-		if (config == null) throw new IllegalArgumentException("config cannot be null");
-		this.userDefinedConfig = userDefinedConfig;
+	BasicFormMapping<T> buildInternal(Config config, boolean simpleCopy) {
 		this.config = config;
 		
 		if (this.automatic) {
-			buildFieldsAndNestedMappingsAutomatically(config);
+			Config c = config;
+			if (c == null) {
+				c = Forms.defaultConfig(this.dataClass);
+			}
+			buildFieldsAndNestedMappingsAutomatically(c);
 		}
 		
 		BasicFormMapping<T> mapping = null;

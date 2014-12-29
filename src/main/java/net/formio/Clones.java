@@ -105,8 +105,7 @@ final class Clones {
 	}
 	
 	/**
-	 * Returns copy of nested mappings with propagated user defined config or default (outer) config if they have 
-	 * not their own user defined configs.
+	 * Returns copies of nested mappings that are attached to parent.
 	 * @param nestedMappings
 	 * @param outerClass
 	 * @param outerConfig
@@ -118,9 +117,8 @@ final class Clones {
 			final String propertyName = e.getKey();
 			final FormMapping<?> nestedMapping = e.getValue();
 			final boolean requiredProp = outerConfig.getBeanValidator().isRequired(outerClass, propertyName);
-			final Config cfg = chooseConfigForNestedMapping(nestedMapping, outerConfig);
-			// put copy of nested form mapping with new (propagated) config 
-			newNestedMappings.put(propertyName, nestedMapping.withParent(parent, cfg, requiredProp));
+			// put copy of nested form mapping that is newly attached to the parent mapping
+			newNestedMappings.put(propertyName, nestedMapping.withParent(parent, requiredProp));
 		}
 		return Collections.unmodifiableMap(newNestedMappings);
 	}
@@ -128,12 +126,13 @@ final class Clones {
 	/**
 	 * Returns copy of form fields that are updated with static information from configuration
 	 * (like required flags). 
+	 * @param parent
 	 * @param srcFields
 	 * @param cfg
+	 * @param dataClass
 	 * @return
 	 */
 	static <T> Map<String, FormField<?>> fieldsWithParent(FormMapping<?> parent, Map<String, FormField<?>> srcFields, Config cfg, Class<T> dataClass) {
-		if (cfg == null) throw new IllegalArgumentException("cfg cannot be null");
 		if (dataClass == null) throw new IllegalStateException("data class cannot be null");
 		
 		Map<String, FormField<?>> fields = new LinkedHashMap<String, FormField<?>>();
@@ -152,15 +151,6 @@ final class Clones {
 			required = Boolean.TRUE;
 		} // else not specified, required remains null
 		return new FormFieldImpl<U>(field, parent, required);
-	}
-	
-	private static Config chooseConfigForNestedMapping(FormMapping<?> mapping, Config outerConfig) {
-		Config cfg = mapping.getConfig();
-		if (!mapping.isUserDefinedConfig() && outerConfig != null) {
-			// config for nested mapping was not explicitly defined, we will pass outer config to nested mapping
-			cfg = outerConfig;
-		}
-		return cfg;
 	}
 	
 	private static <U> FormField<U> createFormField(int index, String pathPrefix, FormField<U> fld) {

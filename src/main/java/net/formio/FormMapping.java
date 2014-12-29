@@ -206,12 +206,6 @@ public interface FormMapping<T> extends FormElement {
 	Config getConfig();
 	
 	/**
-	 * Returns true if this mapping has non-default user defined configuration.
-	 * @return
-	 */
-	boolean isUserDefinedConfig();
-	
-	/**
 	 * Returns copy of this mapping with new path that has given prefix prepended.
 	 * Given prefix is applied to all nested mappings recursively.
 	 * @param pathPrefix
@@ -230,14 +224,13 @@ public interface FormMapping<T> extends FormElement {
 	FormMapping<T> withIndexAfterPathPrefix(int index, String prefix);
 	
 	/**
-	 * Returns copy of this mapping that uses given configuration
-	 * and required flag.
+	 * Returns copy of this mapping that is attached to given parent and uses given required flag.
 	 * @param parent
 	 * @param config
 	 * @param required
 	 * @return
 	 */
-	FormMapping<T> withParent(FormMapping<?> parent, Config config, boolean required);
+	FormMapping<T> withParent(FormMapping<?> parent, boolean required);
 	
 	/**
 	 * Returns string representation of this mapping.

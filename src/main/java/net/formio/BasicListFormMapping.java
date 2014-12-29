@@ -54,7 +54,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	 * Construct the mapping from given builder.
 	 * @param builder
 	 * @param simpleCopy true if simple copy of builder's data should be constructed, otherwise propagation
-	 * of configuration into fields and nested mappings is processed
+	 * of parent mapping into fields and nested mappings is processed
 	 */
 	BasicListFormMapping(BasicFormMappingBuilder<T> builder, boolean simpleCopy) {
 		super(builder, simpleCopy);
@@ -88,11 +88,10 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	 * Returns copy with given parent and config.
 	 * @param src
 	 * @param parent
-	 * @param config
 	 * @param required
 	 */
-	BasicListFormMapping(BasicListFormMapping<T> src, FormMapping<?> parent, Config config, boolean required) {
-		super(src, parent, config, required);
+	BasicListFormMapping(BasicListFormMapping<T> src, FormMapping<?> parent, boolean required) {
+		super(src, parent, required);
 		this.listOfMappings = newListOfMappings(src.listOfMappings);
 	}
 	
@@ -160,7 +159,6 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.validationResult = res;
 			builder.mappingType = MappingType.SINGLE;
 			// no filledObject - already loading data from request in the following code 
-			builder.userDefinedConfig = this.userDefinedConfig;
 			builder.order = index;
 			listMappings.add(builder.build(this.getConfig()));
 		}
@@ -242,8 +240,6 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.filledObject = formDataAtIndex.getData();
 			builder.mappingType = MappingType.SINGLE;
 			builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
-			
-			builder.userDefinedConfig = this.userDefinedConfig;
 			builder.order = index;
 			newMappings.add(builder.build(this.getConfig()));
 			index++;
@@ -264,7 +260,6 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		builder.filledObject = editedObj.getData();
 		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
 		builder.config = this.config;
-		builder.userDefinedConfig = this.userDefinedConfig;
 		builder.order = this.order;
 		return builder;
 	}
@@ -289,8 +284,8 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public BasicListFormMapping<T> withParent(FormMapping<?> parent, Config config, boolean required) {
-		return new BasicListFormMapping<T>(this, parent, config, required);
+	public BasicListFormMapping<T> withParent(FormMapping<?> parent, boolean required) {
+		return new BasicListFormMapping<T>(this, parent, required);
 	}
 	
 	Map<String, FormMapping<?>> indexAndFillNestedMappings(int index, FormData<T> editedObj, Locale locale, RequestContext ctx) {
