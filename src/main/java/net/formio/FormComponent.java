@@ -35,6 +35,7 @@ public enum FormComponent {
 	LINK("link"),
 	DATE_PICKER("date"),
 	FILE_UPLOAD("file");
+	// TODO: Multiple date and file?
 	
 	private final String type;
 	
@@ -44,6 +45,10 @@ public enum FormComponent {
 
 	public String getType() {
 		return type;
+	}
+	
+	public boolean isChoice() {
+		return this == MULTIPLE_CHECK_BOX || this == RADIO_CHOICE || this == DROP_DOWN_CHOICE || this == MULTIPLE_CHOICE;
 	}
 	
 	public static FormComponent findByType(String typeName) {

@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
+import net.formio.choice.DefaultChoiceRenderer;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
 import net.formio.internal.FormUtils;
@@ -76,7 +77,7 @@ public class FieldProps<T> implements Serializable {
 			strValue = valueAsString(values.get(0), field.getPattern(), field.getFormatter(), locale, formatters);
 		}
 		// "this" cannot be used before this initialization of fields:
-		initFromField(field).value(strValue);
+		initFromField(field).value(strValue).filledObjects(values);
 	}
 		
 	public FieldProps<T> type(String type) {
@@ -150,6 +151,15 @@ public class FieldProps<T> implements Serializable {
 	// only for internal usage
 	FieldProps<T> value(String value) {
 		this.strValue = value;
+		return this;
+	}
+	
+	// only for internal usage
+	FieldProps<T> filledObjects(List<T> filledObjects) {
+		if (filledObjects == null) {
+			filledObjects = new ArrayList<T>();
+		}
+		this.filledObjects = filledObjects;
 		return this;
 	}
 	
@@ -261,6 +271,12 @@ public class FieldProps<T> implements Serializable {
 	 * @return
 	 */
 	FormField<T> build(String parentPath, int order) {
+		if (this.choiceRenderer == null && this.type != null && !this.type.isEmpty()) {
+			FormComponent formComponent = FormComponent.findByType(this.type);
+			if (formComponent != null && formComponent.isChoice()) {
+				this.choiceRenderer = new DefaultChoiceRenderer<T>();
+			}
+		}
 		return new FormFieldImpl<T>(this, parentPath, order);
 	}
 	

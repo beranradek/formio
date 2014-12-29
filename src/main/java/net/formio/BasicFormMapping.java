@@ -29,6 +29,7 @@ import net.formio.binding.FilledData;
 import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
 import net.formio.binding.ParseError;
+import net.formio.choice.ChoiceProvider;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.data.RequestContext;
@@ -480,9 +481,8 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 * @return
 	 */
 	Map<String, Object> gatherPropertyValues(T object, Set<String> allowedProperties, RequestContext ctx) {
-		Map<String, Object> propValues = new LinkedHashMap<String, Object>();
 		Map<String, Object> beanValues = this.getConfig().getBeanExtractor().extractBean(object, allowedProperties);
-		propValues.putAll(beanValues);
+		Map<String, Object> propValues = new LinkedHashMap<String, Object>(beanValues);
 		if (isRootMapping() && secured) {
 			propValues.put(Forms.AUTH_TOKEN_FIELD_NAME, 
 				AuthTokens.generateAuthToken(ctx, this.config.getTokenAuthorizer(), getRootMappingPath()));
@@ -606,11 +606,20 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	private <U> FormField<U> createFilledFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
+		ChoiceProvider<U> choiceProvider = field.getChoiceProvider();
+		if (choiceProvider == null && field.getType() != null && !field.getType().isEmpty()) {
+			FormComponent formComponent = FormComponent.findByType(field.getType());
+			if (formComponent != null && formComponent.isChoice()) {
+				// TODO: choice provider can be initialized here to some default but class of value must be
+				// propagated here
+				int i = 0;
+			}
+		}
 		return new FieldProps<U>(field, 
 			FormUtils.<U>convertObjectToList(value), 
 			locale, 
 			this.getConfig().getFormatters(),
-			preferedStringValue).name(fieldName).build();
+			preferedStringValue).name(fieldName).choiceProvider(choiceProvider).build();
 	}
 	
 	private Locale getDefaultLocale() {
