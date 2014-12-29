@@ -54,7 +54,7 @@ class BasicFormRenderer implements FormRenderer {
 			sb.append("<div class=\"alert alert-danger\">" + newLine());
 			sb.append("<div>Form contains validation errors.</div>" + newLine());
 			for (ConstraintViolationMessage msg : validationResult.getGlobalMessages()) {
-				sb.append(renderMessage(msg));	
+				sb.append(renderMessage(ctx, msg));	
 			}
 			sb.append("</div>" + newLine());
 		}
@@ -65,7 +65,8 @@ class BasicFormRenderer implements FormRenderer {
 	public <T> String renderMapping(RenderContext<?> ctx, FormMapping<T> mapping, ParentMappings parentMappings) {
 		StringBuilder sb = new StringBuilder();
 		if (mapping.isVisible()) {
-			sb.append("<div id=\"" + renderElementBoxId(mapping) + "\">" + newLine());
+			sb.append(newLine());
+			sb.append("<div id=\"" + renderElementBoxId(ctx, mapping) + "\">" + newLine());
 			ParentMappings nestedParents = new ParentMappings(parentMappings.getRootMapping(), mapping);
 			for (FormElement el : mapping.getElements()) {
 				if (el instanceof FormField) {
@@ -80,7 +81,7 @@ class BasicFormRenderer implements FormRenderer {
 			}
 			sb.append("</div>" + newLine());
 		} else {
-			sb.append(renderHiddenDivElement(mapping));
+			sb.append(renderHiddenDivElement(ctx, mapping));
 		}
 		return sb.toString();
 	}
@@ -90,82 +91,117 @@ class BasicFormRenderer implements FormRenderer {
 		StringBuilder sb = new StringBuilder();
 		String type = getFieldType(field);
 		if (type.equals(FormComponent.HIDDEN_FIELD.getType())) {
-			sb.append(renderHiddenField(field));
+			sb.append(renderHiddenField(ctx, field));
 		} else if (field.isVisible()) {
-			if (type.equals(FormComponent.TEXT_FIELD.getType())) {
-				sb.append(renderTextField(field, fieldMessages, parentMappings, ctx.getLocale()));
-			} else if (type.equals(FormComponent.TEXT_AREA.getType())) {
-				sb.append(renderTextArea(field, fieldMessages, parentMappings, ctx.getLocale()));
-			} else if (type.equals(FormComponent.PASSWORD.getType())) {
-				sb.append(renderPassword(field, fieldMessages, parentMappings, ctx.getLocale()));
+			FormComponent formComponent = FormComponent.findByType(type);
+			if (formComponent != null) {
+				switch (formComponent) {
+					case TEXT_FIELD:
+						sb.append(renderTextField(ctx, field, fieldMessages, parentMappings));
+						break;
+					case TEXT_AREA:
+						sb.append(renderTextArea(ctx, field, fieldMessages, parentMappings));
+						break;
+					case PASSWORD:
+						sb.append(renderPassword(ctx, field, fieldMessages, parentMappings));
+						break;
+					case BUTTON:
+						throw new UnsupportedOperationException("Not implemented yet");
+						// break;
+					case CHECK_BOX:
+						sb.append(renderCheckBox(ctx, field, fieldMessages, parentMappings));
+						break;
+					case DATE_PICKER:
+						// throw new UnsupportedOperationException("Not implemented yet");
+						break;
+					case DROP_DOWN_CHOICE:
+						break;
+					case FILE_UPLOAD:
+						sb.append(renderFileUpload(ctx, field, fieldMessages, parentMappings));
+						break;
+					case LABEL:
+						break;
+					case LINK:
+						break;
+					case MULTIPLE_CHECK_BOX:
+						break;
+					case MULTIPLE_CHOICE:
+						break;
+					case RADIO_CHOICE:
+						break;
+					default:
+						throw new UnsupportedOperationException("Cannot render component with type " + type);
+				}
+			} else {
+				throw new UnsupportedOperationException("Cannot render component with type " + type);
 			}
 		} else {
 			// Placeholder hidden div so the field can be made visible later and placed to this reserved position
-			sb.append(renderHiddenDivElement(field));
+			sb.append(renderHiddenDivElement(ctx, field));
 		}
 		return sb.toString();
 	}
 	
 	@Override
 	public String renderSubmit(RenderContext<?> ctx) {
-		return "<button type=\"submit\">Submit</button>" + newLine();
+		return "<button type=\"submit\" class=\"btn btn-default\">Submit</button>" + newLine();
 	}
 	
 	protected <T> String renderFormTag(RenderContext<T> ctx) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<form action=\"");
-		sb.append(renderUrl(ctx.getActionUrl()));
+		sb.append(renderUrl(ctx, ctx.getActionUrl()));
 		sb.append("\" method=\"");
 		sb.append(ctx.getMethod().name());
 		sb.append("\" class=\"form-horizontal\" role=\"form\">" + newLine());
 		return sb.toString();
 	}
 	
-	protected String renderUrl(String url) {
+	protected String renderUrl(RenderContext<?> ctx, String url) {
 		return url;
 	}
 
-	protected String renderFieldMessages(List<ConstraintViolationMessage> fieldMessages) {
+	protected String renderFieldMessages(RenderContext<?> ctx, List<ConstraintViolationMessage> fieldMessages) {
 		StringBuilder sb = new StringBuilder();
 		if (fieldMessages != null && !fieldMessages.isEmpty()) {
 			for (ConstraintViolationMessage msg : fieldMessages) {
-				sb.append(renderMessage(msg));
+				sb.append(renderMessage(ctx, msg));
 			}
 		}
 		return sb.toString();
 	}
 	
-	protected String renderMessage(ConstraintViolationMessage msg) {
+	protected String renderMessage(RenderContext<?> ctx, ConstraintViolationMessage msg) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"" + msg.getSeverity().getStyleClass() + "\">" + escapeHtml(msg.getText()) + "</div>" + newLine());
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldLabelBefore(FormField<T> field, ParentMappings parentMappings, Locale locale) {
+	protected <T> String renderFieldLabelBefore(RenderContext<?> ctx, FormField<T> field, ParentMappings parentMappings) {
 		StringBuilder sb = new StringBuilder();
 		String type = getFieldType(field);
 		if (checkInputTypes.contains(type)) {
 			sb.append("<label>" + newLine());
 		} else {
 			sb.append("<label class=\"control-label col-sm-2\" for=\"id-" + field.getName() + "\">");
-			sb.append(renderLabelText(field, parentMappings, locale));
+			sb.append(renderLabelText(ctx, field, parentMappings));
 			sb.append(":");
 			sb.append("</label>" + newLine());
 		}
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldLabelAfter(FormField<T> field, ParentMappings parentMappings, Locale locale) {
+	protected <T> String renderFieldLabelAfter(RenderContext<?> ctx, FormField<T> field, ParentMappings parentMappings) {
 		StringBuilder sb = new StringBuilder("");
 		String type = getFieldType(field);
 		if (checkInputTypes.contains(type)) {
-			sb.append(renderLabelText(field, parentMappings, locale));
+			sb.append(renderLabelText(ctx, field, parentMappings));
 			sb.append("</label>" + newLine());
 		}
 		return sb.toString();
 	}
 
-	protected String renderValue(String value) {
+	protected String renderValue(RenderContext<?> ctx, String value) {
 		if (value == null || value.isEmpty()) {
 			return "";
 		}
@@ -197,28 +233,49 @@ class BasicFormRenderer implements FormRenderer {
 		return System.getProperty("line.separator");
 	}
 	
-	protected String renderHiddenDivElement(FormElement element) {
-		return "<div id=\"" + renderElementBoxId(element) + "\" class=\"hidden\"></div>" + newLine();
+	protected String renderHiddenDivElement(RenderContext<?> ctx, FormElement element) {
+		return "<div id=\"" + renderElementBoxId(ctx, element) + "\" class=\"hidden\"></div>" + newLine();
 	}
 	
-	protected String renderElementBoxId(FormElement element) {
+	protected String renderElementBoxId(RenderContext<?> ctx, FormElement element) {
 		return "box-" + element.getName();
 	}
 	
 	<T> String renderHtmlPage(FormMapping<T> filledForm, FormMethod method, String actionUrl, Locale locale) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<html><head><title>Form rendering test</title></head><body>" + newLine());
+		sb.append("<!DOCTYPE html>" + newLine());
+		sb.append("<html lang=\"en\">" + newLine());
+		sb.append("<head>" + newLine());
+		sb.append("<meta charset=\"utf-8\">" + newLine());
+		sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">" + newLine());
+		sb.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" + newLine());
+		sb.append("<title>Form rendering test</title>" + newLine());
+		
+		// Bootstrap CSS and JavaScript 
+		sb.append("<!-- Latest compiled and minified CSS -->" + newLine());
+		sb.append("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">" + newLine());
+		sb.append("<!-- Optional theme -->" + newLine());
+		sb.append("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">" + newLine());
+		sb.append("</head>" + newLine());
+		sb.append("<body style=\"margin:1em\">" + newLine());
+
 		RenderContext<T> ctx = new RenderContext<T>();
 		ctx.setFilledForm(filledForm);
 		ctx.setMethod(method);
 		ctx.setActionUrl(actionUrl);
 		ctx.setLocale(locale);
 		sb.append(renderForm(ctx));
-		sb.append("</body></html>" + newLine());
+		
+		sb.append("<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->" + newLine());	    
+		sb.append("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js\"></script>" + newLine());
+		sb.append("<!-- Latest compiled and minified JavaScript -->" + newLine());
+		sb.append("<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>" + newLine());
+		sb.append("</body>" + newLine());
+		sb.append("</html>" + newLine());
 		return sb.toString();
 	}
 	
-	protected String renderAccessibilityAttributes(FormElement element) {
+	protected String renderAccessibilityAttributes(RenderContext<?> ctx, FormElement element) {
 		StringBuilder sb = new StringBuilder();
 		if (!element.isEnabled()) {
 			sb.append(" disabled=\"disabled\"");
@@ -229,36 +286,41 @@ class BasicFormRenderer implements FormRenderer {
 		return sb.toString();
 	}
 	
-	protected String renderTextarea(FormField<?> field) {
+	protected String renderTextarea(RenderContext<?> ctx, FormField<?> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<textarea class=\"input-sm form-control\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
-		sb.append(renderAccessibilityAttributes(field) + ">");
-		sb.append(renderValue(field.getValue()));
+		sb.append(renderAccessibilityAttributes(ctx, field) + ">");
+		sb.append(renderValue(ctx, field.getValue()));
 		sb.append("</textarea>" + newLine());
 		return sb.toString();
 	}	
 	
-	protected String renderInput(FormField<?> field, String type) {
+	protected String renderInput(RenderContext<?> ctx, FormField<?> field, String type) {
 		if (type == null) throw new IllegalArgumentException("type cannot be null");
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input class=\"");
 		if (isInputClassIncluded(type)) {
 			sb.append("input-sm form-control");
 		}
+		sb.append("\"");
 		String value = "";
 		if (checkInputTypes.contains(type)) {
-			// TODO: itemId
-			String itemId = "1";
-			if (contains(field.getFilledObjects(), itemId)) {
-				sb.append("checked=\"checked\" ");
+			if (field.getValue() != null && !field.getValue().isEmpty()) { 
+				String lc = field.getValue().toLowerCase();
+				if (Boolean.valueOf(lc.equals("t") || lc.equals("y") || lc.equals("true") || lc.equals("1")).booleanValue()) {
+					sb.append(" checked=\"checked\" ");
+				}
 			}
-			value = renderValue(itemId);
+			value = renderValue(ctx, "1");
 		} else {
 			value = field.getValue();
 		}
-		sb.append("\" type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" value=\"" + value + "\" ");
+		sb.append(" type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" ");
+		if (!FormComponent.FILE_UPLOAD.getType().equals(type)) {
+			sb.append("value=\"" + value + "\" ");
+		}
 		if (!type.equals(FormComponent.HIDDEN_FIELD.getType())) {
-			sb.append(renderAccessibilityAttributes(field));
+			sb.append(renderAccessibilityAttributes(ctx, field));
 		}
 		sb.append("/>" + newLine());
 		return sb.toString();
@@ -268,9 +330,14 @@ class BasicFormRenderer implements FormRenderer {
 		return !type.equals(FormComponent.FILE_UPLOAD.getType()) && !type.equals(FormComponent.HIDDEN_FIELD.getType());
 	}
 	
-	protected String renderFieldBegin(boolean withoutLabel) {
+	protected String renderFieldBegin(RenderContext<?> ctx, FormField<?> field, boolean withoutLabel) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"");
+		String type = getFieldType(field);
+		if (checkInputTypes.contains(type)) {
+			sb.append("<span class=\"");
+		} else {
+			sb.append("<div class=\"");
+		}
 		if (withoutLabel) {
 			// offset instead of label
 			sb.append("col-sm-offset-2 ");
@@ -279,7 +346,11 @@ class BasicFormRenderer implements FormRenderer {
 		return sb.toString();
 	}
 	
-	protected String renderFieldEnd() {
+	protected String renderFieldEnd(RenderContext<?> ctx, FormField<?> field) {
+		String type = getFieldType(field);
+		if (checkInputTypes.contains(type)) {
+			return "</span>" + newLine();
+		}
 		return "</div>" + newLine();
 	}
 	
@@ -291,66 +362,84 @@ class BasicFormRenderer implements FormRenderer {
 		return type.toLowerCase();
 	}
 	
-	protected <T> String renderHiddenField(FormField<T> field) {
-		return renderInput(field, FormComponent.HIDDEN_FIELD.getType());
+	protected <T> String renderHiddenField(RenderContext<?> ctx, FormField<T> field) {
+		return renderInput(ctx, field, FormComponent.HIDDEN_FIELD.getType()) + newLine();
 	}
 	
-	protected <T> String renderTextField(FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings, Locale locale) {
-		return renderBeforeField(field, fieldMessages, parentMappings, locale) +
-			renderFieldBegin(false) +  // withoutLabel = false
-			renderFieldInput(field) + 
-			renderFieldMessages(fieldMessages) + 
-			renderFieldEnd() +
-			renderAfterField(field, parentMappings, locale);
+	protected <T> String renderTextField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
+		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
+			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
+			renderFieldInput(ctx, field) + 
+			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldEnd(ctx, field) +
+			renderAfterField(ctx, field, parentMappings);
 	}
 	
-	protected <T> String renderTextArea(FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings, Locale locale) {
-		return renderBeforeField(field, fieldMessages, parentMappings, locale) +
-			renderFieldBegin(false) +  // withoutLabel = false
-			renderFieldInput(field) + 
-			renderFieldMessages(fieldMessages) + 
-			renderFieldEnd() +
-			renderAfterField(field, parentMappings, locale);
+	protected <T> String renderTextArea(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
+		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
+			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
+			renderTextarea(ctx, field) +
+			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldEnd(ctx, field) +
+			renderAfterField(ctx, field, parentMappings);
 	}
 	
-	protected <T> String renderPassword(FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings, Locale locale) {
-		return renderBeforeField(field, fieldMessages, parentMappings, locale) +
-			renderFieldBegin(false) +  // withoutLabel = false
-			renderFieldInput(field) + 
-			renderFieldMessages(fieldMessages) + 
-			renderFieldEnd() +
-			renderAfterField(field, parentMappings, locale);
+	protected <T> String renderCheckBox(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
+		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
+			renderFieldBegin(ctx, field, true) +  // withoutLabel = true
+			renderFieldInput(ctx, field) + 
+			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldEnd(ctx, field) +
+			renderAfterField(ctx, field, parentMappings);
+	}
+	
+	protected <T> String renderPassword(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
+		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
+			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
+			renderFieldInput(ctx, field) + 
+			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldEnd(ctx, field) +
+			renderAfterField(ctx, field, parentMappings);
+	}
+	
+	protected <T> String renderFileUpload(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
+		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
+			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
+			renderFieldInput(ctx, field) + 
+			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldEnd(ctx, field) +
+			renderAfterField(ctx, field, parentMappings);
 	}
 
-	protected <T> String renderBeforeField(FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings, Locale locale) {
+	protected <T> String renderBeforeField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
 		StringBuilder sb = new StringBuilder();
 		// Form group begin
-		sb.append(renderFormGroupBegin(field, getMaxSeverityClass(fieldMessages)));
+		sb.append(renderFormGroupBegin(ctx, field, getMaxSeverityClass(fieldMessages)));
 
 		// Label
 		boolean withoutLabel = false;
 		if (!withoutLabel) {
-			sb.append(renderFieldLabelBefore(field, parentMappings, locale));
+			sb.append(renderFieldLabelBefore(ctx, field, parentMappings));
 		}
 		return sb.toString();
 	}
 	
-	protected <T> String renderAfterField(FormField<T> field, ParentMappings parentMappings, Locale locale) {
+	protected <T> String renderAfterField(RenderContext<?> ctx, FormField<T> field, ParentMappings parentMappings) {
 		StringBuilder sb = new StringBuilder();
 		boolean withoutLabel = false;
 		if (!withoutLabel) {
-			sb.append(renderFieldLabelAfter(field, parentMappings, locale));
+			sb.append(renderFieldLabelAfter(ctx, field, parentMappings));
 		}
-		sb.append(renderFormGroupEnd()); // form-group
+		sb.append(renderFormGroupEnd(ctx)); // form-group
 		return sb.toString();
 	}
 	
-	protected String renderFormGroupBegin(FormField<?> field, String maxSeverityClass) {
-		return "<div class=\"form-group " + maxSeverityClass + "\" id=\"" + renderElementBoxId(field) + "\">" + newLine();
+	protected String renderFormGroupBegin(RenderContext<?> ctx, FormField<?> field, String maxSeverityClass) {
+		return "<div class=\"form-group " + maxSeverityClass + "\" id=\"" + renderElementBoxId(ctx, field) + "\">" + newLine();
 	}
 	
-	protected String renderFormGroupEnd() {
-		return "</div>" + newLine();
+	protected String renderFormGroupEnd(RenderContext<?> ctx) {
+		return "</div>" + newLine() + newLine();
 	}
 	
 	private String getMaxSeverityClass(List<ConstraintViolationMessage> fieldMessages) {
@@ -359,47 +448,32 @@ class BasicFormRenderer implements FormRenderer {
 		return maxSeverityClass;
 	}
 	
-	private <T> String renderFieldInput(FormField<T> field) {
+	private <T> String renderFieldInput(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		String type = getFieldType(field);
-		if (type.equals(FormComponent.TEXT_AREA.getType())) {
-			sb.append(renderTextarea(field));
-		} else if (inputTypes.contains(type) || checkInputTypes.contains(type)) {
-			sb.append(renderInput(field, type));
-		}
+		sb.append(renderInput(ctx, field, type));
 		return sb.toString();
 	}
 	
-	private String renderRequiredSign() {
+	private String renderRequiredSign(RenderContext<?> ctx) {
 		return "&nbsp;*";
 	}
 	
-	private MessageTranslator createMessageTranslator(ParentMappings parentMappings, Locale locale) {
+	private MessageTranslator createMessageTranslator(RenderContext<?> ctx, ParentMappings parentMappings) {
 		return new MessageTranslator(
-			parentMappings.getParentMapping().getDataClass(), locale, 
+			parentMappings.getParentMapping().getDataClass(), ctx.getLocale(), 
 			parentMappings.getRootMapping().getDataClass());
 	}
 	
-	private <T> String renderLabelText(FormField<T> field, ParentMappings parentMappings, Locale locale) {
+	private <T> String renderLabelText(RenderContext<?> ctx, FormField<T> field, ParentMappings parentMappings) {
 		StringBuilder sb = new StringBuilder();
-		MessageTranslator tr = createMessageTranslator(parentMappings, locale);
-		sb.append(escapeHtml(tr.getMessage(field.getLabelKey(), locale)));
+		MessageTranslator tr = createMessageTranslator(ctx, parentMappings);
+		sb.append(escapeHtml(tr.getMessage(field.getLabelKey(), ctx.getLocale())));
 		if (field.isRequired()) {
-			sb.append(renderRequiredSign());
+			sb.append(renderRequiredSign(ctx));
 		}
 		return sb.toString();
 	}
-	
-	private boolean contains(Collection<?> col, Object o) {
-		return col != null && col.contains(o);
-	}
-	
-	private static final List<String> inputTypes = Arrays.asList(new String[] { 
-		FormComponent.TEXT_FIELD.getType(), 
-		FormComponent.PASSWORD.getType(),
-		FormComponent.HIDDEN_FIELD.getType(), 
-		FormComponent.FILE_UPLOAD.getType()
-	});
 	
 	private static final List<String> checkInputTypes = Arrays.asList(new String[] {
 		FormComponent.CHECK_BOX.getType(),

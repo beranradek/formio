@@ -56,7 +56,7 @@ public class BasicFormRendererTest {
 		.field("password", FormComponent.PASSWORD.getType())
 		.field("country", FormComponent.DROP_DOWN_CHOICE.getType())
 		.field("birthDate", FormComponent.DATE_PICKER.getType())
-		.field("skills", FormComponent.MULTIPLE_CHECK_BOX.getType())	
+		.field("skills", FormComponent.MULTIPLE_CHECK_BOX.getType())
 		.field("functions", FormComponent.MULTIPLE_CHOICE.getType())
 		.field("certificate", FormComponent.FILE_UPLOAD.getType())
 		.field("note", FormComponent.TEXT_AREA.getType())
@@ -68,7 +68,7 @@ public class BasicFormRendererTest {
 		VariousInputs inputs = newVariousInputs();
 		FormData<VariousInputs> formData = new FormData<VariousInputs>(inputs, ValidationResult.empty);
 		FormMapping<VariousInputs> filledForm = profileForm.fill(formData);
-		String html = new BasicFormRenderer().renderHtmlPage(filledForm, FormMethod.POST, "/save", Locale.ENGLISH);
+		String html = new BasicFormRenderer().renderHtmlPage(filledForm, FormMethod.POST, "#", Locale.ENGLISH);
 		File f = null;
 		try {
 			f = File.createTempFile("test_inputs_", ".html", TestUtils.getTempDir());

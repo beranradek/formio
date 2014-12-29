@@ -45,4 +45,13 @@ public enum FormComponent {
 	public String getType() {
 		return type;
 	}
+	
+	public static FormComponent findByType(String typeName) {
+		for (FormComponent fc : FormComponent.values()) {
+			if (fc.getType().equals(typeName)) {
+				return fc;
+			}
+		}
+		return null;
+	}
 }
