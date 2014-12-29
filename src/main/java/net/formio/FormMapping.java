@@ -232,11 +232,12 @@ public interface FormMapping<T> extends FormElement {
 	/**
 	 * Returns copy of this mapping that uses given configuration
 	 * and required flag.
+	 * @param parent
 	 * @param config
 	 * @param required
 	 * @return
 	 */
-	FormMapping<T> withConfig(Config config, boolean required);
+	FormMapping<T> withParent(FormMapping<?> parent, Config config, boolean required);
 	
 	/**
 	 * Returns string representation of this mapping.

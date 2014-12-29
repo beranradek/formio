@@ -36,6 +36,7 @@ import net.formio.props.FieldProperty;
  */
 public class FieldProps<T> implements Serializable {
 	private static final long serialVersionUID = 2328756250255932689L;
+	private FormMapping<?> parent;
 	private String propertyName;
 	private String name;
 	private String type;
@@ -129,6 +130,12 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	// only for internal usage
+	FieldProps<T> parent(FormMapping<?> parent) {
+		this.parent = parent;
+		return this;
+	}
+	
+	// only for internal usage
 	FieldProps<T> name(String name) {
 		this.name = name;
 		return this;
@@ -150,6 +157,10 @@ public class FieldProps<T> implements Serializable {
 	<U> FieldProps<T> properties(FormProperties properties) {
 		this.formProperties = properties;
 		return this;
+	}
+	
+	public FormMapping<?> getParent() {
+		return this.parent;
 	}
 
 	/**
@@ -278,6 +289,7 @@ public class FieldProps<T> implements Serializable {
 	
 	private FieldProps<T> initFromField(FormField<T> field) {
 		this.propertyName = null;
+		this.parent = field.getParent();
 		this.name = field.getName();
 		this.type = field.getType();
 		this.pattern = field.getPattern();

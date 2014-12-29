@@ -23,6 +23,12 @@ package net.formio;
 public interface FormElement extends FormProperties {
 	
 	/**
+	 * Parent of this form element.
+	 * @return
+	 */
+	FormMapping<?> getParent();
+	
+	/**
 	 * Name of this form element (full path from outer object to potentially nested property).
 	 * It represents an identifier of this element in the form.
 	 * @return

@@ -33,6 +33,7 @@ import net.formio.props.FieldProperty;
 public class FormFieldImpl<T> implements FormField<T> {
 	// public because of introspection required by some template frameworks, constructors are not public
 	
+	private final FormMapping<?> parent;
 	private final String name;
 	private final String type;
 	/** Data filled in form field - for e.g. items from a codebook. */
@@ -50,19 +51,20 @@ public class FormFieldImpl<T> implements FormField<T> {
 	 * @param src
 	 * @param required null if required flag is not specified
 	 */
-	FormFieldImpl(FormField<T> src, Boolean required) {
-		this(src, src.getName(), (String)null, src.getOrder(), required);
+	FormFieldImpl(FormField<T> src, FormMapping<?> parent, Boolean required) {
+		this(src, parent, src.getName(), (String)null, src.getOrder(), required);
 	}
 
 	/**
 	 * Returns copy of this field with new name that contains index after given name prefix.
 	 * @param src
+	 * @param parent
 	 * @param index
 	 * @param namePrefixWithoutIndex
 	 * @return
 	 */
-	FormFieldImpl(FormField<T> src, int index, String namePrefixWithoutIndex) {
-		this(src, namePrefixWithoutIndex + "[" + index + "]" + src.getName().substring(namePrefixWithoutIndex.length()), 
+	FormFieldImpl(FormField<T> src, FormMapping<?> parent, int index, String namePrefixWithoutIndex) {
+		this(src, parent, namePrefixWithoutIndex + "[" + index + "]" + src.getName().substring(namePrefixWithoutIndex.length()), 
 			namePrefixWithoutIndex, src.getOrder(), (Boolean)null);
 	}
 	
@@ -70,15 +72,17 @@ public class FormFieldImpl<T> implements FormField<T> {
 	 * Returns copy of given field with new name that has given prefix 
 	 * prepended to the previous name of source field.
 	 * @param src
+	 * @param parent
 	 * @param namePrefixToPrepend
 	 * @param order
 	 * @return
 	 */
-	FormFieldImpl(FormField<T> src, String namePrefixToPrepend, int order) {
-		this(src, namePrefixToPrepend + Forms.PATH_SEP + src.getName(), namePrefixToPrepend, order, (Boolean)null);
+	FormFieldImpl(FormField<T> src, FormMapping<?> parent, String namePrefixToPrepend, int order) {
+		this(src, parent, namePrefixToPrepend + Forms.PATH_SEP + src.getName(), namePrefixToPrepend, order, (Boolean)null);
 	}
 	
 	FormFieldImpl(FieldProps<T> fieldProps, String parentPath, int order) {
+		this.parent = fieldProps.getParent();
 		fieldProps.checkConsistentNames();
 		String name = null;
 		if (parentPath != null && !parentPath.isEmpty() && fieldProps.getPropertyName() != null && !fieldProps.getPropertyName().isEmpty()) {
@@ -108,14 +112,16 @@ public class FormFieldImpl<T> implements FormField<T> {
 	/**
 	 * Returns copy of given field with given name.
 	 * @param src copied form field
+	 * @param parent
 	 * @param name full name of form field
 	 * @param namePrefix if not null, name must start with this prefix
 	 * @param order
 	 * @param required null if required flag is not specified
 	 * @return
 	 */
-	private FormFieldImpl(FormField<T> src, String name, String namePrefix, int order, Boolean required) {
+	private FormFieldImpl(FormField<T> src, FormMapping<?> parent, String name, String namePrefix, int order, Boolean required) {
 		this(new FieldProps<T>(src)
+			.parent(parent)
 			.name(validateName(name, namePrefix))
 			.order(order)
 			.properties(
@@ -130,6 +136,11 @@ public class FormFieldImpl<T> implements FormField<T> {
 	
 	private FormFieldImpl(FieldProps<T> fieldProps) {
 		this(fieldProps, null, fieldProps.getOrder());
+	}
+	
+	@Override
+	public FormMapping<?> getParent() {
+		return this.parent;
 	}
 
 	/**

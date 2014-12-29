@@ -45,6 +45,8 @@ import net.formio.validation.ValidationResult;
  */
 public class BasicFormMappingBuilder<T> {
 
+	FormMapping<?> parent;
+	
 	/** 
 	 * Name prefixing all names of the fields in this mapping; 
 	 * it contains complete path to this nested mapping, if this is a nested mapping.
@@ -96,6 +98,7 @@ public class BasicFormMappingBuilder<T> {
 		// src already contains composed/created fields -> automatic = false for this case
 		this(src.dataClass, src.path, src.instantiator, false, 
 			(src instanceof BasicListFormMapping) ? MappingType.LIST : MappingType.SINGLE);
+		this.parent = src.parent;
 		this.config = src.config;
 		this.userDefinedConfig = src.userDefinedConfig;
 		this.filledObject = src.filledObject;
@@ -119,6 +122,12 @@ public class BasicFormMappingBuilder<T> {
 		if (secured) {
 			fieldForAuthToken();
 		}
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> parent(FormMapping<?> parent) {
+		this.parent = parent;
 		return this;
 	}
 	
@@ -186,7 +195,7 @@ public class BasicFormMappingBuilder<T> {
 				+ "of bound property (without full path). "
 				+ "Name of outer mapping is automatically prepended to it.");
 		}
-		fields.put(formField.getName(), new FormFieldImpl<U>(formField, this.path, this.nextNestedElementOrder++));
+		fields.put(formField.getName(), new FormFieldImpl<U>(formField, (FormMapping<?>)null, this.path, this.nextNestedElementOrder++));
 		return this;
 	}
 	

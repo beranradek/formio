@@ -51,6 +51,7 @@ import net.formio.validation.ValidationResult;
 public class BasicFormMapping<T> implements FormMapping<T> {
 	// public because of introspection required by some template frameworks, constructors are not public
 
+	final FormMapping<?> parent;
 	final String path;
 	final Class<T> dataClass;
 	final Instantiator<T> instantiator;
@@ -74,6 +75,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 * of configuration into fields and nested mappings is processed
 	 */
 	BasicFormMapping(BasicFormMappingBuilder<T> builder, boolean simpleCopy) {
+		this.parent = builder.parent;
 		this.config = assertNotNullArg(builder.config, "config cannot be null");
 		this.userDefinedConfig = builder.userDefinedConfig;
 		this.path = builder.path;
@@ -81,15 +83,15 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		this.instantiator = builder.instantiator;
 		this.filledObject = builder.filledObject;
 		this.secured = builder.secured;
-		this.fields = simpleCopy ? builder.fields : Clones.configuredFormFields(builder.fields, builder.config, builder.dataClass);
-		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithPropagatedConfig(builder.nested, builder.dataClass, builder.config);
 		this.validationResult = builder.validationResult;
 		this.formProperties = new FormPropertiesImpl(builder.properties);
 		this.order = builder.order;
+		this.fields = simpleCopy ? builder.fields : Clones.fieldsWithParent(this, builder.fields, builder.config, builder.dataClass);
+		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithParent(this, builder.nested, builder.dataClass, builder.config);
 	}
 	
 	/**
-	 * Returns copy with given path prefix prepended.
+	 * Returns copy with given path prefix prepended (called when appending this nested mapping to outer builder).
 	 * @param src
 	 * @param pathPrefix
 	 * @param order
@@ -103,6 +105,12 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			true); // true = simple copy of builder's data
 	}
 	
+	/**
+	 * Returns form mapping that includes given index (called when filling).
+	 * @param src
+	 * @param index
+	 * @param pathPrefix
+	 */
 	BasicFormMapping(BasicFormMapping<T> src, int index, String pathPrefix) {
 		this(new BasicFormMappingBuilder<T>(src, 
 			Clones.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix), 
@@ -117,13 +125,19 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 * @param config
 	 * @param required
 	 */
-	BasicFormMapping(BasicFormMapping<T> src, Config config, boolean required) {
+	BasicFormMapping(BasicFormMapping<T> src, FormMapping<?> parent, Config config, boolean required) {
 		this(new BasicFormMappingBuilder<T>(src, 
-			Clones.configuredFormFields(src.fields, config, src.dataClass), 
-			Clones.mappingsWithPropagatedConfig(src.nested, src.dataClass, config))
+			src.fields, 
+			src.nested)
+			.parent(parent)
 			.config(config, true)
 			.required(required), 
-			true); // true = simple copy of builder's data
+			false); // false = config and parent will be propagated to nested elements
+	}
+	
+	@Override
+	public FormMapping<?> getParent() {
+		return this.parent;
 	}
 
 	@Override
@@ -343,8 +357,8 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
-	public BasicFormMapping<T> withConfig(Config config, boolean required) {
-		return new BasicFormMapping<T>(this, config, required);
+	public BasicFormMapping<T> withParent(FormMapping<?> parent, Config config, boolean required) {
+		return new BasicFormMapping<T>(this, parent, config, required);
 	}
 	
 	@Override
@@ -448,6 +462,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		} else {
 			builder = Forms.basic(getDataClass(), this.path, this.instantiator).fields(filledFields);
 		}
+		builder.parent = this.parent;
 		builder.nested = Collections.unmodifiableMap(newNestedMappings);
 		builder.validationResult = editedObj.getValidationResult();
 		builder.filledObject = editedObj.getData();

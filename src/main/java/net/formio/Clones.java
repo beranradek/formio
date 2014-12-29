@@ -112,7 +112,7 @@ final class Clones {
 	 * @param outerConfig
 	 * @return
 	 */
-	static <T> Map<String, FormMapping<?>> mappingsWithPropagatedConfig(Map<String, FormMapping<?>> nestedMappings, Class<T> outerClass, Config outerConfig) {
+	static <T> Map<String, FormMapping<?>> mappingsWithParent(FormMapping<?> parent, Map<String, FormMapping<?>> nestedMappings, Class<T> outerClass, Config outerConfig) {
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		for (Map.Entry<String, FormMapping<?>> e : nestedMappings.entrySet()) {
 			final String propertyName = e.getKey();
@@ -120,7 +120,7 @@ final class Clones {
 			final boolean requiredProp = outerConfig.getBeanValidator().isRequired(outerClass, propertyName);
 			final Config cfg = chooseConfigForNestedMapping(nestedMapping, outerConfig);
 			// put copy of nested form mapping with new (propagated) config 
-			newNestedMappings.put(propertyName, nestedMapping.withConfig(cfg, requiredProp));
+			newNestedMappings.put(propertyName, nestedMapping.withParent(parent, cfg, requiredProp));
 		}
 		return Collections.unmodifiableMap(newNestedMappings);
 	}
@@ -132,26 +132,26 @@ final class Clones {
 	 * @param cfg
 	 * @return
 	 */
-	static <T> Map<String, FormField<?>> configuredFormFields(Map<String, FormField<?>> srcFields, Config cfg, Class<T> dataClass) {
+	static <T> Map<String, FormField<?>> fieldsWithParent(FormMapping<?> parent, Map<String, FormField<?>> srcFields, Config cfg, Class<T> dataClass) {
 		if (cfg == null) throw new IllegalArgumentException("cfg cannot be null");
 		if (dataClass == null) throw new IllegalStateException("data class cannot be null");
 		
 		Map<String, FormField<?>> fields = new LinkedHashMap<String, FormField<?>>();
 		if (srcFields != null) {
 			for (Map.Entry<String, FormField<?>> e : srcFields.entrySet()) {
-				FormField<?> f = configuredFormField(cfg, e.getKey(), e.getValue(), dataClass);
+				FormField<?> f = fieldWithParent(parent, cfg, e.getKey(), e.getValue(), dataClass);
 				fields.put(e.getKey(), f);
 			}
 		}
 		return Collections.unmodifiableMap(fields);
 	}
 	
-	private static <T, U> FormField<U> configuredFormField(Config cfg, String propertyName, FormField<U> field, Class<T> dataClass) {
+	private static <T, U> FormField<U> fieldWithParent(FormMapping<?> parent, Config cfg, String propertyName, FormField<U> field, Class<T> dataClass) {
 		Boolean required = null; // not specified
 		if (cfg.getBeanValidator().isRequired(dataClass, propertyName)) {
 			required = Boolean.TRUE;
 		} // else not specified, required remains null
-		return new FormFieldImpl<U>(field, required);
+		return new FormFieldImpl<U>(field, parent, required);
 	}
 	
 	private static Config chooseConfigForNestedMapping(FormMapping<?> mapping, Config outerConfig) {
@@ -164,7 +164,7 @@ final class Clones {
 	}
 	
 	private static <U> FormField<U> createFormField(int index, String pathPrefix, FormField<U> fld) {
-		return new FormFieldImpl<U>(fld, index, pathPrefix);
+		return new FormFieldImpl<U>(fld, fld.getParent(), index, pathPrefix);
 	}
 	
 	private static <U> FormField<U> createFormField(String pathPrefix, FormField<U> fld) {
@@ -180,7 +180,7 @@ final class Clones {
 				throw new IllegalStateException("Field's name '" + fld.getName() + "' already starts with property name '" + lastName + "'");
 			}
 		}
-		return new FormFieldImpl<U>(fld, pathPrefix, fld.getOrder());
+		return new FormFieldImpl<U>(fld, fld.getParent(), pathPrefix, fld.getOrder());
 	}
 	
 	private Clones() {
