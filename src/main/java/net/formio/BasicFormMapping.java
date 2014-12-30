@@ -612,7 +612,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			if (formComponent != null && formComponent.isChoice()) {
 				// TODO: choice provider can be initialized here to some default but class of value must be
 				// propagated here
-				int i = 0;
 			}
 		}
 		return new FieldProps<U>(field, 

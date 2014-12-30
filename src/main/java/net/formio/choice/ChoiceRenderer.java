@@ -40,5 +40,5 @@ public interface ChoiceRenderer<T> {
 	 * @param itemIndex
 	 * @return
 	 */
-	Object getTitle(T item, int itemIndex);
+	String getTitle(T item, int itemIndex);
 }

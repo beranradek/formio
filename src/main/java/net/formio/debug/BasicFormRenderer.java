@@ -17,7 +17,6 @@
 package net.formio.debug;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,6 +24,7 @@ import net.formio.FormComponent;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
+import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.Severity;
@@ -115,6 +115,7 @@ class BasicFormRenderer implements FormRenderer {
 						// throw new UnsupportedOperationException("Not implemented yet");
 						break;
 					case DROP_DOWN_CHOICE:
+						sb.append(renderDropDownChoice(ctx, field, fieldMessages, parentMappings));
 						break;
 					case FILE_UPLOAD:
 						sb.append(renderFileUpload(ctx, field, fieldMessages, parentMappings));
@@ -124,6 +125,7 @@ class BasicFormRenderer implements FormRenderer {
 					case LINK:
 						break;
 					case MULTIPLE_CHECK_BOX:
+						sb.append(renderMultipleCheckbox(ctx, field, fieldMessages, parentMappings));
 						break;
 					case MULTIPLE_CHOICE:
 						break;
@@ -144,7 +146,13 @@ class BasicFormRenderer implements FormRenderer {
 	
 	@Override
 	public String renderSubmit(RenderContext<?> ctx) {
-		return "<button type=\"submit\" class=\"btn btn-default\">Submit</button>" + newLine();
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"form-group\">" + newLine());
+		sb.append("<div class=\"col-sm-offset-2 col-sm-10\">" + newLine());
+		sb.append("<button type=\"submit\" class=\"btn btn-default\">Submit</button>" + newLine());
+		sb.append("</div>" + newLine());
+		sb.append("</div>" + newLine());
+		return sb.toString();
 	}
 	
 	protected <T> String renderFormTag(RenderContext<T> ctx) {
@@ -183,6 +191,7 @@ class BasicFormRenderer implements FormRenderer {
 		if (checkInputTypes.contains(type)) {
 			sb.append("<label>" + newLine());
 		} else {
+			// TODO: Render required mark
 			sb.append("<label class=\"control-label col-sm-2\" for=\"id-" + field.getName() + "\">");
 			sb.append(renderLabelText(ctx, field, parentMappings));
 			sb.append(":");
@@ -298,11 +307,10 @@ class BasicFormRenderer implements FormRenderer {
 	protected String renderInput(RenderContext<?> ctx, FormField<?> field, String type) {
 		if (type == null) throw new IllegalArgumentException("type cannot be null");
 		StringBuilder sb = new StringBuilder();
-		sb.append("<input class=\"");
+		sb.append("<input");
 		if (isInputClassIncluded(type)) {
-			sb.append("input-sm form-control");
+			sb.append(" class=\"input-sm form-control\"");
 		}
-		sb.append("\"");
 		String value = "";
 		if (checkInputTypes.contains(type)) {
 			if (field.getValue() != null && !field.getValue().isEmpty()) { 
@@ -313,7 +321,7 @@ class BasicFormRenderer implements FormRenderer {
 			}
 			value = renderValue(ctx, "1");
 		} else {
-			value = field.getValue();
+			value = renderValue(ctx, field.getValue());
 		}
 		sb.append(" type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" ");
 		if (!FormComponent.FILE_UPLOAD.getType().equals(type)) {
@@ -325,32 +333,78 @@ class BasicFormRenderer implements FormRenderer {
 		sb.append("/>" + newLine());
 		return sb.toString();
 	}
+	
+	protected String renderSelect(RenderContext<?> ctx, FormField<?> field) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<select class=\"input-sm form-control\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
+		sb.append(renderAccessibilityAttributes(ctx, field));
+		sb.append(">" + newLine());
+		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
+			List<?> items = field.getChoiceProvider().getItems();
+			if (items != null) {
+				ChoiceRenderer<Object> choiceRenderer = (ChoiceRenderer<Object>)field.getChoiceRenderer();
+				int itemIndex = 0;
+				for (Object item : items) {
+					String value = renderValue(ctx, choiceRenderer.getId(item, itemIndex));
+					String title = escapeHtml(choiceRenderer.getTitle(item, itemIndex));
+					sb.append("<option value=\"" + value + "\"");
+					if (field.getFilledObjects().contains(item)) {
+						sb.append(" selected=\"selected\"");
+					}
+					sb.append(">" + title + "</option>" + newLine());
+					itemIndex++;
+				}
+			}
+		}
+		sb.append("</select>" + newLine());
+		return sb.toString();
+	}
+	
+	protected String renderCheckboxes(RenderContext<?> ctx, FormField<?> field) {
+		StringBuilder sb = new StringBuilder();
+		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
+			List<?> items = field.getChoiceProvider().getItems();
+			if (items != null) {
+				ChoiceRenderer<Object> choiceRenderer = (ChoiceRenderer<Object>)field.getChoiceRenderer();
+				int itemIndex = 0;
+				for (Object item : items) {
+					String value = renderValue(ctx, choiceRenderer.getId(item, itemIndex));
+					String title = escapeHtml(choiceRenderer.getTitle(item, itemIndex));
+					
+					sb.append("<div class=\"checkbox\">" + newLine());
+					sb.append("<label><input type=\"checkbox\" name=\"" + field.getName() + "\" value=\"" + value + "\"");
+					if (field.getFilledObjects().contains(item)) {
+						sb.append(" checked=\"checked\"");
+					}
+					sb.append(renderAccessibilityAttributes(ctx, field));
+					sb.append("/> " + title + "</label>" + newLine());
+					sb.append("</div>" + newLine());
+					itemIndex++;
+				}
+			}
+		}
+		return sb.toString();
+	}
 
 	protected boolean isInputClassIncluded(String type) {
-		return !type.equals(FormComponent.FILE_UPLOAD.getType()) && !type.equals(FormComponent.HIDDEN_FIELD.getType());
+		return !type.equals(FormComponent.FILE_UPLOAD.getType()) 
+			&& !type.equals(FormComponent.HIDDEN_FIELD.getType())
+			&& !type.equals(FormComponent.CHECK_BOX.getType());
 	}
 	
 	protected String renderFieldBegin(RenderContext<?> ctx, FormField<?> field, boolean withoutLabel) {
 		StringBuilder sb = new StringBuilder();
-		String type = getFieldType(field);
-		if (checkInputTypes.contains(type)) {
-			sb.append("<span class=\"");
-		} else {
-			sb.append("<div class=\"");
-		}
+		sb.append("<div class=\"");
 		if (withoutLabel) {
 			// offset instead of label
-			sb.append("col-sm-offset-2 ");
+			sb.append("col-sm-offset-4 ");
 		}
-		sb.append("col-sm-4\">" + newLine());
+		sb.append("col-sm-4");
+		sb.append("\">" + newLine());
 		return sb.toString();
 	}
 	
 	protected String renderFieldEnd(RenderContext<?> ctx, FormField<?> field) {
-		String type = getFieldType(field);
-		if (checkInputTypes.contains(type)) {
-			return "</span>" + newLine();
-		}
 		return "</div>" + newLine();
 	}
 	
@@ -386,10 +440,8 @@ class BasicFormRenderer implements FormRenderer {
 	
 	protected <T> String renderCheckBox(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
 		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
-			renderFieldBegin(ctx, field, true) +  // withoutLabel = true
 			renderFieldInput(ctx, field) + 
 			renderFieldMessages(ctx, fieldMessages) + 
-			renderFieldEnd(ctx, field) +
 			renderAfterField(ctx, field, parentMappings);
 	}
 	
@@ -406,6 +458,24 @@ class BasicFormRenderer implements FormRenderer {
 		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
 			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
 			renderFieldInput(ctx, field) + 
+			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldEnd(ctx, field) +
+			renderAfterField(ctx, field, parentMappings);
+	}
+	
+	protected <T> String renderDropDownChoice(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
+		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
+			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
+			renderSelect(ctx, field) + 
+			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldEnd(ctx, field) +
+			renderAfterField(ctx, field, parentMappings);
+	}
+	
+	protected <T> String renderMultipleCheckbox(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
+		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
+			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
+			renderCheckboxes(ctx, field) + 
 			renderFieldMessages(ctx, fieldMessages) + 
 			renderFieldEnd(ctx, field) +
 			renderAfterField(ctx, field, parentMappings);
@@ -430,16 +500,28 @@ class BasicFormRenderer implements FormRenderer {
 		if (!withoutLabel) {
 			sb.append(renderFieldLabelAfter(ctx, field, parentMappings));
 		}
-		sb.append(renderFormGroupEnd(ctx)); // form-group
+		sb.append(renderFormGroupEnd(ctx, field)); // form-group
 		return sb.toString();
 	}
 	
 	protected String renderFormGroupBegin(RenderContext<?> ctx, FormField<?> field, String maxSeverityClass) {
-		return "<div class=\"form-group " + maxSeverityClass + "\" id=\"" + renderElementBoxId(ctx, field) + "\">" + newLine();
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"form-group " + maxSeverityClass + "\" id=\"" + renderElementBoxId(ctx, field) + "\">" + newLine());
+		if (field.getType().equals(FormComponent.CHECK_BOX.getType())) {
+			sb.append("<div class=\"col-sm-offset-2 col-sm-10\">" + newLine());
+			sb.append("<div class=\"checkbox\">" + newLine());
+		}
+		return sb.toString();
 	}
 	
-	protected String renderFormGroupEnd(RenderContext<?> ctx) {
-		return "</div>" + newLine() + newLine();
+	protected String renderFormGroupEnd(RenderContext<?> ctx, FormField<?> field) {
+		StringBuilder sb = new StringBuilder();
+		if (field.getType().equals(FormComponent.CHECK_BOX.getType())) {
+			sb.append("</div>" + newLine());
+			sb.append("</div>" + newLine());
+		}
+		sb.append("</div>" + newLine() + newLine());
+		return sb.toString();
 	}
 	
 	private String getMaxSeverityClass(List<ConstraintViolationMessage> fieldMessages) {

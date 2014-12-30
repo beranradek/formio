@@ -16,6 +16,8 @@
  */
 package net.formio.debug;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,6 +32,9 @@ import net.formio.FormComponent;
 import net.formio.FormData;
 import net.formio.FormMapping;
 import net.formio.Forms;
+import net.formio.choice.ChoiceRenderer;
+import net.formio.choice.DefaultChoiceProvider;
+import net.formio.choice.EnumChoiceProvider;
 import net.formio.domain.inputs.Country;
 import net.formio.domain.inputs.Function;
 import net.formio.domain.inputs.Salutation;
@@ -39,7 +44,6 @@ import net.formio.utils.TestUtils;
 import net.formio.validation.ValidationResult;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * Tests for {@link BasicFormRenderer}.
@@ -51,13 +55,43 @@ public class BasicFormRendererTest {
 	private static final FormMapping<VariousInputs> profileForm = Forms.basic(VariousInputs.class, "profile")
 		.field("profileId", FormComponent.HIDDEN_FIELD.getType())
 		.field("header", FormComponent.LABEL.getType())
-		.field("salutation", FormComponent.RADIO_CHOICE.getType())
+		.field(Forms.<Salutation>field("salutation", FormComponent.RADIO_CHOICE.getType())
+			.choiceProvider(new EnumChoiceProvider<Salutation>(Salutation.class)))
 		.field("firstName", FormComponent.TEXT_FIELD.getType())
 		.field("password", FormComponent.PASSWORD.getType())
-		.field("country", FormComponent.DROP_DOWN_CHOICE.getType())
+		.field(Forms.<Country>field("country", FormComponent.DROP_DOWN_CHOICE.getType())
+			.choiceProvider(new EnumChoiceProvider<Country>(Country.class)))
 		.field("birthDate", FormComponent.DATE_PICKER.getType())
-		.field("skills", FormComponent.MULTIPLE_CHECK_BOX.getType())
-		.field("functions", FormComponent.MULTIPLE_CHOICE.getType())
+		.field(Forms.<Skill>field("skills", FormComponent.MULTIPLE_CHECK_BOX.getType())
+			.choiceProvider(new DefaultChoiceProvider<Skill>(skillsCodebook()))
+			.choiceRenderer(new ChoiceRenderer<Skill>() {
+				
+				@Override
+				public String getTitle(Skill item, int itemIndex) {
+					return item.getName();
+				}
+				
+				@Override
+				public String getId(Skill item, int itemIndex) {
+					return "" + item.getId();
+				}
+			})
+		)	
+		.field(Forms.<Function>field("functions", FormComponent.MULTIPLE_CHOICE.getType())
+			.choiceProvider(new DefaultChoiceProvider<Function>(functionsCodebook()))
+			.choiceRenderer(new ChoiceRenderer<Function>() {
+				
+				@Override
+				public String getTitle(Function item, int itemIndex) {
+					return item.getName();
+				}
+				
+				@Override
+				public String getId(Function item, int itemIndex) {
+					return "" + item.getId();
+				}
+			})
+		 )
 		.field("certificate", FormComponent.FILE_UPLOAD.getType())
 		.field("note", FormComponent.TEXT_AREA.getType())
 		.field("agreement", FormComponent.CHECK_BOX.getType())
@@ -91,9 +125,7 @@ public class BasicFormRendererTest {
 		inputs.setCountry(Country.GB);
 		inputs.setFirstName("Marry");
 		List<Function> functions = new ArrayList<Function>();
-		functions.add(new Function(Long.valueOf(200), "Student"));
 		functions.add(new Function(Long.valueOf(300), "Sportsman"));
-		functions.add(new Function(Long.valueOf(400), "Manager"));
 		inputs.setFunctions(functions);
 		inputs.setHeader("Research");
 		inputs.setNote("These are the most important moments of my life...");
@@ -101,12 +133,26 @@ public class BasicFormRendererTest {
 		inputs.setProfileId("ab565");
 		inputs.setSalutation(Salutation.MS);
 		Set<Skill> skills = new LinkedHashSet<Skill>();
+		skills.add(new Skill(Long.valueOf(17), "CRM"));
+		inputs.setSkills(skills);
+		return inputs;
+	}
+	
+	private static List<Skill> skillsCodebook() {
+		List<Skill> skills = new ArrayList<Skill>();
 		skills.add(new Skill(Long.valueOf(5), "Leadership"));
 		skills.add(new Skill(Long.valueOf(2), "Management"));
 		skills.add(new Skill(Long.valueOf(17), "CRM"));
 		skills.add(new Skill(Long.valueOf(19), "Sales"));
-		inputs.setSkills(skills);
-		return inputs;
+		return skills;
+	}
+	
+	private static List<Function> functionsCodebook() {
+		List<Function> functions = new ArrayList<Function>();
+		functions.add(new Function(Long.valueOf(200), "Student"));
+		functions.add(new Function(Long.valueOf(300), "Sportsman"));
+		functions.add(new Function(Long.valueOf(400), "Manager"));
+		return functions;
 	}
 
 }

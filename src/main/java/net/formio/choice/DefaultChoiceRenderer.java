@@ -44,7 +44,7 @@ public class DefaultChoiceRenderer<T> implements ChoiceRenderer<T>{
 	 * if the item implements {@link Titled} interface.
 	 */
 	@Override
-	public Object getTitle(T item, int itemIndex) {
+	public String getTitle(T item, int itemIndex) {
 		String title = "null";
 		if (item instanceof Titled) {
 			title = ((Titled)item).getTitle();
