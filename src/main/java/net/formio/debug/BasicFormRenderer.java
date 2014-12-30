@@ -130,6 +130,7 @@ class BasicFormRenderer implements FormRenderer {
 					case MULTIPLE_CHOICE:
 						break;
 					case RADIO_CHOICE:
+						sb.append(renderRadioChoice(ctx, field, fieldMessages, parentMappings));
 						break;
 					default:
 						throw new UnsupportedOperationException("Cannot render component with type " + type);
@@ -191,7 +192,6 @@ class BasicFormRenderer implements FormRenderer {
 		if (checkInputTypes.contains(type)) {
 			sb.append("<label>" + newLine());
 		} else {
-			// TODO: Render required mark
 			sb.append("<label class=\"control-label col-sm-2\" for=\"id-" + field.getName() + "\">");
 			sb.append(renderLabelText(ctx, field, parentMappings));
 			sb.append(":");
@@ -360,7 +360,8 @@ class BasicFormRenderer implements FormRenderer {
 		return sb.toString();
 	}
 	
-	protected String renderCheckboxes(RenderContext<?> ctx, FormField<?> field) {
+	protected String renderCheckboxesOrRadios(RenderContext<?> ctx, FormField<?> field) {
+		String type = field.getType().equals(FormComponent.RADIO_CHOICE.getType()) ? "radio" : "checkbox";
 		StringBuilder sb = new StringBuilder();
 		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
 			List<?> items = field.getChoiceProvider().getItems();
@@ -371,8 +372,8 @@ class BasicFormRenderer implements FormRenderer {
 					String value = renderValue(ctx, choiceRenderer.getId(item, itemIndex));
 					String title = escapeHtml(choiceRenderer.getTitle(item, itemIndex));
 					
-					sb.append("<div class=\"checkbox\">" + newLine());
-					sb.append("<label><input type=\"checkbox\" name=\"" + field.getName() + "\" value=\"" + value + "\"");
+					sb.append("<div class=\"" + type + "\">" + newLine());
+					sb.append("<label><input type=\"" + type + "\" name=\"" + field.getName() + "\" value=\"" + value + "\"");
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" checked=\"checked\"");
 					}
@@ -475,7 +476,16 @@ class BasicFormRenderer implements FormRenderer {
 	protected <T> String renderMultipleCheckbox(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
 		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
 			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
-			renderCheckboxes(ctx, field) + 
+			renderCheckboxesOrRadios(ctx, field) + 
+			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldEnd(ctx, field) +
+			renderAfterField(ctx, field, parentMappings);
+	}
+	
+	protected <T> String renderRadioChoice(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages, ParentMappings parentMappings) {
+		return renderBeforeField(ctx, field, fieldMessages, parentMappings) +
+			renderFieldBegin(ctx, field, false) +  // withoutLabel = false
+			renderCheckboxesOrRadios(ctx, field) + 
 			renderFieldMessages(ctx, fieldMessages) + 
 			renderFieldEnd(ctx, field) +
 			renderAfterField(ctx, field, parentMappings);
@@ -558,7 +568,6 @@ class BasicFormRenderer implements FormRenderer {
 	}
 	
 	private static final List<String> checkInputTypes = Arrays.asList(new String[] {
-		FormComponent.CHECK_BOX.getType(),
-		FormComponent.RADIO_CHOICE.getType()
+		FormComponent.CHECK_BOX.getType()
 	});
 }
