@@ -48,11 +48,9 @@ public class Registration implements Serializable {
 
 	private NewCollegue newCollegue;
 
-	public Registration(
-			@ArgumentName("attendanceReasons") Set<AttendanceReason> attendanceReasons) {
+	public Registration(@ArgumentName("attendanceReasons") Set<AttendanceReason> attendanceReasons) {
 		if (attendanceReasons == null)
-			throw new IllegalArgumentException(
-					"attendanceReasons cannot be null, only empty");
+			throw new IllegalArgumentException("attendanceReasons cannot be null, only empty");
 		this.attendanceReasons = attendanceReasons;
 	}
 

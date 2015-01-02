@@ -16,6 +16,11 @@
  */
 package net.formio;
 
+import java.util.List;
+
+import net.formio.validation.ConstraintViolationMessage;
+import net.formio.validation.ValidationResult;
+
 /**
  * Element in a form - form field, group of fields (form mapping), ...
  * @author Radek Beran
@@ -55,4 +60,16 @@ public interface FormElement extends FormProperties {
 	 * @return
 	 */
 	int getOrder();
+	
+	/**
+	 * Returns result with validation messages, {@code null} if form data was not validated yet.
+	 * @return
+	 */
+	ValidationResult getValidationResult();
+	
+	/**
+	 * Returns validation messages of form element.
+	 * @return
+	 */
+	List<ConstraintViolationMessage> getValidationMessages();
 }

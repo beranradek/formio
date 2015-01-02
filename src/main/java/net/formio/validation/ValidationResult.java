@@ -25,7 +25,6 @@ package net.formio.validation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,7 +61,7 @@ public class ValidationResult implements Serializable {
 	 */
 	public boolean isSuccess() {
 		boolean errorFound = false;
-		if (fieldMessages != null && !fieldMessages.isEmpty()) {
+		if (!fieldMessages.isEmpty()) {
 			for (List<ConstraintViolationMessage> fieldMsgs : fieldMessages.values()) {
 				for (ConstraintViolationMessage msg : fieldMsgs) {
 					if (msg.getSeverity() == Severity.ERROR) {

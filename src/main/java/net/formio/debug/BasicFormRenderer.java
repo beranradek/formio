@@ -100,10 +100,9 @@ public class BasicFormRenderer {
 	}
 
 	public <T> String renderVisibleMapping(RenderContext<?> ctx, FormMapping<T> mapping) {
-		List<ConstraintViolationMessage> messages = ctx.getFilledForm().getValidationResult().getFieldMessages().get(mapping.getName());
 		StringBuilder sb = new StringBuilder();
 		sb.append(newLine());
-		sb.append(renderMappingBoxBegin(ctx, mapping, messages));
+		sb.append(renderMappingBoxBegin(ctx, mapping));
 		if (mapping instanceof BasicListFormMapping) {
 			for (FormMapping<?> m : ((BasicListFormMapping<?>)mapping).getList()) {
 				sb.append(renderMapping(ctx, m));
@@ -112,7 +111,7 @@ public class BasicFormRenderer {
 			for (FormElement el : mapping.getElements()) {
 				if (el instanceof FormField) {
 					FormField<?> field = (FormField<?>)el;
-					sb.append(renderField(ctx, field, mapping.getValidationResult().getFieldMessages().get(field.getName())));
+					sb.append(renderField(ctx, field));
 				} else if (el instanceof FormMapping) {
 					sb.append(renderMapping(ctx, (FormMapping<?>)el));
 				} else {
@@ -120,17 +119,17 @@ public class BasicFormRenderer {
 				}
 			}
 		}
-		sb.append(renderMappingBoxEnd(ctx, mapping, messages));
+		sb.append(renderMappingBoxEnd(ctx, mapping));
 		return sb.toString();
 	}
 
-	public <T> String renderField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
+	public <T> String renderField(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		String type = getFieldType(field);
 		if (type != null && type.equals(FormFieldType.HIDDEN_FIELD.getType())) {
 			sb.append(renderHiddenInput(ctx, field));
 		} else if (field.isVisible()) {
-			sb.append(renderVisibleField(ctx, field, fieldMessages));
+			sb.append(renderVisibleField(ctx, field));
 		} else {
 			// Placeholder hidden div so the field can be made visible later and placed to this reserved position
 			sb.append(renderInvisibleElement(ctx, field));
@@ -142,48 +141,47 @@ public class BasicFormRenderer {
 		return renderInput(ctx, field) + newLine();
 	}
 	
-	public <T> String renderVisibleField(RenderContext<?> ctx,
-		FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
+	public <T> String renderVisibleField(RenderContext<?> ctx, FormField<T> field) {
 		String type = getFieldType(field);
 		StringBuilder sb = new StringBuilder();
 		FormFieldType formComponent = FormFieldType.findByType(type);
 		if (formComponent != null) {
 			switch (formComponent) {
 				case TEXT_FIELD:
-					sb.append(renderTextField(ctx, field, fieldMessages));
+					sb.append(renderTextField(ctx, field));
 					break;
 				case TEXT_AREA:
-					sb.append(renderTextArea(ctx, field, fieldMessages));
+					sb.append(renderTextArea(ctx, field));
 					break;
 				case PASSWORD:
-					sb.append(renderPassword(ctx, field, fieldMessages));
+					sb.append(renderPassword(ctx, field));
 					break;
 				case BUTTON:
 					throw new UnsupportedOperationException("Not implemented yet");
 					// break;
 				case CHECK_BOX:
-					sb.append(renderCheckBox(ctx, field, fieldMessages));
+					sb.append(renderCheckBox(ctx, field));
 					break;
 				case DATE_PICKER:
 					// throw new UnsupportedOperationException("Not implemented yet");
 					break;
 				case DROP_DOWN_CHOICE:
-					sb.append(renderDropDownChoice(ctx, field, fieldMessages));
+					sb.append(renderDropDownChoice(ctx, field));
 					break;
 				case FILE_UPLOAD:
-					sb.append(renderFileUpload(ctx, field, fieldMessages));
+					sb.append(renderFileUpload(ctx, field));
 					break;
 				case LABEL:
 					break;
 				case LINK:
 					break;
 				case MULTIPLE_CHECK_BOX:
-					sb.append(renderMultipleCheckbox(ctx, field, fieldMessages));
+					sb.append(renderMultipleCheckbox(ctx, field));
 					break;
 				case MULTIPLE_CHOICE:
 					break;
 				case RADIO_CHOICE:
-					sb.append(renderRadioChoice(ctx, field, fieldMessages));
+					sb.append(renderRadioChoice(ctx, field));
 					break;
 				default:
 					throw new UnsupportedOperationException("Cannot render component with type " + type);
@@ -222,31 +220,31 @@ public class BasicFormRenderer {
 		return "</form>" + newLine();
 	}
 	
-	protected <T> String renderMappingBoxBegin(RenderContext<?> ctx, FormMapping<T> mapping, List<ConstraintViolationMessage> messages) {
+	protected <T> String renderMappingBoxBegin(RenderContext<?> ctx, FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder();
 		// Form group
-		sb.append(renderMappingBoxBeginTag(ctx, mapping, messages));
+		sb.append(renderMappingBoxBeginTag(ctx, mapping));
 		
 		// Label
 		sb.append(renderMappingLabelElement(ctx, mapping));
 		
 		// Mapping messages
-		sb.append(renderFieldMessages(ctx, messages));
+		sb.append(renderFieldMessages(ctx, mapping.getValidationMessages()));
 		return sb.toString();
 	}
 	
-	protected <T> String renderMappingBoxEnd(RenderContext<?> ctx, FormMapping<T> mapping, List<ConstraintViolationMessage> messages) {
-		return renderMappingBoxEndTag(ctx, mapping, messages);
+	protected <T> String renderMappingBoxEnd(RenderContext<?> ctx, FormMapping<T> mapping) {
+		return renderMappingBoxEndTag(ctx, mapping);
 	}
 
-	protected <T> String renderMappingBoxBeginTag(RenderContext<?> ctx, FormMapping<T> mapping, List<ConstraintViolationMessage> messages) {
-		String maxSeverityClass = getMaxSeverityClass(messages);
+	protected <T> String renderMappingBoxBeginTag(RenderContext<?> ctx, FormMapping<T> mapping) {
+		String maxSeverityClass = getMaxSeverityClass(mapping.getValidationMessages());
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div id=\"" + renderElementBoxId(ctx, mapping) + "\" class=\"" + maxSeverityClass + "\">" + newLine());
 		return sb.toString();
 	}
 	
-	protected <T> String renderMappingBoxEndTag(RenderContext<?> ctx, FormMapping<T> mapping, List<ConstraintViolationMessage> messages) {
+	protected <T> String renderMappingBoxEndTag(RenderContext<?> ctx, FormMapping<T> mapping) {
 		return "</div>" + newLine();
 	}
 	
@@ -442,105 +440,105 @@ public class BasicFormRenderer {
 		return "</div>" + newLine();
 	}
 	
-	protected <T> String renderTextField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
-		return renderFieldBoxBegin(ctx, field, fieldMessages) +
+	protected <T> String renderTextField(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
 			renderFieldInput(ctx, field) + 
-			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field, fieldMessages);
+			renderFieldBoxEnd(ctx, field);
 	}
 	
-	protected <T> String renderTextArea(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
-		return renderFieldBoxBegin(ctx, field, fieldMessages) +
+	protected <T> String renderTextArea(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
 			renderTextarea(ctx, field) +
-			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field, fieldMessages);
+			renderFieldBoxEnd(ctx, field);
 	}
 	
-	protected <T> String renderCheckBox(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
-		return renderCheckBoxBegin(ctx, field, fieldMessages) +
+	protected <T> String renderCheckBox(RenderContext<?> ctx, FormField<T> field) {
+		return renderCheckBoxBegin(ctx, field) +
 			renderCheckBoxInput(ctx, field) + 
-			renderFieldMessages(ctx, fieldMessages) + 
-			renderCheckBoxEnd(ctx, field, fieldMessages);
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
+			renderCheckBoxEnd(ctx, field);
 	}
 	
-	protected <T> String renderPassword(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
-		return renderFieldBoxBegin(ctx, field, fieldMessages) +
+	protected <T> String renderPassword(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
 			renderFieldInput(ctx, field) + 
-			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field, fieldMessages);
+			renderFieldBoxEnd(ctx, field);
 	}
 	
-	protected <T> String renderFileUpload(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
-		return renderFieldBoxBegin(ctx, field, fieldMessages) +
+	protected <T> String renderFileUpload(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
 			renderFieldInput(ctx, field) + 
-			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field, fieldMessages);
+			renderFieldBoxEnd(ctx, field);
 	}
 	
-	protected <T> String renderDropDownChoice(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
-		return renderFieldBoxBegin(ctx, field, fieldMessages) +
+	protected <T> String renderDropDownChoice(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
 			renderSelect(ctx, field) + 
-			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field, fieldMessages);
+			renderFieldBoxEnd(ctx, field);
 	}
 	
-	protected <T> String renderMultipleCheckbox(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
-		return renderFieldBoxBegin(ctx, field, fieldMessages) +
+	protected <T> String renderMultipleCheckbox(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
 			renderChecks(ctx, field) + 
-			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field, fieldMessages);
+			renderFieldBoxEnd(ctx, field);
 	}
 	
-	protected <T> String renderRadioChoice(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
-		return renderFieldBoxBegin(ctx, field, fieldMessages) +
+	protected <T> String renderRadioChoice(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
 			renderChecks(ctx, field) + 
-			renderFieldMessages(ctx, fieldMessages) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field, fieldMessages);
+			renderFieldBoxEnd(ctx, field);
 	}
 
-	protected <T> String renderFieldBoxBegin(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
+	protected <T> String renderFieldBoxBegin(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		// Form group begin
-		sb.append(renderFieldBoxBeginTag(ctx, field, fieldMessages));
+		sb.append(renderFieldBoxBeginTag(ctx, field));
 
 		// Label
 		sb.append(renderFieldLabelElement(ctx, field));
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldBoxEnd(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
+	protected <T> String renderFieldBoxEnd(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(renderFieldBoxEndTag(ctx, field, fieldMessages));
+		sb.append(renderFieldBoxEndTag(ctx, field));
 		return sb.toString();
 	}
 	
-	protected <T> String renderCheckBoxBegin(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
+	protected <T> String renderCheckBoxBegin(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		// Form group begin
-		sb.append(renderFieldBoxBeginTag(ctx, field, fieldMessages));
+		sb.append(renderFieldBoxBeginTag(ctx, field));
 		sb.append(renderLabelBeginTag(ctx, field));
 		return sb.toString();
 	}
 	
-	protected <T> String renderCheckBoxEnd(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
+	protected <T> String renderCheckBoxEnd(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(renderLabelText(ctx, field));
 		sb.append(renderLabelEndTag(ctx, field));
-		sb.append(renderFieldBoxEndTag(ctx, field, fieldMessages));
+		sb.append(renderFieldBoxEndTag(ctx, field));
 		return sb.toString();
 	}
 	
@@ -552,9 +550,9 @@ public class BasicFormRenderer {
 		return "</label>" + newLine();
 	}
 	
-	protected <T> String renderFieldBoxBeginTag(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
+	protected <T> String renderFieldBoxBeginTag(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		String maxSeverityClass = getMaxSeverityClass(fieldMessages);
+		String maxSeverityClass = getMaxSeverityClass(field.getValidationMessages());
 		sb.append("<div id=\"" + renderElementBoxId(ctx, field) + "\" class=\"" + getFormBlockClass() + " " + maxSeverityClass + "\">" + newLine());
 		if (field.getType() != null && field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
 			sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
@@ -563,7 +561,7 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldBoxEndTag(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
+	protected <T> String renderFieldBoxEndTag(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		if (field.getType() != null && field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
 			sb.append("</div>" + newLine());

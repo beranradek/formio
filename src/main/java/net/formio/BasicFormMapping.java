@@ -162,6 +162,11 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
+	public List<ConstraintViolationMessage> getValidationMessages() {
+		return FormUtils.getValidationMessages(this);
+	}
+	
+	@Override
 	public List<FormElement> getElements() {
 		List<FormElement> elems = new ArrayList<FormElement>();
 		elems.addAll(this.nested.values());
@@ -283,7 +288,8 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		if (paramsProvider == null) throw new IllegalArgumentException("paramsProvider cannot be null");
 		RequestContext ctx = context;
 		if (ctx == null && paramsProvider instanceof ServletRequestParams) {
-			// fallback to ctx retrieved from ServletRequestParams, so the user need not to specify ctx explicitly for bind method
+			// fallback to ctx retrieved from ServletRequestParams, 
+			// so the user need not to specify ctx explicitly for bind method
 			ctx = ((ServletRequestParams)paramsProvider).getRequestContext();
 		}
 		
@@ -312,12 +318,13 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			// use instance already prepared by client which the client wish to fill
 			instantiator = new InstanceHoldingInstantiator<T>(instance);
 		}
-		final FilledData<T> filledObject = this.getConfig().getBinder().bindToNewInstance(this.dataClass, instantiator, values);
+		final FilledData<T> filledData = this.getConfig().getBinder().bindToNewInstance(this.dataClass, instantiator, values);
 		
 		// validation of resulting object for this mapping
 		ValidationResult validationRes = validateInternal(
+			filledData.getData(),
 			error, 
-			FormUtils.flatten(filledObject.getPropertyBindErrors().values()), 
+			FormUtils.flatten(filledData.getPropertyBindErrors().values()), 
 			locale, 
 			validationGroups); 
 		
@@ -327,7 +334,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			validationResults.add(fd.getValidationResult());
 		}
 		
-		return new FormData<T>(filledObject.getData(), Clones.mergedValidationResults(validationResults));
+		return new FormData<T>(filledData.getData(), Clones.mergedValidationResults(validationResults));
 	}
 
 	@Override
@@ -440,20 +447,22 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	
 	ValidationResult validate(Locale locale, Class<?> ... validationGroups) {
 		Collection<ValidationResult> validationResults = new ArrayList<ValidationResult>();
-		validationResults.add(validateInternal((RequestProcessingError)null, new ArrayList<ParseError>(), locale, validationGroups));
+		if (getFilledObject() != null) {
+			validationResults.add(validateInternal(getFilledObject(), (RequestProcessingError)null, new ArrayList<ParseError>(), locale, validationGroups));
+		}
 		for (FormMapping<?> mapping : nested.values()) {
 			validationResults.add(((BasicFormMapping<?>)mapping).validate(locale, validationGroups));
 		}
 		return Clones.mergedValidationResults(validationResults);
 	}
 	
-	ValidationResult validateInternal(RequestProcessingError error, List<ParseError> parseErrors, Locale locale, Class<?> ... validationGroups) {
+	ValidationResult validateInternal(T object, RequestProcessingError error, List<ParseError> parseErrors, Locale locale, Class<?> ... validationGroups) {
 		List<RequestProcessingError> requestErrors = new ArrayList<RequestProcessingError>();
 		if (error != null) {
 			requestErrors.add(error);
 		}
 		return this.getConfig().getBeanValidator().validate(
-			this.filledObject,
+			object,
 			this.path, 
 			requestErrors, 
 			parseErrors,

@@ -1,11 +1,13 @@
 # Changelog
 
-1.2.2 (?)
-* getElements method of mapping returning form elements in order as declared in form definition
+1.3.0 (?)
+* getElements method of mapping returning form elements in order as declared in form definition.
 * Increased test coverage (including file uploads for servlets and portlets).
 * Simplified internal construction using builders.
 * ChoiceProvider and ChoiceRenderer definable for form fields (can be used in form rendering as a support for codebooks).
 * fillAndValidate method that validates filled data so the validation errors can be shown when the form is rendered for the first time.
+* Forms.previewForm for automatically rendered form preview.
+* getValidationMessages method on form element.
 
 1.2.1 (13.11.2014)
 * Definable properties also for form mappings (in addition to fields).

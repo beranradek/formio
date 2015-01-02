@@ -24,7 +24,6 @@ import javax.validation.groups.Default;
 
 import net.formio.binding.Instantiator;
 import net.formio.data.RequestContext;
-import net.formio.validation.ValidationResult;
 
 /**
  * A form for editing object (form data) of type T.
@@ -161,12 +160,6 @@ public interface FormMapping<T> extends FormElement {
 	 * @return
 	 */
 	FormData<T> bind(RequestParams paramsProvider, T instance, Class<?>... validationGroups);
-	
-	/**
-	 * Returns result with validation messages, {@code null} if form data was not validated yet.
-	 * @return
-	 */
-	ValidationResult getValidationResult();
 	
 	/**
 	 * Returns form elements (both fields and mappings) nested in this mapping in correct order

@@ -219,7 +219,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			// Fill the fields of this mapping with prepared values for current list index
 			Map<String, FormField<?>> filledFields = fillFields(
 				propValues, 
-				editedObj.getValidationResult() != null && editedObj.getValidationResult().getFieldMessages() != null ?
+				editedObj.getValidationResult() != null ?
 					editedObj.getValidationResult().getFieldMessages() : new LinkedHashMap<String, List<ConstraintViolationMessage>>(),
 				index, 
 				locale);

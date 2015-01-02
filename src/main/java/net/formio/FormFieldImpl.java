@@ -25,6 +25,8 @@ import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
 import net.formio.props.FieldProperty;
+import net.formio.validation.ConstraintViolationMessage;
+import net.formio.validation.ValidationResult;
 
 /**
  * Form field. Immutable.
@@ -238,6 +240,20 @@ public class FormFieldImpl<T> implements FormField<T> {
 	@Override
 	public int getOrder() {
 		return this.order;
+	}
+	
+	@Override
+	public ValidationResult getValidationResult() {
+		ValidationResult result = null;
+		if (getParent() != null) {
+			result = getParent().getValidationResult();
+		}
+		return result;
+	}
+	
+	@Override
+	public List<ConstraintViolationMessage> getValidationMessages() {
+		return FormUtils.getValidationMessages(this);
 	}
 
 	@Override
