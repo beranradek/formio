@@ -200,8 +200,8 @@ class BasicFormRenderer {
 	
 	public String renderSubmit(RenderContext<?> ctx) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"form-group\">" + newLine());
-		sb.append("<div class=\"col-sm-offset-2 col-sm-10\">" + newLine());
+		sb.append("<div class=\"" + getFormBlockClass() + "\">" + newLine());
+		sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
 		sb.append("<button type=\"submit\" class=\"btn btn-default\">Submit</button>" + newLine());
 		sb.append("</div>" + newLine());
 		sb.append("</div>" + newLine());
@@ -242,7 +242,7 @@ class BasicFormRenderer {
 	protected <T> String renderMappingBoxBeginTag(RenderContext<?> ctx, FormMapping<T> mapping, List<ConstraintViolationMessage> messages) {
 		String maxSeverityClass = getMaxSeverityClass(messages);
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + maxSeverityClass + "\" id=\"" + renderElementBoxId(ctx, mapping) + "\">" + newLine());
+		sb.append("<div id=\"" + renderElementBoxId(ctx, mapping) + "\" class=\"" + maxSeverityClass + "\">" + newLine());
 		return sb.toString();
 	}
 	
@@ -273,8 +273,8 @@ class BasicFormRenderer {
 	protected <T> String renderMappingLabelElement(RenderContext<?> ctx, FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
 		if (!mapping.isRootMapping()) {
-			sb.append("<div class=\"form-group\">" + newLine());
-			sb.append("<div class=\"control-label col-sm-2\">" + newLine());
+			sb.append("<div class=\"" + getFormBlockClass() + "\">" + newLine());
+			sb.append("<div class=\"" + getLabelIndentClass() + "\">" + newLine());
 			sb.append("<label>" + newLine());
 			sb.append(renderLabelText(ctx, mapping));
 			sb.append(":");
@@ -287,7 +287,7 @@ class BasicFormRenderer {
 	
 	protected <T> String renderFieldLabelElement(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<label class=\"control-label col-sm-2\" for=\"id-" + field.getName() + "\">");
+		sb.append("<label for=\"id-" + field.getName() + "\" class=\"" + getLabelIndentClass() + "\">");
 		sb.append(renderLabelText(ctx, field));
 		sb.append(":");
 		sb.append("</label>" + newLine());
@@ -340,7 +340,7 @@ class BasicFormRenderer {
 	
 	protected <T> String renderTextarea(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<textarea class=\"input-sm form-control\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
+		sb.append("<textarea name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" class=\"input-sm form-control\"");
 		sb.append(renderAccessibilityAttributes(ctx, field) + ">");
 		sb.append(renderValue(ctx, field.getValue()));
 		sb.append("</textarea>" + newLine());
@@ -350,17 +350,16 @@ class BasicFormRenderer {
 	protected <T> String renderInput(RenderContext<?> ctx, FormField<T> field) {
 		String type = getFieldType(field);
 		StringBuilder sb = new StringBuilder();
-		sb.append("<input");
-		if (isInputClassIncluded(type)) {
-			sb.append(" class=\"input-sm form-control\"");
-		}
-		sb.append(" type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" ");
+		sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
 		if (!FormFieldType.FILE_UPLOAD.getType().equals(type)) {
 			String value = renderValue(ctx, field.getValue());
-			sb.append("value=\"" + value + "\" ");
+			sb.append(" value=\"" + value + "\"");
 		}
 		if (!type.equals(FormFieldType.HIDDEN_FIELD.getType())) {
 			sb.append(renderAccessibilityAttributes(ctx, field));
+		}
+		if (isInputClassIncluded(type)) {
+			sb.append(" class=\"input-sm form-control\"");
 		}
 		sb.append("/>" + newLine());
 		return sb.toString();
@@ -382,7 +381,7 @@ class BasicFormRenderer {
 	
 	protected <T> String renderSelect(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<select class=\"input-sm form-control\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
+		sb.append("<select name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" class=\"input-sm form-control\"");
 		sb.append(renderAccessibilityAttributes(ctx, field));
 		sb.append(">" + newLine());
 		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
@@ -525,7 +524,7 @@ class BasicFormRenderer {
 	
 	protected <T> String renderFieldBoxEnd(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(renderFieldBoxEndTag(ctx, field, fieldMessages)); // form-group
+		sb.append(renderFieldBoxEndTag(ctx, field, fieldMessages));
 		return sb.toString();
 	}
 	
@@ -541,7 +540,7 @@ class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		sb.append(renderLabelText(ctx, field));
 		sb.append(renderLabelEndTag(ctx, field));
-		sb.append(renderFieldBoxEndTag(ctx, field, fieldMessages)); // form-group
+		sb.append(renderFieldBoxEndTag(ctx, field, fieldMessages));
 		return sb.toString();
 	}
 	
@@ -556,9 +555,9 @@ class BasicFormRenderer {
 	protected <T> String renderFieldBoxBeginTag(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
 		StringBuilder sb = new StringBuilder();
 		String maxSeverityClass = getMaxSeverityClass(fieldMessages);
-		sb.append("<div class=\"form-group " + maxSeverityClass + "\" id=\"" + renderElementBoxId(ctx, field) + "\">" + newLine());
+		sb.append("<div id=\"" + renderElementBoxId(ctx, field) + "\" class=\"" + getFormBlockClass() + " " + maxSeverityClass + "\">" + newLine());
 		if (field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
-			sb.append("<div class=\"col-sm-offset-2 col-sm-10\">" + newLine());
+			sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
 			sb.append("<div class=\"checkbox\">" + newLine());
 		}
 		return sb.toString();
@@ -603,6 +602,18 @@ class BasicFormRenderer {
 	
 	protected <T> String renderRequiredMark(RenderContext<?> ctx, FormElement formElement) {
 		return "&nbsp;*";
+	}
+	
+	protected String getFormBlockClass() {
+		return "form-group";
+	}
+	
+	protected String getLabelIndentClass() {
+		return "control-label col-sm-2";
+	}
+	
+	protected String getInputIndentClass() {
+		return "col-sm-offset-2 col-sm-10";
 	}
 	
 	private <T> MessageTranslator createMessageTranslator(RenderContext<?> ctx, FormElement formElement) {

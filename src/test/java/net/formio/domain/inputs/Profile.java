@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import net.formio.upload.UploadedFile;
+import net.formio.validation.constraints.NotEmpty;
 
 /**
  * Domain object of an user profile with fields for testing various types of form inputs.
@@ -39,14 +41,18 @@ public class Profile implements Serializable {
 	private String header;
 	
 	// radio
+	@NotNull
 	private Salutation salutation;
 	
 	// text
+	@NotEmpty
 	private String firstName;
 	
+	@NotEmpty
 	private String password;
 	
 	// select
+	@NotNull
 	private Country country;
 	
 	// Cascade validation to employers
