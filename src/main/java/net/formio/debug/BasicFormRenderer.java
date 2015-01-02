@@ -34,7 +34,7 @@ import net.formio.validation.ValidationResult;
  * Convenience basic implementation of {@link FormRenderer}.
  * @author Radek Beran
  */
-class BasicFormRenderer {
+public class BasicFormRenderer {
 	
 	public <T> String renderHtmlPage(RenderContext<T> ctx) {
 		StringBuilder sb = new StringBuilder();
@@ -127,7 +127,7 @@ class BasicFormRenderer {
 	public <T> String renderField(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
 		StringBuilder sb = new StringBuilder();
 		String type = getFieldType(field);
-		if (type.equals(FormFieldType.HIDDEN_FIELD.getType())) {
+		if (type != null && type.equals(FormFieldType.HIDDEN_FIELD.getType())) {
 			sb.append(renderHiddenInput(ctx, field));
 		} else if (field.isVisible()) {
 			sb.append(renderVisibleField(ctx, field, fieldMessages));
@@ -351,11 +351,11 @@ class BasicFormRenderer {
 		String type = getFieldType(field);
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
-		if (!FormFieldType.FILE_UPLOAD.getType().equals(type)) {
+		if (type != null && !FormFieldType.FILE_UPLOAD.getType().equals(type)) {
 			String value = renderValue(ctx, field.getValue());
 			sb.append(" value=\"" + value + "\"");
 		}
-		if (!type.equals(FormFieldType.HIDDEN_FIELD.getType())) {
+		if (type != null && !type.equals(FormFieldType.HIDDEN_FIELD.getType())) {
 			sb.append(renderAccessibilityAttributes(ctx, field));
 		}
 		if (isInputClassIncluded(type)) {
@@ -406,7 +406,7 @@ class BasicFormRenderer {
 	}
 	
 	protected <T> String renderChecks(RenderContext<?> ctx, FormField<T> field) {
-		String type = field.getType().equals(FormFieldType.RADIO_CHOICE.getType()) ? "radio" : "checkbox";
+		String type = field.getType() != null && field.getType().equals(FormFieldType.RADIO_CHOICE.getType()) ? "radio" : "checkbox";
 		StringBuilder sb = new StringBuilder();
 		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
 			List<?> items = field.getChoiceProvider().getItems();
@@ -556,7 +556,7 @@ class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		String maxSeverityClass = getMaxSeverityClass(fieldMessages);
 		sb.append("<div id=\"" + renderElementBoxId(ctx, field) + "\" class=\"" + getFormBlockClass() + " " + maxSeverityClass + "\">" + newLine());
-		if (field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
+		if (field.getType() != null && field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
 			sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
 			sb.append("<div class=\"checkbox\">" + newLine());
 		}
@@ -565,7 +565,7 @@ class BasicFormRenderer {
 	
 	protected <T> String renderFieldBoxEndTag(RenderContext<?> ctx, FormField<T> field, List<ConstraintViolationMessage> fieldMessages) {
 		StringBuilder sb = new StringBuilder();
-		if (field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
+		if (field.getType() != null && field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
 			sb.append("</div>" + newLine());
 			sb.append("</div>" + newLine());
 		}
@@ -627,7 +627,8 @@ class BasicFormRenderer {
 	}
 	
 	private boolean isInputClassIncluded(String type) {
-		return !type.equals(FormFieldType.FILE_UPLOAD.getType()) 
+		return type != null 
+			&& !type.equals(FormFieldType.FILE_UPLOAD.getType()) 
 			&& !type.equals(FormFieldType.HIDDEN_FIELD.getType())
 			&& !type.equals(FormFieldType.CHECK_BOX.getType());
 	}

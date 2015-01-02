@@ -19,8 +19,8 @@ package net.formio.servlet;
 import java.io.IOException;
 
 import net.formio.RequestParams;
+import net.formio.internal.FormUtils;
 import net.formio.upload.MultipartRequestPreprocessor;
-import net.formio.utils.TestUtils;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -34,14 +34,14 @@ public class ServletFileUploadTest extends FileUploadTest {
 	@Test
 	public void testFileUpload() throws IOException {
 		MockHttpServletRequest request = MockServletRequests.newRequest(CV_PARAM_NAME, "/" + PDF_FILE_NAME, PDF_MIME_TYPE);
-		RequestParams requestParams = new ServletRequestParams(request, "UTF-8", TestUtils.getTempDir());
+		RequestParams requestParams = new ServletRequestParams(request, "UTF-8", FormUtils.getTempDir());
 		testFileUpload(requestParams);
 	}
 	
 	@Test
 	public void testMaxFileSizeExceededUpload() {
 		MockHttpServletRequest request = MockServletRequests.newRequest(CV_PARAM_NAME, "/" + PDF_FILE_NAME, PDF_MIME_TYPE);
-		RequestParams requestParams = new ServletRequestParams(request, "UTF-8", TestUtils.getTempDir(), 
+		RequestParams requestParams = new ServletRequestParams(request, "UTF-8", FormUtils.getTempDir(), 
 			MultipartRequestPreprocessor.SIZE_THRESHOLD, MultipartRequestPreprocessor.TOTAL_SIZE_MAX, 10L); // 10 bytes per file only
 		testMaxFileSizeExceededUpload(requestParams);
 	}
@@ -49,7 +49,7 @@ public class ServletFileUploadTest extends FileUploadTest {
 	@Test
 	public void testMaxRequestSizeExceededUpload() {
 		MockHttpServletRequest request = MockServletRequests.newRequest(CV_PARAM_NAME, "/" + PDF_FILE_NAME, PDF_MIME_TYPE);
-		RequestParams requestParams = new ServletRequestParams(request, "UTF-8", TestUtils.getTempDir(), 
+		RequestParams requestParams = new ServletRequestParams(request, "UTF-8", FormUtils.getTempDir(), 
 			MultipartRequestPreprocessor.SIZE_THRESHOLD, 20L); // 20 bytes for the whole request only
 		testMaxRequestSizeExceededUpload(requestParams);
 	}

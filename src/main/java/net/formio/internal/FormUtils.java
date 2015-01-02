@@ -16,6 +16,13 @@
  */
 package net.formio.internal;
 
+import java.awt.Desktop;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -209,6 +216,75 @@ public class FormUtils {
 			propName = fieldName.substring(lastDot + 1);
 		}
 		return removeTrailingBrackets(propName);
+	}
+	
+	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
+	 * Opens given URL in default browser of operating system.
+	 * @param uri
+	 */
+	public static void openUrlInBrowser(String uri) {
+		if (Desktop.isDesktopSupported()) {
+			Desktop desktop = Desktop.getDesktop();
+			if (desktop.isSupported(Desktop.Action.BROWSE)) {
+				try {
+					desktop.browse(new URI(uri));
+	            } catch (Exception ex) {
+	            	ex.printStackTrace();
+	            }
+			}
+		}
+	}
+	
+	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
+	 * Opens given HTML in default browser of operating system.
+	 * @param html
+	 */
+	public static void openHtmlInBrowser(String html) {
+		File f = null;
+		try {
+			f = File.createTempFile("html_preview", ".html", FormUtils.getTempDir());
+			saveTextInFile(f, html, "UTF-8");
+			openUrlInBrowser("file:///" + f.getAbsolutePath().replace("\\", "/"));
+		} catch (IOException ex) {
+			throw new RuntimeException(ex.getMessage(), ex);
+		}
+	}
+	
+	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
+	 * Returns directory with temporary files.
+	 * @return
+	 */
+	public static File getTempDir() {
+		return new File(System.getProperty("java.io.tmpdir"));
+	}
+	
+	/**
+	 * Saves given text content to given file.
+	 * @param file
+	 * @param content
+	 * @param encoding
+	 * @throws IOException
+	 */
+	public static void saveTextInFile(File file, String content, String encoding) {
+		BufferedWriter bw = null;
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
+			bw.write(content);
+		} catch (IOException ex) {
+			throw new RuntimeException(ex.getMessage(), ex);
+		} finally {
+			if (bw != null) {
+				try {
+					bw.flush();
+					bw.close();
+				} catch (IOException ignored) {
+					// ignored
+				}
+			}
+		}
 	}
 	
 	private FormUtils() {

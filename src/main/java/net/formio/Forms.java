@@ -16,8 +16,14 @@
  */
 package net.formio;
 
+import java.util.Locale;
+
 import net.formio.binding.Instantiator;
 import net.formio.binding.StaticFactoryMethod;
+import net.formio.debug.BasicFormRenderer;
+import net.formio.debug.FormMethod;
+import net.formio.debug.RenderContext;
+import net.formio.internal.FormUtils;
 
 /**
  * API for form definition and processing.
@@ -271,6 +277,32 @@ public final class Forms {
 	 */
 	public static <T> FieldProps<T> field(String propertyName) {
 		return field(propertyName, (String)null);
+	}
+	
+	/**
+	 * Renders form with embedded form renderer and opens resulting HTML
+	 * in default browser of operating system.
+	 * @param form
+	 * @param locale
+	 */
+	public static <T> void previewForm(FormMapping<T> form, Locale locale) {
+		RenderContext<T> ctx = new RenderContext<T>();
+		ctx.setFilledForm(form);
+		ctx.setMethod(FormMethod.POST);
+		ctx.setActionUrl("#");
+		ctx.setLocale(locale);
+		String html = new BasicFormRenderer().renderHtmlPage(ctx);
+		FormUtils.openHtmlInBrowser(html);
+	}
+	
+	/**
+	 * Renders form with embedded form renderer and opens resulting HTML
+	 * in default browser of operating system.
+	 * @param form
+	 * @param locale
+	 */
+	public static <T> void previewForm(FormMapping<T> form) {
+		previewForm(form, Locale.ENGLISH);
 	}
 	
 	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String formName, Instantiator<T> instantiator, boolean automatic, MappingType mappingType, boolean secured) {

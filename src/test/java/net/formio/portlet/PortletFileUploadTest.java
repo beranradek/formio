@@ -19,9 +19,9 @@ package net.formio.portlet;
 import java.io.IOException;
 
 import net.formio.RequestParams;
+import net.formio.internal.FormUtils;
 import net.formio.servlet.FileUploadTest;
 import net.formio.upload.MultipartRequestPreprocessor;
-import net.formio.utils.TestUtils;
 
 import org.junit.Test;
 import org.springframework.mock.web.portlet.MockMultipartActionRequest;
@@ -35,14 +35,14 @@ public class PortletFileUploadTest extends FileUploadTest {
 	@Test
 	public void testFileUpload() throws IOException {
 		MockMultipartActionRequest request = MockPortletRequests.newRequest(CV_PARAM_NAME, "/" + PDF_FILE_NAME, PDF_MIME_TYPE);
-		RequestParams requestParams = new PortletRequestParams(request, "UTF-8", TestUtils.getTempDir());
+		RequestParams requestParams = new PortletRequestParams(request, "UTF-8", FormUtils.getTempDir());
 		testFileUpload(requestParams);
 	}
 	
 	@Test
 	public void testMaxFileSizeExceededUpload() {
 		MockMultipartActionRequest request = MockPortletRequests.newRequest(CV_PARAM_NAME, "/" + PDF_FILE_NAME, PDF_MIME_TYPE);
-		RequestParams requestParams = new PortletRequestParams(request, "UTF-8", TestUtils.getTempDir(), 
+		RequestParams requestParams = new PortletRequestParams(request, "UTF-8", FormUtils.getTempDir(), 
 			MultipartRequestPreprocessor.SIZE_THRESHOLD, MultipartRequestPreprocessor.TOTAL_SIZE_MAX, 10L); // 10 bytes per file only
 		testMaxFileSizeExceededUpload(requestParams);
 	}
@@ -50,7 +50,7 @@ public class PortletFileUploadTest extends FileUploadTest {
 	@Test
 	public void testMaxRequestSizeExceededUpload() {
 		MockMultipartActionRequest request = MockPortletRequests.newRequest(CV_PARAM_NAME, "/" + PDF_FILE_NAME, PDF_MIME_TYPE);
-		RequestParams requestParams = new PortletRequestParams(request, "UTF-8", TestUtils.getTempDir(), 
+		RequestParams requestParams = new PortletRequestParams(request, "UTF-8", FormUtils.getTempDir(), 
 			MultipartRequestPreprocessor.SIZE_THRESHOLD, 20L); // 20 bytes for the whole request only
 		testMaxRequestSizeExceededUpload(requestParams);
 	}

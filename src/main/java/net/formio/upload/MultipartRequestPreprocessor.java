@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.formio.EncodingException;
+import net.formio.internal.FormUtils;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -48,7 +49,7 @@ public class MultipartRequestPreprocessor {
 	/** Max. size of file that is stored only in memory. */
 	public static final int SIZE_THRESHOLD = 10240; // 10 KB
 	public static final String DEFAULT_ENCODING = "utf-8";
-	public static File getDefaultTempDir() { return new File(System.getProperty("java.io.tmpdir")); }
+	public static File getDefaultTempDir() { return FormUtils.getTempDir(); }
 	
 	private final String defaultEncoding;
 	private final RequestProcessingError error;

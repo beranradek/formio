@@ -16,17 +16,14 @@
  */
 package net.formio.debug;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import net.formio.FormData;
 import net.formio.FormFieldType;
@@ -42,7 +39,6 @@ import net.formio.domain.inputs.Function;
 import net.formio.domain.inputs.Profile;
 import net.formio.domain.inputs.Salutation;
 import net.formio.domain.inputs.Skill;
-import net.formio.utils.TestUtils;
 import net.formio.validation.ValidationResult;
 
 import org.junit.Test;
@@ -52,7 +48,6 @@ import org.junit.Test;
  * @author Radek Beran
  */
 public class BasicFormRendererTest {
-	private static final Logger LOG = Logger.getLogger(BasicFormRendererTest.class.getName());
 	
 	private static final FormMapping<Profile> profileForm = Forms.basic(Profile.class, "profile")
 		.field("profileId", FormFieldType.HIDDEN_FIELD.getType())
@@ -116,22 +111,7 @@ public class BasicFormRendererTest {
 		FormMapping<Profile> filledForm = profileForm.fillAndValidate(new FormData<Profile>(inputs, ValidationResult.empty), locale);
 		assertNotNull(filledForm.getValidationResult().getFieldMessages().get("profile" + pathSep + "employers[0]" + pathSep + "fromYear"));
 		
-		RenderContext<Profile> ctx = new RenderContext<Profile>();
-		ctx.setFilledForm(filledForm);
-		ctx.setMethod(FormMethod.POST);
-		ctx.setActionUrl("#");
-		ctx.setLocale(locale);
-		String html = new BasicFormRenderer().renderHtmlPage(ctx);
-		File f = null;
-		try {
-			f = File.createTempFile("test_inputs_", ".html", TestUtils.getTempDir());
-			// f.deleteOnExit();
-			LOG.info("Writing form HTML to " + f.getAbsolutePath());
-			TestUtils.saveContentToTextFile(f, html, "UTF-8");
-			TestUtils.openInBrowser("file:///" + f.getAbsolutePath().replace("\\", "/"));
-		} catch (IOException ex) {
-			fail("IO error: " + ex.getMessage());
-		}
+		Forms.previewForm(filledForm, locale);
 	}
 	
 	private Profile newVariousInputs() {
@@ -142,13 +122,13 @@ public class BasicFormRendererTest {
 		inputs.setBirthDate(birthCal.getTime());
 		inputs.setCertificate(null);
 		inputs.setCountry(Country.GB);
-		inputs.setFirstName("Marry");
+		inputs.setFirstName("Marry " + getScriptInjectionAttempt());
 		List<Function> functions = new ArrayList<Function>();
 		functions.add(new Function(Long.valueOf(300), "Sportsman"));
 		inputs.setFunctions(functions);
 		inputs.setHeader("Research");
-		inputs.setNote("These are the most important moments of my life...");
-		inputs.setPassword("secret123");
+		inputs.setNote("These are the most important moments of my life... " + getScriptInjectionAttempt());
+		inputs.setPassword("");
 		inputs.setProfileId("ab565");
 		inputs.setSalutation(Salutation.MS);
 		Set<Skill> skills = new LinkedHashSet<Skill>();
@@ -187,6 +167,10 @@ public class BasicFormRendererTest {
 		functions.add(new Function(Long.valueOf(300), "Sportsman"));
 		functions.add(new Function(Long.valueOf(400), "Manager"));
 		return functions;
+	}
+	
+	private static String getScriptInjectionAttempt() {
+		return "\" onFocus=\"window.alert('Alert attempt');\" style=\"";
 	}
 
 }
