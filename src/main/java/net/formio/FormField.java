@@ -36,15 +36,6 @@ public interface FormField<T> extends FormElement {
 	String getType();
 	
 	/**
-	 * Key for the label (derived from name).
-	 * Does not contain any brackets with indexes as the name does. 
-	 * Useful especially for repeated fields that are part of list mapping
-	 * and should have the same labels, but different (unique) indexed names.
-	 * @return
-	 */
-	String getLabelKey();
-	
-	/**
 	 * Single/first object which this field is filled with.
 	 * @return
 	 */

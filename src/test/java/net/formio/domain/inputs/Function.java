@@ -16,7 +16,10 @@
  */
 package net.formio.domain.inputs;
 
-public class Function {
+import java.io.Serializable;
+
+public class Function implements Serializable {
+	private static final long serialVersionUID = 8707232365153251018L;
 	private final Long id;
 	private final String name;
 	

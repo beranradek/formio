@@ -94,10 +94,12 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		return buildReport(msgInterpolator, violationsList, requestFailures, parseErrors, propPrefix, locale);
 	}
 	
+	@Override
 	public <T> ValidationResult validate(T inst, Locale locale, Class<?> ... groups) {
 		return this.validate(inst, (String)null, Collections.<RequestProcessingError>emptyList(), Collections.<ParseError>emptyList(), locale, groups);
 	}
 	
+	@Override
 	public <T> ValidationResult validate(T inst, Class<?> ... groups) {
 		return this.validate(inst, Locale.getDefault(), groups);
 	}

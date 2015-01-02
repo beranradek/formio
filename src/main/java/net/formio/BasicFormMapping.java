@@ -17,6 +17,7 @@
 package net.formio;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,6 +68,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	final FormProperties formProperties;
 	final boolean secured;
 	final int order;
+	final Integer index;
 	
 	/**
 	 * Constructs a mapping from the given builder.
@@ -85,6 +87,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		this.validationResult = builder.validationResult;
 		this.formProperties = new FormPropertiesImpl(builder.properties);
 		this.order = builder.order;
+		this.index = builder.index;
 		this.fields = simpleCopy ? builder.fields : Clones.fieldsWithParent(this, builder.fields, getConfig(), builder.dataClass);
 		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithParent(this, builder.nested, builder.dataClass, getConfig());
 	}
@@ -215,7 +218,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	
 	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj, Locale locale) {
-		return fill(editedObj, locale, null);
+		return fill(editedObj, locale, (RequestContext)null);
 	}
 	
 	@Override
@@ -226,6 +229,18 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj) {
 		return fill(editedObj, getDefaultLocale());
+	}
+	
+	@Override
+	public BasicFormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, RequestContext ctx, Class<?> ... validationGroups) {
+		BasicFormMapping<T> mapping = fill(formData, locale, ctx);
+		FormData<T> validatedFormData = new FormData<T>(formData.getData(), mapping.validate(locale, validationGroups));
+		return fill(validatedFormData, locale, ctx);
+	}
+	
+	@Override
+	public FormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, Class<?>... validationGroups) {
+		return fillAndValidate(formData, locale, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
@@ -280,7 +295,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, ctx, validationGroups);
 		for (Map.Entry<String, FormData<?>> e : nestedFormData.entrySet()) {
 			values.put(e.getKey(), BoundValuesInfo.getInstance(
-				new Object[] { e.getValue().getData() } , 
+				new Object[] { e.getValue().getData() }, 
 				(String)null, 
 				(Formatter<Object>)null,
 				locale));
@@ -300,19 +315,19 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		final FilledData<T> filledObject = this.getConfig().getBinder().bindToNewInstance(this.dataClass, instantiator, values);
 		
 		// validation of resulting object for this mapping
-		List<RequestProcessingError> requestFailures = new ArrayList<RequestProcessingError>();
-		if (error != null) {
-			requestFailures.add(error);
+		ValidationResult validationRes = validateInternal(
+			error, 
+			FormUtils.flatten(filledObject.getPropertyBindErrors().values()), 
+			locale, 
+			validationGroups); 
+		
+		Collection<ValidationResult> validationResults = new ArrayList<ValidationResult>();
+		validationResults.add(validationRes);
+		for (FormData<?> fd : nestedFormData.values()) {
+			validationResults.add(fd.getValidationResult());
 		}
-		ValidationResult validationRes = this.getConfig().getBeanValidator().validate(
-			filledObject.getData(), 
-			this.path, 
-			requestFailures, 
-			FormUtils.flatten(filledObject.getPropertyBindErrors().values()),
-			locale,
-			validationGroups);
-		return new FormData<T>(filledObject.getData(), 
-			Clones.mergedValidationResults(validationRes, nestedFormData));
+		
+		return new FormData<T>(filledObject.getData(), Clones.mergedValidationResults(validationResults));
 	}
 
 	@Override
@@ -413,6 +428,40 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return this.order;
 	}
 	
+	@Override
+	public Integer getIndex() {
+		return this.index;
+	}
+	
+	@Override
+	public boolean isRootMapping() {
+		return this.parent == null;
+	}
+	
+	@Override
+	public ValidationResult validate(Locale locale, Class<?> ... validationGroups) {
+		Collection<ValidationResult> validationResults = new ArrayList<ValidationResult>();
+		validationResults.add(validateInternal((RequestProcessingError)null, new ArrayList<ParseError>(), locale, validationGroups));
+		for (FormMapping<?> mapping : nested.values()) {
+			validationResults.add(mapping.validate(locale, validationGroups));
+		}
+		return Clones.mergedValidationResults(validationResults);
+	}
+	
+	ValidationResult validateInternal(RequestProcessingError error, List<ParseError> parseErrors, Locale locale, Class<?> ... validationGroups) {
+		List<RequestProcessingError> requestErrors = new ArrayList<RequestProcessingError>();
+		if (error != null) {
+			requestErrors.add(error);
+		}
+		return this.getConfig().getBeanValidator().validate(
+			this.filledObject,
+			this.path, 
+			requestErrors, 
+			parseErrors,
+			locale,
+			validationGroups);
+	}
+	
 	Map<String, FormData<?>> loadDataForMappings(
 		Map<String, FormMapping<?>> mappings, 
 		RequestParams paramsProvider,
@@ -470,6 +519,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		builder.config = this.config;
 		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
 		builder.order = this.order;
+		builder.index = this.index;
 		return builder;
 	}
 	
@@ -488,10 +538,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 				AuthTokens.generateAuthToken(ctx, this.config.getTokenAuthorizer(), getRootMappingPath()));
 		}
 		return Collections.unmodifiableMap(propValues);
-	}
-	
-	boolean isRootMapping() {
-		return !this.path.contains(Forms.PATH_SEP);
 	}
 	
 	String getRootMappingPath() {
@@ -608,7 +654,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	private <U> FormField<U> createFilledFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
 		ChoiceProvider<U> choiceProvider = field.getChoiceProvider();
 		if (choiceProvider == null && field.getType() != null && !field.getType().isEmpty()) {
-			FormComponent formComponent = FormComponent.findByType(field.getType());
+			FormFieldType formComponent = FormFieldType.findByType(field.getType());
 			if (formComponent != null && formComponent.isChoice()) {
 				// TODO: choice provider can be initialized here to some default but class of value must be
 				// propagated here

@@ -17,10 +17,10 @@
 package net.formio;
 
 /**
- * Type of form component.
+ * Type of form field.
  * @author Radek Beran
  */
-public enum FormComponent {
+public enum FormFieldType {
 	LABEL("label"),
 	TEXT_FIELD("text"),
 	TEXT_AREA("textarea"),
@@ -39,7 +39,7 @@ public enum FormComponent {
 	
 	private final String type;
 	
-	private FormComponent(String type) {
+	private FormFieldType(String type) {
 		this.type = type;
 	}
 
@@ -51,8 +51,8 @@ public enum FormComponent {
 		return this == MULTIPLE_CHECK_BOX || this == RADIO_CHOICE || this == DROP_DOWN_CHOICE || this == MULTIPLE_CHOICE;
 	}
 	
-	public static FormComponent findByType(String typeName) {
-		for (FormComponent fc : FormComponent.values()) {
+	public static FormFieldType findByType(String typeName) {
+		for (FormFieldType fc : FormFieldType.values()) {
 			if (fc.getType().equals(typeName)) {
 				return fc;
 			}

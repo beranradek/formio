@@ -36,6 +36,15 @@ public interface FormElement extends FormProperties {
 	String getName();
 	
 	/**
+	 * Key for the label (derived from name).
+	 * Does not contain any brackets with indexes as the name does. 
+	 * Useful especially for repeated fields that are part of list mapping
+	 * and should have the same labels, but different (unique) indexed names.
+	 * @return
+	 */
+	String getLabelKey();
+	
+	/**
 	 * Returns view with properties of this form element.
 	 * @return
 	 */

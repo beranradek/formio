@@ -16,18 +16,22 @@
  */
 package net.formio.domain.inputs;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import net.formio.upload.UploadedFile;
 
 /**
- * Domain object with fields for testing various types of form inputs.
+ * Domain object of an user profile with fields for testing various types of form inputs.
  * @author Radek Beran
  */
-public class VariousInputs {
-	
+public class Profile implements Serializable {
+	private static final long serialVersionUID = -7676052816696638107L;
+
 	// hidden
 	private String profileId;
 	
@@ -44,6 +48,10 @@ public class VariousInputs {
 	
 	// select
 	private Country country;
+	
+	// Cascade validation to employers
+	@Valid
+	private List<Employer> employers;
 	
 	// date
 	private Date birthDate;
@@ -133,6 +141,14 @@ public class VariousInputs {
 
 	public void setCountry(Country country) {
 		this.country = country;
+	}
+
+	public List<Employer> getEmployers() {
+		return employers;
+	}
+
+	public void setEmployers(List<Employer> employers) {
+		this.employers = employers;
 	}
 
 	public List<Function> getFunctions() {

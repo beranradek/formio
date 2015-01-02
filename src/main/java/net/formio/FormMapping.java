@@ -36,13 +36,6 @@ import net.formio.validation.ValidationResult;
 public interface FormMapping<T> extends FormElement {
 	
 	/**
-	 * Key for the label for filled object (or list of objects).
-	 * Derived from path. Does not contain any brackets with indexes.
-	 * @return
-	 */
-	String getLabelKey();
-	
-	/**
 	 * Object filled in this mapping, or {@code null} if this mapping is not filled yet.
 	 * @return
 	 */
@@ -96,6 +89,30 @@ public interface FormMapping<T> extends FormElement {
 	 */
 	FormMapping<T> fill(FormData<T> formData);
 	
+	/**
+	 * Fills form with values from given object, validates the object and returns new filled form
+	 * that can be populated to the template. Actual validation messages are present for rendering.
+	 * @param formData object that holds data for the form and initial validation messages - these messages can
+	 * be empty because the data is revalidated automatically
+	 * @param locale
+	 * @param ctx
+	 * @param validationGroups
+	 * @return
+	 */
+	FormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, RequestContext ctx, Class<?> ... validationGroups);
+	
+	/**
+	 * Fills form with values from given object, validates the object and returns new filled form
+	 * that can be populated to the template. Actual validation messages are present for rendering.
+	 * @param formData object that holds data for the form and initial validation messages - these messages can
+	 * be empty because the data is revalidated automatically
+	 * @param locale
+	 * @param ctx
+	 * @param validationGroups
+	 * @return
+	 */
+	FormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, Class<?> ... validationGroups);
+	
 	FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups);
 	FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups);
 	FormData<T> bind(RequestParams paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups);
@@ -144,6 +161,14 @@ public interface FormMapping<T> extends FormElement {
 	 * @return
 	 */
 	FormData<T> bind(RequestParams paramsProvider, T instance, Class<?>... validationGroups);
+	
+	/**
+	 * Validates form data filled in this mapping (and nested mappings recursively).
+	 * @param locale
+	 * @param validationGroups
+	 * @return
+	 */
+	ValidationResult validate(Locale locale, Class<?> ... validationGroups);
 	
 	/**
 	 * Returns result with validation messages, {@code null} if form data was not validated yet.
@@ -233,10 +258,22 @@ public interface FormMapping<T> extends FormElement {
 	FormMapping<T> withParent(FormMapping<?> parent, boolean required);
 	
 	/**
+	 * Returns true if this mapping is root mapping (without parent).
+	 * @return
+	 */
+	boolean isRootMapping();
+	
+	/**
 	 * Returns string representation of this mapping.
 	 * @param indent indentation characters
 	 * @return
 	 */
 	String toString(String indent);
+	
+	/**
+	 * Returns an index if this is filled indexed mapping with an index; {@code null} otherwise.
+	 * @return
+	 */
+	Integer getIndex();
 	
 }

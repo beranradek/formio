@@ -14,30 +14,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.debug;
+package net.formio.domain.inputs;
 
-import net.formio.FormMapping;
+import java.io.Serializable;
 
-/**
- * Mappings in path to form field.
- * @author Radek Beran
- */
-public class ParentMappings {
-	private final FormMapping<?> rootMapping;
-	private final FormMapping<?> parentMapping;
+import javax.validation.constraints.Digits;
 
-	public ParentMappings(FormMapping<?> rootMapping, FormMapping<?> parentMapping) {
-		if (rootMapping == null) throw new IllegalArgumentException("rootMapping cannot be null");
-		this.rootMapping = rootMapping;
-		this.parentMapping = parentMapping; // can be null (only root mapping available)
+public class Employer implements Serializable {
+	private static final long serialVersionUID = -2969710396425077947L;
+	private String name;
+	
+	@Digits(integer = 4, fraction = 0)
+	private int fromYear;
+	
+	@Digits(integer = 4, fraction = 0)
+	private int toYear;
+
+	public String getName() {
+		return name;
 	}
 
-	public FormMapping<?> getRootMapping() {
-		return rootMapping;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public FormMapping<?> getParentMapping() {
-		return parentMapping;
+	public int getFromYear() {
+		return fromYear;
 	}
 
+	public void setFromYear(int fromYear) {
+		this.fromYear = fromYear;
+	}
+
+	public int getToYear() {
+		return toYear;
+	}
+
+	public void setToYear(int toYear) {
+		this.toYear = toYear;
+	}
 }

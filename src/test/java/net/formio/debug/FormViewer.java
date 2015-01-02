@@ -25,6 +25,7 @@ import net.formio.FormMapping;
 import net.formio.data.TestData;
 import net.formio.data.TestForms;
 import net.formio.domain.Car;
+import net.formio.domain.inputs.Profile;
 import net.formio.utils.TestUtils;
 import net.formio.validation.ValidationResult;
 
@@ -39,7 +40,13 @@ public class FormViewer {
 	public static void main(String ... args) {
 		FormData<Car> formData = new FormData<Car>(TestData.newCar(), ValidationResult.empty);
 		FormMapping<Car> filledForm = TestForms.CAR_ACCESSIBILITY_FORM.fill(formData);
-		String html = new BasicFormRenderer().renderHtmlPage(filledForm, FormMethod.POST, "/save", Locale.getDefault());
+		
+		RenderContext<Car> ctx = new RenderContext<Car>();
+		ctx.setFilledForm(filledForm);
+		ctx.setMethod(FormMethod.POST);
+		ctx.setActionUrl("#");
+		ctx.setLocale(Locale.ENGLISH);
+		String html = new BasicFormRenderer().renderHtmlPage(ctx);
 		File f = new File(TestUtils.getTempDir(), "test_form_view.html");
 		LOG.info("Writing form HTML to " + f.getAbsolutePath());
 		TestUtils.saveContentToTextFile(f, html, "UTF-8");

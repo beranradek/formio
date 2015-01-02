@@ -68,6 +68,7 @@ public class BasicFormMappingBuilder<T> {
 	HeterogMap<String> properties;
 	int order;
 	private int nextNestedElementOrder;
+	Integer index;
 
 	/**
 	 * Should be constructed only via {@link Forms} entry point of API.
@@ -108,6 +109,7 @@ public class BasicFormMappingBuilder<T> {
 		properties.putAllFromSource(src.formProperties.getProperties());
 		this.properties = properties;
 		this.order = src.order;
+		this.index = src.index;
 	}
 	
 	/**
@@ -138,6 +140,12 @@ public class BasicFormMappingBuilder<T> {
 	/** Only for internal usage. */
 	BasicFormMappingBuilder<T> order(int order) {
 		this.order = order;
+		return this;
+	}
+	
+	/** Only for internal usage. */
+	BasicFormMappingBuilder<T> index(Integer index) {
+		this.index = index;
 		return this;
 	}
 	

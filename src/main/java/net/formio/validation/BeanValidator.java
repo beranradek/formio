@@ -54,6 +54,23 @@ public interface BeanValidator {
 		Class<?>... groups);
 	
 	/**
+	 * Validates object and returns result with validation errors.
+	 * @param inst
+	 * @param locale
+	 * @param groups
+	 * @return
+	 */
+	<T> ValidationResult validate(T inst, Locale locale, Class<?> ... groups);
+	
+	/**
+	 * Validates object and returns result with validation errors.
+	 * @param inst
+	 * @param groups
+	 * @return
+	 */
+	<T> ValidationResult validate(T inst, Class<?> ... groups);
+	
+	/**
 	 * Returns true if given property of given class is required (must be filled with data).
 	 * @param cls
 	 * @param propertyName

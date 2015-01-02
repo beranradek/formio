@@ -17,6 +17,7 @@
 package net.formio;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -160,6 +161,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.mappingType = MappingType.SINGLE;
 			// no filledObject - already loading data from request in the following code 
 			builder.order = index;
+			builder.index = Integer.valueOf(index);
 			listMappings.add(builder.build(this.getConfig()));
 		}
 		
@@ -196,7 +198,6 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		
 		ValidationResult validationRes = new ValidationResult(fieldMsgs, globalMsgs);
 		FormData<List<T>> formData = new FormData<List<T>>(data, validationRes);
-		
 		return (FormData<T>)formData;
 	}
 	
@@ -241,6 +242,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.mappingType = MappingType.SINGLE;
 			builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
 			builder.order = index;
+			builder.index = Integer.valueOf(index);
 			newMappings.add(builder.build(this.getConfig()));
 			index++;
 		}
@@ -261,7 +263,18 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
 		builder.config = this.config;
 		builder.order = this.order;
+		builder.index = this.index;
 		return builder;
+	}
+	
+	@Override
+	public ValidationResult validate(Locale locale, Class<?> ... validationGroups) {
+		Collection<ValidationResult> validationResults = new ArrayList<ValidationResult>();
+		List<FormMapping<T>> listMappings = getList();
+		for (int index = 0; index < listMappings.size(); index++) {
+			validationResults.add(listMappings.get(index).validate(locale, validationGroups));
+		}
+		return Clones.mergedValidationResults(validationResults);
 	}
 	
 	@Override

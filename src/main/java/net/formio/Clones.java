@@ -17,6 +17,7 @@
 package net.formio;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,24 +43,19 @@ final class Clones {
 	}
 	
 	/**
-	 * Returns validation result merged with validation results from nested form data.
-	 * @param validationRes
-	 * @param nestedFormData
+	 * Returns merged validation results.
+	 * @param validationResults
 	 * @return
 	 */
-	static ValidationResult mergedValidationResults(
-		ValidationResult validationRes,
-		Map<String, FormData<?>> nestedFormData) {
-		
-		final Map<String, List<ConstraintViolationMessage>> fieldMsgsCopy = cloneFieldMessages(validationRes.getFieldMessages());
-		
+	static ValidationResult mergedValidationResults(Collection<ValidationResult> validationResults) {
 		// gather validation messages from nested mappings
-		List<ConstraintViolationMessage> globalMsgsCopy = new ArrayList<ConstraintViolationMessage>(validationRes.getGlobalMessages());
-		for (FormData<?> formData : nestedFormData.values()) {
-			fieldMsgsCopy.putAll(formData.getValidationResult().getFieldMessages());
-			globalMsgsCopy.addAll(formData.getValidationResult().getGlobalMessages());
+		final Map<String, List<ConstraintViolationMessage>> fieldMsgs = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
+		final List<ConstraintViolationMessage> globalMsgs = new ArrayList<ConstraintViolationMessage>();
+		for (ValidationResult res : validationResults) {
+			fieldMsgs.putAll(res.getFieldMessages());
+			globalMsgs.addAll(res.getGlobalMessages());
 		}
-		ValidationResult validationResCopy = new ValidationResult(fieldMsgsCopy, globalMsgsCopy);
+		ValidationResult validationResCopy = new ValidationResult(fieldMsgs, globalMsgs);
 		return validationResCopy;
 	}
 	

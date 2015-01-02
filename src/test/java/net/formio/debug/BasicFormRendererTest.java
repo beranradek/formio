@@ -28,18 +28,20 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import net.formio.FormComponent;
 import net.formio.FormData;
+import net.formio.FormFieldType;
 import net.formio.FormMapping;
 import net.formio.Forms;
+import net.formio.MappingType;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.choice.DefaultChoiceProvider;
 import net.formio.choice.EnumChoiceProvider;
 import net.formio.domain.inputs.Country;
+import net.formio.domain.inputs.Employer;
 import net.formio.domain.inputs.Function;
+import net.formio.domain.inputs.Profile;
 import net.formio.domain.inputs.Salutation;
 import net.formio.domain.inputs.Skill;
-import net.formio.domain.inputs.VariousInputs;
 import net.formio.utils.TestUtils;
 import net.formio.validation.ValidationResult;
 
@@ -52,17 +54,23 @@ import org.junit.Test;
 public class BasicFormRendererTest {
 	private static final Logger LOG = Logger.getLogger(BasicFormRendererTest.class.getName());
 	
-	private static final FormMapping<VariousInputs> profileForm = Forms.basic(VariousInputs.class, "profile")
-		.field("profileId", FormComponent.HIDDEN_FIELD.getType())
-		.field("header", FormComponent.LABEL.getType())
-		.field(Forms.<Salutation>field("salutation", FormComponent.RADIO_CHOICE.getType())
+	private static final FormMapping<Profile> profileForm = Forms.basic(Profile.class, "profile")
+		.field("profileId", FormFieldType.HIDDEN_FIELD.getType())
+		.field("header", FormFieldType.LABEL.getType())
+		.field(Forms.<Salutation>field("salutation", FormFieldType.RADIO_CHOICE.getType())
 			.choiceProvider(new EnumChoiceProvider<Salutation>(Salutation.class)))
-		.field("firstName", FormComponent.TEXT_FIELD.getType())
-		.field("password", FormComponent.PASSWORD.getType())
-		.field(Forms.<Country>field("country", FormComponent.DROP_DOWN_CHOICE.getType())
+		.field("firstName", FormFieldType.TEXT_FIELD.getType())
+		.field("password", FormFieldType.PASSWORD.getType())
+		.field(Forms.<Country>field("country", FormFieldType.DROP_DOWN_CHOICE.getType())
 			.choiceProvider(new EnumChoiceProvider<Country>(Country.class)))
-		.field("birthDate", FormComponent.DATE_PICKER.getType())
-		.field(Forms.<Skill>field("skills", FormComponent.MULTIPLE_CHECK_BOX.getType())
+		.field("birthDate", FormFieldType.DATE_PICKER.getType())
+		.nested(Forms.basic(Employer.class, "employers", MappingType.LIST)
+			.field(Forms.field("name", FormFieldType.TEXT_FIELD.getType()).readonly(true))
+			.field("fromYear", FormFieldType.TEXT_FIELD.getType())
+			.field("toYear", FormFieldType.TEXT_FIELD.getType())
+			.build()
+		)
+		.field(Forms.<Skill>field("skills", FormFieldType.MULTIPLE_CHECK_BOX.getType())
 			.choiceProvider(new DefaultChoiceProvider<Skill>(skillsCodebook()))
 			.choiceRenderer(new ChoiceRenderer<Skill>() {
 				
@@ -77,7 +85,7 @@ public class BasicFormRendererTest {
 				}
 			})
 		)	
-		.field(Forms.<Function>field("functions", FormComponent.MULTIPLE_CHOICE.getType())
+		.field(Forms.<Function>field("functions", FormFieldType.MULTIPLE_CHOICE.getType())
 			.choiceProvider(new DefaultChoiceProvider<Function>(functionsCodebook()))
 			.choiceRenderer(new ChoiceRenderer<Function>() {
 				
@@ -92,17 +100,26 @@ public class BasicFormRendererTest {
 				}
 			})
 		 )
-		.field("certificate", FormComponent.FILE_UPLOAD.getType())
-		.field("note", FormComponent.TEXT_AREA.getType())
-		.field("agreement", FormComponent.CHECK_BOX.getType())
+		.field("certificate", FormFieldType.FILE_UPLOAD.getType())
+		.field(Forms.field("note", FormFieldType.TEXT_AREA.getType()).enabled(false))
+		.field("agreement", FormFieldType.CHECK_BOX.getType())
 		.build();
 
 	@Test
 	public void testRenderForm() {
-		VariousInputs inputs = newVariousInputs();
-		FormData<VariousInputs> formData = new FormData<VariousInputs>(inputs, ValidationResult.empty);
-		FormMapping<VariousInputs> filledForm = profileForm.fill(formData);
-		String html = new BasicFormRenderer().renderHtmlPage(filledForm, FormMethod.POST, "#", Locale.ENGLISH);
+		final Locale locale = Locale.ENGLISH;
+		Profile inputs = newVariousInputs();
+		
+		// Validation errors will be displayed when the form is shown for the first time
+		// (due to fillAndValidate call)
+		FormMapping<Profile> filledForm = profileForm.fillAndValidate(new FormData<Profile>(inputs, ValidationResult.empty), locale);
+		
+		RenderContext<Profile> ctx = new RenderContext<Profile>();
+		ctx.setFilledForm(filledForm);
+		ctx.setMethod(FormMethod.POST);
+		ctx.setActionUrl("#");
+		ctx.setLocale(locale);
+		String html = new BasicFormRenderer().renderHtmlPage(ctx);
 		File f = null;
 		try {
 			f = File.createTempFile("test_inputs_", ".html", TestUtils.getTempDir());
@@ -115,8 +132,8 @@ public class BasicFormRendererTest {
 		}
 	}
 	
-	private VariousInputs newVariousInputs() {
-		VariousInputs inputs = new VariousInputs();
+	private Profile newVariousInputs() {
+		Profile inputs = new Profile();
 		inputs.setAgreement(true);
 		Calendar birthCal = Calendar.getInstance();
 		birthCal.set(1980, 11, 6);
@@ -135,6 +152,21 @@ public class BasicFormRendererTest {
 		Set<Skill> skills = new LinkedHashSet<Skill>();
 		skills.add(new Skill(Long.valueOf(17), "CRM"));
 		inputs.setSkills(skills);
+		
+		List<Employer> employers = new ArrayList<Employer>();
+		Employer e1 = new Employer();
+		e1.setName("IBM");
+		e1.setFromYear(19999); // invalid year
+		e1.setToYear(1999);
+		employers.add(e1);
+		
+		Employer e2 = new Employer();
+		e2.setName("Microsoft");
+		e2.setFromYear(1999);
+		e2.setToYear(2014);
+		employers.add(e2);
+		
+		inputs.setEmployers(employers);
 		return inputs;
 	}
 	
