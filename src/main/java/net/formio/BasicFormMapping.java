@@ -438,12 +438,11 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return this.parent == null;
 	}
 	
-	@Override
-	public ValidationResult validate(Locale locale, Class<?> ... validationGroups) {
+	ValidationResult validate(Locale locale, Class<?> ... validationGroups) {
 		Collection<ValidationResult> validationResults = new ArrayList<ValidationResult>();
 		validationResults.add(validateInternal((RequestProcessingError)null, new ArrayList<ParseError>(), locale, validationGroups));
 		for (FormMapping<?> mapping : nested.values()) {
-			validationResults.add(mapping.validate(locale, validationGroups));
+			validationResults.add(((BasicFormMapping<?>)mapping).validate(locale, validationGroups));
 		}
 		return Clones.mergedValidationResults(validationResults);
 	}

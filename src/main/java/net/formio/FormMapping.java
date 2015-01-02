@@ -163,14 +163,6 @@ public interface FormMapping<T> extends FormElement {
 	FormData<T> bind(RequestParams paramsProvider, T instance, Class<?>... validationGroups);
 	
 	/**
-	 * Validates form data filled in this mapping (and nested mappings recursively).
-	 * @param locale
-	 * @param validationGroups
-	 * @return
-	 */
-	ValidationResult validate(Locale locale, Class<?> ... validationGroups);
-	
-	/**
 	 * Returns result with validation messages, {@code null} if form data was not validated yet.
 	 * @return
 	 */

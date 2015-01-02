@@ -268,16 +268,6 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public ValidationResult validate(Locale locale, Class<?> ... validationGroups) {
-		Collection<ValidationResult> validationResults = new ArrayList<ValidationResult>();
-		List<FormMapping<T>> listMappings = getList();
-		for (int index = 0; index < listMappings.size(); index++) {
-			validationResults.add(listMappings.get(index).validate(locale, validationGroups));
-		}
-		return Clones.mergedValidationResults(validationResults);
-	}
-	
-	@Override
 	public List<FormMapping<T>> getList() {
 		List<FormMapping<T>> ret = new ArrayList<FormMapping<T>>();
 		for (FormMapping<T> m : this.listOfMappings) {
@@ -299,6 +289,16 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	@Override
 	public BasicListFormMapping<T> withParent(FormMapping<?> parent, boolean required) {
 		return new BasicListFormMapping<T>(this, parent, required);
+	}
+	
+	@Override
+	ValidationResult validate(Locale locale, Class<?> ... validationGroups) {
+		Collection<ValidationResult> validationResults = new ArrayList<ValidationResult>();
+		List<FormMapping<T>> listMappings = getList();
+		for (int index = 0; index < listMappings.size(); index++) {
+			validationResults.add(((BasicFormMapping<?>)listMappings.get(index)).validate(locale, validationGroups));
+		}
+		return Clones.mergedValidationResults(validationResults);
 	}
 	
 	Map<String, FormMapping<?>> indexAndFillNestedMappings(int index, FormData<T> editedObj, Locale locale, RequestContext ctx) {

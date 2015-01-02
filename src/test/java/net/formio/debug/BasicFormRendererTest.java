@@ -16,7 +16,7 @@
  */
 package net.formio.debug;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -109,10 +109,12 @@ public class BasicFormRendererTest {
 	public void testRenderForm() {
 		final Locale locale = Locale.ENGLISH;
 		Profile inputs = newVariousInputs();
+		String pathSep = Forms.PATH_SEP;
 		
 		// Validation errors will be displayed when the form is shown for the first time
 		// (due to fillAndValidate call)
 		FormMapping<Profile> filledForm = profileForm.fillAndValidate(new FormData<Profile>(inputs, ValidationResult.empty), locale);
+		assertNotNull(filledForm.getValidationResult().getFieldMessages().get("profile" + pathSep + "employers[0]" + pathSep + "fromYear"));
 		
 		RenderContext<Profile> ctx = new RenderContext<Profile>();
 		ctx.setFilledForm(filledForm);
