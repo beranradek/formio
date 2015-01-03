@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.debug;
+package net.formio.render;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -41,6 +41,7 @@ import net.formio.domain.inputs.Function;
 import net.formio.domain.inputs.Profile;
 import net.formio.domain.inputs.Salutation;
 import net.formio.domain.inputs.Skill;
+import net.formio.render.BasicFormRenderer;
 import net.formio.validation.ValidationResult;
 
 import org.junit.Test;

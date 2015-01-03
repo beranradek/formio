@@ -20,10 +20,10 @@ import java.util.Locale;
 
 import net.formio.binding.Instantiator;
 import net.formio.binding.StaticFactoryMethod;
-import net.formio.debug.BasicFormRenderer;
-import net.formio.debug.FormMethod;
-import net.formio.debug.RenderContext;
 import net.formio.internal.FormUtils;
+import net.formio.render.BasicFormRenderer;
+import net.formio.render.FormMethod;
+import net.formio.render.RenderContext;
 
 /**
  * API for form definition and processing.

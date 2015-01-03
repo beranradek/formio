@@ -14,13 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.debug;
+package net.formio.render;
+
+import net.formio.FormData;
+import net.formio.FormMapping;
+import net.formio.Forms;
+import net.formio.data.TestData;
+import net.formio.data.TestForms;
+import net.formio.domain.Car;
+import net.formio.validation.ValidationResult;
 
 /**
- * Form method.
+ * Renders HTML page with test form and displays it in default browser.
  * @author Radek Beran
  */
-public enum FormMethod {
-	GET,
-	POST
+public class FormViewer {
+	
+	public static void main(String ... args) {
+		FormData<Car> formData = new FormData<Car>(TestData.newCar(), ValidationResult.empty);
+		FormMapping<Car> filledForm = TestForms.CAR_ACCESSIBILITY_FORM.fill(formData);
+		
+		Forms.previewForm(filledForm);
+	}
 }
