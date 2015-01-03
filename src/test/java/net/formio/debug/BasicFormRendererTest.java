@@ -174,7 +174,7 @@ public class BasicFormRendererTest {
 		profile.setFavoriteNumber(Integer.valueOf(4));
 		profile.setSecondFavoriteNumber(Integer.valueOf(7));
 		profile.setSearch("Something to search for...");
-		profile.setHomepage("http://www.formio.net");
+		profile.setHomepage("invalid-url");
 		profile.setYearWeek("2014-W15");
 		profile.setYearMonth("2014-04");
 		return profile;

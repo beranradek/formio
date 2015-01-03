@@ -26,7 +26,10 @@ import javax.validation.constraints.NotNull;
 
 import net.formio.domain.Address;
 import net.formio.upload.UploadedFile;
+import net.formio.validation.constraints.Email;
 import net.formio.validation.constraints.NotEmpty;
+import net.formio.validation.constraints.Phone;
+import net.formio.validation.constraints.URL;
 
 /**
  * Domain object of an user profile with fields for testing various types of form inputs.
@@ -82,6 +85,7 @@ public class Profile implements Serializable {
 	
 	private Date registrationDate;
 	
+	@Email
 	private String email;
 	
 	private String yearMonth;
@@ -94,8 +98,10 @@ public class Profile implements Serializable {
 	
 	private String search;
 	
+	@Phone
 	private String phone;
 	
+	@URL
 	private String homepage;
 	
 	// checkbox
