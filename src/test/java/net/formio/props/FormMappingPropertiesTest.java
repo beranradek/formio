@@ -73,7 +73,11 @@ public class FormMappingPropertiesTest {
 		
 		FormMapping<CarDimensions> filledCarMapping = filledForm.getNestedByProperty(CarDimensions.class, "dimensions");
 		
-		assertEquals(Boolean.FALSE, Boolean.valueOf(filledCarMapping.getFormProperties().isVisible()));
+		assertEquals(Boolean.FALSE, Boolean.valueOf(filledCarMapping.isVisible()));
+		assertEquals("Should be invisible because parent mapping is invisible", 
+			Boolean.FALSE, Boolean.valueOf(filledCarMapping.getFields().get("length").isVisible()));
+		assertEquals("Visible property of length should be true even if invisible due to parent", 
+			Boolean.TRUE, Boolean.valueOf(filledCarMapping.getFields().get("length").getFormProperties().isVisible()));
 		assertEquals(FieldProperty.ENABLED.getDefaultValue(), Boolean.valueOf(filledCarMapping.getFormProperties().isEnabled()));
 		assertEquals(FieldProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(filledCarMapping.getFormProperties().isRequired()));
 		assertEquals(FieldProperty.READ_ONLY.getDefaultValue(), Boolean.valueOf(filledCarMapping.getFormProperties().isReadonly()));
