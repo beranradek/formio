@@ -250,7 +250,26 @@ public class BasicFormRenderer {
 	}
 	
 	public String renderDefaultSubmitButton(RenderContext<?> ctx) {
-		return renderSubmitButton(ctx, Forms.<String>field(DEFAULT_SUBMIT, FormFieldType.SUBMIT_BUTTON.getType()).build());
+		return renderSubmitButton(ctx, Forms.<String>field(PROPERTY_DEFAULT_SUBMIT, FormFieldType.SUBMIT_BUTTON.getType()).build());
+	}
+	
+	public <T> String renderSubmitButton(RenderContext<?> ctx, FormField<T> field) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"" + getFormBlockClass() + "\">" + newLine());
+		sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
+		sb.append("<button type=\"submit\" value=\"" + renderValue(ctx, field.getValue()) + "\" class=\"btn btn-default\">");
+		String text = null;
+		if (field.getLabelKey() != null && !field.getLabelKey().equals(PROPERTY_DEFAULT_SUBMIT)) {
+			MessageTranslator tr = createMessageTranslator(ctx, field);
+			text = escapeHtml(tr.getMessage(field.getLabelKey()));
+		} else {
+			text = "Submit";
+		}
+		sb.append(text);
+		sb.append("</button>" + newLine());
+		sb.append("</div>" + newLine());
+		sb.append("</div>" + newLine());
+		return sb.toString();
 	}
 	
 	public <T> String renderFormBegin(RenderContext<T> ctx) {
@@ -653,25 +672,6 @@ public class BasicFormRenderer {
 			renderFieldEnd(ctx, field) +
 			renderFieldBoxEnd(ctx, field);
 	}
-	
-	protected <T> String renderSubmitButton(RenderContext<?> ctx, FormField<T> field) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + getFormBlockClass() + "\">" + newLine());
-		sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
-		sb.append("<button type=\"submit\" value=\"" + renderValue(ctx, field.getValue()) + "\" class=\"btn btn-default\">");
-		String text = null;
-		if (field.getLabelKey() != null && !field.getLabelKey().equals(DEFAULT_SUBMIT)) {
-			MessageTranslator tr = createMessageTranslator(ctx, field);
-			text = escapeHtml(tr.getMessage(field.getLabelKey()));
-		} else {
-			text = "Submit";
-		}
-		sb.append(text);
-		sb.append("</button>" + newLine());
-		sb.append("</div>" + newLine());
-		sb.append("</div>" + newLine());
-		return sb.toString();
-	}
 
 	protected <T> String renderFieldBoxBegin(RenderContext<?> ctx, FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
@@ -831,5 +831,5 @@ public class BasicFormRenderer {
 			renderFieldBoxEnd(ctx, field);
 	}
 	
-	private final String DEFAULT_SUBMIT = "_defaultSubmitButton";
+	private final String PROPERTY_DEFAULT_SUBMIT = "_defaultSubmitButton";
 }

@@ -204,17 +204,17 @@ public class FormFieldImpl<T> implements FormField<T> {
 	
 	@Override
 	public boolean isVisible() {
-		return this.formProperties.isVisible();
+		return FormElementImpl.isVisible(this);
 	}
 	
 	@Override
 	public boolean isEnabled() {
-		return this.formProperties.isEnabled();
+		return FormElementImpl.isEnabled(this);
 	}
 	
 	@Override
 	public boolean isReadonly() {
-		return this.formProperties.isReadonly();
+		return FormElementImpl.isReadonly(this);
 	}
 	
 	@Override
@@ -253,7 +253,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	
 	@Override
 	public List<ConstraintViolationMessage> getValidationMessages() {
-		return FormUtils.getValidationMessages(this);
+		return FormElementImpl.getValidationMessages(this);
 	}
 
 	@Override

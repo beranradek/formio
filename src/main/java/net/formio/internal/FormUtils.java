@@ -33,10 +33,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.Forms;
-import net.formio.validation.ConstraintViolationMessage;
 
 /**
  * Utility methods for form processing.
@@ -218,23 +216,6 @@ public class FormUtils {
 			propName = fieldName.substring(lastDot + 1);
 		}
 		return removeTrailingBrackets(propName);
-	}
-	
-	/**
-	 * This method is NOT intended as a part of public API and should not be used outside the library!
-	 * Returns validation messages of form element.
-	 * @param fieldName
-	 * @return
-	 */
-	public static List<ConstraintViolationMessage> getValidationMessages(FormElement el) {
-		List<ConstraintViolationMessage> msgs = null;
-		if (el.getValidationResult() != null) {
-			msgs = el.getValidationResult().getFieldMessages().get(el.getName());
-		}
-		if (msgs == null) {
-			msgs = new ArrayList<ConstraintViolationMessage>();
-		}
-		return msgs;
 	}
 	
 	/**
