@@ -194,6 +194,45 @@ public class BasicFormRenderer {
 				case RADIO_CHOICE:
 					sb.append(renderRadioChoice(ctx, field));
 					break;
+				case COLOR:
+					sb.append(renderColor(ctx, field));
+					break;
+				case DATE:
+					sb.append(renderDate(ctx, field));
+					break;
+				case DATE_TIME:
+					sb.append(renderDateTime(ctx, field));
+					break;
+				case DATE_TIME_LOCAL:
+					sb.append(renderDateTimeLocal(ctx, field));
+					break;
+				case TIME:
+					sb.append(renderTime(ctx, field));
+					break;
+				case EMAIL:
+					sb.append(renderEmail(ctx, field));
+					break;
+				case MONTH:
+					sb.append(renderMonth(ctx, field));
+					break;
+				case NUMBER:
+					sb.append(renderNumber(ctx, field));
+					break;
+				case RANGE:
+					sb.append(renderRange(ctx, field));
+					break;
+				case SEARCH:
+					sb.append(renderSearch(ctx, field));
+					break;
+				case TEL:
+					sb.append(renderTel(ctx, field));
+					break;
+				case URL: 
+					sb.append(renderUrl(ctx, field));
+					break;
+				case WEEK:
+					sb.append(renderWeek(ctx, field));
+					break;
 				case SUBMIT_BUTTON:
 					sb.append(renderSubmitButton(ctx, field));
 					break;
@@ -477,12 +516,62 @@ public class BasicFormRenderer {
 	}
 	
 	protected <T> String renderTextField(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderFieldInput(ctx, field) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderColor(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderDate(RenderContext<?> ctx, FormField<T> field) {
+		// TODO: Support for min, max attributes
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderDateTime(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderDateTimeLocal(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderTime(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderEmail(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderMonth(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderNumber(RenderContext<?> ctx, FormField<T> field) {
+		// TODO: Support for min, max, step attributes
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderRange(RenderContext<?> ctx, FormField<T> field) {
+		// TODO: Support for min, max attributes
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderSearch(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderTel(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderUrl(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
+	}
+	
+	protected <T> String renderWeek(RenderContext<?> ctx, FormField<T> field) {
+		return renderTextFieldInternal(ctx, field);
 	}
 	
 	protected <T> String renderTextArea(RenderContext<?> ctx, FormField<T> field) {
@@ -731,6 +820,15 @@ public class BasicFormRenderer {
 		Severity maxSeverity = Severity.max(fieldMessages);
 		String maxSeverityClass = maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
 		return maxSeverityClass;
+	}
+	
+	private <T> String renderTextFieldInternal(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
+			renderFieldBegin(ctx, field) +
+			renderFieldInput(ctx, field) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
+			renderFieldEnd(ctx, field) +
+			renderFieldBoxEnd(ctx, field);
 	}
 	
 	private final String DEFAULT_SUBMIT = "_defaultSubmitButton";

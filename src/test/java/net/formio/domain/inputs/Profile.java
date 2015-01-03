@@ -78,6 +78,26 @@ public class Profile implements Serializable {
 	@Valid
 	private Address contactAddress;
 	
+	private String favoriteColor;
+	
+	private Date registrationDate;
+	
+	private String email;
+	
+	private String yearMonth;
+	
+	private String yearWeek;
+	
+	private Integer favoriteNumber;
+	
+	private Integer secondFavoriteNumber;
+	
+	private String search;
+	
+	private String phone;
+	
+	private String homepage;
+	
 	// checkbox
 	private boolean agreement;
 	
@@ -193,6 +213,86 @@ public class Profile implements Serializable {
 
 	public void setCertificate(UploadedFile certificate) {
 		this.certificate = certificate;
+	}
+
+	public String getFavoriteColor() {
+		return favoriteColor;
+	}
+
+	public void setFavoriteColor(String favoriteColor) {
+		this.favoriteColor = favoriteColor;
+	}
+
+	public Date getRegistrationDate() {
+		return registrationDate;
+	}
+
+	public void setRegistrationDate(Date registrationDate) {
+		this.registrationDate = registrationDate;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getYearMonth() {
+		return yearMonth;
+	}
+
+	public void setYearMonth(String yearMonth) {
+		this.yearMonth = yearMonth;
+	}
+
+	public String getYearWeek() {
+		return yearWeek;
+	}
+
+	public void setYearWeek(String yearWeek) {
+		this.yearWeek = yearWeek;
+	}
+
+	public Integer getFavoriteNumber() {
+		return favoriteNumber;
+	}
+
+	public void setFavoriteNumber(Integer favoriteNumber) {
+		this.favoriteNumber = favoriteNumber;
+	}
+
+	public Integer getSecondFavoriteNumber() {
+		return secondFavoriteNumber;
+	}
+
+	public void setSecondFavoriteNumber(Integer secondFavoriteNumber) {
+		this.secondFavoriteNumber = secondFavoriteNumber;
+	}
+
+	public String getSearch() {
+		return search;
+	}
+
+	public void setSearch(String search) {
+		this.search = search;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getHomepage() {
+		return homepage;
+	}
+
+	public void setHomepage(String homepage) {
+		this.homepage = homepage;
 	}
 
 	public String getSubmitValue() {

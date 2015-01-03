@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -100,6 +101,16 @@ public class BasicFormRendererTest {
 		.field(Forms.field("note", FormFieldType.TEXT_AREA.getType()).enabled(false))
 		.nested(Forms.automatic(Address.class, "contactAddress", Forms.factoryMethod(Address.class, "getInstance"))
 			.fields("street", "city", "zipCode").build())
+		.field(Forms.field("registrationDate", FormFieldType.DATE.getType()).pattern("yyyy-MM-dd"))
+		.field("email", FormFieldType.EMAIL.getType())
+		.field("phone", FormFieldType.TEL.getType())
+		.field("favoriteColor", FormFieldType.COLOR.getType())
+		.field("yearMonth", FormFieldType.MONTH.getType())
+		.field("yearWeek", FormFieldType.WEEK.getType())
+		.field("favoriteNumber", FormFieldType.NUMBER.getType())
+		.field("secondFavoriteNumber", FormFieldType.RANGE.getType())
+		.field("search", FormFieldType.SEARCH.getType())
+		.field("homepage", FormFieldType.URL.getType())
 		.field("agreement", FormFieldType.CHECK_BOX.getType())
 		.field("submitValue", FormFieldType.SUBMIT_BUTTON.getType())
 		.build();
@@ -155,7 +166,17 @@ public class BasicFormRendererTest {
 		
 		profile.setEmployers(employers);
 		
+		profile.setRegistrationDate(new Date());
 		profile.setSubmitValue("submitted");
+		profile.setEmail("invalid-email.com");
+		profile.setPhone("invalid-/%@phone123");
+		profile.setFavoriteColor("#0000ff");
+		profile.setFavoriteNumber(Integer.valueOf(4));
+		profile.setSecondFavoriteNumber(Integer.valueOf(7));
+		profile.setSearch("Something to search for...");
+		profile.setHomepage("http://www.formio.net");
+		profile.setYearWeek("2014-W15");
+		profile.setYearMonth("2014-04");
 		return profile;
 	}
 	

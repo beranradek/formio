@@ -26,13 +26,29 @@ public enum FormFieldType {
 	PASSWORD("password"),
 	HIDDEN_FIELD("hidden"),
 	CHECK_BOX("checkbox"),
-	MULTIPLE_CHECK_BOX("checkbox_multiple"),
+	MULTIPLE_CHECK_BOX("checkbox-multiple"),
 	RADIO_CHOICE("radio"),
 	DROP_DOWN_CHOICE("select"),
-	MULTIPLE_CHOICE("select_multiple"),
-	DATE_PICKER("date"),
+	MULTIPLE_CHOICE("select-multiple"),
+	DATE_PICKER("date-picker"),
 	FILE_UPLOAD("file"),
-	SUBMIT_BUTTON("submit");
+	SUBMIT_BUTTON("submit"),
+	
+	// HTML 5:
+	COLOR("color"),
+	DATE("date"),
+	DATE_TIME("datetime"),
+	DATE_TIME_LOCAL("datetime-local"),
+	TIME("time"),
+	EMAIL("email"),
+	MONTH("month"),
+	NUMBER("number"),
+	RANGE("range"),
+	SEARCH("search"),
+	TEL("tel"),
+	URL("url"),
+	WEEK("week");
+	
 	// LABEL("label"),
 	// LINK("link"),
 	// TODO: Multiple date and file?
