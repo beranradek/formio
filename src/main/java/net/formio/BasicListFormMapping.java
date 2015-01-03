@@ -162,7 +162,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			// no filledObject - already loading data from request in the following code 
 			builder.order = index;
 			builder.index = Integer.valueOf(index);
-			listMappings.add(builder.build(this.getConfig()));
+			listMappings.add(builder.build(getConfig()));
 		}
 		
 		// Loading data for constructed mappings for individual indexes
@@ -192,7 +192,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 					+ "in root list mapping. Please create SINGLE root mapping with nested list mapping.");
 			}
 			if (this.secured) {
-				AuthTokens.verifyAuthToken(ctx, this.getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
+				AuthTokens.verifyAuthToken(ctx, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
 			}
 		}
 		
@@ -243,7 +243,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
 			builder.order = index;
 			builder.index = Integer.valueOf(index);
-			newMappings.add(builder.build(this.getConfig()));
+			newMappings.add(builder.build(getConfig()));
 			index++;
 		}
 		// unindexed fields (that are only recipes for indexed fields) will not be part of filled form

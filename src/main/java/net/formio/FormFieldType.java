@@ -21,7 +21,6 @@ package net.formio;
  * @author Radek Beran
  */
 public enum FormFieldType {
-	LABEL("label"),
 	TEXT_FIELD("text"),
 	TEXT_AREA("textarea"),
 	PASSWORD("password"),
@@ -31,10 +30,11 @@ public enum FormFieldType {
 	RADIO_CHOICE("radio"),
 	DROP_DOWN_CHOICE("select"),
 	MULTIPLE_CHOICE("select_multiple"),
-	BUTTON("submit"),
-	LINK("link"),
 	DATE_PICKER("date"),
-	FILE_UPLOAD("file");
+	FILE_UPLOAD("file"),
+	SUBMIT_BUTTON("submit");
+	// LABEL("label"),
+	// LINK("link"),
 	// TODO: Multiple date and file?
 	
 	private final String type;

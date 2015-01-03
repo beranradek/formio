@@ -33,6 +33,7 @@ import net.formio.MappingType;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.choice.DefaultChoiceProvider;
 import net.formio.choice.EnumChoiceProvider;
+import net.formio.domain.Address;
 import net.formio.domain.inputs.Country;
 import net.formio.domain.inputs.Employer;
 import net.formio.domain.inputs.Function;
@@ -51,7 +52,7 @@ public class BasicFormRendererTest {
 	
 	private static final FormMapping<Profile> profileForm = Forms.basic(Profile.class, "profile")
 		.field("profileId", FormFieldType.HIDDEN_FIELD.getType())
-		.field("header", FormFieldType.LABEL.getType())
+		// .field("header", FormFieldType.LABEL.getType())
 		.field(Forms.<Salutation>field("salutation", FormFieldType.RADIO_CHOICE.getType())
 			.choiceProvider(new EnumChoiceProvider<Salutation>(Salutation.class)))
 		.field("firstName", FormFieldType.TEXT_FIELD.getType())
@@ -97,7 +98,10 @@ public class BasicFormRendererTest {
 		 )
 		.field("certificate", FormFieldType.FILE_UPLOAD.getType())
 		.field(Forms.field("note", FormFieldType.TEXT_AREA.getType()).enabled(false))
+		.nested(Forms.automatic(Address.class, "contactAddress", Forms.factoryMethod(Address.class, "getInstance"))
+			.fields("street", "city", "zipCode").build())
 		.field("agreement", FormFieldType.CHECK_BOX.getType())
+		.field("submitValue", FormFieldType.SUBMIT_BUTTON.getType())
 		.build();
 
 	@Test
@@ -115,25 +119,26 @@ public class BasicFormRendererTest {
 	}
 	
 	private Profile newVariousInputs() {
-		Profile inputs = new Profile();
-		inputs.setAgreement(true);
+		Profile profile = new Profile();
+		profile.setAgreement(true);
 		Calendar birthCal = Calendar.getInstance();
 		birthCal.set(1980, 11, 6);
-		inputs.setBirthDate(birthCal.getTime());
-		inputs.setCertificate(null);
-		inputs.setCountry(Country.GB);
-		inputs.setFirstName("Marry " + getScriptInjectionAttempt());
+		profile.setBirthDate(birthCal.getTime());
+		profile.setCertificate(null);
+		profile.setCountry(Country.GB);
+		profile.setFirstName("Marry " + getScriptInjectionAttempt());
 		List<Function> functions = new ArrayList<Function>();
-		functions.add(new Function(Long.valueOf(300), "Sportsman"));
-		inputs.setFunctions(functions);
-		inputs.setHeader("Research");
-		inputs.setNote("These are the most important moments of my life... " + getScriptInjectionAttempt());
-		inputs.setPassword("");
-		inputs.setProfileId("ab565");
-		inputs.setSalutation(Salutation.MS);
+		functions.add(new Function(Long.valueOf(200), "Student"));
+		functions.add(new Function(Long.valueOf(400), "Manager"));
+		profile.setFunctions(functions);
+		profile.setHeader("Research");
+		profile.setNote("These are the most important moments of my life... " + getScriptInjectionAttempt());
+		profile.setPassword("");
+		profile.setProfileId("ab565");
+		profile.setSalutation(Salutation.MS);
 		Set<Skill> skills = new LinkedHashSet<Skill>();
 		skills.add(new Skill(Long.valueOf(17), "CRM"));
-		inputs.setSkills(skills);
+		profile.setSkills(skills);
 		
 		List<Employer> employers = new ArrayList<Employer>();
 		Employer e1 = new Employer();
@@ -148,8 +153,10 @@ public class BasicFormRendererTest {
 		e2.setToYear(2014);
 		employers.add(e2);
 		
-		inputs.setEmployers(employers);
-		return inputs;
+		profile.setEmployers(employers);
+		
+		profile.setSubmitValue("submitted");
+		return profile;
 	}
 	
 	private static List<Skill> skillsCodebook() {

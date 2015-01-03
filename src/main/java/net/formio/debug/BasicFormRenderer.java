@@ -49,17 +49,32 @@ public class BasicFormRenderer {
 		// Bootstrap CSS and JavaScript 
 		sb.append("<!-- Latest compiled and minified CSS -->" + newLine());
 		sb.append("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">" + newLine());
+		
+		sb.append("<!-- JQuery UI for datepicker -->" + newLine());
+		sb.append("<link rel=\"stylesheet\" href=\"http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.min.css\">");
 		sb.append("<!-- Optional theme -->" + newLine());
 		sb.append("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">" + newLine());
+		
+		sb.append("<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->" + newLine());	    
+		sb.append("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js\"></script>" + newLine());
+		sb.append("<!-- jQuery UI -->" + newLine());	    
+		sb.append("<script src=\"http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js\"></script>" + newLine());
+		sb.append("<!-- Latest compiled and minified JavaScript -->" + newLine());
+		sb.append("<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>" + newLine());
+		
+		sb.append("<script>" + newLine());
+		sb.append("$(function(){" + newLine());
+		sb.append("	$.datepicker.setDefaults(" + newLine());
+		sb.append("	  $.extend($.datepicker.regional[''])" + newLine());
+		sb.append(");" + newLine());
+		sb.append("});" + newLine());
+		sb.append("</script>" + newLine());
+		
 		sb.append("</head>" + newLine());
 		sb.append("<body style=\"margin:1em\">" + newLine());
 
 		sb.append(renderForm(ctx));
 		
-		sb.append("<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->" + newLine());	    
-		sb.append("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js\"></script>" + newLine());
-		sb.append("<!-- Latest compiled and minified JavaScript -->" + newLine());
-		sb.append("<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>" + newLine());
 		sb.append("</body>" + newLine());
 		sb.append("</html>" + newLine());
 		return sb.toString();
@@ -70,7 +85,9 @@ public class BasicFormRenderer {
 		sb.append(renderFormBegin(ctx));
 		sb.append(renderGlobalMessages(ctx));
 		sb.append(renderMapping(ctx, ctx.getFilledForm()));
-		sb.append(renderSubmit(ctx));
+		if (!containsSubmitButton(ctx.getFilledForm())) {
+			sb.append(renderDefaultSubmitButton(ctx));
+		}
 		sb.append(renderFormEnd(ctx));
 		return sb.toString();
 	}
@@ -156,14 +173,11 @@ public class BasicFormRenderer {
 				case PASSWORD:
 					sb.append(renderPassword(ctx, field));
 					break;
-				case BUTTON:
-					throw new UnsupportedOperationException("Not implemented yet");
-					// break;
 				case CHECK_BOX:
 					sb.append(renderCheckBox(ctx, field));
 					break;
 				case DATE_PICKER:
-					// throw new UnsupportedOperationException("Not implemented yet");
+					sb.append(renderDatePicker(ctx, field));
 					break;
 				case DROP_DOWN_CHOICE:
 					sb.append(renderDropDownChoice(ctx, field));
@@ -171,17 +185,17 @@ public class BasicFormRenderer {
 				case FILE_UPLOAD:
 					sb.append(renderFileUpload(ctx, field));
 					break;
-				case LABEL:
-					break;
-				case LINK:
-					break;
 				case MULTIPLE_CHECK_BOX:
 					sb.append(renderMultipleCheckbox(ctx, field));
 					break;
 				case MULTIPLE_CHOICE:
+					sb.append(renderMultipleChoice(ctx, field));
 					break;
 				case RADIO_CHOICE:
 					sb.append(renderRadioChoice(ctx, field));
+					break;
+				case SUBMIT_BUTTON:
+					sb.append(renderSubmitButton(ctx, field));
 					break;
 				default:
 					throw new UnsupportedOperationException("Cannot render component with type " + type);
@@ -196,14 +210,8 @@ public class BasicFormRenderer {
 		return "<div id=\"" + renderElementBoxId(ctx, element) + "\" class=\"hidden\"></div>" + newLine();
 	}
 	
-	public String renderSubmit(RenderContext<?> ctx) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + getFormBlockClass() + "\">" + newLine());
-		sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
-		sb.append("<button type=\"submit\" class=\"btn btn-default\">Submit</button>" + newLine());
-		sb.append("</div>" + newLine());
-		sb.append("</div>" + newLine());
-		return sb.toString();
+	public String renderDefaultSubmitButton(RenderContext<?> ctx) {
+		return renderSubmitButton(ctx, Forms.<String>field(DEFAULT_SUBMIT, FormFieldType.SUBMIT_BUTTON.getType()).build());
 	}
 	
 	public <T> String renderFormBegin(RenderContext<T> ctx) {
@@ -346,7 +354,14 @@ public class BasicFormRenderer {
 	}	
 	
 	protected <T> String renderInput(RenderContext<?> ctx, FormField<T> field) {
+		return renderInput(ctx, field, null);
+	}
+	
+	protected <T> String renderInput(RenderContext<?> ctx, FormField<T> field, String typeOverriden) {
 		String type = getFieldType(field);
+		if (typeOverriden != null && !typeOverriden.isEmpty()) {
+			type = typeOverriden;
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
 		if (type != null && !FormFieldType.FILE_UPLOAD.getType().equals(type)) {
@@ -377,9 +392,16 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderSelect(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderSelect(RenderContext<?> ctx, FormField<T> field, boolean multiple, Integer size) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<select name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" class=\"input-sm form-control\"");
+		sb.append("<select name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
+		if (multiple) {
+			sb.append(" multiple=\"multiple\"");
+		}
+		if (size != null) {
+			sb.append(" size=\"" + size + "\"");
+		}
+		sb.append(" class=\"input-sm form-control\"");
 		sb.append(renderAccessibilityAttributes(ctx, field));
 		sb.append(">" + newLine());
 		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
@@ -440,6 +462,20 @@ public class BasicFormRenderer {
 		return "</div>" + newLine();
 	}
 	
+	protected <T> String renderDatePickerJavaScript(RenderContext<?> ctx, FormField<T> field) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<script>" + newLine());
+		sb.append("$(function(){" + newLine());
+		sb.append("	$('#id-" + field.getName() + "').datepicker({ dateFormat: \"" + getDatePickerPattern(ctx, field) + "\" });" + newLine());
+		sb.append("});" + newLine());
+		sb.append("</script>" + newLine());
+		return sb.toString();
+	}
+	
+	protected <T> String getDatePickerPattern(RenderContext<?> ctx, FormField<T> field) {
+		return "d.m.yy";
+	}
+	
 	protected <T> String renderTextField(RenderContext<?> ctx, FormField<T> field) {
 		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
@@ -483,10 +519,29 @@ public class BasicFormRenderer {
 			renderFieldBoxEnd(ctx, field);
 	}
 	
+	protected <T> String renderDatePicker(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
+			renderFieldBegin(ctx, field) +
+			renderFieldInput(ctx, field, "text") +
+			renderDatePickerJavaScript(ctx, field) +
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
+			renderFieldEnd(ctx, field) +
+			renderFieldBoxEnd(ctx, field);
+	}
+	
 	protected <T> String renderDropDownChoice(RenderContext<?> ctx, FormField<T> field) {
 		return renderFieldBoxBegin(ctx, field) +
 			renderFieldBegin(ctx, field) +
-			renderSelect(ctx, field) + 
+			renderSelect(ctx, field, false, null) + 
+			renderFieldMessages(ctx, field.getValidationMessages()) + 
+			renderFieldEnd(ctx, field) +
+			renderFieldBoxEnd(ctx, field);
+	}
+	
+	protected <T> String renderMultipleChoice(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldBoxBegin(ctx, field) +
+			renderFieldBegin(ctx, field) +
+			renderSelect(ctx, field, true, null) + 
 			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
 			renderFieldBoxEnd(ctx, field);
@@ -508,6 +563,25 @@ public class BasicFormRenderer {
 			renderFieldMessages(ctx, field.getValidationMessages()) + 
 			renderFieldEnd(ctx, field) +
 			renderFieldBoxEnd(ctx, field);
+	}
+	
+	protected <T> String renderSubmitButton(RenderContext<?> ctx, FormField<T> field) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"" + getFormBlockClass() + "\">" + newLine());
+		sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
+		sb.append("<button type=\"submit\" value=\"" + renderValue(ctx, field.getValue()) + "\" class=\"btn btn-default\">");
+		String text = null;
+		if (field.getLabelKey() != null && !field.getLabelKey().equals(DEFAULT_SUBMIT)) {
+			MessageTranslator tr = createMessageTranslator(ctx, field);
+			text = escapeHtml(tr.getMessage(field.getLabelKey()));
+		} else {
+			text = "Submit";
+		}
+		sb.append(text);
+		sb.append("</button>" + newLine());
+		sb.append("</div>" + newLine());
+		sb.append("</div>" + newLine());
+		return sb.toString();
 	}
 
 	protected <T> String renderFieldBoxBegin(RenderContext<?> ctx, FormField<T> field) {
@@ -572,8 +646,12 @@ public class BasicFormRenderer {
 	}
 	
 	protected <T> String renderFieldInput(RenderContext<?> ctx, FormField<T> field) {
+		return renderFieldInput(ctx, field, null);
+	}
+	
+	protected <T> String renderFieldInput(RenderContext<?> ctx, FormField<T> field, String typeOverriden) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(renderInput(ctx, field));
+		sb.append(renderInput(ctx, field, typeOverriden));
 		return sb.toString();
 	}
 	
@@ -614,6 +692,16 @@ public class BasicFormRenderer {
 		return "col-sm-offset-2 col-sm-10";
 	}
 	
+	protected boolean containsSubmitButton(FormMapping<?> mapping) {
+		// searching only on top level
+		for (FormField<?> field : mapping.getFields().values()) {
+			if (field.getType() != null && field.getType().equals(FormFieldType.SUBMIT_BUTTON.getType())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private <T> MessageTranslator createMessageTranslator(RenderContext<?> ctx, FormElement formElement) {
 		return new MessageTranslator(
 			formElement.getParent().getDataClass(), ctx.getLocale(), 
@@ -644,4 +732,6 @@ public class BasicFormRenderer {
 		String maxSeverityClass = maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
 		return maxSeverityClass;
 	}
+	
+	private final String DEFAULT_SUBMIT = "_defaultSubmitButton";
 }

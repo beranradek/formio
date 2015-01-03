@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import net.formio.domain.Address;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.constraints.NotEmpty;
 
@@ -74,8 +75,13 @@ public class Profile implements Serializable {
 	// text area
 	private String note;
 	
+	@Valid
+	private Address contactAddress;
+	
 	// checkbox
 	private boolean agreement;
+	
+	private String submitValue;
 
 	public String getHeader() {
 		return header;
@@ -123,6 +129,14 @@ public class Profile implements Serializable {
 
 	public void setProfileId(String profileId) {
 		this.profileId = profileId;
+	}
+	
+	protected Address getContactAddress() {
+		return contactAddress;
+	}
+
+	protected void setContactAddress(Address contactAddress) {
+		this.contactAddress = contactAddress;
 	}
 
 	public boolean isAgreement() {
@@ -179,5 +193,13 @@ public class Profile implements Serializable {
 
 	public void setCertificate(UploadedFile certificate) {
 		this.certificate = certificate;
+	}
+
+	public String getSubmitValue() {
+		return submitValue;
+	}
+
+	public void setSubmitValue(String submitValue) {
+		this.submitValue = submitValue;
 	}
 }

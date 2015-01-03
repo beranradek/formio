@@ -218,7 +218,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	
 	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj, Locale locale, RequestContext ctx) {
-		return fillInternal(editedObj, locale, ctx).build(this.getConfig());
+		return fillInternal(editedObj, locale, ctx).build(getConfig());
 	}
 	
 	@Override
@@ -309,7 +309,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		
 		if (!(error instanceof MaxSizeExceededError) && this.secured) {
 			// Must be executed after processing of nested mappings
-			AuthTokens.verifyAuthToken(ctx, this.getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
+			AuthTokens.verifyAuthToken(ctx, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
 		}
 		
 		// binding data from "values" to resulting object for this mapping
@@ -318,7 +318,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			// use instance already prepared by client which the client wish to fill
 			instantiator = new InstanceHoldingInstantiator<T>(instance);
 		}
-		final FilledData<T> filledData = this.getConfig().getBinder().bindToNewInstance(this.dataClass, instantiator, values);
+		final FilledData<T> filledData = getConfig().getBinder().bindToNewInstance(this.dataClass, instantiator, values);
 		
 		// validation of resulting object for this mapping
 		ValidationResult validationRes = validateInternal(
@@ -461,7 +461,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		if (error != null) {
 			requestErrors.add(error);
 		}
-		return this.getConfig().getBeanValidator().validate(
+		return getConfig().getBeanValidator().validate(
 			object,
 			this.path, 
 			requestErrors, 
@@ -539,11 +539,11 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 * @return
 	 */
 	Map<String, Object> gatherPropertyValues(T object, Set<String> allowedProperties, RequestContext ctx) {
-		Map<String, Object> beanValues = this.getConfig().getBeanExtractor().extractBean(object, allowedProperties);
+		Map<String, Object> beanValues = getConfig().getBeanExtractor().extractBean(object, allowedProperties);
 		Map<String, Object> propValues = new LinkedHashMap<String, Object>(beanValues);
 		if (isRootMapping() && secured) {
 			propValues.put(Forms.AUTH_TOKEN_FIELD_NAME, 
-				AuthTokens.generateAuthToken(ctx, this.config.getTokenAuthorizer(), getRootMappingPath()));
+				AuthTokens.generateAuthToken(ctx, getConfig().getTokenAuthorizer(), getRootMappingPath()));
 		}
 		return Collections.unmodifiableMap(propValues);
 	}
@@ -612,7 +612,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 * @return
 	 */
 	<U> U nestedData(String propName, T data) {
-		Map<String, Object> props = this.getConfig().getBeanExtractor().extractBean(data, Collections.singleton(propName));
+		Map<String, Object> props = getConfig().getBeanExtractor().extractBean(data, Collections.singleton(propName));
 		return (U)props.get(propName); // can be null if nested object is not required
 	}
 
@@ -647,7 +647,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			} else {
 				String[] strValues = paramsProvider.getParamValues(formPrefixedName);
 				if (strValues == null) strValues = paramsProvider.getParamValues(formPrefixedName + "[]");
-				if (this.getConfig().isInputTrimmed()) {
+				if (getConfig().isInputTrimmed()) {
 					strValues = FormUtils.trimValues(strValues);
 				}
 				paramValues = strValues;
@@ -671,7 +671,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return new FieldProps<U>(field, 
 			FormUtils.<U>convertObjectToList(value), 
 			locale, 
-			this.getConfig().getFormatters(),
+			getConfig().getFormatters(),
 			preferedStringValue).name(fieldName).choiceProvider(choiceProvider).build();
 	}
 	

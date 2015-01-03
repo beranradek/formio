@@ -19,6 +19,9 @@ package net.formio.domain;
 public enum Nation {
 
 	CZECH,
-	SLOVAK,
-	JEDI_KNIGHT
+	ENGLISH,
+	ITALIAN,
+	JEDI_KNIGHT,
+	POLISH,
+	SLOVAK
 }
