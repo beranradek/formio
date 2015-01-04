@@ -55,7 +55,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 
 	final FormMapping<?> parent;
 	final String propertyName;
-	final String path;
 	final Class<T> dataClass;
 	final Instantiator<T> instantiator;
 	final Config config;
@@ -81,7 +80,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		this.parent = builder.parent;
 		this.propertyName = builder.propertyName;
 		this.config = builder.config;
-		this.path = builder.path;
 		this.dataClass = assertNotNullArg(builder.dataClass, "data class must be filled before configuring fields");
 		this.instantiator = builder.instantiator;
 		this.filledObject = builder.filledObject;
@@ -95,32 +93,15 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	/**
-	 * Returns copy with given path prefix prepended (called when appending this nested mapping to outer builder).
+	 * Returns copy with given order (called when appending this nested mapping to outer builder).
 	 * @param src
-	 * @param pathPrefix
 	 * @param order
 	 */
-	BasicFormMapping(BasicFormMapping<T> src, String pathPrefix, int order) {
+	BasicFormMapping(BasicFormMapping<T> src, int order) {
 		this(new BasicFormMappingBuilder<T>(src, 
-			Clones.fieldsWithPrependedPathPrefix(src.fields, pathPrefix),  
-			Clones.mappingsWithPrependedPathPrefix(src.nested, pathPrefix))
-			.path(pathWithPrefix(src.getName(), pathPrefix))
+			src.fields,
+			src.nested)
 			.order(order), 
-			true); // true = simple copy of builder's data
-	}
-	
-	/**
-	 * Returns form mapping that includes given index (called when filling).
-	 * @param src
-	 * @param index
-	 * @param pathPrefix
-	 */
-	BasicFormMapping(BasicFormMapping<T> src, int index, String pathPrefix) {
-		this(new BasicFormMappingBuilder<T>(src, 
-			Clones.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix), 
-			Clones.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix))
-			.index(Integer.valueOf(index))
-			.path(pathWithIndex(src.path, index, pathPrefix)), 
 			true); // true = simple copy of builder's data
 	}
 	
@@ -159,6 +140,9 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			} else {
 				name = propertyName;
 			}
+		}
+		if (name == null || name.isEmpty()) {
+			throw new IllegalStateException("Name must be filled");
 		}
 		return name;
 	}
@@ -361,7 +345,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 
 	@Override
 	public String getLabelKey() {
-		return FormUtils.labelKeyForName(this.path);
+		return FormUtils.labelKeyForName(getName());
 	}
 	
 	/**
@@ -392,13 +376,8 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
-	public BasicFormMapping<T> withPathPrefix(String pathPrefix, int order) {
-		return new BasicFormMapping<T>(this, pathPrefix, order);
-	}
-	
-	@Override
-	public BasicFormMapping<T> withIndexAfterPathPrefix(int index, String prefix) {
-		return new BasicFormMapping<T>(this, index, prefix);
+	public BasicFormMapping<T> withOrder(int order) {
+		return new BasicFormMapping<T>(this, order);
 	}
 	
 	@Override
@@ -410,7 +389,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	public String toString(String indent) {
 		return new MappingStringBuilder<T>(
 			getDataClass(), 
-			path,
+			getName(),
 			order,
 			fields,
 			nested, 
@@ -485,7 +464,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		}
 		return getConfig().getBeanValidator().validate(
 			object,
-			this.path, 
+			getName(), 
 			requestErrors, 
 			parseErrors,
 			locale,
@@ -538,11 +517,10 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		// Returning copy of this form that is filled with form data
 		BasicFormMappingBuilder<T> builder = null;
 		if (this.secured) {
-			builder = Forms.basicSecured(getDataClass(), this.path, this.instantiator).fields(filledFields);
+			builder = Forms.basicSecured(getDataClass(), this.propertyName, this.instantiator).fields(filledFields);
 		} else {
-			builder = Forms.basic(getDataClass(), this.path, this.instantiator).fields(filledFields);
+			builder = Forms.basic(getDataClass(), this.propertyName, this.instantiator).fields(filledFields);
 		}
-		builder.propertyName = this.propertyName;
 		builder.parent = this.parent;
 		builder.nested = Collections.unmodifiableMap(newNestedMappings);
 		builder.validationResult = editedObj.getValidationResult();
@@ -572,12 +550,11 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	String getRootMappingPath() {
-		String p = this.path;
-		int idxOfSep = p.indexOf(Forms.PATH_SEP);
-		if (idxOfSep >= 0) {
-			p = p.substring(0, idxOfSep);
+		FormMapping<?> rootMapping = this;
+		while (rootMapping.getParent() != null) {
+			rootMapping = rootMapping.getParent();
 		}
-		return p;
+		return rootMapping.getName();
 	}
 
 	Map<String, FormField<?>> fillFields(
@@ -598,16 +575,12 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			
 			final FormField<?> field = fieldDefEntry.getValue();
 			Object value = propValues.get(propertyName);
-			String fieldName = field.getName();
-			if (indexInList >= 0) {
-				fieldName = FormUtils.pathWithIndexBeforeLastProperty(field.getName(), indexInList);
-			}
-			List<ConstraintViolationMessage> fieldMessages = fieldMsgs.get(fieldName);
+			List<ConstraintViolationMessage> fieldMessages = fieldMsgs.get(field.getName());
 			String preferedStringValue = null;
 			if (fieldMessages != null && !fieldMessages.isEmpty()) {
 				preferedStringValue = getOriginalStringValueFromParseError(fieldMessages);
 			}
-			final FormField<?> filledField = createFilledFormField(fieldName, (FormField<Object>)field, value, locale, preferedStringValue);
+			final FormField<?> filledField = createFilledFormField((FormField<Object>)field, value, locale, preferedStringValue);
 			filledFields.put(propertyName, filledField);
 		}
 		filledFields = Collections.unmodifiableMap(filledFields);
@@ -653,12 +626,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
 			FormField<?> field = e.getValue();
 			String formPrefixedName = field.getName(); // already prefixed with form name
-			if (!formPrefixedName.startsWith(this.path + Forms.PATH_SEP)) {
-				throw new IllegalStateException("Field name '"
-						+ formPrefixedName + "' not prefixed with path '"
-						+ this.path + "'");
-			}
-			
 			Object[] paramValues = null;
 			UploadedFile[] files = paramsProvider.getUploadedFiles(formPrefixedName);
 			if (files == null || files.length == 0) { 
@@ -682,7 +649,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		return values;
 	}
 	
-	private <U> FormField<U> createFilledFormField(String fieldName, final FormField<U> field, U value, Locale locale, String preferedStringValue) {
+	private <U> FormField<U> createFilledFormField(final FormField<U> field, U value, Locale locale, String preferedStringValue) {
 		ChoiceProvider<U> choiceProvider = field.getChoiceProvider();
 		if (choiceProvider == null && field.getType() != null && !field.getType().isEmpty()) {
 			FormFieldType formComponent = FormFieldType.findByType(field.getType());
@@ -695,7 +662,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			FormUtils.<U>convertObjectToList(value), 
 			locale, 
 			getConfig().getFormatters(),
-			preferedStringValue).name(fieldName).choiceProvider(choiceProvider).build();
+			preferedStringValue).choiceProvider(choiceProvider).build();
 	}
 	
 	private Locale getDefaultLocale() {
@@ -717,26 +684,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	private static <U> U assertNotNullArg(U arg, String message) {
 		if (arg == null) throw new IllegalArgumentException(message);
 		return arg;
-	}
-	
-	static String pathWithPrefix(String path, String pathPrefix) {
-		String newMappingPath = null;
-		if (!pathPrefix.isEmpty()) {
-			if (path.startsWith(pathPrefix + Forms.PATH_SEP) || path.equals(pathPrefix)) {
-				throw new IllegalStateException("path '" + path + "' already starts with prefix '" + pathPrefix + "'");
-			}
-			newMappingPath = pathPrefix + Forms.PATH_SEP + path;
-		} else {
-			newMappingPath = path;
-		}
-		return newMappingPath;
-	}
-	
-	static String pathWithIndex(String path, int index, String pathPrefix) {
-		assertNotNullArg(pathPrefix, "pathPrefix cannot be null");
-		if (!path.startsWith(pathPrefix))
-			throw new IllegalStateException("Mapping path '" + path + "' must start with prefix '" + pathPrefix + ".'");
-		return pathPrefix + "[" + index + "]" + path.substring(pathPrefix.length());
 	}
 
 }

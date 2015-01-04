@@ -257,7 +257,6 @@ public class ValidationApiBeanValidator implements BeanValidator {
 				// ConstraintViolationMessage should be javax.validation API independent
 				ConstraintViolationMessage msg = new ConstraintViolationMessage(v);
 				if (fieldName.length() == 0 || !fieldName.contains(Forms.PATH_SEP)) {
-					// only prefix without property name
 					globalMessages.add(msg);
 				} else {
 					appendFieldMsg(fieldMessages, fieldName, msg);

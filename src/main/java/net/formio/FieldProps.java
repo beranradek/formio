@@ -26,7 +26,6 @@ import net.formio.choice.ChoiceRenderer;
 import net.formio.choice.DefaultChoiceRenderer;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
-import net.formio.internal.FormUtils;
 import net.formio.props.FieldProperty;
 
 /**
@@ -39,7 +38,6 @@ public class FieldProps<T> implements Serializable {
 	private static final long serialVersionUID = 2328756250255932689L;
 	private FormMapping<?> parent;
 	private String propertyName;
-	private String name;
 	private String type;
 	private String pattern;
 	private Formatter<T> formatter;
@@ -143,12 +141,6 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	// only for internal usage
-	FieldProps<T> name(String name) {
-		this.name = name;
-		return this;
-	}
-	
-	// only for internal usage
 	FieldProps<T> order(int order) {
 		this.order = order;
 		return this;
@@ -181,25 +173,10 @@ public class FieldProps<T> implements Serializable {
 
 	/**
 	 * Name of mapped propertyName of edited object.
-	 * 
 	 * @return
 	 */
 	public String getPropertyName() {
-		String propName = null;
-		if (this.propertyName != null && !this.propertyName.isEmpty()) {
-			propName = this.propertyName;
-		} else if (this.name != null && !this.name.isEmpty()) {
-			propName = FormUtils.fieldNameToLastPropertyName(this.name);
-		}
-		return propName;
-	}
-	
-	/**
-	 * Whole path (name) of form field.
-	 * @return
-	 */
-	public String getName() {
-		return this.name;
+		return this.propertyName;
 	}
 
 	/**
@@ -269,31 +246,21 @@ public class FieldProps<T> implements Serializable {
 	 * @return
 	 */
 	public FormField<T> build() {
-		return build(null, this.order);
+		return build(this.order);
 	}
 	
 	/**
 	 * Constructs new immutable form field.
 	 * @return
 	 */
-	FormField<T> build(String parentPath, int order) {
+	FormField<T> build(int order) {
 		if (this.choiceRenderer == null && this.type != null && !this.type.isEmpty()) {
 			FormFieldType formComponent = FormFieldType.findByType(this.type);
 			if (formComponent != null && formComponent.isChoice()) {
 				this.choiceRenderer = new DefaultChoiceRenderer<T>();
 			}
 		}
-		return new FormFieldImpl<T>(this, parentPath, order);
-	}
-	
-	void checkConsistentNames() {
-		if (name != null && !name.isEmpty() && 
-			propertyName != null && !propertyName.isEmpty()) {
-			String propNameFromFullName = FormUtils.fieldNameToLastPropertyName(name);
-			if (!propNameFromFullName.equals(propertyName)) {
-				throw new IllegalStateException("Property name '" + propertyName + "' is not consistent with full field name '" + name + "'!");
-			}
-		}
+		return new FormFieldImpl<T>(this, order);
 	}
 	
 	private static <T> String valueAsString(T value, String pattern, Formatter<T> formatter, Locale locale, Formatters formatters) {
@@ -312,7 +279,6 @@ public class FieldProps<T> implements Serializable {
 	private FieldProps<T> initFromField(FormField<T> field) {
 		this.propertyName = field.getPropertyName();
 		this.parent = field.getParent();
-		this.name = field.getName();
 		this.type = field.getType();
 		this.pattern = field.getPattern();
 		this.formatter = field.getFormatter();

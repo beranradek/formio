@@ -80,9 +80,7 @@ public class FormUtils {
 	public static <T> Set<String> getPropertiesFromFields(Map<String, FormField<?>> fields) {
 		final Set<String> props = new LinkedHashSet<String>();
 		for (FormField<?> field : fields.values()) {
-			// name of field is a full path, already prefixed with form name
-			String propName = fieldNameToLastPropertyName(field.getName());
-			props.add(propName);
+			props.add(field.getPropertyName());
 		}
 		return props;
 	}
@@ -162,24 +160,6 @@ public class FormUtils {
 	
 	/**
 	 * This method is NOT intended as a part of public API and should not be used outside the library!
-	 * Returns path with index inserted before the last property in the path, or
-	 * unchanged path if there is only single property name in the path.
-	 * @param path
-	 * @param indexInList
-	 * @return
-	 */
-	public static String pathWithIndexBeforeLastProperty(String path, int indexInList) {
-		if (path == null) return null;
-		String retPath = path;
-		int li = retPath.lastIndexOf(Forms.PATH_SEP);
-		if (li >= 0) {
-			retPath = retPath.substring(0, li) + "[" + indexInList + "]" + retPath.substring(li);
-		}
-		return retPath;
-	}
-	
-	/**
-	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Finds maximum index for indexed path of mapping (with given path) that occurs in request parameters.
 	 * @param params
 	 * @return
@@ -199,23 +179,6 @@ public class FormUtils {
 		}
 		Collections.sort(indexes);
 		return indexes.get(indexes.size() - 1).intValue();
-	}
-	
-	/**
-	 * This method is NOT intended as a part of public API and should not be used outside the library!
-	 * Extracts property name located at the end of full field name (field
-	 * name is the whole path, with possible terminating brackets).
-	 * @param fieldName
-	 * @return
-	 */
-	public static String fieldNameToLastPropertyName(String fieldName) {
-		if (fieldName == null) return null;
-		int lastDot = fieldName.lastIndexOf(Forms.PATH_SEP);
-		String propName = fieldName;
-		if (lastDot >= 0) {
-			propName = fieldName.substring(lastDot + 1);
-		}
-		return removeTrailingBrackets(propName);
 	}
 	
 	/**

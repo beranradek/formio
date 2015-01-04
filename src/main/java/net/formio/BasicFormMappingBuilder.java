@@ -34,7 +34,6 @@ import net.formio.binding.collection.CollectionSpec;
 import net.formio.binding.collection.ItemsOrder;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
-import net.formio.internal.FormUtils;
 import net.formio.props.FieldProperty;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
@@ -46,12 +45,6 @@ import net.formio.validation.ValidationResult;
 public class BasicFormMappingBuilder<T> {
 
 	FormMapping<?> parent;
-	
-	/** 
-	 * Name prefixing all names of the fields in this mapping; 
-	 * it contains complete path to this nested mapping, if this is a nested mapping.
-	 */
-	String path;
 	String propertyName;
 	Class<T> dataClass;
 	Instantiator<T> instantiator;
@@ -80,7 +73,6 @@ public class BasicFormMappingBuilder<T> {
 		if (mappingType == null) throw new IllegalArgumentException("mappingType must be filled");
 		this.dataClass = dataClass;
 		this.propertyName = propertyName;
-		this.path = propertyName;
 		Instantiator<T> instantiator = inst;
 		if (instantiator == null) {
 			// using some public constructor as default instantiation strategy
@@ -98,10 +90,9 @@ public class BasicFormMappingBuilder<T> {
 	
 	BasicFormMappingBuilder(BasicFormMapping<T> src, Map<String, FormField<?>> fields, Map<String, FormMapping<?>> nested) {
 		// src already contains composed/created fields -> automatic = false for this case
-		this(src.dataClass, src.path, src.instantiator, false, 
+		this(src.dataClass, src.propertyName, src.instantiator, false, 
 			(src instanceof BasicListFormMapping) ? MappingType.LIST : MappingType.SINGLE);
 		this.parent = src.parent;
-		this.propertyName = src.propertyName;
 		this.config = src.config;
 		this.filledObject = src.filledObject;
 		this.fields = fields;
@@ -131,12 +122,6 @@ public class BasicFormMappingBuilder<T> {
 	/** Only for internal usage. */
 	BasicFormMappingBuilder<T> parent(FormMapping<?> parent) {
 		this.parent = parent;
-		return this;
-	}
-	
-	/** Only for internal usage. */
-	BasicFormMappingBuilder<T> path(String path) {
-		this.path = path;
 		return this;
 	}
 	
@@ -188,13 +173,13 @@ public class BasicFormMappingBuilder<T> {
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(FieldProps<U> fieldProps) {
-		fields.put(fieldProps.getPropertyName(), fieldProps.build(path, nextNestedElementOrder++));
+		fields.put(fieldProps.getPropertyName(), fieldProps.build(nextNestedElementOrder++));
 		return this;
 	}
 	
 	/**
 	 * Adds form field specification.
-	 * @param form field with specified property name - without full path (name)
+	 * @param form field with specified property name
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(FormField<U> formField) {
@@ -203,7 +188,7 @@ public class BasicFormMappingBuilder<T> {
 				+ "of bound property (without full path). "
 				+ "Name of outer mapping is automatically prepended to it.");
 		}
-		fields.put(formField.getName(), new FormFieldImpl<U>(formField, (FormMapping<?>)null, this.path, this.nextNestedElementOrder++));
+		fields.put(formField.getName(), new FormFieldImpl<U>(formField, (FormMapping<?>)null, this.nextNestedElementOrder++));
 		return this;
 	}
 	
@@ -253,8 +238,7 @@ public class BasicFormMappingBuilder<T> {
 	/**
 	 * Registers form mapping for nested object in form data.
 	 * Path of this mapping is added as a prefix to given nested mapping.
-	 * @param mapping nested mapping - with class of nested object and form name that is
-	 * equal to name of property in outer mapped object
+	 * @param mapping nested mapping
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> nested(FormMapping<U> mapping) {
@@ -263,7 +247,6 @@ public class BasicFormMappingBuilder<T> {
 	
 	/**
 	 * Registers form mappings for nested objects in form data.
-	 * Path of this mapping is added as a prefix to given nested mappings.
 	 * @param mappings nested mappings
 	 * @return
 	 */
@@ -321,11 +304,7 @@ public class BasicFormMappingBuilder<T> {
 			throw new IllegalStateException("Nested mapping should be defined with path that is one simple name " + 
 				"that corresponds to the name of the property");
 		}
-		String propertyName = nestedMapping.getName();
-		
-		// Name of nested mapping and names of its fields must be prefixed by path of this mapping
-		// (and recursively - nested mapping can have its own nested mappings).
-		this.nested.put(propertyName, nestedMapping.withPathPrefix(this.path, nextNestedElementOrder++));
+		this.nested.put(nestedMapping.getPropertyName(), nestedMapping.withOrder(nextNestedElementOrder++));
 		
 		// should return BasicFormMappingBuilder, not ConfigurableBasicFormMappingBuilder
 		// all configurable dependencies are taken from outer mapping
@@ -334,18 +313,10 @@ public class BasicFormMappingBuilder<T> {
 	
 	/** Adding multiple form fields. Operation for internal use only. */
 	BasicFormMappingBuilder<T> fields(Map<String, FormField<?>> fields) {
-		if (path == null) throw new IllegalArgumentException("path cannot be null");
 		if (fields == null) throw new IllegalArgumentException("fields cannot be null");
 		Map<String, FormField<?>> flds = new LinkedHashMap<String, FormField<?>>();
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
-			FormField<?> f = e.getValue();
-			String fieldNameWithoutBrackets = FormUtils.removeBrackets(f.getName());
-			String pathWithoutBrackets = FormUtils.removeBrackets(path);
-			if (!fieldNameWithoutBrackets.startsWith(pathWithoutBrackets + Forms.PATH_SEP) 
-				&& !fieldNameWithoutBrackets.contains(Forms.PATH_SEP + pathWithoutBrackets + Forms.PATH_SEP)) {
-				throw new IllegalStateException("Field name '" + f.getName() + "' is not prefixed with form name '" + path + "'!");
-			}
-			flds.put(e.getKey(), f);
+			flds.put(e.getKey(), e.getValue());
 		}
 		this.fields.putAll(flds);
 		return this;
@@ -472,20 +443,20 @@ public class BasicFormMappingBuilder<T> {
 	}
 	
 	private void checkValidFormMapping(BasicFormMapping<T> mapping) {
-		// All fields must have names prefixed with mapping path
-		if (mapping.path == null || mapping.path.isEmpty()) {
-			throw new IllegalStateException("Mapping path must not be empty");
+		if (mapping.propertyName == null || mapping.propertyName.isEmpty()) {
+			throw new IllegalStateException("propertyName must not be empty");
 		}
+		// All fields must have names prefixed with mapping path
 		for (FormField<?> field : mapping.fields.values()) {
 			if (field.getName() == null || field.getName().isEmpty()) {
 				throw new IllegalStateException("Field name must not be empty");
 			}
 			if (!field.getName().contains(Forms.PATH_SEP)) {
 				throw new IllegalStateException("Full path (name) of field '" + field.getName() + "' must contain at least one path separator that separates mapping path '" + 
-					mapping.path + "' from property name (or more complex path) mapped to field");
+					mapping.getName() + "' from property name (or more complex path) mapped to field");
 			}
-			if (!field.getName().startsWith(mapping.path)) {
-				throw new IllegalStateException("Field name '" + field.getName() + "' does not start with mapping path '" + mapping.path + "'");
+			if (!field.getName().startsWith(mapping.getName())) {
+				throw new IllegalStateException("Field name '" + field.getName() + "' does not start with mapping name '" + mapping.getName() + "'");
 			}
 		}
 	}

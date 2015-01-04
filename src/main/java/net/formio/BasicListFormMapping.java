@@ -63,25 +63,12 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	/**
-	 * Returns copy with given path prefix prepended (called when appending this nested mapping to outer builder).
+	 * Returns copy with given order (called when appending this nested mapping to outer builder).
 	 * @param src
-	 * @param pathPrefix
 	 * @param order
 	 */
-	BasicListFormMapping(BasicListFormMapping<T> src, String pathPrefix, int order) {
-		super(src, pathPrefix, order);
-		this.listOfMappings = newListOfMappings(src.listOfMappings);
-	}
-	
-	/**
-	 * Returns copy of this mapping with new path that contains index after given path prefix.
-	 * Given index is applied to all nested mappings recursively (called when filling this mapping).
-	 * @param src
-	 * @param index
-	 * @param pathPrefix
-	 */
-	BasicListFormMapping(BasicListFormMapping<T> src, int index, String pathPrefix) {
-		super(src, index, pathPrefix);
+	BasicListFormMapping(BasicListFormMapping<T> src, int order) {
+		super(src, order);
 		this.listOfMappings = newListOfMappings(src.listOfMappings);
 	}
 	
@@ -123,36 +110,26 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		
 		// Finding how many parameters are in the request - check for max. index available in request params name, 
 		// according to this mapping path
-		int maxIndex = FormUtils.findMaxIndex(paramsProvider.getParamNames(), this.path);
+		int maxIndex = FormUtils.findMaxIndex(paramsProvider.getParamNames(), getName());
 		
 		// Constructing mappings for each index up to max. index.
 		// Nested mapping of this list mapping will become nested mappings of each
 		// index-related mapping.
 		List<FormMapping<T>> listMappings = new ArrayList<FormMapping<T>>();
 		for (int index = 0; index <= maxIndex; index++) {
-			String indexedPath = getIndexedPath(index);
 			// constructing single mapping for index:
 			// fields with indexed names
-			final Map<String, FormField<?>> formFields = fieldsWithIndexBeforeLastProperty(this.fields, index);
 			BasicFormMappingBuilder<T> builder = null;
 			if (this.secured) {
-				builder = Forms.basicSecured(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
-					.fields(formFields);
+				builder = Forms.basicSecured(getDataClass(), this.propertyName, getInstantiator(), MappingType.SINGLE);
 			} else {
-				builder = Forms.basic(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
-					.fields(formFields);
+				builder = Forms.basic(getDataClass(), this.propertyName, getInstantiator(), MappingType.SINGLE);
 			}
-			builder.propertyName = this.propertyName;
 			builder.parent = this.parent;
 			builder.order = index;
 			builder.index = Integer.valueOf(index);
-			
-			// Nested mappings must have index appended to their path (and to their fields)
-			//Map<String, FormMapping<?>> nestedForIndex = new LinkedHashMap<String, FormMapping<?>>();
-			//for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
-			//	nestedForIndex.put(e.getKey(), e.getValue().withIndexAfterPathPrefix(index, this.path));
-			//}
 			builder.nested = this.nested;
+			builder.fields = this.fields;
 			
 			ValidationResult res = null;
 			if (this.getValidationResult() != null) {
@@ -227,16 +204,14 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			
 			// Returning copy of this mapping (for current index) that is filled with form data,
 			// but with single mapping type (for an index) and now without list mappings
-			String indexedPath = getIndexedPath(index);
 			BasicFormMappingBuilder<T> builder = null;
 			if (this.secured) {
-				builder = Forms.basicSecured(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
+				builder = Forms.basicSecured(getDataClass(), this.propertyName, getInstantiator(), MappingType.SINGLE)
 					.fields(filledFields);
 			} else {
-				builder = Forms.basic(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
+				builder = Forms.basic(getDataClass(), this.propertyName, getInstantiator(), MappingType.SINGLE)
 					.fields(filledFields);
 			}
-			builder.propertyName = this.propertyName;
 			builder.parent = this.parent;
 			builder.nested = newNestedMappings;
 			builder.validationResult = formDataAtIndex.getValidationResult();
@@ -253,11 +228,10 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		Map<String, FormField<?>> emptyFields = Collections.unmodifiableMap(Collections.<String, FormField<?>>emptyMap());
 		BasicFormMappingBuilder<T> builder = null;
 		if (this.secured) {
-			builder = Forms.basicSecured(getDataClass(), this.path, getInstantiator(), MappingType.LIST).fields(emptyFields);
+			builder = Forms.basicSecured(getDataClass(), this.propertyName, getInstantiator(), MappingType.LIST).fields(emptyFields);
 		} else {
-			builder = Forms.basic(getDataClass(), this.path, getInstantiator(), MappingType.LIST).fields(emptyFields);
+			builder = Forms.basic(getDataClass(), this.propertyName, getInstantiator(), MappingType.LIST).fields(emptyFields);
 		}
-		builder.propertyName = this.propertyName;
 		builder.parent = this.parent;
 		builder.nested = Collections.unmodifiableMap(Collections.<String, FormMapping<?>>emptyMap());
 		builder.validationResult = editedObj.getValidationResult();
@@ -280,13 +254,8 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public BasicListFormMapping<T> withIndexAfterPathPrefix(int index, String prefix) {
-		return new BasicListFormMapping<T>(this, index, prefix);
-	}
-	
-	@Override
-	public BasicListFormMapping<T> withPathPrefix(String pathPrefix, int order) {
-		return new BasicListFormMapping<T>(this, pathPrefix, order);
+	public BasicListFormMapping<T> withOrder(int order) {
+		return new BasicListFormMapping<T>(this, order);
 	}
 	
 	@Override
@@ -311,30 +280,9 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			Object data = nestedData(e.getKey(), editedObj.getData());
 			// the outer report is propagated to nested
 			FormData formData = new FormData<Object>(data, editedObj.getValidationResult());
-			
-			// Path of this mapping is for e.g. registration-collegues
-			// and nested mapping already has path registration-collegues-regDate.
-			// We need take path of this mapping (without index) (registration-collegues),
-			// add the index to it and add the rest of current path (-regDate)
-			FormMapping<?> newMapping = e.getValue().withIndexAfterPathPrefix(index, this.path);
-			newNestedMappings.put(e.getKey(), newMapping.fill(formData, locale, ctx));
+			newNestedMappings.put(e.getKey(), e.getValue().fill(formData, locale, ctx));
 		}
 		return newNestedMappings;
-	}
-	
-	Map<String, FormField<?>> fieldsWithIndexBeforeLastProperty(Map<String, FormField<?>> fields, int index) {
-		final Map<String, FormField<?>> flds = new LinkedHashMap<String, FormField<?>>();
-		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
-			FormField<?> srcFld = e.getValue();
-			String indexedName = FormUtils.pathWithIndexBeforeLastProperty(srcFld.getName(), index);
-			final FormField<?> f = new FieldProps(srcFld).name(indexedName).build(); 
-			flds.put(e.getKey(), f);
-		}
-		return flds;
-	}
-	
-	private String getIndexedPath(int index) {
-		return this.path + "[" + index + "]";
 	}
 	
 	private List<FormMapping<T>> newListOfMappings(List<FormMapping<T>> listOfMappings) {

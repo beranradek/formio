@@ -16,9 +16,7 @@
  */
 package net.formio;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
@@ -38,20 +36,6 @@ import org.junit.Test;
  * @author Radek Beran
  */
 public class BasicFormMappingTest {
-
-	@Test
-	public void testPathWithPrefix() {
-		assertEquals("registration" + Forms.PATH_SEP + "confirmation", 
-			BasicFormMapping.pathWithPrefix("confirmation", "registration"));
-		assertEquals("confirmation", 
-			BasicFormMapping.pathWithPrefix("confirmation", ""));
-	}
-	
-	@Test
-	public void testPathWithIndex() {
-		assertEquals("registration[2]" + Forms.PATH_SEP + "confirmation", 
-			BasicFormMapping.pathWithIndex("registration" + Forms.PATH_SEP + "confirmation", 2, "registration"));
-	}
 	
 	@Test
 	public void testIsRootMapping() {
@@ -77,22 +61,12 @@ public class BasicFormMappingTest {
 	}
 	
 	@Test
-	public void testWithPathPrefix() {
+	public void testWithOrder() {
 		FormMapping<Person> person = TestForms.PERSON_FORM;
-		FormMapping<Person> student = person.withPathPrefix("student", 0);
-		assertEquals("New mapping should have path prefix prepended in its name", 
-			"student" + Forms.PATH_SEP + person.getName(), student.getName());
-		assertEquals("Form field should have path prefix prepended in its name",
-			"student" + Forms.PATH_SEP + person.getName() + Forms.PATH_SEP + "firstName", student.getField(String.class, "firstName").getName());
-		assertEquals("Original mapping should remain unchanged",
-			"person", person.getName());
-	}
-	
-	@Test
-	public void testWithIndexAfterPathPrefix() {
-		FormMapping<Engine> engine = TestForms.CAR_FORM.getNestedByProperty(Engine.class, "engine");
-		FormMapping<Engine> engineForIndex = engine.withIndexAfterPathPrefix(0, "carForm");
-		assertEquals("carForm[0]" + Forms.PATH_SEP + "engine", engineForIndex.getName());
+		FormMapping<Person> student = person.withOrder(3);
+		assertEquals(3, student.getOrder());
+		assertEquals("Original mapping name should remain unchanged", "person", person.getName());
+		assertEquals("Original order should remain unchanged", 0, person.getOrder());
 	}
 	
 	@Test

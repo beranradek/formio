@@ -216,22 +216,11 @@ public interface FormMapping<T> extends FormElement {
 	Config getConfig();
 	
 	/**
-	 * Returns copy of this mapping with new path that has given prefix prepended.
-	 * Given prefix is applied to all nested mappings recursively.
-	 * @param pathPrefix
+	 * Returns copy of this mapping with given order.
 	 * @param order
 	 * @return
 	 */
-	FormMapping<T> withPathPrefix(String pathPrefix, int order);
-	
-	/**
-	 * Returns copy of this mapping with new path that contains index after given path prefix.
-	 * Given index is applied to all nested mappings recursively.
-	 * @param index
-	 * @param prefix
-	 * @return
-	 */
-	FormMapping<T> withIndexAfterPathPrefix(int index, String prefix);
+	FormMapping<T> withOrder(int order);
 	
 	/**
 	 * Returns copy of this mapping that is attached to given parent and uses given required flag.
