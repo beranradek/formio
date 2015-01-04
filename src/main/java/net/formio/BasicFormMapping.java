@@ -31,7 +31,6 @@ import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
 import net.formio.binding.ParseError;
 import net.formio.choice.ChoiceProvider;
-import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
@@ -88,8 +87,10 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		this.formProperties = new FormPropertiesImpl(builder.properties);
 		this.order = builder.order;
 		this.index = builder.index;
-		this.fields = simpleCopy ? builder.fields : Clones.fieldsWithParent(this, builder.fields, getConfig(), builder.dataClass);
-		this.nested = simpleCopy ? builder.nested : Clones.mappingsWithParent(this, builder.nested, builder.dataClass, getConfig());
+		this.fields = simpleCopy ? Collections.unmodifiableMap(builder.fields) : 
+			Clones.fieldsWithParent(this, builder.fields, getConfig(), builder.dataClass);
+		this.nested = simpleCopy ? Collections.unmodifiableMap(builder.nested) : 
+			Clones.mappingsWithParent(this, builder.nested, builder.dataClass, getConfig());
 	}
 	
 	/**
@@ -502,7 +503,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
-		Map<String, FormMapping<?>> newNestedMappings = fillNestedMappings(editedObj, locale, ctx);
+		Map<String, FormMapping<?>> filledNestedMappings = fillNestedMappings(editedObj, locale, ctx);
 		
 		// Preparing values for this mapping
 		Map<String, Object> propValues = gatherPropertyValues(editedObj.getData(), FormUtils.getPropertiesFromFields(fields), ctx);
@@ -515,20 +516,11 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			locale);
 
 		// Returning copy of this form that is filled with form data
-		BasicFormMappingBuilder<T> builder = null;
-		if (this.secured) {
-			builder = Forms.basicSecured(getDataClass(), this.propertyName, this.instantiator).fields(filledFields);
-		} else {
-			builder = Forms.basic(getDataClass(), this.propertyName, this.instantiator).fields(filledFields);
-		}
-		builder.parent = this.parent;
-		builder.nested = Collections.unmodifiableMap(newNestedMappings);
-		builder.validationResult = editedObj.getValidationResult();
-		builder.filledObject = editedObj.getData();
-		builder.config = this.config;
-		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
-		builder.order = this.order;
-		builder.index = this.index;
+		BasicFormMappingBuilder<T> builder = new BasicFormMappingBuilder<T>(this, 
+			filledFields, 
+			Collections.unmodifiableMap(filledNestedMappings))
+			.filledObject(editedObj.getData())
+			.validationResult(editedObj.getValidationResult());
 		return builder;
 	}
 	

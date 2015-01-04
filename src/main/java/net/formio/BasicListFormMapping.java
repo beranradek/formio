@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import net.formio.common.heterog.HeterogCollections;
 import net.formio.data.RequestContext;
 import net.formio.internal.FormUtils;
 import net.formio.servlet.ServletRequestParams;
@@ -117,29 +116,19 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		// index-related mapping.
 		List<FormMapping<T>> listMappings = new ArrayList<FormMapping<T>>();
 		for (int index = 0; index <= maxIndex; index++) {
-			// constructing single mapping for index:
-			// fields with indexed names
-			BasicFormMappingBuilder<T> builder = null;
-			if (this.secured) {
-				builder = Forms.basicSecured(getDataClass(), this.propertyName, getInstantiator(), MappingType.SINGLE);
-			} else {
-				builder = Forms.basic(getDataClass(), this.propertyName, getInstantiator(), MappingType.SINGLE);
-			}
-			builder.parent = this.parent;
-			builder.order = index;
-			builder.index = Integer.valueOf(index);
-			builder.nested = this.nested;
-			builder.fields = this.fields;
-			
 			ValidationResult res = null;
 			if (this.getValidationResult() != null) {
 				res = new ValidationResult(
 					new LinkedHashMap<String, List<ConstraintViolationMessage>>(this.getValidationResult().getFieldMessages()),
 					new ArrayList<ConstraintViolationMessage>(this.getValidationResult().getGlobalMessages()));
 			}
-			builder.validationResult = res;
+			
+			// constructing single mapping for index:
+			BasicFormMappingBuilder<T> builder = new BasicFormMappingBuilder<T>(this, this.fields, this.nested)
+				.index(Integer.valueOf(index))
+				.order(index)
+				.validationResult(res);
 			builder.mappingType = MappingType.SINGLE;
-			// no filledObject - already loading data from request in the following code 
 			listMappings.add(builder.build(getConfig()));
 		}
 		
@@ -188,7 +177,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
 			
 			// Create filled nested mappings for current list index (data at current index)
-			Map<String, FormMapping<?>> newNestedMappings = indexAndFillNestedMappings(index, formDataAtIndex, locale, ctx);
+			Map<String, FormMapping<?>> filledIndexedNestedMappings = indexAndFillNestedMappings(index, formDataAtIndex, locale, ctx);
 			
 			// Prepare values for mapping that is constructed for current list index.
 			// Previously created filled nested mappings will be assigned to mapping for current list index.
@@ -204,53 +193,29 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			
 			// Returning copy of this mapping (for current index) that is filled with form data,
 			// but with single mapping type (for an index) and now without list mappings
-			BasicFormMappingBuilder<T> builder = null;
-			if (this.secured) {
-				builder = Forms.basicSecured(getDataClass(), this.propertyName, getInstantiator(), MappingType.SINGLE)
-					.fields(filledFields);
-			} else {
-				builder = Forms.basic(getDataClass(), this.propertyName, getInstantiator(), MappingType.SINGLE)
-					.fields(filledFields);
-			}
-			builder.parent = this.parent;
-			builder.nested = newNestedMappings;
-			builder.validationResult = formDataAtIndex.getValidationResult();
-			builder.filledObject = formDataAtIndex.getData();
+			BasicFormMappingBuilder<T> builder = new BasicFormMappingBuilder<T>(this, filledFields, filledIndexedNestedMappings)
+				.index(Integer.valueOf(index))
+				.order(index)
+				.validationResult(formDataAtIndex.getValidationResult())
+				.filledObject(formDataAtIndex.getData());
 			builder.mappingType = MappingType.SINGLE;
-			builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
-			builder.order = index;
-			builder.index = Integer.valueOf(index);
 			newMappings.add(builder.build(getConfig()));
 			index++;
 		}
 		// unindexed fields (that are only recipes for indexed fields) will not be part of filled form
 		// as well as unindexed nested mappings -> empty maps are used:
-		Map<String, FormField<?>> emptyFields = Collections.unmodifiableMap(Collections.<String, FormField<?>>emptyMap());
-		BasicFormMappingBuilder<T> builder = null;
-		if (this.secured) {
-			builder = Forms.basicSecured(getDataClass(), this.propertyName, getInstantiator(), MappingType.LIST).fields(emptyFields);
-		} else {
-			builder = Forms.basic(getDataClass(), this.propertyName, getInstantiator(), MappingType.LIST).fields(emptyFields);
-		}
-		builder.parent = this.parent;
-		builder.nested = Collections.unmodifiableMap(Collections.<String, FormMapping<?>>emptyMap());
-		builder.validationResult = editedObj.getValidationResult();
-		builder.listOfMappings = newMappings;
-		builder.filledObject = editedObj.getData();
-		builder.properties = HeterogCollections.unmodifiableMap(this.getProperties());
-		builder.config = this.config;
-		builder.order = this.order;
-		builder.index = this.index;
+		BasicFormMappingBuilder<T> builder = new BasicFormMappingBuilder<T>(this, 
+			Collections.unmodifiableMap(Collections.<String, FormField<?>>emptyMap()), 
+			Collections.unmodifiableMap(Collections.<String, FormMapping<?>>emptyMap()))
+			.validationResult(editedObj.getValidationResult())
+			.filledObject(editedObj.getData());
+		builder.listOfMappings = Collections.unmodifiableList(newMappings);
 		return builder;
 	}
 	
 	@Override
 	public List<FormMapping<T>> getList() {
-		List<FormMapping<T>> ret = new ArrayList<FormMapping<T>>();
-		for (FormMapping<T> m : this.listOfMappings) {
-			ret.add(m);
-		}
-		return Collections.unmodifiableList(ret);
+		return this.listOfMappings;
 	}
 	
 	@Override
@@ -286,6 +251,6 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	private List<FormMapping<T>> newListOfMappings(List<FormMapping<T>> listOfMappings) {
-		return new ArrayList<FormMapping<T>>(listOfMappings);
+		return Collections.unmodifiableList(new ArrayList<FormMapping<T>>(listOfMappings));
 	}
 }
