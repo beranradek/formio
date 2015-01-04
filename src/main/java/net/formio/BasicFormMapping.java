@@ -54,6 +54,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	// public because of introspection required by some template frameworks, constructors are not public
 
 	final FormMapping<?> parent;
+	final String propertyName;
 	final String path;
 	final Class<T> dataClass;
 	final Instantiator<T> instantiator;
@@ -78,6 +79,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 */
 	BasicFormMapping(BasicFormMappingBuilder<T> builder, boolean simpleCopy) {
 		this.parent = builder.parent;
+		this.propertyName = builder.propertyName;
 		this.config = builder.config;
 		this.path = builder.path;
 		this.dataClass = assertNotNullArg(builder.dataClass, "data class must be filled before configuring fields");
@@ -117,6 +119,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		this(new BasicFormMappingBuilder<T>(src, 
 			Clones.fieldsWithIndexAfterPathPrefix(src.fields, index, pathPrefix), 
 			Clones.mappingsWithIndexAfterPathPrefix(src.nested, index, pathPrefix))
+			.index(Integer.valueOf(index))
 			.path(pathWithIndex(src.path, index, pathPrefix)), 
 			true); // true = simple copy of builder's data
 	}
@@ -143,7 +146,26 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 
 	@Override
 	public String getName() {
-		return path;
+		String name = null;
+		if (getParent() != null) {
+			if (index != null) {
+				name = getParent().getName() + Forms.PATH_SEP + propertyName + "[" + index + "]";
+			} else {
+				name = getParent().getName() + Forms.PATH_SEP + propertyName;
+			}
+		} else {
+			if (index != null) {
+				name = propertyName + "[" + index + "]";
+			} else {
+				name = propertyName;
+			}
+		}
+		return name;
+	}
+	
+	@Override
+	public String getPropertyName() {
+		return propertyName;
 	}
 
 	@Override
@@ -520,6 +542,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		} else {
 			builder = Forms.basic(getDataClass(), this.path, this.instantiator).fields(filledFields);
 		}
+		builder.propertyName = this.propertyName;
 		builder.parent = this.parent;
 		builder.nested = Collections.unmodifiableMap(newNestedMappings);
 		builder.validationResult = editedObj.getValidationResult();

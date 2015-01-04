@@ -142,14 +142,17 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 				builder = Forms.basic(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
 					.fields(formFields);
 			}
+			builder.propertyName = this.propertyName;
 			builder.parent = this.parent;
+			builder.order = index;
+			builder.index = Integer.valueOf(index);
 			
 			// Nested mappings must have index appended to their path (and to their fields)
-			Map<String, FormMapping<?>> nestedForIndex = new LinkedHashMap<String, FormMapping<?>>();
-			for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
-				nestedForIndex.put(e.getKey(), e.getValue().withIndexAfterPathPrefix(index, this.path));
-			}
-			builder.nested = nestedForIndex;
+			//Map<String, FormMapping<?>> nestedForIndex = new LinkedHashMap<String, FormMapping<?>>();
+			//for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
+			//	nestedForIndex.put(e.getKey(), e.getValue().withIndexAfterPathPrefix(index, this.path));
+			//}
+			builder.nested = this.nested;
 			
 			ValidationResult res = null;
 			if (this.getValidationResult() != null) {
@@ -160,8 +163,6 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			builder.validationResult = res;
 			builder.mappingType = MappingType.SINGLE;
 			// no filledObject - already loading data from request in the following code 
-			builder.order = index;
-			builder.index = Integer.valueOf(index);
 			listMappings.add(builder.build(getConfig()));
 		}
 		
@@ -235,6 +236,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 				builder = Forms.basic(getDataClass(), indexedPath, getInstantiator(), MappingType.SINGLE)
 					.fields(filledFields);
 			}
+			builder.propertyName = this.propertyName;
 			builder.parent = this.parent;
 			builder.nested = newNestedMappings;
 			builder.validationResult = formDataAtIndex.getValidationResult();
@@ -255,6 +257,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		} else {
 			builder = Forms.basic(getDataClass(), this.path, getInstantiator(), MappingType.LIST).fields(emptyFields);
 		}
+		builder.propertyName = this.propertyName;
 		builder.parent = this.parent;
 		builder.nested = Collections.unmodifiableMap(Collections.<String, FormMapping<?>>emptyMap());
 		builder.validationResult = editedObj.getValidationResult();

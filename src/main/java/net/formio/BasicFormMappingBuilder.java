@@ -52,6 +52,7 @@ public class BasicFormMappingBuilder<T> {
 	 * it contains complete path to this nested mapping, if this is a nested mapping.
 	 */
 	String path;
+	String propertyName;
 	Class<T> dataClass;
 	Instantiator<T> instantiator;
 	/** Mapping simple property names to fields. */
@@ -73,12 +74,13 @@ public class BasicFormMappingBuilder<T> {
 	/**
 	 * Should be constructed only via {@link Forms} entry point of API.
 	 */
-	BasicFormMappingBuilder(Class<T> dataClass, String formName, Instantiator<T> inst, boolean automatic, MappingType mappingType) {
+	BasicFormMappingBuilder(Class<T> dataClass, String propertyName, Instantiator<T> inst, boolean automatic, MappingType mappingType) {
 		if (dataClass == null) throw new IllegalArgumentException("dataClass must be filled");
-		if (formName == null || formName.isEmpty()) throw new IllegalArgumentException("form name must be filled");
+		if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be filled");
 		if (mappingType == null) throw new IllegalArgumentException("mappingType must be filled");
 		this.dataClass = dataClass;
-		this.path = formName;
+		this.propertyName = propertyName;
+		this.path = propertyName;
 		Instantiator<T> instantiator = inst;
 		if (instantiator == null) {
 			// using some public constructor as default instantiation strategy
@@ -90,8 +92,8 @@ public class BasicFormMappingBuilder<T> {
 		this.properties = FieldProperty.createDefaultFieldProperties();
 	}
 	
-	BasicFormMappingBuilder(Class<T> objectClass, String formName, Instantiator<T> inst, boolean automatic) {
-		this(objectClass, formName, inst, automatic, MappingType.SINGLE);
+	BasicFormMappingBuilder(Class<T> objectClass, String propertyName, Instantiator<T> inst, boolean automatic) {
+		this(objectClass, propertyName, inst, automatic, MappingType.SINGLE);
 	}
 	
 	BasicFormMappingBuilder(BasicFormMapping<T> src, Map<String, FormField<?>> fields, Map<String, FormMapping<?>> nested) {
@@ -99,6 +101,7 @@ public class BasicFormMappingBuilder<T> {
 		this(src.dataClass, src.path, src.instantiator, false, 
 			(src instanceof BasicListFormMapping) ? MappingType.LIST : MappingType.SINGLE);
 		this.parent = src.parent;
+		this.propertyName = src.propertyName;
 		this.config = src.config;
 		this.filledObject = src.filledObject;
 		this.fields = fields;

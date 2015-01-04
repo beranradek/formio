@@ -137,6 +137,12 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	// only for internal usage
+	FieldProps<T> propertyName(String propertyName) {
+		this.propertyName = propertyName;
+		return this;
+	}
+	
+	// only for internal usage
 	FieldProps<T> name(String name) {
 		this.name = name;
 		return this;
@@ -174,7 +180,7 @@ public class FieldProps<T> implements Serializable {
 	}
 
 	/**
-	 * Name of mapped property of edited object.
+	 * Name of mapped propertyName of edited object.
 	 * 
 	 * @return
 	 */
@@ -304,7 +310,7 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	private FieldProps<T> initFromField(FormField<T> field) {
-		this.propertyName = null;
+		this.propertyName = field.getPropertyName();
 		this.parent = field.getParent();
 		this.name = field.getName();
 		this.type = field.getType();

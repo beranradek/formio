@@ -41,6 +41,12 @@ public interface FormElement extends FormProperties {
 	String getName();
 	
 	/**
+	 * Name of property to which this form element is bound to.
+	 * @return
+	 */
+	String getPropertyName();
+	
+	/**
 	 * Key for the label (derived from name).
 	 * Does not contain any brackets with indexes as the name does. 
 	 * Useful especially for repeated fields that are part of list mapping

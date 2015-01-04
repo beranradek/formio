@@ -36,6 +36,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	// public because of introspection required by some template frameworks, constructors are not public
 	
 	private final FormMapping<?> parent;
+	private final String propertyName;
 	private final String name;
 	private final String type;
 	/** Data filled in form field - for e.g. items from a codebook. */
@@ -85,6 +86,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	
 	FormFieldImpl(FieldProps<T> fieldProps, String parentPath, int order) {
 		this.parent = fieldProps.getParent();
+		this.propertyName = fieldProps.getPropertyName();
 		fieldProps.checkConsistentNames();
 		String name = null;
 		if (parentPath != null && !parentPath.isEmpty() && fieldProps.getPropertyName() != null && !fieldProps.getPropertyName().isEmpty()) {
@@ -145,12 +147,14 @@ public class FormFieldImpl<T> implements FormField<T> {
 		return this.parent;
 	}
 
-	/**
-	 * Name of edited property prefixed with form name.
-	 */
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getPropertyName() {
+		return propertyName;
 	}
 	
 	@Override
@@ -260,7 +264,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		return result;
 	}
 
@@ -273,10 +277,10 @@ public class FormFieldImpl<T> implements FormField<T> {
 		if (!(obj instanceof FormFieldImpl))
 			return false;
 		FormFieldImpl<?> other = (FormFieldImpl<?>) obj;
-		if (name == null) {
-			if (other.name != null)
+		if (getName() == null) {
+			if (other.getName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!getName().equals(other.getName()))
 			return false;
 		return true;
 	}
