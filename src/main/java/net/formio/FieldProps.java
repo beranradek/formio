@@ -128,6 +128,10 @@ public class FieldProps<T> implements Serializable {
 		return property(FieldProperty.HELP, help);
 	}
 	
+	public FieldProps<T> dataAjaxUrl(String dataAjaxUrl) {
+		return property(FieldProperty.DATA_AJAX_URL, dataAjaxUrl);
+	}
+	
 	// only for internal usage
 	FieldProps<T> parent(FormMapping<?> parent) {
 		this.parent = parent;

@@ -208,6 +208,11 @@ public class FormFieldImpl<T> implements FormField<T> {
 	}
 	
 	@Override
+	public String getDataAjaxUrl() {
+		return this.formProperties.getDataAjaxUrl();
+	}
+	
+	@Override
 	public HeterogMap<String> getProperties() {
 		return this.formProperties.getProperties();
 	}

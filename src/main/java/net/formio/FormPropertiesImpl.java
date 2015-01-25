@@ -72,6 +72,11 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
+	public String getDataAjaxUrl() {
+		return this.properties.getTyped(FieldProperty.DATA_AJAX_URL);
+	}
+	
+	@Override
 	public HeterogMap<String> getProperties() {
 		return this.properties;
 	}

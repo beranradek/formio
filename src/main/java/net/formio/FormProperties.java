@@ -56,6 +56,13 @@ public interface FormProperties {
 	String getHelp();
 	
 	/**
+	 * Returns URL for processing change of form element on the server
+	 * using AJAX request (and AJAX response). 
+	 * @return
+	 */
+	String getDataAjaxUrl();
+	
+	/**
 	 * Returns formProperties (flags) of this form field/mapping.
 	 * @return
 	 */

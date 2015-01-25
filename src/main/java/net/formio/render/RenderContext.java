@@ -18,26 +18,30 @@ package net.formio.render;
 
 import java.util.Locale;
 
-import net.formio.FormMapping;
-
 /**
  * Context with common data for rendering a form.
  * @author Radek Beran
- *
- * @param <T>
  */
-public class RenderContext<T> {
-	private FormMapping<T> filledForm;
+public class RenderContext {
+	private Locale locale;
 	private FormMethod method;
 	private String actionUrl;
-	private Locale locale;
-
-	public FormMapping<T> getFilledForm() {
-		return filledForm;
+	
+	public RenderContext() {
+		this(Locale.getDefault());
 	}
-
-	public void setFilledForm(FormMapping<T> filledForm) {
-		this.filledForm = filledForm;
+	
+	public RenderContext(Locale locale) {
+		this(locale, FormMethod.POST, "#");
+	}
+	
+	private RenderContext(Locale locale, FormMethod method, String actionUrl) {
+		if (locale == null) {
+			throw new IllegalArgumentException("locale cannot be null");
+		}
+		this.locale = locale;
+		this.method = method;
+		this.actionUrl = actionUrl;
 	}
 
 	public FormMethod getMethod() {

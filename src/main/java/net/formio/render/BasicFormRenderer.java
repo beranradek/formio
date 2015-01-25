@@ -16,7 +16,15 @@
  */
 package net.formio.render;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import net.formio.BasicListFormMapping;
 import net.formio.FormElement;
@@ -36,7 +44,16 @@ import net.formio.validation.ValidationResult;
  */
 public class BasicFormRenderer {
 	
-	public <T> String renderHtmlPage(RenderContext<T> ctx) {
+	private final RenderContext ctx;
+	
+	public BasicFormRenderer(RenderContext ctx) {
+		if (ctx == null) {
+			throw new IllegalArgumentException("ctx cannot be null");
+		}
+		this.ctx = ctx;
+	}
+	
+	public <T> String renderHtmlPage(FormMapping<T> formMapping) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!DOCTYPE html>" + newLine());
 		sb.append("<html lang=\"en\">" + newLine());
@@ -73,168 +90,170 @@ public class BasicFormRenderer {
 		sb.append("</head>" + newLine());
 		sb.append("<body style=\"margin:1em\">" + newLine());
 
-		sb.append(renderForm(ctx));
+		sb.append(renderForm(formMapping));
 		
 		sb.append("</body>" + newLine());
 		sb.append("</html>" + newLine());
 		return sb.toString();
 	}
 
-	public <T> String renderForm(RenderContext<T> ctx) {
+	public <T> String renderForm(FormMapping<T> formMapping) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(renderFormBegin(ctx));
-		sb.append(renderGlobalMessages(ctx));
-		sb.append(renderMapping(ctx, ctx.getFilledForm()));
-		if (!containsSubmitButton(ctx.getFilledForm())) {
-			sb.append(renderDefaultSubmitButton(ctx));
+		sb.append(renderFormBegin());
+		sb.append(renderGlobalMessages(formMapping));
+		sb.append(renderMapping(formMapping));
+		if (!containsSubmitButton(formMapping)) {
+			sb.append(renderDefaultSubmitButton());
 		}
-		sb.append(renderFormEnd(ctx));
+		sb.append(renderFormEnd());
 		return sb.toString();
 	}
 	
-	public <T> String renderGlobalMessages(RenderContext<T> ctx) {
+	public <T> String renderGlobalMessages(FormMapping<T> formMapping) {
 		StringBuilder sb = new StringBuilder();
-		ValidationResult validationResult = ctx.getFilledForm().getValidationResult();
+		ValidationResult validationResult = formMapping.getValidationResult();
 		if (!validationResult.isEmpty() && !validationResult.isSuccess()) {
 			sb.append("<div class=\"alert alert-danger\">" + newLine());
 			sb.append("<div>Form contains validation errors.</div>" + newLine());
 			for (ConstraintViolationMessage msg : validationResult.getGlobalMessages()) {
-				sb.append(renderMessage(ctx, msg));	
+				sb.append(renderMessage(msg));	
 			}
 			sb.append("</div>" + newLine());
 		}
 		return sb.toString();
 	}
 	
-	public <T> String renderMapping(RenderContext<?> ctx, FormMapping<T> mapping) {
+	public <T> String renderMapping(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder();
 		if (mapping.isVisible()) {
-			sb.append(renderVisibleMapping(ctx, mapping));
+			sb.append(renderVisibleMapping(mapping));
 		} else {
-			sb.append(renderInvisibleElement(ctx, mapping));
+			sb.append(renderInvisibleElement(mapping));
 		}
 		return sb.toString();
 	}
 
-	public <T> String renderVisibleMapping(RenderContext<?> ctx, FormMapping<T> mapping) {
+	public <T> String renderVisibleMapping(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(newLine());
-		sb.append(renderMappingBoxBegin(ctx, mapping));
+		// Form group
+		sb.append(renderMappingBoxBeginTag(mapping));
+		sb.append(renderMappingLabelAndMessages(mapping));
 		if (mapping instanceof BasicListFormMapping) {
 			for (FormMapping<?> m : ((BasicListFormMapping<?>)mapping).getList()) {
-				sb.append(renderMapping(ctx, m));
+				sb.append(renderMapping(m));
 			}
 		} else {
 			for (FormElement el : mapping.getElements()) {
 				if (el instanceof FormField) {
 					FormField<?> field = (FormField<?>)el;
-					sb.append(renderField(ctx, field));
+					sb.append(renderField(field));
 				} else if (el instanceof FormMapping) {
-					sb.append(renderMapping(ctx, (FormMapping<?>)el));
+					sb.append(renderMapping((FormMapping<?>)el));
 				} else {
 					throw new UnsupportedOperationException("Unsupported form element " + el.getClass().getName());
 				}
 			}
 		}
-		sb.append(renderMappingBoxEnd(ctx, mapping));
+		sb.append(renderMappingBoxEndTag(mapping));
 		return sb.toString();
 	}
 
-	public <T> String renderField(RenderContext<?> ctx, FormField<T> field) {
+	public <T> String renderField(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		String type = getFieldType(field);
 		if (type != null && type.equals(FormFieldType.HIDDEN_FIELD.getType())) {
-			sb.append(renderHiddenInput(ctx, field));
+			sb.append(renderHiddenInput(field));
 		} else if (field.isVisible()) {
-			sb.append(renderVisibleField(ctx, field));
+			sb.append(renderVisibleField(field));
 		} else {
 			// Placeholder hidden div so the field can be made visible later and placed to this reserved position
-			sb.append(renderInvisibleElement(ctx, field));
+			sb.append(renderInvisibleElement(field));
 		}
 		return sb.toString();
 	}
 	
-	public <T> String renderHiddenInput(RenderContext<?> ctx, FormField<T> field) {
-		return renderInput(ctx, field) + newLine();
+	public <T> String renderHiddenInput(FormField<T> field) {
+		return renderInput(field) + newLine();
 	}
 	
-	public <T> String renderVisibleField(RenderContext<?> ctx, FormField<T> field) {
+	public <T> String renderVisibleField(FormField<T> field) {
 		String type = getFieldType(field);
 		StringBuilder sb = new StringBuilder();
 		FormFieldType formComponent = FormFieldType.findByType(type);
 		if (formComponent != null) {
 			switch (formComponent) {
 				case TEXT_FIELD:
-					sb.append(renderTextField(ctx, field));
+					sb.append(renderTextField(field));
 					break;
 				case TEXT_AREA:
-					sb.append(renderTextArea(ctx, field));
+					sb.append(renderTextArea(field));
 					break;
 				case PASSWORD:
-					sb.append(renderPassword(ctx, field));
+					sb.append(renderPassword(field));
 					break;
 				case CHECK_BOX:
-					sb.append(renderCheckBox(ctx, field));
+					sb.append(renderCheckBox(field));
 					break;
 				case DATE_PICKER:
-					sb.append(renderDatePicker(ctx, field));
+					sb.append(renderDatePicker(field));
 					break;
 				case DROP_DOWN_CHOICE:
-					sb.append(renderDropDownChoice(ctx, field));
+					sb.append(renderDropDownChoice(field));
 					break;
 				case FILE_UPLOAD:
-					sb.append(renderFileUpload(ctx, field));
+					sb.append(renderFileUpload(field));
 					break;
 				case MULTIPLE_CHECK_BOX:
-					sb.append(renderMultipleCheckbox(ctx, field));
+					sb.append(renderMultipleCheckbox(field));
 					break;
 				case MULTIPLE_CHOICE:
-					sb.append(renderMultipleChoice(ctx, field));
+					sb.append(renderMultipleChoice(field));
 					break;
 				case RADIO_CHOICE:
-					sb.append(renderRadioChoice(ctx, field));
+					sb.append(renderRadioChoice(field));
 					break;
 				case COLOR:
-					sb.append(renderColor(ctx, field));
+					sb.append(renderColor(field));
 					break;
 				case DATE:
-					sb.append(renderDate(ctx, field));
+					sb.append(renderDate(field));
 					break;
 				case DATE_TIME:
-					sb.append(renderDateTime(ctx, field));
+					sb.append(renderDateTime(field));
 					break;
 				case DATE_TIME_LOCAL:
-					sb.append(renderDateTimeLocal(ctx, field));
+					sb.append(renderDateTimeLocal(field));
 					break;
 				case TIME:
-					sb.append(renderTime(ctx, field));
+					sb.append(renderTime(field));
 					break;
 				case EMAIL:
-					sb.append(renderEmail(ctx, field));
+					sb.append(renderEmail(field));
 					break;
 				case MONTH:
-					sb.append(renderMonth(ctx, field));
+					sb.append(renderMonth(field));
 					break;
 				case NUMBER:
-					sb.append(renderNumber(ctx, field));
+					sb.append(renderNumber(field));
 					break;
 				case RANGE:
-					sb.append(renderRange(ctx, field));
+					sb.append(renderRange(field));
 					break;
 				case SEARCH:
-					sb.append(renderSearch(ctx, field));
+					sb.append(renderSearch(field));
 					break;
 				case TEL:
-					sb.append(renderTel(ctx, field));
+					sb.append(renderTel(field));
 					break;
 				case URL: 
-					sb.append(renderUrl(ctx, field));
+					sb.append(renderUrl(field));
 					break;
 				case WEEK:
-					sb.append(renderWeek(ctx, field));
+					sb.append(renderWeek(field));
 					break;
 				case SUBMIT_BUTTON:
-					sb.append(renderSubmitButton(ctx, field));
+					sb.append(renderSubmitButton(field));
 					break;
 				default:
 					throw new UnsupportedOperationException("Cannot render component with type " + type);
@@ -245,22 +264,22 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	public String renderInvisibleElement(RenderContext<?> ctx, FormElement element) {
-		return "<div id=\"" + renderElementBoxId(ctx, element) + "\" class=\"hidden\"></div>" + newLine();
+	public String renderInvisibleElement(FormElement element) {
+		return "<div id=\"" + renderElementBoxId(element) + "\" class=\"hidden\"></div>" + newLine();
 	}
 	
-	public String renderDefaultSubmitButton(RenderContext<?> ctx) {
-		return renderSubmitButton(ctx, Forms.<String>field(PROPERTY_DEFAULT_SUBMIT, FormFieldType.SUBMIT_BUTTON.getType()).build());
+	public String renderDefaultSubmitButton() {
+		return renderSubmitButton(Forms.<String>field(PROPERTY_DEFAULT_SUBMIT, FormFieldType.SUBMIT_BUTTON.getType()).build());
 	}
 	
-	public <T> String renderSubmitButton(RenderContext<?> ctx, FormField<T> field) {
+	public <T> String renderSubmitButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"" + getFormBlockClass() + "\">" + newLine());
 		sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
-		sb.append("<button type=\"submit\" value=\"" + renderValue(ctx, field.getValue()) + "\" class=\"btn btn-default\">");
+		sb.append("<button type=\"submit\" value=\"" + renderValue(field.getValue()) + "\" class=\"btn btn-default\">");
 		String text = null;
 		if (field.getLabelKey() != null && !field.getLabelKey().equals(PROPERTY_DEFAULT_SUBMIT)) {
-			MessageTranslator tr = createMessageTranslator(ctx, field);
+			MessageTranslator tr = createMessageTranslator(field);
 			text = escapeHtml(tr.getMessage(field.getLabelKey()));
 		} else {
 			text = "Submit";
@@ -272,75 +291,122 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	public <T> String renderFormBegin(RenderContext<T> ctx) {
+	public <T> String renderFormBegin() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<form action=\"");
-		sb.append(renderUrl(ctx, ctx.getActionUrl()));
+		sb.append(renderUrl(getRenderContext().getActionUrl()));
 		sb.append("\" method=\"");
-		sb.append(ctx.getMethod().name());
+		sb.append(getRenderContext().getMethod().name());
 		sb.append("\" class=\"form-horizontal\" role=\"form\">" + newLine());
 		return sb.toString();
 	}
 	
-	public <T> String renderFormEnd(RenderContext<T> ctx) {
+	public <T> String renderFormEnd() {
 		return "</form>" + newLine();
 	}
 	
-	protected <T> String renderMappingBoxBegin(RenderContext<?> ctx, FormMapping<T> mapping) {
+	/**
+	 * Renders template to a string.
+	 * @param request
+	 * @param response
+	 * @param tplPath
+	 * @return rendered template
+	 */
+	public String renderTemplate(final HttpServletRequest request, final HttpServletResponse response, final String tplPath) {
+		String str = null;
+		final StringWriter sw = new StringWriter();
+		try {
+			// final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			final HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(response) {
+				@Override
+				public PrintWriter getWriter() throws IOException {
+					return new PrintWriter(sw);
+				}
+				
+				@Override
+				public ServletOutputStream getOutputStream() throws IOException {
+					return new ServletOutputStream() {
+						
+						@Override
+						public void write(int b) throws IOException {
+							// nothing
+						}
+					};
+				}
+			};
+			try {
+				request.getRequestDispatcher(tplPath).include(request, responseWrapper);
+			} catch (Exception ex) {
+				throw new RuntimeException(ex.getMessage(), ex);
+			}
+			str = sw.toString();
+		} finally {
+			try {
+				sw.close();
+			} catch (IOException e) {
+				// in-memory writer closing error ignored
+			}
+		}
+		return str;
+	}
+	
+	public TdiResponseBuilder tdiResponse() {
+		return createTdiResponseBuilder();
+	}
+	
+	protected TdiResponseBuilder createTdiResponseBuilder() {
+		return new TdiResponseBuilder(this);
+	}
+	
+	protected <T> String renderMappingLabelAndMessages(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder();
-		// Form group
-		sb.append(renderMappingBoxBeginTag(ctx, mapping));
 		
 		// Label
-		sb.append(renderMappingLabelElement(ctx, mapping));
+		sb.append(renderMappingLabelElement(mapping));
 		
 		// Mapping messages
-		sb.append(renderFieldMessages(ctx, mapping.getValidationMessages()));
+		sb.append(renderFieldMessages(mapping.getValidationMessages()));
 		return sb.toString();
-	}
-	
-	protected <T> String renderMappingBoxEnd(RenderContext<?> ctx, FormMapping<T> mapping) {
-		return renderMappingBoxEndTag(ctx, mapping);
 	}
 
-	protected <T> String renderMappingBoxBeginTag(RenderContext<?> ctx, FormMapping<T> mapping) {
+	protected <T> String renderMappingBoxBeginTag(FormMapping<T> mapping) {
 		String maxSeverityClass = getMaxSeverityClass(mapping.getValidationMessages());
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div id=\"" + renderElementBoxId(ctx, mapping) + "\" class=\"" + maxSeverityClass + "\">" + newLine());
+		sb.append("<div id=\"" + renderElementBoxId(mapping) + "\" class=\"" + maxSeverityClass + "\">" + newLine());
 		return sb.toString();
 	}
 	
-	protected <T> String renderMappingBoxEndTag(RenderContext<?> ctx, FormMapping<T> mapping) {
+	protected <T> String renderMappingBoxEndTag(FormMapping<T> mapping) {
 		return "</div>" + newLine();
 	}
 	
-	protected <T> String renderUrl(RenderContext<T> ctx, String url) {
+	protected <T> String renderUrl(String url) {
 		return url;
 	}
 
-	protected String renderFieldMessages(RenderContext<?> ctx, List<ConstraintViolationMessage> fieldMessages) {
+	protected String renderFieldMessages(List<ConstraintViolationMessage> fieldMessages) {
 		StringBuilder sb = new StringBuilder();
 		if (fieldMessages != null && !fieldMessages.isEmpty()) {
 			for (ConstraintViolationMessage msg : fieldMessages) {
-				sb.append(renderMessage(ctx, msg));
+				sb.append(renderMessage(msg));
 			}
 		}
 		return sb.toString();
 	}
 	
-	protected String renderMessage(RenderContext<?> ctx, ConstraintViolationMessage msg) {
+	protected String renderMessage(ConstraintViolationMessage msg) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"" + msg.getSeverity().getStyleClass() + "\">" + escapeHtml(msg.getText()) + "</div>" + newLine());
 		return sb.toString();
 	}
 	
-	protected <T> String renderMappingLabelElement(RenderContext<?> ctx, FormMapping<T> mapping) {
+	protected <T> String renderMappingLabelElement(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
 		if (!mapping.isRootMapping()) {
 			sb.append("<div class=\"" + getFormBlockClass() + "\">" + newLine());
 			sb.append("<div class=\"" + getLabelIndentClass() + "\">" + newLine());
 			sb.append("<label>" + newLine());
-			sb.append(renderLabelText(ctx, mapping));
+			sb.append(renderLabelText(mapping));
 			sb.append(":");
 			sb.append("</label>" + newLine());
 			sb.append("</div>" + newLine());
@@ -349,16 +415,16 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldLabelElement(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderFieldLabelElement(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<label for=\"id-" + field.getName() + "\" class=\"" + getLabelIndentClass() + "\">");
-		sb.append(renderLabelText(ctx, field));
+		sb.append(renderLabelText(field));
 		sb.append(":");
 		sb.append("</label>" + newLine());
 		return sb.toString();
 	}
 
-	protected String renderValue(RenderContext<?> ctx, String value) {
+	protected String renderValue(String value) {
 		if (value == null || value.isEmpty()) {
 			return "";
 		}
@@ -387,11 +453,11 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected String renderElementBoxId(RenderContext<?> ctx, FormElement element) {
+	protected String renderElementBoxId(FormElement element) {
 		return "box-" + element.getName();
 	}
 	
-	protected String renderAccessibilityAttributes(RenderContext<?> ctx, FormElement element) {
+	protected String renderAccessibilityAttributes(FormElement element) {
 		StringBuilder sb = new StringBuilder();
 		if (!element.isEnabled()) {
 			sb.append(" disabled=\"disabled\"");
@@ -402,20 +468,36 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderTextarea(RenderContext<?> ctx, FormField<T> field) {
+	/**
+	 * Renders AJAX attributes of TDI library.
+	 * @param ctx
+	 * @param element
+	 * @return
+	 */
+	protected String renderTdiAttributes(FormElement element) {
+		StringBuilder sb = new StringBuilder();
+		if (element.getDataAjaxUrl() != null && !element.getDataAjaxUrl().isEmpty()) {
+			sb.append(" class=\"tdi\"");
+			sb.append(" data-ajax-url=\"" + element.getDataAjaxUrl() + "\"");
+		}
+		return sb.toString();
+	}
+	
+	protected <T> String renderTextAreaElement(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<textarea name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" class=\"input-sm form-control\"");
-		sb.append(renderAccessibilityAttributes(ctx, field) + ">");
-		sb.append(renderValue(ctx, field.getValue()));
+		sb.append(renderTdiAttributes(field));
+		sb.append(renderAccessibilityAttributes(field) + ">");
+		sb.append(renderValue(field.getValue()));
 		sb.append("</textarea>" + newLine());
 		return sb.toString();
 	}	
 	
-	protected <T> String renderInput(RenderContext<?> ctx, FormField<T> field) {
-		return renderInput(ctx, field, null);
+	protected <T> String renderInput(FormField<T> field) {
+		return renderInput(field, null);
 	}
 	
-	protected <T> String renderInput(RenderContext<?> ctx, FormField<T> field, String typeOverriden) {
+	protected <T> String renderInput(FormField<T> field, String typeOverriden) {
 		String type = getFieldType(field);
 		if (typeOverriden != null && !typeOverriden.isEmpty()) {
 			type = typeOverriden;
@@ -423,11 +505,12 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
 		if (type != null && !FormFieldType.FILE_UPLOAD.getType().equals(type)) {
-			String value = renderValue(ctx, field.getValue());
+			String value = renderValue(field.getValue());
 			sb.append(" value=\"" + value + "\"");
 		}
 		if (type != null && !type.equals(FormFieldType.HIDDEN_FIELD.getType())) {
-			sb.append(renderAccessibilityAttributes(ctx, field));
+			sb.append(renderTdiAttributes(field));
+			sb.append(renderAccessibilityAttributes(field));
 		}
 		if (isInputClassIncluded(type)) {
 			sb.append(" class=\"input-sm form-control\"");
@@ -436,21 +519,22 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderCheckBoxInput(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderCheckBoxInput(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<input type=\"checkbox\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" value=\"" + renderValue(ctx, "1") + "\"");
+		sb.append("<input type=\"checkbox\" name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\" value=\"" + renderValue("1") + "\"");
 		if (field.getValue() != null && !field.getValue().isEmpty()) { 
 			String lc = field.getValue().toLowerCase();
 			if (Boolean.valueOf(lc.equals("t") || lc.equals("y") || lc.equals("true") || lc.equals("1")).booleanValue()) {
 				sb.append(" checked=\"checked\" ");
 			}
 		}
-		sb.append(renderAccessibilityAttributes(ctx, field));
+		sb.append(renderTdiAttributes(field));
+		sb.append(renderAccessibilityAttributes(field));
 		sb.append("/>" + newLine());
 		return sb.toString();
 	}
 	
-	protected <T> String renderSelect(RenderContext<?> ctx, FormField<T> field, boolean multiple, Integer size) {
+	protected <T> String renderSelect(FormField<T> field, boolean multiple, Integer size) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<select name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
 		if (multiple) {
@@ -460,7 +544,8 @@ public class BasicFormRenderer {
 			sb.append(" size=\"" + size + "\"");
 		}
 		sb.append(" class=\"input-sm form-control\"");
-		sb.append(renderAccessibilityAttributes(ctx, field));
+		sb.append(renderTdiAttributes(field));
+		sb.append(renderAccessibilityAttributes(field));
 		sb.append(">" + newLine());
 		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
 			List<?> items = field.getChoiceProvider().getItems();
@@ -468,7 +553,7 @@ public class BasicFormRenderer {
 				ChoiceRenderer<Object> choiceRenderer = (ChoiceRenderer<Object>)field.getChoiceRenderer();
 				int itemIndex = 0;
 				for (Object item : items) {
-					String value = renderValue(ctx, choiceRenderer.getId(item, itemIndex));
+					String value = renderValue(choiceRenderer.getId(item, itemIndex));
 					String title = escapeHtml(choiceRenderer.getTitle(item, itemIndex));
 					sb.append("<option value=\"" + value + "\"");
 					if (field.getFilledObjects().contains(item)) {
@@ -483,8 +568,8 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderChecks(RenderContext<?> ctx, FormField<T> field) {
-		String type = field.getType() != null && field.getType().equals(FormFieldType.RADIO_CHOICE.getType()) ? "radio" : "checkbox";
+	protected <T> String renderChecks(FormField<T> field) {
+		String type = field.getType() != null && field.getType().equals(FormFieldType.RADIO_CHOICE.getType()) ? FormFieldType.RADIO_CHOICE.getType() : FormFieldType.CHECK_BOX.getType();
 		StringBuilder sb = new StringBuilder();
 		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
 			List<?> items = field.getChoiceProvider().getItems();
@@ -492,7 +577,7 @@ public class BasicFormRenderer {
 				ChoiceRenderer<Object> choiceRenderer = (ChoiceRenderer<Object>)field.getChoiceRenderer();
 				int itemIndex = 0;
 				for (Object item : items) {
-					String value = renderValue(ctx, choiceRenderer.getId(item, itemIndex));
+					String value = renderValue(choiceRenderer.getId(item, itemIndex));
 					String title = escapeHtml(choiceRenderer.getTitle(item, itemIndex));
 					
 					sb.append("<div class=\"" + type + "\">" + newLine());
@@ -500,7 +585,8 @@ public class BasicFormRenderer {
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" checked=\"checked\"");
 					}
-					sb.append(renderAccessibilityAttributes(ctx, field));
+					sb.append(renderTdiAttributes(field));
+					sb.append(renderAccessibilityAttributes(field));
 					sb.append("/> " + title + "</label>" + newLine());
 					sb.append("</div>" + newLine());
 					itemIndex++;
@@ -510,213 +596,215 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldBegin(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderFieldBegin(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"col-sm-4\">" + newLine());
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldEnd(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderFieldEnd(FormField<T> field) {
 		return "</div>" + newLine();
 	}
 	
-	protected <T> String renderDatePickerJavaScript(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderDatePickerJavaScript(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<script>" + newLine());
 		sb.append("$(function(){" + newLine());
-		sb.append("	$('#id-" + field.getName() + "').datepicker({ dateFormat: \"" + getDatePickerPattern(ctx, field) + "\" });" + newLine());
+		sb.append("	$('#id-" + field.getName() + "').datepicker({ dateFormat: \"" + getDatePickerPattern(field) + "\" });" + newLine());
 		sb.append("});" + newLine());
 		sb.append("</script>" + newLine());
 		return sb.toString();
 	}
 	
-	protected <T> String getDatePickerPattern(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String getDatePickerPattern(FormField<T> field) {
 		return "d.m.yy";
 	}
 	
-	protected <T> String renderTextField(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderTextFieldInternal(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderFieldInput(field) + 
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
 	
-	protected <T> String renderColor(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderTextField(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderDate(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderColor(FormField<T> field) {
+		return renderTextFieldInternal(field);
+	}
+	
+	protected <T> String renderDate(FormField<T> field) {
 		// TODO: Support for min, max attributes
-		return renderTextFieldInternal(ctx, field);
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderDateTime(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderDateTime(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderDateTimeLocal(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderDateTimeLocal(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderTime(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderTime(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderEmail(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderEmail(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderMonth(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderMonth(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderNumber(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderNumber(FormField<T> field) {
 		// TODO: Support for min, max, step attributes
-		return renderTextFieldInternal(ctx, field);
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderRange(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderRange(FormField<T> field) {
 		// TODO: Support for min, max attributes
-		return renderTextFieldInternal(ctx, field);
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderSearch(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderSearch(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderTel(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderTel(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderUrl(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderUrl(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderWeek(RenderContext<?> ctx, FormField<T> field) {
-		return renderTextFieldInternal(ctx, field);
+	protected <T> String renderWeek(FormField<T> field) {
+		return renderTextFieldInternal(field);
 	}
 	
-	protected <T> String renderTextArea(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderTextarea(ctx, field) +
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+	protected <T> String renderTextArea(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderTextAreaElement(field) +
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
 	
-	protected <T> String renderCheckBox(RenderContext<?> ctx, FormField<T> field) {
-		return renderCheckBoxBegin(ctx, field) +
-			renderCheckBoxInput(ctx, field) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderCheckBoxEnd(ctx, field);
+	protected <T> String renderCheckBox(FormField<T> field) {
+		return renderCheckBoxBegin(field) +
+			renderCheckBoxInput(field) + 
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderCheckBoxEnd(field);
 	}
 	
-	protected <T> String renderPassword(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderFieldInput(ctx, field) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+	protected <T> String renderPassword(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderFieldInput(field) + 
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
 	
-	protected <T> String renderFileUpload(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderFieldInput(ctx, field) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+	protected <T> String renderFileUpload(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderFieldInput(field) + 
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
 	
-	protected <T> String renderDatePicker(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderFieldInput(ctx, field, "text") +
-			renderDatePickerJavaScript(ctx, field) +
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+	protected <T> String renderDatePicker(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderFieldInput(field, "text") +
+			renderDatePickerJavaScript(field) +
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
 	
-	protected <T> String renderDropDownChoice(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderSelect(ctx, field, false, null) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+	protected <T> String renderDropDownChoice(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderSelect(field, false, null) + 
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
 	
-	protected <T> String renderMultipleChoice(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderSelect(ctx, field, true, null) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+	protected <T> String renderMultipleChoice(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderSelect(field, true, null) + 
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
 	
-	protected <T> String renderMultipleCheckbox(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderChecks(ctx, field) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+	protected <T> String renderMultipleCheckbox(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderChecks(field) + 
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
 	
-	protected <T> String renderRadioChoice(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderChecks(ctx, field) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
+	protected <T> String renderRadioChoice(FormField<T> field) {
+		return renderFieldBoxBeginTag(field) +
+			renderFieldLabelElement(field) +
+			renderFieldBegin(field) +
+			renderChecks(field) + 
+			renderFieldMessages(field.getValidationMessages()) + 
+			renderFieldEnd(field) +
+			renderFieldBoxEndTag(field);
 	}
-
-	protected <T> String renderFieldBoxBegin(RenderContext<?> ctx, FormField<T> field) {
+	
+	protected <T> String renderCheckBoxBegin(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		// Form group begin
-		sb.append(renderFieldBoxBeginTag(ctx, field));
-
-		// Label
-		sb.append(renderFieldLabelElement(ctx, field));
+		sb.append(renderFieldBoxBeginTag(field));
+		sb.append(renderLabelBeginTag(field));
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldBoxEnd(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderCheckBoxEnd(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(renderFieldBoxEndTag(ctx, field));
+		sb.append(renderLabelText(field));
+		sb.append(renderLabelEndTag(field));
+		sb.append(renderFieldBoxEndTag(field));
 		return sb.toString();
 	}
 	
-	protected <T> String renderCheckBoxBegin(RenderContext<?> ctx, FormField<T> field) {
-		StringBuilder sb = new StringBuilder();
-		// Form group begin
-		sb.append(renderFieldBoxBeginTag(ctx, field));
-		sb.append(renderLabelBeginTag(ctx, field));
-		return sb.toString();
-	}
-	
-	protected <T> String renderCheckBoxEnd(RenderContext<?> ctx, FormField<T> field) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(renderLabelText(ctx, field));
-		sb.append(renderLabelEndTag(ctx, field));
-		sb.append(renderFieldBoxEndTag(ctx, field));
-		return sb.toString();
-	}
-	
-	protected <T> String renderLabelBeginTag(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderLabelBeginTag(FormField<T> field) {
 		return "<label>" + newLine();
 	}
 	
-	protected <T> String renderLabelEndTag(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderLabelEndTag(FormField<T> field) {
 		return "</label>" + newLine();
 	}
 	
-	protected <T> String renderFieldBoxBeginTag(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderFieldBoxBeginTag(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		String maxSeverityClass = getMaxSeverityClass(field.getValidationMessages());
-		sb.append("<div id=\"" + renderElementBoxId(ctx, field) + "\" class=\"" + getFormBlockClass() + " " + maxSeverityClass + "\">" + newLine());
+		sb.append("<div id=\"" + renderElementBoxId(field) + "\" class=\"" + getFormBlockClass() + " " + maxSeverityClass + "\">" + newLine());
 		if (field.getType() != null && field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
 			sb.append("<div class=\"" + getInputIndentClass() + "\">" + newLine());
 			sb.append("<div class=\"checkbox\">" + newLine());
@@ -724,7 +812,7 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldBoxEndTag(RenderContext<?> ctx, FormField<T> field) {
+	protected <T> String renderFieldBoxEndTag(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		if (field.getType() != null && field.getType().equals(FormFieldType.CHECK_BOX.getType())) {
 			sb.append("</div>" + newLine());
@@ -734,19 +822,19 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderFieldInput(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldInput(ctx, field, null);
+	protected <T> String renderFieldInput(FormField<T> field) {
+		return renderFieldInput(field, null);
 	}
 	
-	protected <T> String renderFieldInput(RenderContext<?> ctx, FormField<T> field, String typeOverriden) {
+	protected <T> String renderFieldInput(FormField<T> field, String typeOverriden) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(renderInput(ctx, field, typeOverriden));
+		sb.append(renderInput(field, typeOverriden));
 		return sb.toString();
 	}
 	
-	protected <T> String renderLabelText(RenderContext<?> ctx, FormElement formElement) {
+	protected <T> String renderLabelText(FormElement formElement) {
 		StringBuilder sb = new StringBuilder();
-		MessageTranslator tr = createMessageTranslator(ctx, formElement);
+		MessageTranslator tr = createMessageTranslator(formElement);
 		String msgKey = formElement.getLabelKey();
 		if (formElement instanceof FormMapping) {
 			FormMapping<?> m = (FormMapping<?>)formElement;
@@ -754,18 +842,18 @@ public class BasicFormRenderer {
 				msgKey = msgKey + Forms.PATH_SEP + "singular"; 
 			}
 		}
-		sb.append(escapeHtml(tr.getMessage(msgKey, ctx.getLocale())));
+		sb.append(escapeHtml(tr.getMessage(msgKey, getRenderContext().getLocale())));
 		if (formElement instanceof BasicListFormMapping) {
 			FormMapping<?> listMapping = (FormMapping<?>)formElement;
 			sb.append(" (" + listMapping.getList().size() + ")");
 		}
 		if (formElement.isRequired()) {
-			sb.append(renderRequiredMark(ctx, formElement));
+			sb.append(renderRequiredMark(formElement));
 		}
 		return sb.toString();
 	}
 	
-	protected <T> String renderRequiredMark(RenderContext<?> ctx, FormElement formElement) {
+	protected <T> String renderRequiredMark(FormElement formElement) {
 		return "&nbsp;*";
 	}
 	
@@ -781,7 +869,7 @@ public class BasicFormRenderer {
 		return "col-sm-offset-2 col-sm-10";
 	}
 	
-	protected boolean containsSubmitButton(FormMapping<?> mapping) {
+	protected <T> boolean containsSubmitButton(FormMapping<T> mapping) {
 		// searching only on top level
 		for (FormField<?> field : mapping.getFields().values()) {
 			if (field.getType() != null && field.getType().equals(FormFieldType.SUBMIT_BUTTON.getType())) {
@@ -791,10 +879,23 @@ public class BasicFormRenderer {
 		return false;
 	}
 	
-	private <T> MessageTranslator createMessageTranslator(RenderContext<?> ctx, FormElement formElement) {
+	protected RenderContext getRenderContext() {
+		return ctx;
+	}
+	
+	private <T> MessageTranslator createMessageTranslator(FormElement formElement) {
+		FormMapping<?> rootMapping = getRootMapping(formElement);
 		return new MessageTranslator(
-			formElement.getParent().getDataClass(), ctx.getLocale(), 
-			ctx.getFilledForm().getDataClass());
+			formElement.getParent().getDataClass(), getRenderContext().getLocale(), 
+			rootMapping.getDataClass());
+	}
+
+	private FormMapping<?> getRootMapping(FormElement formElement) {
+		FormMapping<?> rootMapping = formElement.getParent();
+		while (rootMapping != null && rootMapping.getParent() != null) {
+			rootMapping = rootMapping.getParent();
+		}
+		return rootMapping;
 	}
 	
 	private String newLine() {
@@ -820,15 +921,6 @@ public class BasicFormRenderer {
 		Severity maxSeverity = Severity.max(fieldMessages);
 		String maxSeverityClass = maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
 		return maxSeverityClass;
-	}
-	
-	private <T> String renderTextFieldInternal(RenderContext<?> ctx, FormField<T> field) {
-		return renderFieldBoxBegin(ctx, field) +
-			renderFieldBegin(ctx, field) +
-			renderFieldInput(ctx, field) + 
-			renderFieldMessages(ctx, field.getValidationMessages()) + 
-			renderFieldEnd(ctx, field) +
-			renderFieldBoxEnd(ctx, field);
 	}
 	
 	private final String PROPERTY_DEFAULT_SUBMIT = "_defaultSubmitButton";

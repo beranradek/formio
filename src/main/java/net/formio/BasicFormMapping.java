@@ -423,6 +423,11 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
+	public String getDataAjaxUrl() {
+		return this.formProperties.getDataAjaxUrl();
+	}
+	
+	@Override
 	public HeterogMap<String> getProperties() {
 		return this.formProperties.getProperties();
 	}

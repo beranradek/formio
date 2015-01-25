@@ -41,6 +41,10 @@ public class FormData<T> implements Serializable {
 		if (res == null) throw new IllegalArgumentException("validation result cannot be null");
 		this.validationResult = res;
 	}
+	
+	public FormData(final T data) {
+		this(data, ValidationResult.empty);
+	}
 
 	public T getData() {
 		return this.data;

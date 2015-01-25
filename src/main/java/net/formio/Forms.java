@@ -22,7 +22,6 @@ import net.formio.binding.Instantiator;
 import net.formio.binding.StaticFactoryMethod;
 import net.formio.internal.FormUtils;
 import net.formio.render.BasicFormRenderer;
-import net.formio.render.FormMethod;
 import net.formio.render.RenderContext;
 
 /**
@@ -286,12 +285,7 @@ public final class Forms {
 	 * @param locale
 	 */
 	public static <T> void previewForm(FormMapping<T> form, Locale locale) {
-		RenderContext<T> ctx = new RenderContext<T>();
-		ctx.setFilledForm(form);
-		ctx.setMethod(FormMethod.POST);
-		ctx.setActionUrl("#");
-		ctx.setLocale(locale);
-		String html = new BasicFormRenderer().renderHtmlPage(ctx);
+		String html = new BasicFormRenderer(new RenderContext(locale)).renderHtmlPage(form);
 		FormUtils.openHtmlInBrowser(html);
 	}
 	

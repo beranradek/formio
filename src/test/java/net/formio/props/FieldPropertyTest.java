@@ -56,6 +56,7 @@ public class FieldPropertyTest {
 		assertFalse(FieldProperty.REQUIRED.getDefaultValue().booleanValue());
 		assertFalse(FieldProperty.READ_ONLY.getDefaultValue().booleanValue());
 		assertEquals("", FieldProperty.HELP.getDefaultValue());
+		assertEquals("", FieldProperty.DATA_AJAX_URL.getDefaultValue());
 	}
 
 }
