@@ -27,7 +27,13 @@ class FormElementOrderAscComparator implements Comparator<FormElement> {
 	@Override
 	public int compare(FormElement e1, FormElement e2) {
 		// e1 and e2 should not be null
-		return Integer.compare(e1.getOrder(), e2.getOrder());
+		if (e1.getOrder() > e2.getOrder()) {
+			return 1;
+		}
+		if (e1.getOrder() < e2.getOrder()) {
+			return -1;
+		}
+		return 0;
 	}
 
 }
