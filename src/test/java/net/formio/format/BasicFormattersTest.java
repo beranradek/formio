@@ -58,7 +58,7 @@ public class BasicFormattersTest {
 		
 		BigDecimal bd2 = formatters.parseFromString("3.6", BigDecimal.class, locale);
 		Assert.assertNotNull("Result decimal is null", bd2);
-		Assert.assertEquals(new BigDecimal("3.6"), bd2);
+		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd2);
 	}
 	
 	@Test
@@ -86,19 +86,19 @@ public class BasicFormattersTest {
 		
 		BigDecimal bd = formatters.parseFromString("3,6", BigDecimal.class, "#.#", csLocale);
 		Assert.assertNotNull("Result decimal is null", bd);
-		Assert.assertEquals(new BigDecimal("3.6"), bd);
+		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd);
 		
 		BigDecimal bd2 = formatters.parseFromString("3.6", BigDecimal.class, "#.#", csLocale);
 		Assert.assertNotNull("Result decimal is null", bd2);
-		Assert.assertEquals(new BigDecimal("3.6"), bd2);
+		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd2);
 		
 		BigDecimal bd3 = formatters.parseFromString("3.6", BigDecimal.class, csLocale);
 		Assert.assertNotNull("Result decimal is null", bd3);
-		Assert.assertEquals(new BigDecimal("3.6"), bd3);
+		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd3);
 		
 		BigDecimal bd4 = formatters.parseFromString("3.6", BigDecimal.class, new Locale("en"));
 		Assert.assertNotNull("Result decimal is null", bd4);
-		Assert.assertEquals(new BigDecimal("3.6"), bd4);
+		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd4);
 		
 		Double d = formatters.parseFromString("2.1", Double.class, csLocale);
 		Assert.assertNotNull("Result double is null", d);
