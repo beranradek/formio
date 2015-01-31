@@ -86,7 +86,7 @@ public class BasicFormattersTest {
 		
 		BigDecimal bd = formatters.parseFromString("3,6", BigDecimal.class, "#.#", csLocale);
 		Assert.assertNotNull("Result decimal is null", bd);
-		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd);
+		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd.setScale(1));
 		
 		BigDecimal bd2 = formatters.parseFromString("3.6", BigDecimal.class, "#.#", csLocale);
 		Assert.assertNotNull("Result decimal is null", bd2);
@@ -167,7 +167,7 @@ public class BasicFormattersTest {
 		String bdStr = "3,6";
 		String bdFormat = "#.#";
 		BigDecimal bd = formatters.parseFromString(bdStr, BigDecimal.class, bdFormat, locale);
-		Assert.assertEquals(bdStr, formatters.makeString(bd, bdFormat, locale));
+		Assert.assertEquals(bdStr, formatters.makeString(bd.setScale(1), bdFormat, locale));
 		
 		Assert.assertEquals(MluvnickyPad.GENITIV.name(), formatters.makeString(MluvnickyPad.GENITIV, locale));
 		Assert.assertEquals(null, formatters.makeString(null, locale));
