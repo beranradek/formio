@@ -649,7 +649,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	private <U> FormField<U> createFilledFormField(final FormField<U> field, U value, Locale locale, String preferedStringValue) {
 		ChoiceProvider<U> choiceProvider = field.getChoiceProvider();
 		if (choiceProvider == null && field.getType() != null && !field.getType().isEmpty()) {
-			FormFieldType formComponent = FormFieldType.findByType(field.getType());
+			FormFieldType formComponent = FormFieldType.findByTypeId(field.getType());
 			if (formComponent != null && formComponent.isChoice()) {
 				// TODO: choice provider can be initialized here to some default but class of value must be
 				// propagated here

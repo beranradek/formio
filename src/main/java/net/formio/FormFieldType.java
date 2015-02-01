@@ -21,55 +21,61 @@ package net.formio;
  * @author Radek Beran
  */
 public enum FormFieldType {
-	TEXT_FIELD("text"),
-	TEXT_AREA("textarea"),
-	PASSWORD("password"),
-	HIDDEN_FIELD("hidden"),
-	CHECK_BOX("checkbox"),
-	MULTIPLE_CHECK_BOX("checkbox-multiple"),
-	RADIO_CHOICE("radio"),
-	DROP_DOWN_CHOICE("select"),
-	MULTIPLE_CHOICE("select-multiple"),
-	DATE_PICKER("date-picker"),
-	FILE_UPLOAD("file"),
-	SUBMIT_BUTTON("submit"),
+	TEXT_FIELD("text", "text"),
+	TEXT_AREA("textarea", "textarea"),
+	PASSWORD("password", "password"),
+	HIDDEN_FIELD("hidden", "hidden"),
+	CHECK_BOX("checkbox", "checkbox"),
+	MULTIPLE_CHECK_BOX("checkbox-multiple", "checkbox"),
+	RADIO_CHOICE("radio", "radio"),
+	DROP_DOWN_CHOICE("select", "select"),
+	MULTIPLE_CHOICE("select-multiple", "select"),
+	DATE_PICKER("date-picker", "text"),
+	FILE_UPLOAD("file", "file"),
+	SUBMIT_BUTTON("submit", "submit"),
 	
 	// HTML 5:
-	COLOR("color"),
-	DATE("date"),
-	DATE_TIME("datetime"),
-	DATE_TIME_LOCAL("datetime-local"),
-	TIME("time"),
-	EMAIL("email"),
-	MONTH("month"),
-	NUMBER("number"),
-	RANGE("range"),
-	SEARCH("search"),
-	TEL("tel"),
-	URL("url"),
-	WEEK("week");
+	COLOR("color", "color"),
+	DATE("date", "date"),
+	DATE_TIME("datetime", "datetime"),
+	DATE_TIME_LOCAL("datetime-local", "datetime-local"),
+	TIME("time", "time"),
+	EMAIL("email", "email"),
+	MONTH("month", "month"),
+	NUMBER("number", "number"),
+	RANGE("range", "range"),
+	SEARCH("search", "search"),
+	TEL("tel", "tel"),
+	URL("url", "url"),
+	WEEK("week", "week");
 	
 	// LABEL("label"),
 	// LINK("link"),
 	// TODO: Multiple date and file?
 	
-	private final String type;
+	private final String typeId;
+	private final String htmlType;
 	
-	private FormFieldType(String type) {
-		this.type = type;
+	private FormFieldType(String typeId, String htmlType) {
+		this.typeId = typeId;
+		this.htmlType = htmlType;
 	}
 
-	public String getType() {
-		return type;
+	public String getTypeId() {
+		return typeId;
 	}
 	
+	public String getHtmlType() {
+		return htmlType;
+	}
+
 	public boolean isChoice() {
 		return this == MULTIPLE_CHECK_BOX || this == RADIO_CHOICE || this == DROP_DOWN_CHOICE || this == MULTIPLE_CHOICE;
 	}
 	
-	public static FormFieldType findByType(String typeName) {
+	public static FormFieldType findByTypeId(String typeId) {
 		for (FormFieldType fc : FormFieldType.values()) {
-			if (fc.getType().equals(typeName)) {
+			if (fc.getTypeId().equals(typeId)) {
 				return fc;
 			}
 		}
