@@ -45,10 +45,19 @@ public class TdiResponseBuilder {
 	 * @param filledElement
 	 * @return
 	 */
-	public TdiResponseBuilder update(FormElement filledElement) {
-		String str = renderUpdateBeginTag(getRenderer().renderElementPlaceholderId(filledElement)) +
+	public TdiResponseBuilder update(FormElement element) {
+		return update(element.getName(), renderElementMarkup(element));
+	}
+	
+	/**
+	 * Adds instruction to AJAX response: Update of form element.
+	 * @param filledElement
+	 * @return
+	 */
+	public TdiResponseBuilder update(String elementName, String elementMarkup) {
+		String str = renderUpdateBeginTag(getRenderer().renderElementPlaceholderId(elementName)) +
 			renderCDataBegin() +
-			renderElementMarkup(filledElement) +
+			elementMarkup +
 			renderCDataEnd() +
 			renderUpdateEndTag();
 		instructions.add(str);
@@ -98,6 +107,20 @@ public class TdiResponseBuilder {
 				writer.close();
 			}
 		}
+	}
+	
+	/**
+	 * Convenience method that updates given form elements using TDI AJAX response.
+	 * @param response
+	 * @param elements
+	 */
+	public void update(HttpServletResponse response, FormElement ... elements) {
+		if (elements != null) {
+			for (FormElement el : elements) {
+				update(el);
+			}
+		}
+		writeToResponse(response);
 	}
 	
 	protected String renderXmlDeclaration() {

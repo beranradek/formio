@@ -40,24 +40,24 @@ public class BasicFormMappingTest {
 	@Test
 	public void testIsRootMapping() {
 		assertTrue(((BasicFormMapping<Person>)TestForms.PERSON_FORM).isRootMapping());
-		assertFalse(((BasicFormMapping<Engine>)TestForms.CAR_FORM.getNestedByProperty(Engine.class, "engine")).isRootMapping());
+		assertFalse(((BasicFormMapping<Engine>)TestForms.CAR_FORM.getMapping(Engine.class, "engine")).isRootMapping());
 	}
 	
 	@Test
 	public void testGetRootMappingPath() {
-		assertEquals("carForm", ((BasicFormMapping<Engine>)TestForms.CAR_FORM.getNestedByProperty(Engine.class, "engine")).getRootMappingPath());
+		assertEquals("carForm", ((BasicFormMapping<Engine>)TestForms.CAR_FORM.getMapping(Engine.class, "engine")).getRootMappingPath());
 	}
 	
 	@Test
 	public void testGetName() {
 		assertEquals("person", TestForms.PERSON_FORM.getName());
-		assertEquals("carForm" + Forms.PATH_SEP + "engine", TestForms.CAR_FORM.getNestedByProperty(Engine.class, "engine").getName());
+		assertEquals("carForm" + Forms.PATH_SEP + "engine", TestForms.CAR_FORM.getMapping(Engine.class, "engine").getName());
 	}
 
 	@Test
 	public void testGetDataClass() {
 		assertEquals(Person.class, TestForms.PERSON_FORM.getDataClass());
-		assertEquals(Engine.class, TestForms.CAR_FORM.getNestedByProperty(Engine.class, "engine").getDataClass());
+		assertEquals(Engine.class, TestForms.CAR_FORM.getMapping(Engine.class, "engine").getDataClass());
 	}
 	
 	@Test
@@ -98,13 +98,13 @@ public class BasicFormMappingTest {
 			index++;
 		}
 		
-		FormMapping<Address> contactAddress = mapping.getNestedByProperty(Address.class, "contactAddress");
+		FormMapping<Address> contactAddress = mapping.getMapping(Address.class, "contactAddress");
 		List<FormElement> addressElements = contactAddress.getElements();
 		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "street", addressElements.get(0).getName());
 		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "city", addressElements.get(1).getName());
 		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "zipCode", addressElements.get(2).getName());
 		
-		FormMapping<Collegue> collegues = mapping.getNestedByProperty(Collegue.class, "collegues");
+		FormMapping<Collegue> collegues = mapping.getMapping(Collegue.class, "collegues");
 		index = 0;
 		for (FormMapping<Collegue> indexedCollegues : collegues.getList()) {
 			assertEquals(index, indexedCollegues.getOrder());

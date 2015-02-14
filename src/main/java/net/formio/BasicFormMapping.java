@@ -206,7 +206,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
-	public <U> FormMapping<U> getNestedByProperty(Class<U> dataClass, String propertyName) {
+	public <U> FormMapping<U> getMapping(Class<U> dataClass, String propertyName) {
 		Map<String, FormMapping<?>> nestedMappings = getNested();
 		FormMapping<?> mapping = nestedMappings.get(propertyName);
 		if (mapping != null) {
@@ -235,12 +235,12 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	
 	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj, RequestContext ctx) {
-		return fill(editedObj, getDefaultLocale(), ctx);
+		return fill(editedObj, getConfigLocale(), ctx);
 	}
 	
 	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj) {
-		return fill(editedObj, getDefaultLocale());
+		return fill(editedObj, getConfigLocale());
 	}
 	
 	@Override
@@ -272,7 +272,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	
 	@Override
 	public FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups) {
-		return bind(paramsProvider, getDefaultLocale(), ctx, validationGroups);
+		return bind(paramsProvider, getConfigLocale(), ctx, validationGroups);
 	}
 	
 	@Override
@@ -282,7 +282,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	
 	@Override
 	public FormData<T> bind(RequestParams paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups) {
-		return bind(paramsProvider, getDefaultLocale(), instance, ctx, validationGroups);
+		return bind(paramsProvider, getConfigLocale(), instance, ctx, validationGroups);
 	}
 	
 	@Override
@@ -662,8 +662,8 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			preferedStringValue).choiceProvider(choiceProvider).build();
 	}
 	
-	private Locale getDefaultLocale() {
-		return Locale.getDefault();
+	private Locale getConfigLocale() {
+		return getConfig().getLocale();
 	}
 	
 	private String getOriginalStringValueFromParseError(List<ConstraintViolationMessage> fieldMessages) {

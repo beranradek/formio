@@ -19,9 +19,9 @@ package net.formio.render;
 import java.util.List;
 
 import net.formio.BasicListFormMapping;
+import net.formio.Field;
 import net.formio.FormElement;
 import net.formio.FormField;
-import net.formio.Field;
 import net.formio.FormMapping;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
@@ -212,7 +212,7 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 
-	public TdiResponseBuilder tdiResponse() {
+	public TdiResponseBuilder ajaxResponse() {
 		return createTdiResponseBuilder();
 	}
 	
@@ -221,7 +221,11 @@ public class BasicFormRenderer {
 	}
 	
 	protected String renderElementPlaceholderId(FormElement element) {
-		return "placeholder-" + element.getName();
+		return renderElementPlaceholderId(element.getName());
+	}
+	
+	protected String renderElementPlaceholderId(String elementName) {
+		return "placeholder-" + elementName;
 	}
 	
 	protected String renderHtmlElementPlaceholder(FormElement element, String innerMarkup) {
@@ -296,6 +300,10 @@ public class BasicFormRenderer {
 	protected <T> String renderHtmlLabel(FormElement element) {
 		return labelRenderer.renderHtmlLabel(element);
 	}
+	
+	protected String renderFieldAttributes(FormElement element) {
+		return renderAccessibilityAttributes(element) + renderTdiAttributes(element);
+	}
 
 	protected String renderAccessibilityAttributes(FormElement element) {
 		StringBuilder sb = new StringBuilder();
@@ -327,9 +335,8 @@ public class BasicFormRenderer {
 	protected <T> String renderHtmlTextArea(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<textarea name=\"" + field.getName() + "\" id=\"id-"
-				+ field.getName() + "\" class=\"input-sm form-control\"");
-		sb.append(renderTdiAttributes(field));
-		sb.append(renderAccessibilityAttributes(field) + ">");
+			+ field.getName() + "\" class=\"input-sm form-control\"");
+		sb.append(renderFieldAttributes(field) + ">");
 		sb.append(getRenderContext().renderValue(field.getValue()));
 		sb.append("</textarea>" + newLine());
 		return sb.toString();
@@ -347,8 +354,7 @@ public class BasicFormRenderer {
 			sb.append(" value=\"" + value + "\"");
 		}
 		if (!Field.HIDDEN_FIELD.getType().equals(typeId)) {
-			sb.append(renderTdiAttributes(field));
-			sb.append(renderAccessibilityAttributes(field));
+			sb.append(renderFieldAttributes(field));
 		}
 		if (isInputClassIncluded(typeId)) {
 			sb.append(" class=\"input-sm form-control\"");
@@ -368,8 +374,7 @@ public class BasicFormRenderer {
 				sb.append(" checked=\"checked\" ");
 			}
 		}
-		sb.append(renderTdiAttributes(field));
-		sb.append(renderAccessibilityAttributes(field));
+		sb.append(renderFieldAttributes(field));
 		sb.append("/>" + newLine());
 		return sb.toString();
 	}
@@ -384,8 +389,7 @@ public class BasicFormRenderer {
 			sb.append(" size=\"" + size + "\"");
 		}
 		sb.append(" class=\"input-sm form-control\"");
-		sb.append(renderTdiAttributes(field));
-		sb.append(renderAccessibilityAttributes(field));
+		sb.append(renderFieldAttributes(field));
 		sb.append(">" + newLine());
 		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
 			List<?> items = field.getChoiceProvider().getItems();
@@ -428,8 +432,7 @@ public class BasicFormRenderer {
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" checked=\"checked\"");
 					}
-					sb.append(renderTdiAttributes(field));
-					sb.append(renderAccessibilityAttributes(field));
+					sb.append(renderFieldAttributes(field));
 					sb.append("/> " + title + renderLabelEndTag(field));
 					sb.append("</div>" + newLine());
 					itemIndex++;

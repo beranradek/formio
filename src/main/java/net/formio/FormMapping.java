@@ -199,7 +199,7 @@ public interface FormMapping<T> extends FormElement {
 	 * @return nested mapping or {@code null}
 	 * @throws IllegalStateException if nested mapping's object type cannot be converted to requested class
 	 */
-	<U> FormMapping<U> getNestedByProperty(Class<U> dataClass, String propertyName);
+	<U> FormMapping<U> getMapping(Class<U> dataClass, String propertyName);
 	
 	/**
 	 * List of mappings for individual filled data items if this is list mapping,

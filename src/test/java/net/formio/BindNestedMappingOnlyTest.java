@@ -39,7 +39,7 @@ public class BindNestedMappingOnlyTest {
 		final Locale locale = new Locale("en"); 
 		
 		// Binding data from request
-		FormMapping<NewCollegue> newCollegueMapping = regForm.getNestedByProperty(NewCollegue.class, "newCollegue");
+		FormMapping<NewCollegue> newCollegueMapping = regForm.getMapping(NewCollegue.class, "newCollegue");
 		
 		MapParams params = TestParams.newRegistrationCollegueParams();
 		final String sep = Forms.PATH_SEP;

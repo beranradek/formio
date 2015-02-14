@@ -53,8 +53,8 @@ public class FormFieldPropertiesTest {
 		FormField<?> brand = form.getFields().get("brand");
 		FormField<?> maxSpeed = form.getFields().get("maxSpeed");
 		FormField<?> color = form.getFields().get("color");
-		FormField<?> cylinderCount = form.getNestedByProperty(Engine.class, "engine").getFields().get("cylinderCount");
-		FormField<?> volume = form.getNestedByProperty(Engine.class, "engine").getFields().get("volume");
+		FormField<?> cylinderCount = form.getMapping(Engine.class, "engine").getFields().get("cylinderCount");
+		FormField<?> volume = form.getMapping(Engine.class, "engine").getFields().get("volume");
 		
 		assertEquals(Boolean.TRUE, Boolean.valueOf(brand.getFormProperties().isReadonly()));
 		assertEquals(Boolean.FALSE, Boolean.valueOf(maxSpeed.getFormProperties().isEnabled()));
@@ -68,8 +68,8 @@ public class FormFieldPropertiesTest {
 		FormField<?> filledBrand = filledForm.getFields().get("brand");
 		FormField<?> filledMaxSpeed = filledForm.getFields().get("maxSpeed");
 		FormField<?> filledColor = filledForm.getFields().get("color");
-		FormField<?> filledCylinderCount = filledForm.getNestedByProperty(Engine.class, "engine").getFields().get("cylinderCount");
-		FormField<?> filledVolume = filledForm.getNestedByProperty(Engine.class, "engine").getFields().get("volume");
+		FormField<?> filledCylinderCount = filledForm.getMapping(Engine.class, "engine").getFields().get("cylinderCount");
+		FormField<?> filledVolume = filledForm.getMapping(Engine.class, "engine").getFields().get("volume");
 		
 		assertEquals(Boolean.TRUE, Boolean.valueOf(filledBrand.getFormProperties().isReadonly()));
 		assertEquals(Boolean.FALSE, Boolean.valueOf(filledMaxSpeed.getFormProperties().isEnabled()));

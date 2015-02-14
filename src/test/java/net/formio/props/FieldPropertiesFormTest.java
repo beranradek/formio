@@ -57,8 +57,8 @@ public class FieldPropertiesFormTest {
 			assertFalse("maxSpeed should be disabled", filledForm.getField(Integer.class, "maxSpeed").isEnabled());
 			assertFalse("productionYear should be invisible", filledForm.getField(Integer.class, "productionYear").isVisible());
 			assertTrue("color should be required", filledForm.getField(Integer.class, "color").isRequired());
-			assertTrue("cylinderCount should be required", filledForm.getNestedByProperty(Engine.class, "engine").getField(Integer.class, "cylinderCount").isRequired());
-			assertEquals("In units...", filledForm.getNestedByProperty(Engine.class, "engine").getField(Integer.class, "volume").getHelp());
+			assertTrue("cylinderCount should be required", filledForm.getMapping(Engine.class, "engine").getField(Integer.class, "cylinderCount").isRequired());
+			assertEquals("In units...", filledForm.getMapping(Engine.class, "engine").getField(Integer.class, "volume").getHelp());
 			
 			// Default formProperties:
 			FormField<String> descriptionField = filledForm.getField(String.class, "description");

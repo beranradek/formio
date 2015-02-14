@@ -51,7 +51,7 @@ public class FormMappingPropertiesTest {
 		FormMapping<Registration> filledForm = TestForms.REG_FORM.fill(
 			new FormData<Registration>(TestData.newRegistration(), ValidationResult.empty));
 		
-		FormMapping<Address> address = filledForm.getNestedByProperty(Address.class, "contactAddress");
+		FormMapping<Address> address = filledForm.getMapping(Address.class, "contactAddress");
 		
 		assertEquals(FieldProperty.VISIBLE.getDefaultValue(), Boolean.valueOf(address.getFormProperties().isVisible()));
 		assertEquals(FieldProperty.ENABLED.getDefaultValue(), Boolean.valueOf(address.getFormProperties().isEnabled()));
@@ -62,7 +62,7 @@ public class FormMappingPropertiesTest {
 	@Test
 	public void testInvisibleNestedMapping() {
 		FormMapping<Car> form = TestForms.CAR_ACCESSIBILITY_FORM;
-		FormMapping<CarDimensions> carMapping = form.getNestedByProperty(CarDimensions.class, "dimensions");
+		FormMapping<CarDimensions> carMapping = form.getMapping(CarDimensions.class, "dimensions");
 		assertEquals(Boolean.FALSE, Boolean.valueOf(carMapping.getFormProperties().isVisible()));
 		assertEquals(FieldProperty.ENABLED.getDefaultValue(), Boolean.valueOf(carMapping.getFormProperties().isEnabled()));
 		assertEquals(FieldProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(carMapping.getFormProperties().isRequired()));
@@ -71,7 +71,7 @@ public class FormMappingPropertiesTest {
 		FormMapping<Car> filledForm = TestForms.CAR_ACCESSIBILITY_FORM.fill(
 			new FormData<Car>(TestData.newCar(), ValidationResult.empty));
 		
-		FormMapping<CarDimensions> filledCarMapping = filledForm.getNestedByProperty(CarDimensions.class, "dimensions");
+		FormMapping<CarDimensions> filledCarMapping = filledForm.getMapping(CarDimensions.class, "dimensions");
 		
 		assertEquals(Boolean.FALSE, Boolean.valueOf(filledCarMapping.isVisible()));
 		assertEquals("Should be invisible because parent mapping is invisible", 
