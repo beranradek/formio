@@ -24,7 +24,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import net.formio.ContentTypes;
-import net.formio.FormMapping;
+import net.formio.FormElement;
 
 /**
  * Builder of TDI response.
@@ -41,14 +41,14 @@ public class TdiResponseBuilder {
 	}
 	
 	/**
-	 * Adds update form mapping instruction to AJAX response.
-	 * @param filledMapping
+	 * Adds instruction to AJAX response: Update of form element.
+	 * @param filledElement
 	 * @return
 	 */
-	public TdiResponseBuilder update(FormMapping<?> filledMapping) {
-		String str = renderUpdateBeginTag(getRenderer().renderElementBoxId(filledMapping)) +
+	public TdiResponseBuilder update(FormElement filledElement) {
+		String str = renderUpdateBeginTag(getRenderer().renderElementPlaceholderId(filledElement)) +
 			renderCDataBegin() +
-			renderMappingContent(filledMapping) +
+			renderElementMarkup(filledElement) +
 			renderCDataEnd() +
 			renderUpdateEndTag();
 		instructions.add(str);
@@ -140,8 +140,8 @@ public class TdiResponseBuilder {
 		return instructions;
 	}
 	
-	protected String renderMappingContent(FormMapping<?> filledMapping) {
-		return getRenderer().renderMapping(filledMapping);
+	protected String renderElementMarkup(FormElement element) {
+		return getRenderer().renderElementMarkup(element);
 	}
 	
 	private String newLine() {

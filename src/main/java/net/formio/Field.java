@@ -20,16 +20,16 @@ package net.formio;
  * Type of form field.
  * @author Radek Beran
  */
-public enum FormFieldType {
+public enum Field {
 	TEXT_FIELD("text", "text"),
-	TEXT_AREA("textarea", "textarea"),
+	TEXT_AREA("textarea", ""),
 	PASSWORD("password", "password"),
 	HIDDEN_FIELD("hidden", "hidden"),
 	CHECK_BOX("checkbox", "checkbox"),
 	MULTIPLE_CHECK_BOX("checkbox-multiple", "checkbox"),
 	RADIO_CHOICE("radio", "radio"),
-	DROP_DOWN_CHOICE("select", "select"),
-	MULTIPLE_CHOICE("select-multiple", "select"),
+	DROP_DOWN_CHOICE("select", ""),
+	MULTIPLE_CHOICE("select-multiple", ""),
 	DATE_PICKER("date-picker", "text"),
 	FILE_UPLOAD("file", "file"),
 	SUBMIT_BUTTON("submit", "submit"),
@@ -53,29 +53,29 @@ public enum FormFieldType {
 	// LINK("link"),
 	// TODO: Multiple date and file?
 	
-	private final String typeId;
-	private final String htmlType;
+	private final String type;
+	private final String inputType;
 	
-	private FormFieldType(String typeId, String htmlType) {
-		this.typeId = typeId;
-		this.htmlType = htmlType;
+	private Field(String type, String inputType) {
+		this.type = type;
+		this.inputType = inputType;
 	}
 
-	public String getTypeId() {
-		return typeId;
+	public String getType() {
+		return type;
 	}
 	
-	public String getHtmlType() {
-		return htmlType;
+	public String getInputType() {
+		return inputType;
 	}
 
 	public boolean isChoice() {
 		return this == MULTIPLE_CHECK_BOX || this == RADIO_CHOICE || this == DROP_DOWN_CHOICE || this == MULTIPLE_CHOICE;
 	}
 	
-	public static FormFieldType findByTypeId(String typeId) {
-		for (FormFieldType fc : FormFieldType.values()) {
-			if (fc.getTypeId().equals(typeId)) {
+	public static Field findByType(String type) {
+		for (Field fc : Field.values()) {
+			if (fc.getType().equals(type)) {
 				return fc;
 			}
 		}

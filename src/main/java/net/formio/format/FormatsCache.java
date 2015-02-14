@@ -18,6 +18,7 @@ package net.formio.format;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -58,9 +59,19 @@ class FormatsCache {
 		NumberFormat format = NUMBER_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
-				format = new DecimalFormat(pattern);
+				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+				symbols.setGroupingSeparator(',');
+				symbols.setDecimalSeparator('.');
+				format = new DecimalFormat(pattern, symbols);
+				format.setMaximumIntegerDigits(Short.MAX_VALUE);
+				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			} else {
 				format = NumberFormat.getInstance(locale);
+				DecimalFormat decFormat = (DecimalFormat)format;
+				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+				symbols.setGroupingSeparator(',');
+				symbols.setDecimalSeparator('.');
+				decFormat.setDecimalFormatSymbols(symbols);
 				format.setMaximumIntegerDigits(Short.MAX_VALUE);
 				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			}
@@ -74,9 +85,18 @@ class FormatsCache {
 		DecimalFormat format = DECIMAL_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
-				format = new DecimalFormat(pattern);
+				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+				symbols.setGroupingSeparator(',');
+				symbols.setDecimalSeparator('.');
+				format = new DecimalFormat(pattern, symbols);
+				format.setMaximumIntegerDigits(Short.MAX_VALUE);
+				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			} else { 
 				format = (DecimalFormat) NumberFormat.getInstance(locale);
+				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+				symbols.setGroupingSeparator(',');
+				symbols.setDecimalSeparator('.');
+				format.setDecimalFormatSymbols(symbols);
 				format.setMaximumIntegerDigits(Short.MAX_VALUE);
 				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			}

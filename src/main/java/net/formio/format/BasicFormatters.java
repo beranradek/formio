@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParsePosition;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -271,7 +270,8 @@ public class BasicFormatters implements Formatters {
 						DecimalFormat format = FormatsCache.getOrCreateDecimalFormat(
 							formatPattern, locale);
 						format.setParseBigDecimal(true);
-						bd = (BigDecimal) format.parse(amendDecimalPoint(str, locale), new ParsePosition(0));
+						
+						bd = (BigDecimal) format.parseObject(amendDecimalPoint(str, locale));
 					} catch (Exception ex) {
 						throw new StringParseException(BigDecimal.class, str, ex);
 					}
@@ -380,7 +380,7 @@ public class BasicFormatters implements Formatters {
 		String amendedStr = str;
 		if (amendedStr != null && !amendedStr.isEmpty()) {
 			if (locale != null && locale.getLanguage().toLowerCase().equals("cs")) {
-				amendedStr = amendedStr.replaceAll("\\.", ",");
+				amendedStr = amendedStr.replaceAll(",", ".");
 			}
 		}
 		return amendedStr;

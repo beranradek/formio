@@ -18,6 +18,11 @@ package net.formio.render;
 
 import java.util.Locale;
 
+import net.formio.FormElement;
+import net.formio.FormMapping;
+import net.formio.common.MessageTranslator;
+import net.formio.validation.Severity;
+
 /**
  * Context with common data for rendering a form.
  * @author Radek Beran
@@ -66,5 +71,82 @@ public class RenderContext {
 
 	public void setLocale(Locale locale) {
 		this.locale = locale;
+	}
+	
+	/**
+	 * Escapes HTML (converts HTML text to XML entities).
+	 * 
+	 * @param s
+	 * @return
+	 */
+	protected String escapeHtml(String s) {
+		if (s == null)
+			return null;
+		if (s.isEmpty())
+			return "";
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			switch (c) {
+			case '&':
+				sb.append("&amp;");
+				break;
+			case '<':
+				sb.append("&lt;");
+				break;
+			case '>':
+				sb.append("&gt;");
+				break;
+			case '"':
+				sb.append("&quot;");
+				break;
+			default:
+				sb.append(c);
+				break;
+			}
+		}
+		return sb.toString();
+	}
+	
+	protected String renderValue(String value) {
+		if (value == null || value.isEmpty()) {
+			return "";
+		}
+		return escapeHtml(value);
+	}
+	
+	protected <T> MessageTranslator createMessageTranslator(FormElement element) {
+		FormMapping<?> rootMapping = getRootMapping(element);
+		return new MessageTranslator(element.getParent().getDataClass(),
+			getLocale(), rootMapping.getDataClass());
+	}
+	
+	protected String getFormBoxClass() {
+		return "form-group";
+	}
+
+	protected String getLabelIndentClass() {
+		return "control-label col-sm-2";
+	}
+
+	protected String getInputIndentClass() {
+		return "col-sm-offset-2 col-sm-10";
+	}
+	
+	protected String getMaxSeverityClass(FormElement el) {
+		Severity maxSeverity = Severity.max(el.getValidationMessages());
+		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
+	}
+	
+	private FormMapping<?> getRootMapping(FormElement element) {
+		FormMapping<?> rootMapping = element.getParent();
+		while (rootMapping != null && rootMapping.getParent() != null) {
+			rootMapping = rootMapping.getParent();
+		}
+		return rootMapping;
+	}
+	
+	String newLine() {
+		return System.getProperty("line.separator");
 	}
 }

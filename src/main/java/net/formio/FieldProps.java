@@ -259,7 +259,7 @@ public class FieldProps<T> implements Serializable {
 	 */
 	FormField<T> build(int order) {
 		if (this.choiceRenderer == null && this.type != null && !this.type.isEmpty()) {
-			FormFieldType formComponent = FormFieldType.findByTypeId(this.type);
+			Field formComponent = Field.findByType(this.type);
 			if (formComponent != null && formComponent.isChoice()) {
 				this.choiceRenderer = new DefaultChoiceRenderer<T>();
 			}

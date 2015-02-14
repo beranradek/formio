@@ -205,6 +205,16 @@ public class BasicFormMappingBuilder<T> {
 	/**
 	 * Adds form field specification.
 	 * @param propertyName name of mapped property
+	 * @param type type of form field
+	 * @return
+	 */
+	public <U> BasicFormMappingBuilder<T> field(String propertyName, Field type) {
+		return field(propertyName, type.getType());
+	}
+	
+	/**
+	 * Adds form field specification.
+	 * @param propertyName name of mapped property
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(String propertyName) {

@@ -27,7 +27,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import net.formio.FormData;
-import net.formio.FormFieldType;
+import net.formio.Field;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.MappingType;
@@ -53,22 +53,21 @@ import org.junit.Test;
 public class BasicFormRendererTest {
 	
 	private static final FormMapping<Profile> profileForm = Forms.basic(Profile.class, "profile")
-		.field("profileId", FormFieldType.HIDDEN_FIELD.getTypeId())
-		// .field("header", FormFieldType.LABEL.getType())
-		.field(Forms.<Salutation>field("salutation", FormFieldType.RADIO_CHOICE.getTypeId())
+		.field("profileId", Field.HIDDEN_FIELD)
+		.field(Forms.<Salutation>field("salutation", Field.RADIO_CHOICE)
 			.choiceProvider(new EnumChoiceProvider<Salutation>(Salutation.class)))
-		.field("firstName", FormFieldType.TEXT_FIELD.getTypeId())
-		.field("password", FormFieldType.PASSWORD.getTypeId())
-		.field(Forms.<Country>field("country", FormFieldType.DROP_DOWN_CHOICE.getTypeId())
+		.field("firstName", Field.TEXT_FIELD)
+		.field("password", Field.PASSWORD)
+		.field(Forms.<Country>field("country", Field.DROP_DOWN_CHOICE)
 			.choiceProvider(new EnumChoiceProvider<Country>(Country.class)))
-		.field("birthDate", FormFieldType.DATE_PICKER.getTypeId())
+		.field("birthDate", Field.DATE_PICKER)
 		.nested(Forms.basic(Employer.class, "employers", MappingType.LIST)
-			.field(Forms.field("name", FormFieldType.TEXT_FIELD.getTypeId()).readonly(true))
-			.field("fromYear", FormFieldType.TEXT_FIELD.getTypeId())
-			.field("toYear", FormFieldType.TEXT_FIELD.getTypeId())
+			.field(Forms.field("name", Field.TEXT_FIELD).readonly(true))
+			.field("fromYear", Field.TEXT_FIELD)
+			.field("toYear", Field.TEXT_FIELD)
 			.build()
 		)
-		.field(Forms.<Skill>field("skills", FormFieldType.MULTIPLE_CHECK_BOX.getTypeId())
+		.field(Forms.<Skill>field("skills", Field.MULTIPLE_CHECK_BOX)
 			.choiceProvider(new DefaultChoiceProvider<Skill>(skillsCodebook()))
 			.choiceRenderer(new ChoiceRenderer<Skill>() {
 				
@@ -83,7 +82,7 @@ public class BasicFormRendererTest {
 				}
 			})
 		)	
-		.field(Forms.<Function>field("functions", FormFieldType.MULTIPLE_CHOICE.getTypeId())
+		.field(Forms.<Function>field("functions", Field.MULTIPLE_CHOICE)
 			.choiceProvider(new DefaultChoiceProvider<Function>(functionsCodebook()))
 			.choiceRenderer(new ChoiceRenderer<Function>() {
 				
@@ -98,22 +97,22 @@ public class BasicFormRendererTest {
 				}
 			})
 		 )
-		.field("certificate", FormFieldType.FILE_UPLOAD.getTypeId())
-		.field(Forms.field("note", FormFieldType.TEXT_AREA.getTypeId()).enabled(false))
+		.field("certificate", Field.FILE_UPLOAD)
+		.field(Forms.field("note", Field.TEXT_AREA).enabled(false))
 		.nested(Forms.automatic(Address.class, "contactAddress", Forms.factoryMethod(Address.class, "getInstance"))
 			.fields("street", "city", "zipCode").build())
-		.field(Forms.field("registrationDate", FormFieldType.DATE.getTypeId()).pattern("yyyy-MM-dd"))
-		.field("email", FormFieldType.EMAIL.getTypeId())
-		.field("phone", FormFieldType.TEL.getTypeId())
-		.field("favoriteColor", FormFieldType.COLOR.getTypeId())
-		.field("yearMonth", FormFieldType.MONTH.getTypeId())
-		.field("yearWeek", FormFieldType.WEEK.getTypeId())
-		.field("favoriteNumber", FormFieldType.NUMBER.getTypeId())
-		.field("secondFavoriteNumber", FormFieldType.RANGE.getTypeId())
-		.field("search", FormFieldType.SEARCH.getTypeId())
-		.field("homepage", FormFieldType.URL.getTypeId())
-		.field("agreement", FormFieldType.CHECK_BOX.getTypeId())
-		.field("submitValue", FormFieldType.SUBMIT_BUTTON.getTypeId())
+		.field(Forms.field("registrationDate", Field.DATE).pattern("yyyy-MM-dd"))
+		.field("email", Field.EMAIL)
+		.field("phone", Field.TEL)
+		.field("favoriteColor", Field.COLOR)
+		.field("yearMonth", Field.MONTH)
+		.field("yearWeek", Field.WEEK)
+		.field("favoriteNumber", Field.NUMBER)
+		.field("secondFavoriteNumber", Field.RANGE)
+		.field("search", Field.SEARCH)
+		.field("homepage", Field.URL)
+		.field("agreement", Field.CHECK_BOX)
+		.field("submitValue", Field.SUBMIT_BUTTON)
 		.build();
 
 	@Test

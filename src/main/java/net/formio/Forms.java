@@ -21,8 +21,8 @@ import java.util.Locale;
 import net.formio.binding.Instantiator;
 import net.formio.binding.StaticFactoryMethod;
 import net.formio.internal.FormUtils;
-import net.formio.render.BasicFormRenderer;
 import net.formio.render.RenderContext;
+import net.formio.render.WholeFormRenderer;
 
 /**
  * API for form definition and processing.
@@ -272,6 +272,16 @@ public final class Forms {
 	/**
 	 * Creates specification of form field.
 	 * @param propertyName
+	 * @param type
+	 * @return
+	 */
+	public static <T> FieldProps<T> field(String propertyName, Field type) {
+		return field(propertyName, type.getType());
+	}
+	
+	/**
+	 * Creates specification of form field.
+	 * @param propertyName
 	 * @return
 	 */
 	public static <T> FieldProps<T> field(String propertyName) {
@@ -285,7 +295,7 @@ public final class Forms {
 	 * @param locale
 	 */
 	public static <T> void previewForm(FormMapping<T> form, Locale locale) {
-		String html = new BasicFormRenderer(new RenderContext(locale)).renderHtmlPage(form);
+		String html = new WholeFormRenderer(new RenderContext(locale)).renderHtmlFormPage(form);
 		FormUtils.openHtmlInBrowser(html);
 	}
 	
