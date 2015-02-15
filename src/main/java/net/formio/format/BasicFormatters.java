@@ -125,7 +125,7 @@ public class BasicFormatters implements Formatters {
 						String formatPattern, Locale locale) {
 					try {
 						String amendedStr = removeDecimalPart(str, locale);
-						return Byte.valueOf(FormatsCache.getOrCreateNumberFormat(
+						return Byte.valueOf(FormatsCache.getOrCreateDecimalFormat(
 							formatPattern, locale).parse(amendedStr).byteValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Byte.class, str, ex);
@@ -149,7 +149,7 @@ public class BasicFormatters implements Formatters {
 						Locale locale) {
 					try {
 						String amendedStr = removeDecimalPart(str, locale);
-						return Short.valueOf(FormatsCache.getOrCreateNumberFormat(
+						return Short.valueOf(FormatsCache.getOrCreateDecimalFormat(
 							formatPattern, locale).parse(amendedStr).shortValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Short.class, str, ex);
@@ -173,7 +173,7 @@ public class BasicFormatters implements Formatters {
 						Locale locale) {
 					try {
 						String amendedStr = removeDecimalPart(str, locale);
-						return Integer.valueOf(FormatsCache.getOrCreateNumberFormat(
+						return Integer.valueOf(FormatsCache.getOrCreateDecimalFormat(
 							formatPattern, locale).parse(amendedStr).intValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Integer.class, str, ex);
@@ -196,7 +196,7 @@ public class BasicFormatters implements Formatters {
 						String formatPattern, Locale locale) {
 					try {
 						String amendedStr = removeDecimalPart(str, locale);
-						return Long.valueOf(FormatsCache.getOrCreateNumberFormat(
+						return Long.valueOf(FormatsCache.getOrCreateDecimalFormat(
 							formatPattern, locale).parse(amendedStr).byteValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Long.class, str, ex);
@@ -236,23 +236,18 @@ public class BasicFormatters implements Formatters {
 			final Formatter<Double> doubleFormatter = new Formatter<Double>() {
 
 				@Override
-				public Double parseFromString(String str,
-						Class<Double> destClass, String formatPattern,
-						Locale locale) {
+				public Double parseFromString(String str, Class<Double> destClass, String formatPattern, Locale locale) {
 					try {
-						return Double.valueOf(FormatsCache.getOrCreateNumberFormat(
-							formatPattern, locale).parse(
-								amendDecimalPoint(str, locale)).doubleValue());
+						return Double.valueOf(FormatsCache.getOrCreateDecimalFormat(
+							formatPattern, locale).parse(str).doubleValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Double.class, str, ex);
 					}
 				}
 				
 				@Override
-				public String makeString(Double value, String formatPattern,
-						Locale locale) {
-					return FormatsCache.getOrCreateNumberFormat(
-						formatPattern, locale).format(value);
+				public String makeString(Double value, String formatPattern, Locale locale) {
+					return FormatsCache.getOrCreateDecimalFormat(formatPattern, locale).format(value);
 				}
 
 			};
@@ -262,16 +257,12 @@ public class BasicFormatters implements Formatters {
 			final Formatter<BigDecimal> bigDecimalFormatter = new Formatter<BigDecimal>() {
 
 				@Override
-				public BigDecimal parseFromString(String str,
-						Class<BigDecimal> destClass, String formatPattern,
-						Locale locale) {
+				public BigDecimal parseFromString(String str, Class<BigDecimal> destClass, String formatPattern, Locale locale) {
 					BigDecimal bd = null;
 					try {
-						DecimalFormat format = FormatsCache.getOrCreateDecimalFormat(
-							formatPattern, locale);
+						DecimalFormat format = FormatsCache.getOrCreateDecimalFormat(formatPattern, locale);
 						format.setParseBigDecimal(true);
-						
-						bd = (BigDecimal) format.parseObject(amendDecimalPoint(str, locale));
+						bd = (BigDecimal) format.parseObject(str);
 					} catch (Exception ex) {
 						throw new StringParseException(BigDecimal.class, str, ex);
 					}
@@ -282,10 +273,8 @@ public class BasicFormatters implements Formatters {
 				}
 				
 				@Override
-				public String makeString(BigDecimal value,
-						String formatPattern, Locale locale) {
-					return FormatsCache.getOrCreateDecimalFormat(
-						formatPattern, locale).format(value);
+				public String makeString(BigDecimal value, String formatPattern, Locale locale) {
+					return FormatsCache.getOrCreateDecimalFormat(formatPattern, locale).format(value);
 				}
 			};
 			formatters.put(BigDecimal.class, bigDecimalFormatter);
@@ -374,17 +363,8 @@ public class BasicFormatters implements Formatters {
 	// -- Internal implementation --
 	private final Map<Class<?>, Formatter<?>> formatters;
 
-	private static final Map<Class<? extends Formatters>, Map<Class<?>, Formatter<?>>> FORMATTERS_CACHE = new ConcurrentHashMap<Class<? extends Formatters>, Map<Class<?>, Formatter<?>>>();
-
-	static String amendDecimalPoint(String str, Locale locale) {
-		String amendedStr = str;
-		if (amendedStr != null && !amendedStr.isEmpty()) {
-			if (locale != null && locale.getLanguage().toLowerCase().equals("cs")) {
-				amendedStr = amendedStr.replaceAll(",", ".");
-			}
-		}
-		return amendedStr;
-	}
+	private static final Map<Class<? extends Formatters>, Map<Class<?>, Formatter<?>>> FORMATTERS_CACHE = 
+		new ConcurrentHashMap<Class<? extends Formatters>, Map<Class<?>, Formatter<?>>>();
 
 	static String removeDecimalPart(String str, Locale locale) {
 		char decimalSep = '.';

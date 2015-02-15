@@ -16,7 +16,7 @@
  */
 package net.formio.format;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -88,11 +88,11 @@ public class BasicFormattersTest {
 		Assert.assertNotNull("Result decimal is null", bd);
 		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd);
 		
-		BigDecimal bd2 = formatters.parseFromString("3.6", BigDecimal.class, "#.#", csLocale);
+		BigDecimal bd2 = formatters.parseFromString("3.6", BigDecimal.class, "#.#", new Locale("en"));
 		Assert.assertNotNull("Result decimal is null", bd2);
 		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd2);
 		
-		BigDecimal bd3 = formatters.parseFromString("3.6", BigDecimal.class, csLocale);
+		BigDecimal bd3 = formatters.parseFromString("3,6", BigDecimal.class, csLocale);
 		Assert.assertNotNull("Result decimal is null", bd3);
 		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd3);
 		
@@ -100,7 +100,7 @@ public class BasicFormattersTest {
 		Assert.assertNotNull("Result decimal is null", bd4);
 		Assert.assertEquals(BigDecimal.valueOf(36, 1), bd4);
 		
-		Double d = formatters.parseFromString("2.1", Double.class, csLocale);
+		Double d = formatters.parseFromString("2,1", Double.class, csLocale);
 		Assert.assertNotNull("Result double is null", d);
 		Assert.assertEquals(2.1, d.doubleValue(), 0.001);
 		
@@ -295,5 +295,21 @@ public class BasicFormattersTest {
 			return Collections.unmodifiableMap(formatters);
 		}
 	}
+	
+//	@Test
+//	public void testDotToCommaForSomeLocale() {
+//		assertEquals("123,34", new BasicFormatters().dotToCommaForSomeLocale("123.34", null, new Locale("cs")));
+//		assertEquals("123,34", new BasicFormatters().dotToCommaForSomeLocale("123.34", null, new Locale("CS")));
+//		assertEquals("123,34", new BasicFormatters().dotToCommaForSomeLocale("123.34", null, new Locale("cs", "CZ")));
+//		assertEquals("123.34", new BasicFormatters().dotToCommaForSomeLocale("123.34", null, new Locale("en")));
+//	}
+//	
+//	@Test
+//	public void testCommaToDotForSomeLocale() {
+//		assertEquals("123.34", new BasicFormatters().commaToDotForSomeLocale("123,34", null, new Locale("cs")));
+//		assertEquals("123.34", new BasicFormatters().commaToDotForSomeLocale("123,34", null, new Locale("CS")));
+//		assertEquals("123.34", new BasicFormatters().commaToDotForSomeLocale("123,34", null, new Locale("cs", "CZ")));
+//		assertEquals("123,34", new BasicFormatters().commaToDotForSomeLocale("123,34", null, new Locale("en")));
+//	}
 
 }

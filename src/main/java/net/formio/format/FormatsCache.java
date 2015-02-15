@@ -18,7 +18,6 @@ package net.formio.format;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -32,17 +31,15 @@ import java.util.concurrent.ConcurrentHashMap;
 class FormatsCache {
 	
 	private static final Map<FormatKey, DateFormat> DATE_FORMATS_CACHE = new ConcurrentHashMap<FormatKey, DateFormat>();
-	private static final Map<FormatKey, NumberFormat> NUMBER_FORMATS_CACHE = new ConcurrentHashMap<FormatKey, NumberFormat>();
 	private static final Map<FormatKey, DecimalFormat> DECIMAL_FORMATS_CACHE = new ConcurrentHashMap<FormatKey, DecimalFormat>();
 	static final String DEFAULT_DATE_FORMAT = "d.M.yyyy";
 	
 	static DateFormat getOrCreateDateFormat(String pattern, Locale locale) {
-		final FormatKey formatterKey = FormatKey.getInstance(pattern,
-				locale);
+		final FormatKey formatterKey = FormatKey.getInstance(pattern, locale);
 		DateFormat format = DATE_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
-				format = new SimpleDateFormat(pattern);
+				format = new SimpleDateFormat(pattern, locale);
 			} else {
 				// Note: full precision could be expressed using pattern "yyyy-MM-dd'T'HH:mm:ss,S z"
 				format = new SimpleDateFormat(DEFAULT_DATE_FORMAT, locale);
@@ -53,50 +50,19 @@ class FormatsCache {
 		return format;
 	}
 
-	static NumberFormat getOrCreateNumberFormat(String pattern, Locale locale) {
-		final FormatKey formatterKey = FormatKey.getInstance(pattern,
-				locale);
-		NumberFormat format = NUMBER_FORMATS_CACHE.get(formatterKey);
-		if (format == null) {
-			if (pattern != null && !pattern.isEmpty()) {
-				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-				symbols.setGroupingSeparator(',');
-				symbols.setDecimalSeparator('.');
-				format = new DecimalFormat(pattern, symbols);
-				format.setMaximumIntegerDigits(Short.MAX_VALUE);
-				format.setMaximumFractionDigits(Short.MAX_VALUE);
-			} else {
-				format = NumberFormat.getInstance(locale);
-				DecimalFormat decFormat = (DecimalFormat)format;
-				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-				symbols.setGroupingSeparator(',');
-				symbols.setDecimalSeparator('.');
-				decFormat.setDecimalFormatSymbols(symbols);
-				format.setMaximumIntegerDigits(Short.MAX_VALUE);
-				format.setMaximumFractionDigits(Short.MAX_VALUE);
-			}
-			NUMBER_FORMATS_CACHE.put(formatterKey, format);
-		}
-		return format;
-	}
-
 	static DecimalFormat getOrCreateDecimalFormat(String pattern, Locale locale) {
 		final FormatKey formatterKey = FormatKey.getInstance(pattern, locale);
 		DecimalFormat format = DECIMAL_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
-				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-				symbols.setGroupingSeparator(',');
-				symbols.setDecimalSeparator('.');
-				format = new DecimalFormat(pattern, symbols);
+				// Set grouping separator and decimal separator specific for given locale
+				DecimalFormat df = (DecimalFormat)NumberFormat.getInstance(locale);
+				format = new DecimalFormat(pattern, df.getDecimalFormatSymbols());
 				format.setMaximumIntegerDigits(Short.MAX_VALUE);
 				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			} else { 
-				format = (DecimalFormat) NumberFormat.getInstance(locale);
-				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-				symbols.setGroupingSeparator(',');
-				symbols.setDecimalSeparator('.');
-				format.setDecimalFormatSymbols(symbols);
+				// Formatter for locale bears grouping separator and decimal separator specific for given locale
+				format = (DecimalFormat)NumberFormat.getInstance(locale);
 				format.setMaximumIntegerDigits(Short.MAX_VALUE);
 				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			}
