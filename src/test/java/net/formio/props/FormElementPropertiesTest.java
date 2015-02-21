@@ -33,7 +33,7 @@ import org.junit.Test;
  * Test form fields with various properties.
  * @author Radek Beran
  */
-public class FormFieldPropertiesTest {
+public class FormElementPropertiesTest {
 
 	@Test
 	public void testDefaultFormFieldProperties() {
@@ -41,10 +41,10 @@ public class FormFieldPropertiesTest {
 			new FormData<Registration>(TestData.newRegistration(), ValidationResult.empty));
 		
 		FormField<?> field = filledForm.getFields().get("email");
-		assertEquals(FieldProperty.VISIBLE.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isVisible()));
-		assertEquals(FieldProperty.ENABLED.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isEnabled()));
-		assertEquals(FieldProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isRequired()));
-		assertEquals(FieldProperty.READ_ONLY.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isReadonly()));
+		assertEquals(FormElementProperty.VISIBLE.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isVisible()));
+		assertEquals(FormElementProperty.ENABLED.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isEnabled()));
+		assertEquals(FormElementProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isRequired()));
+		assertEquals(FormElementProperty.READ_ONLY.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isReadonly()));
 	}
 	
 	@Test

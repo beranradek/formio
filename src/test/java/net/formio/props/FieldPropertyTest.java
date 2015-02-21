@@ -26,37 +26,37 @@ public class FieldPropertyTest {
 
 	@Test
 	public void testGetValues() {
-		List<FieldProperty<Object>> props = FieldProperty.getValues();
-		assertTrue("field props should contain visible property", props.contains(FieldProperty.VISIBLE));
-		assertTrue("field props should contain enabled property", props.contains(FieldProperty.ENABLED));
-		assertTrue("field props should contain readonly property", props.contains(FieldProperty.READ_ONLY));
+		List<FormElementProperty<Object>> props = FormElementProperty.getValues();
+		assertTrue("field props should contain visible property", props.contains(FormElementProperty.VISIBLE));
+		assertTrue("field props should contain enabled property", props.contains(FormElementProperty.ENABLED));
+		assertTrue("field props should contain readonly property", props.contains(FormElementProperty.READ_ONLY));
 	}
 	
 	@Test
 	public void testEquality() {
-		assertEquals(FieldProperty.ENABLED, FieldProperty.ENABLED);
-		Property<Boolean> prop = FieldProperty.ENABLED; 
-		assertFalse(FieldProperty.READ_ONLY == prop);
-		assertFalse(FieldProperty.REQUIRED == prop);
-		assertFalse(FieldProperty.VISIBLE == prop);
+		assertEquals(FormElementProperty.ENABLED, FormElementProperty.ENABLED);
+		Property<Boolean> prop = FormElementProperty.ENABLED; 
+		assertFalse(FormElementProperty.READ_ONLY == prop);
+		assertFalse(FormElementProperty.REQUIRED == prop);
+		assertFalse(FormElementProperty.VISIBLE == prop);
 		Property<Boolean> prop2 = prop;
-		assertTrue(FieldProperty.ENABLED == prop2);
+		assertTrue(FormElementProperty.ENABLED == prop2);
 	}
 	
 	@Test
 	public void testFromName() {
-		assertEquals(FieldProperty.ENABLED, FieldProperty.fromName("enabled"));
-		assertEquals(null, FieldProperty.fromName("unknown"));
+		assertEquals(FormElementProperty.ENABLED, FormElementProperty.fromName("enabled"));
+		assertEquals(null, FormElementProperty.fromName("unknown"));
 	}
 	
 	@Test
 	public void testDefaultProperties() {
-		assertTrue(FieldProperty.VISIBLE.getDefaultValue().booleanValue());
-		assertTrue(FieldProperty.ENABLED.getDefaultValue().booleanValue());
-		assertFalse(FieldProperty.REQUIRED.getDefaultValue().booleanValue());
-		assertFalse(FieldProperty.READ_ONLY.getDefaultValue().booleanValue());
-		assertEquals("", FieldProperty.HELP.getDefaultValue());
-		assertEquals("", FieldProperty.DATA_AJAX_URL.getDefaultValue());
+		assertTrue(FormElementProperty.VISIBLE.getDefaultValue().booleanValue());
+		assertTrue(FormElementProperty.ENABLED.getDefaultValue().booleanValue());
+		assertFalse(FormElementProperty.REQUIRED.getDefaultValue().booleanValue());
+		assertFalse(FormElementProperty.READ_ONLY.getDefaultValue().booleanValue());
+		assertEquals("", FormElementProperty.HELP.getDefaultValue());
+		assertEquals("", FormElementProperty.DATA_AJAX_URL.getDefaultValue());
 	}
 
 }

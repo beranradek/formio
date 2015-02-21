@@ -421,16 +421,17 @@ public class BasicFormRenderer {
 		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
 			List<?> items = field.getChoices().getItems();
 			if (items != null) {
+				// First "Choose One" option
+				if (field.isChooseOptionDisplayed()) {
+					sb.append(renderHtmlOption("", field.getChooseOptionTitle(), false));
+				}
 				ChoiceRenderer<Object> choiceRenderer = getChoiceRenderer(field);
 				int itemIndex = 0;
 				for (Object item : items) {
 					String value = getChoiceValue(choiceRenderer, item, itemIndex);
 					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
-					sb.append("<option value=\"" + value + "\"");
-					if (field.getFilledObjects().contains(item)) {
-						sb.append(" selected=\"selected\"");
-					}
-					sb.append(">" + title + "</option>" + newLine());
+					boolean selected = field.getFilledObjects().contains(item);
+					sb.append(renderHtmlOption(value, title, selected));
 					itemIndex++;
 				}
 			}
@@ -467,6 +468,16 @@ public class BasicFormRenderer {
 				}
 			}
 		}
+		return sb.toString();
+	}
+	
+	protected String renderHtmlOption(String value, String title, boolean selected) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<option value=\"" + getRenderContext().escapeHtml(value) + "\"");
+		if (selected) {
+			sb.append(" selected=\"selected\"");
+		}
+		sb.append(">" + getRenderContext().escapeHtml(title) + "</option>" + newLine());
 		return sb.toString();
 	}
 	

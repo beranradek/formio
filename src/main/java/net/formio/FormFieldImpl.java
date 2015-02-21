@@ -24,7 +24,7 @@ import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
-import net.formio.props.FieldProperty;
+import net.formio.props.FormElementProperty;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
 
@@ -99,7 +99,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 				// Override required only in case required != null, so the required flag from field props is not
 				// overriden by missing NotNull annotation...
 				required != null ? 
-					((FormFieldPropertiesImpl)src.getFormProperties()).withProperty(FieldProperty.REQUIRED, required) :
+					((FormFieldPropertiesImpl)src.getFormProperties()).withProperty(FormElementProperty.REQUIRED, required) :
 					src.getFormProperties()
 			)
 		);
@@ -205,6 +205,16 @@ public class FormFieldImpl<T> implements FormField<T> {
 	@Override
 	public String getHelp() {
 		return this.formProperties.getHelp();
+	}
+	
+	@Override
+	public boolean isChooseOptionDisplayed() {
+		return this.formProperties.isChooseOptionDisplayed();
+	}
+	
+	@Override
+	public String getChooseOptionTitle() {
+		return this.formProperties.getChooseOptionTitle();
 	}
 	
 	@Override

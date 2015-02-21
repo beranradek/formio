@@ -27,7 +27,7 @@ import net.formio.choice.DefaultChoiceProvider;
 import net.formio.choice.DefaultChoiceRenderer;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
-import net.formio.props.FieldProperty;
+import net.formio.props.FormElementProperty;
 
 /**
  * Specification of properties used to construct a {@link FormField}.
@@ -44,7 +44,7 @@ public class FieldProps<T> implements Serializable {
 	private Formatter<T> formatter;
 	private ChoiceProvider<T> choiceProvider;
 	private ChoiceRenderer<T> choiceRenderer;
-	private FormFieldProperties formProperties = new FormFieldPropertiesImpl(FieldProperty.createDefaultFieldProperties());
+	private FormFieldProperties formProperties = new FormFieldPropertiesImpl(FormElementProperty.createDefaultFieldProperties());
 	List<T> filledObjects = new ArrayList<T>();
 	String strValue;
 	int order;
@@ -108,45 +108,53 @@ public class FieldProps<T> implements Serializable {
 		return this;
 	}
 	
-	public <U> FieldProps<T> property(FieldProperty<U> fieldProperty, U value) {
+	public <U> FieldProps<T> property(FormElementProperty<U> fieldProperty, U value) {
 		this.formProperties = new FormFieldPropertiesImpl(this.formProperties, fieldProperty, value);
 		return this;
 	}
 	
 	public FieldProps<T> visible(boolean visible) {
-		return property(FieldProperty.VISIBLE, Boolean.valueOf(visible));
+		return property(FormElementProperty.VISIBLE, Boolean.valueOf(visible));
 	}
 	
 	public FieldProps<T> enabled(boolean enabled) {
-		return property(FieldProperty.ENABLED, Boolean.valueOf(enabled));
+		return property(FormElementProperty.ENABLED, Boolean.valueOf(enabled));
 	}
 	
 	public FieldProps<T> readonly(boolean readonly) {
-		return property(FieldProperty.READ_ONLY, Boolean.valueOf(readonly));
+		return property(FormElementProperty.READ_ONLY, Boolean.valueOf(readonly));
 	}
 
 	public FieldProps<T> required(boolean required) {
-		return property(FieldProperty.REQUIRED, Boolean.valueOf(required));
+		return property(FormElementProperty.REQUIRED, Boolean.valueOf(required));
 	}
 	
 	public FieldProps<T> help(String help) {
-		return property(FieldProperty.HELP, help);
+		return property(FormElementProperty.HELP, help);
+	}
+	
+	public FieldProps<T> chooseOptionDisplayed(boolean displayed) {
+		return property(FormElementProperty.CHOOSE_OPTION_DISPLAYED, Boolean.valueOf(displayed));
+	}
+	
+	public FieldProps<T> chooseOptionTitle(String title) {
+		return property(FormElementProperty.CHOOSE_OPTION_TITLE, title);
 	}
 	
 	public FieldProps<T> dataAjaxUrl(String dataAjaxUrl) {
-		return property(FieldProperty.DATA_AJAX_URL, dataAjaxUrl);
+		return property(FormElementProperty.DATA_AJAX_URL, dataAjaxUrl);
 	}
 	
 	public FieldProps<T> dataRelatedElement(String dataRelatedElement) {
-		return property(FieldProperty.DATA_RELATED_ELEMENT, dataRelatedElement);
+		return property(FormElementProperty.DATA_RELATED_ELEMENT, dataRelatedElement);
 	}
 	
 	public FieldProps<T> dataRelatedAncestor(String dataRelatedAncestor) {
-		return property(FieldProperty.DATA_RELATED_ANCESTOR, dataRelatedAncestor);
+		return property(FormElementProperty.DATA_RELATED_ANCESTOR, dataRelatedAncestor);
 	}
 	
 	public FieldProps<T> dataConfirm(String dataConfirm) {
-		return property(FieldProperty.DATA_CONFIRM, dataConfirm);
+		return property(FormElementProperty.DATA_CONFIRM, dataConfirm);
 	}
 	
 	// only for internal usage
@@ -247,7 +255,7 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	/**
-	 * Field form properties (flags like required, ... - see {@link FieldProperty}).
+	 * Field form properties (flags like required, ... - see {@link FormElementProperty}).
 	 * @return
 	 */
 	public FormFieldProperties getFormProperties() {

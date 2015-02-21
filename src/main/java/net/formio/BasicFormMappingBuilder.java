@@ -34,7 +34,7 @@ import net.formio.binding.collection.CollectionSpec;
 import net.formio.binding.collection.ItemsOrder;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
-import net.formio.props.FieldProperty;
+import net.formio.props.FormElementProperty;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 
@@ -81,7 +81,7 @@ public class BasicFormMappingBuilder<T> {
 		this.instantiator = instantiator;
 		this.mappingType = mappingType;
 		this.automatic = automatic;
-		this.properties = FieldProperty.createDefaultFieldProperties();
+		this.properties = FormElementProperty.createDefaultFieldProperties();
 	}
 	
 	BasicFormMappingBuilder(Class<T> objectClass, String propertyName, Instantiator<T> inst, boolean automatic) {
@@ -269,29 +269,29 @@ public class BasicFormMappingBuilder<T> {
 		return this;
 	}
 	
-	public <U> BasicFormMappingBuilder<T> property(FieldProperty<U> fieldProperty, U value) {
+	public <U> BasicFormMappingBuilder<T> property(FormElementProperty<U> fieldProperty, U value) {
 		this.properties.putTyped(fieldProperty, value);
 		return this;
 	}
 	
 	public BasicFormMappingBuilder<T> visible(boolean visible) {
-		return property(FieldProperty.VISIBLE, Boolean.valueOf(visible));
+		return property(FormElementProperty.VISIBLE, Boolean.valueOf(visible));
 	}
 	
 	public BasicFormMappingBuilder<T> enabled(boolean enabled) {
-		return property(FieldProperty.ENABLED, Boolean.valueOf(enabled));
+		return property(FormElementProperty.ENABLED, Boolean.valueOf(enabled));
 	}
 	
 	public BasicFormMappingBuilder<T> readonly(boolean readonly) {
-		return property(FieldProperty.READ_ONLY, Boolean.valueOf(readonly));
+		return property(FormElementProperty.READ_ONLY, Boolean.valueOf(readonly));
 	}
 
 	public BasicFormMappingBuilder<T> required(boolean required) {
-		return property(FieldProperty.REQUIRED, Boolean.valueOf(required));
+		return property(FormElementProperty.REQUIRED, Boolean.valueOf(required));
 	}
 	
 	public BasicFormMappingBuilder<T> help(String help) {
-		return property(FieldProperty.HELP, help);
+		return property(FormElementProperty.HELP, help);
 	}
 
 	public FormMapping<T> build() {

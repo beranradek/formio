@@ -16,7 +16,7 @@
  */
 package net.formio.common.heterog;
 
-import net.formio.props.FieldProperty;
+import net.formio.props.FormElementProperty;
 
 import org.junit.Test;
 
@@ -29,13 +29,13 @@ public class HeterogCollectionsTest {
 	@Test(expected=UnsupportedOperationException.class)
 	public void testPutToUnmodifiableMap() {
 		HeterogMap<String> map = HeterogCollections.newUnmodifiableMap();
-		map.putTyped(FieldProperty.VISIBLE, Boolean.TRUE);
+		map.putTyped(FormElementProperty.VISIBLE, Boolean.TRUE);
 	}
 	
 	@Test(expected=UnsupportedOperationException.class)
 	public void testRemoveFromUnmodifiableMap() {
 		HeterogMap<String> map = HeterogCollections.newUnmodifiableMap();
-		map.removeTyped(FieldProperty.VISIBLE);
+		map.removeTyped(FormElementProperty.VISIBLE);
 	}
 	
 	@Test(expected=UnsupportedOperationException.class)

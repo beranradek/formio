@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import net.formio.props.FieldProperty;
+import net.formio.props.FormElementProperty;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,30 +56,30 @@ public class DefaultHeterogMapTest {
 	@Test
 	public void testPutAllValues() {
 		final HeterogMap<String> properties = HeterogCollections.<String>newLinkedMap();
-		properties.putTyped(FieldProperty.VISIBLE, Boolean.FALSE);
-		properties.putTyped(FieldProperty.ENABLED, Boolean.TRUE);
-		properties.putTyped(FieldProperty.REQUIRED, Boolean.FALSE);
-		properties.putTyped(FieldProperty.READ_ONLY, Boolean.FALSE);
+		properties.putTyped(FormElementProperty.VISIBLE, Boolean.FALSE);
+		properties.putTyped(FormElementProperty.ENABLED, Boolean.TRUE);
+		properties.putTyped(FormElementProperty.REQUIRED, Boolean.FALSE);
+		properties.putTyped(FormElementProperty.READ_ONLY, Boolean.FALSE);
 		final HeterogMap<String> copy = HeterogCollections.<String>newLinkedMap();
 		copy.putAllFromSource(properties);
-		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.VISIBLE));
-		assertEquals(Boolean.TRUE, copy.getTyped(FieldProperty.ENABLED));
-		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.REQUIRED));
-		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.READ_ONLY));
+		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.VISIBLE));
+		assertEquals(Boolean.TRUE, copy.getTyped(FormElementProperty.ENABLED));
+		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.REQUIRED));
+		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.READ_ONLY));
 	}
 	
 	@Test
 	public void testCopyConstructor() {
 		final DefaultHeterogMap<String> properties = new DefaultHeterogMap<String>();
-		properties.putTyped(FieldProperty.VISIBLE, Boolean.FALSE);
-		properties.putTyped(FieldProperty.ENABLED, Boolean.TRUE);
-		properties.putTyped(FieldProperty.REQUIRED, Boolean.FALSE);
-		properties.putTyped(FieldProperty.READ_ONLY, Boolean.FALSE);
+		properties.putTyped(FormElementProperty.VISIBLE, Boolean.FALSE);
+		properties.putTyped(FormElementProperty.ENABLED, Boolean.TRUE);
+		properties.putTyped(FormElementProperty.REQUIRED, Boolean.FALSE);
+		properties.putTyped(FormElementProperty.READ_ONLY, Boolean.FALSE);
 		final DefaultHeterogMap<String> copy = new DefaultHeterogMap<String>(properties);
-		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.VISIBLE));
-		assertEquals(Boolean.TRUE, copy.getTyped(FieldProperty.ENABLED));
-		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.REQUIRED));
-		assertEquals(Boolean.FALSE, copy.getTyped(FieldProperty.READ_ONLY));
+		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.VISIBLE));
+		assertEquals(Boolean.TRUE, copy.getTyped(FormElementProperty.ENABLED));
+		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.REQUIRED));
+		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.READ_ONLY));
 	}
 	
 	@Test

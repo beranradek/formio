@@ -17,7 +17,7 @@
 package net.formio;
 
 import net.formio.common.heterog.HeterogMap;
-import net.formio.props.FieldProperty;
+import net.formio.props.FormElementProperty;
 
 /**
  * Default implementation of {@link FormFieldProperties}. Immutable.
@@ -33,10 +33,10 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	}
 	
 	FormFieldPropertiesImpl(final FormFieldProperties src) {
-		this(src, (FieldProperty<?>)null, null);
+		this(src, (FormElementProperty<?>)null, null);
 	}
 	
-	<T> FormFieldPropertiesImpl(final FormFieldProperties src, FieldProperty<T> property, T value) {
+	<T> FormFieldPropertiesImpl(final FormFieldProperties src, FormElementProperty<T> property, T value) {
 		super(src, property, value);
 	}
 	
@@ -47,27 +47,38 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	 * @return
 	 */
 	@Override
-	<T> FormFieldProperties withProperty(FieldProperty<T> property, T value) {
+	<T> FormFieldProperties withProperty(FormElementProperty<T> property, T value) {
 		return new FormFieldPropertiesImpl(copyProperties(this.getProperties(), property, value));
 	}
 	
 	@Override
 	public String getDataAjaxUrl() {
-		return getProperties().getTyped(FieldProperty.DATA_AJAX_URL);
+		return getProperties().getTyped(FormElementProperty.DATA_AJAX_URL);
 	}
 	
 	@Override
 	public String getDataRelatedElement() {
-		return getProperties().getTyped(FieldProperty.DATA_RELATED_ELEMENT);
+		return getProperties().getTyped(FormElementProperty.DATA_RELATED_ELEMENT);
 	}
 	
 	@Override
 	public String getDataRelatedAncestor() {
-		return getProperties().getTyped(FieldProperty.DATA_RELATED_ANCESTOR);
+		return getProperties().getTyped(FormElementProperty.DATA_RELATED_ANCESTOR);
 	}
 	
 	@Override
 	public String getDataConfirm() {
-		return getProperties().getTyped(FieldProperty.DATA_CONFIRM);
+		return getProperties().getTyped(FormElementProperty.DATA_CONFIRM);
+	}
+	
+	@Override
+	public boolean isChooseOptionDisplayed() {
+		Boolean b = getProperties().getTyped(FormElementProperty.CHOOSE_OPTION_DISPLAYED);
+		return b != null && b.booleanValue();
+	}
+	
+	@Override
+	public String getChooseOptionTitle() {
+		return getProperties().getTyped(FormElementProperty.CHOOSE_OPTION_TITLE);
 	}
 }

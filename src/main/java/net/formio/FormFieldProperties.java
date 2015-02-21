@@ -17,6 +17,7 @@
 package net.formio;
 
 
+
 /**
  * Definable properties of form field.
  * These properties contain typical accessibility flags like required, enabled, readonly, visible
@@ -53,4 +54,16 @@ public interface FormFieldProperties extends FormProperties {
 	 * @return
 	 */
 	String getDataConfirm();
+	
+	/**
+	 * Returns true if first "choose option" item should be displayed. 
+	 * @return
+	 */
+	boolean isChooseOptionDisplayed();
+	
+	/**
+	 * Returns text of first "choose option" item's title.
+	 * @return
+	 */
+	String getChooseOptionTitle();
 }

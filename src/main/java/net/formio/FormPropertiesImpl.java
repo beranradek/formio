@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
-import net.formio.props.FieldProperty;
+import net.formio.props.FormElementProperty;
 
 /**
  * Default implementation of {@link FormProperties}. Immutable.
@@ -39,36 +39,36 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	FormPropertiesImpl(final FormProperties src) {
-		this(src, (FieldProperty<?>)null, null);
+		this(src, (FormElementProperty<?>)null, null);
 	}
 	
-	<T> FormPropertiesImpl(final FormProperties src, FieldProperty<T> property, T value) {
+	<T> FormPropertiesImpl(final FormProperties src, FormElementProperty<T> property, T value) {
 		this(copyProperties(src.getProperties(), property, value));
 	}
 	
 	@Override
 	public boolean isVisible() {
-		return this.properties.getTyped(FieldProperty.VISIBLE).booleanValue();
+		return this.properties.getTyped(FormElementProperty.VISIBLE).booleanValue();
 	}
 	
 	@Override
 	public boolean isEnabled() {
-		return this.properties.getTyped(FieldProperty.ENABLED).booleanValue();
+		return this.properties.getTyped(FormElementProperty.ENABLED).booleanValue();
 	}
 	
 	@Override
 	public boolean isReadonly() {
-		return this.properties.getTyped(FieldProperty.READ_ONLY).booleanValue();
+		return this.properties.getTyped(FormElementProperty.READ_ONLY).booleanValue();
 	}
 	
 	@Override
 	public boolean isRequired() {
-		return this.properties.getTyped(FieldProperty.REQUIRED).booleanValue();
+		return this.properties.getTyped(FormElementProperty.REQUIRED).booleanValue();
 	}
 	
 	@Override
 	public String getHelp() {
-		return this.properties.getTyped(FieldProperty.HELP);
+		return this.properties.getTyped(FormElementProperty.HELP);
 	}
 	
 	@Override
@@ -106,7 +106,7 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 		return true;
 	}
 
-	static <T> HeterogMap<String> copyProperties(HeterogMap<String> source, FieldProperty<T> property, T value) {
+	static <T> HeterogMap<String> copyProperties(HeterogMap<String> source, FormElementProperty<T> property, T value) {
 		final HeterogMap<String> map = HeterogCollections.<String>newLinkedMap();
 		map.putAllFromSource(source);
 		if (property != null) {
@@ -126,7 +126,7 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	 * @param value
 	 * @return
 	 */
-	<T> FormProperties withProperty(FieldProperty<T> property, T value) {
+	<T> FormProperties withProperty(FormElementProperty<T> property, T value) {
 		return new FormPropertiesImpl(copyProperties(this.getProperties(), property, value));
 	}
 }
