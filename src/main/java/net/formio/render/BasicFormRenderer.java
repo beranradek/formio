@@ -127,10 +127,10 @@ public class BasicFormRenderer {
 		Field formComponent = Field.findByType(type);
 		if (formComponent != null) {
 			switch (formComponent) {
-			case HIDDEN_FIELD:
+			case HIDDEN:
 				sb.append(renderFieldHidden(field));
 				break;
-			case TEXT_FIELD:
+			case TEXT:
 				sb.append(renderFieldText(field));
 				break;
 			case TEXT_AREA:
@@ -302,7 +302,7 @@ public class BasicFormRenderer {
 	}
 	
 	protected String renderFieldAttributes(FormElement element) {
-		return renderAccessibilityAttributes(element) + renderTdiAttributes(element);
+		return renderAccessibilityAttributes(element) + renderAjaxAttributes(element);
 	}
 
 	protected String renderAccessibilityAttributes(FormElement element) {
@@ -323,11 +323,24 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	protected String renderTdiAttributes(FormElement element) {
+	protected String renderAjaxAttributes(FormElement element) {
 		StringBuilder sb = new StringBuilder();
 		if (element.getDataAjaxUrl() != null && !element.getDataAjaxUrl().isEmpty()) {
-			sb.append(" class=\"tdi\"");
 			sb.append(" data-ajax-url=\"" + element.getDataAjaxUrl() + "\"");
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * Renders content of class attribute.
+	 * @param ctx
+	 * @param element
+	 * @return
+	 */
+	protected <T> String renderInputClassContent(FormField<T> field) {
+		StringBuilder sb = new StringBuilder();
+		if (field.getDataAjaxUrl() != null && !field.getDataAjaxUrl().isEmpty()) {
+			sb.append("tdi");
 		}
 		return sb.toString();
 	}
@@ -335,7 +348,7 @@ public class BasicFormRenderer {
 	protected <T> String renderHtmlTextArea(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<textarea name=\"" + field.getName() + "\" id=\"id-"
-			+ field.getName() + "\" class=\"input-sm form-control\"");
+			+ field.getName() + "\" class=\"" + renderInputClassContent(field) + " input-sm form-control\"");
 		sb.append(renderFieldAttributes(field) + ">");
 		sb.append(getRenderContext().renderValue(field.getValue()));
 		sb.append("</textarea>" + newLine());
@@ -353,12 +366,14 @@ public class BasicFormRenderer {
 			String value = getRenderContext().renderValue(field.getValue());
 			sb.append(" value=\"" + value + "\"");
 		}
-		if (!Field.HIDDEN_FIELD.getType().equals(typeId)) {
+		if (!Field.HIDDEN.getType().equals(typeId)) {
 			sb.append(renderFieldAttributes(field));
 		}
+		sb.append(" class=\"" + renderInputClassContent(field));
 		if (isInputClassIncluded(typeId)) {
-			sb.append(" class=\"input-sm form-control\"");
+			sb.append(" input-sm form-control");
 		}
+		sb.append("\"");
 		sb.append("/>" + newLine());
 		return sb.toString();
 	}
@@ -375,6 +390,7 @@ public class BasicFormRenderer {
 			}
 		}
 		sb.append(renderFieldAttributes(field));
+		sb.append(" class=\"" + renderInputClassContent(field) + "\"");
 		sb.append("/>" + newLine());
 		return sb.toString();
 	}
@@ -388,17 +404,17 @@ public class BasicFormRenderer {
 		if (size != null) {
 			sb.append(" size=\"" + size + "\"");
 		}
-		sb.append(" class=\"input-sm form-control\"");
+		sb.append(" class=\"" + renderInputClassContent(field) + " input-sm form-control\"");
 		sb.append(renderFieldAttributes(field));
 		sb.append(">" + newLine());
-		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
-			List<?> items = field.getChoiceProvider().getItems();
+		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
+			List<?> items = field.getChoices().getItems();
 			if (items != null) {
 				ChoiceRenderer<Object> choiceRenderer = getChoiceRenderer(field);
 				int itemIndex = 0;
 				for (Object item : items) {
-					String value = getRenderContext().renderValue(choiceRenderer.getId(item, itemIndex));
-					String title = getRenderContext().escapeHtml(choiceRenderer.getTitle(item, itemIndex));
+					String value = getChoiceValue(choiceRenderer, item, itemIndex);
+					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
 					sb.append("<option value=\"" + value + "\"");
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" selected=\"selected\"");
@@ -417,14 +433,14 @@ public class BasicFormRenderer {
 			Field.RADIO_CHOICE.getType() : 
 			Field.CHECK_BOX.getType();
 		StringBuilder sb = new StringBuilder();
-		if (field.getChoiceProvider() != null && field.getChoiceRenderer() != null) {
-			List<?> items = field.getChoiceProvider().getItems();
+		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
+			List<?> items = field.getChoices().getItems();
 			if (items != null) {
 				ChoiceRenderer<Object> choiceRenderer = getChoiceRenderer(field);
 				int itemIndex = 0;
 				for (Object item : items) {
-					String value = getRenderContext().renderValue(choiceRenderer.getId(item, itemIndex));
-					String title = getRenderContext().escapeHtml(choiceRenderer.getTitle(item, itemIndex));
+					String value = getChoiceValue(choiceRenderer, item, itemIndex);
+					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
 
 					sb.append("<div class=\"" + type + "\">" + newLine());
 					sb.append(renderLabelBeginTag(field));
@@ -433,6 +449,7 @@ public class BasicFormRenderer {
 						sb.append(" checked=\"checked\"");
 					}
 					sb.append(renderFieldAttributes(field));
+					sb.append(" class=\"" + renderInputClassContent(field) + "\"");
 					sb.append("/> " + title + renderLabelEndTag(field));
 					sb.append("</div>" + newLine());
 					itemIndex++;
@@ -633,14 +650,14 @@ public class BasicFormRenderer {
 	private boolean isInputClassIncluded(String type) {
 		return type != null
 			&& !type.equals(Field.FILE_UPLOAD.getType())
-			&& !type.equals(Field.HIDDEN_FIELD.getType())
+			&& !type.equals(Field.HIDDEN.getType())
 			&& !type.equals(Field.CHECK_BOX.getType());
 	}
 
 	private <T> String getFieldType(FormField<T> field) {
 		String type = field.getType();
 		if (type == null) {
-			type = Field.TEXT_FIELD.getType();
+			type = Field.TEXT.getType();
 		}
 		return type.toLowerCase();
 	}
@@ -661,5 +678,13 @@ public class BasicFormRenderer {
 	
 	private String newLine() {
 		return getRenderContext().newLine();
+	}
+	
+	private String getChoiceTitle(ChoiceRenderer<Object> choiceRenderer, Object item, int itemIndex) {
+		return getRenderContext().escapeHtml(choiceRenderer.getItem(item, itemIndex).getTitle());
+	}
+
+	private String getChoiceValue(ChoiceRenderer<Object> choiceRenderer, Object item, int itemIndex) {
+		return getRenderContext().renderValue(choiceRenderer.getItem(item, itemIndex).getId());
 	}
 }

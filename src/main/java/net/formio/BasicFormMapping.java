@@ -611,7 +611,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 
 	/**
 	 * Converts parameters from request (RequestParams) using field definitions and given locale
-	 * to descriptions of values for individual formProperties, ready to bind to formProperties of form data object
+	 * to descriptions of values for individual properties, ready to bind to form data object
 	 * via binder.
 	 * @param paramsProvider
 	 * @param locale
@@ -638,6 +638,10 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 					strValues = FormUtils.trimValues(strValues);
 				}
 				paramValues = strValues;
+				if (strValues != null && field.getChoices() != null && field.getChoiceRenderer() != null) {
+					// There is a codebook with choices to select from
+					paramValues = ChoiceItems.convertParamsToChoiceItems(field, strValues);
+				}
 			}
 			String propertyName = e.getKey();
 			values.put(propertyName, BoundValuesInfo.getInstance(
@@ -645,9 +649,9 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 		}
 		return values;
 	}
-	
+
 	private <U> FormField<U> createFilledFormField(final FormField<U> field, U value, Locale locale, String preferedStringValue) {
-		ChoiceProvider<U> choiceProvider = field.getChoiceProvider();
+		ChoiceProvider<U> choiceProvider = field.getChoices();
 		if (choiceProvider == null && field.getType() != null && !field.getType().isEmpty()) {
 			Field formComponent = Field.findByType(field.getType());
 			if (formComponent != null && formComponent.isChoice()) {
@@ -659,7 +663,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			FormUtils.<U>convertObjectToList(value), 
 			locale, 
 			getConfig().getFormatters(),
-			preferedStringValue).choiceProvider(choiceProvider).build();
+			preferedStringValue).choices(choiceProvider).build();
 	}
 	
 	private Locale getConfigLocale() {

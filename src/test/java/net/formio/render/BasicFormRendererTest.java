@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import net.formio.FormData;
 import net.formio.Field;
+import net.formio.FormData;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.MappingType;
+import net.formio.choice.ChoiceItem;
 import net.formio.choice.ChoiceRenderer;
-import net.formio.choice.DefaultChoiceProvider;
 import net.formio.choice.EnumChoiceProvider;
 import net.formio.domain.Address;
 import net.formio.domain.inputs.Country;
@@ -41,7 +41,6 @@ import net.formio.domain.inputs.Function;
 import net.formio.domain.inputs.Profile;
 import net.formio.domain.inputs.Salutation;
 import net.formio.domain.inputs.Skill;
-import net.formio.render.BasicFormRenderer;
 import net.formio.validation.ValidationResult;
 
 import org.junit.Test;
@@ -53,47 +52,35 @@ import org.junit.Test;
 public class BasicFormRendererTest {
 	
 	private static final FormMapping<Profile> profileForm = Forms.basic(Profile.class, "profile")
-		.field("profileId", Field.HIDDEN_FIELD)
+		.field("profileId", Field.HIDDEN)
 		.field(Forms.<Salutation>field("salutation", Field.RADIO_CHOICE)
-			.choiceProvider(new EnumChoiceProvider<Salutation>(Salutation.class)))
-		.field("firstName", Field.TEXT_FIELD)
+			.choices(new EnumChoiceProvider<Salutation>(Salutation.class)))
+		.field("firstName", Field.TEXT)
 		.field("password", Field.PASSWORD)
 		.field(Forms.<Country>field("country", Field.DROP_DOWN_CHOICE)
-			.choiceProvider(new EnumChoiceProvider<Country>(Country.class)))
+			.choices(new EnumChoiceProvider<Country>(Country.class)))
 		.field("birthDate", Field.DATE_PICKER)
 		.nested(Forms.basic(Employer.class, "employers", MappingType.LIST)
-			.field(Forms.field("name", Field.TEXT_FIELD).readonly(true))
-			.field("fromYear", Field.TEXT_FIELD)
-			.field("toYear", Field.TEXT_FIELD)
+			.field(Forms.field("name", Field.TEXT).readonly(true))
+			.field("fromYear", Field.TEXT)
+			.field("toYear", Field.TEXT)
 			.build()
 		)
 		.field(Forms.<Skill>field("skills", Field.MULTIPLE_CHECK_BOX)
-			.choiceProvider(new DefaultChoiceProvider<Skill>(skillsCodebook()))
+			.choices(skillsCodebook())
 			.choiceRenderer(new ChoiceRenderer<Skill>() {
-				
 				@Override
-				public String getTitle(Skill item, int itemIndex) {
-					return item.getName();
-				}
-				
-				@Override
-				public String getId(Skill item, int itemIndex) {
-					return "" + item.getId();
+				public ChoiceItem getItem(Skill item, int itemIndex) {
+					return ChoiceItem.valueOf("" + item.getId(), item.getName());
 				}
 			})
 		)	
 		.field(Forms.<Function>field("functions", Field.MULTIPLE_CHOICE)
-			.choiceProvider(new DefaultChoiceProvider<Function>(functionsCodebook()))
+			.choices(functionsCodebook())
 			.choiceRenderer(new ChoiceRenderer<Function>() {
-				
 				@Override
-				public String getTitle(Function item, int itemIndex) {
-					return item.getName();
-				}
-				
-				@Override
-				public String getId(Function item, int itemIndex) {
-					return "" + item.getId();
+				public ChoiceItem getItem(Function item, int itemIndex) {
+					return ChoiceItem.valueOf("" + item.getId(), item.getName());
 				}
 			})
 		 )

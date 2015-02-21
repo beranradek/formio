@@ -31,19 +31,19 @@ public class DefaultChoiceRendererTest {
 	@Test
 	public void testGetTitle() {
 		DefaultChoiceRenderer<Country> countryRenderer = new DefaultChoiceRenderer<Country>();
-		assertEquals(Country.GB.getTitle(), countryRenderer.getTitle(Country.GB, 0));
+		assertEquals(Country.GB.getTitle(), countryRenderer.getItem(Country.GB, 0).getTitle());
 		DefaultChoiceRenderer<Salutation> salutationRenderer = new DefaultChoiceRenderer<Salutation>();
-		assertEquals("Mr.", salutationRenderer.getTitle(Salutation.MR, 0));
-		assertEquals("null", salutationRenderer.getTitle(null, 0));
+		assertEquals("Mr.", salutationRenderer.getItem(Salutation.MR, 0).getTitle());
+		assertEquals("null", salutationRenderer.getItem(null, 0).getTitle());
 	}
 	
 	@Test
 	public void testGetId() {
 		DefaultChoiceRenderer<Country> countryRenderer = new DefaultChoiceRenderer<Country>();
-		assertEquals(Country.GB.name(), countryRenderer.getId(Country.GB, 0));
+		assertEquals(Country.GB.name(), countryRenderer.getItem(Country.GB, 0).getId());
 		DefaultChoiceRenderer<Salutation> salutationRenderer = new DefaultChoiceRenderer<Salutation>();
-		assertEquals(Salutation.MR.name(), salutationRenderer.getId(Salutation.MR, 0));
-		assertEquals("0", salutationRenderer.getId(null, 0));
+		assertEquals(Salutation.MR.name(), salutationRenderer.getItem(Salutation.MR, 0).getId());
+		assertEquals("0", salutationRenderer.getItem(null, 0).getId());
 	}
 
 }

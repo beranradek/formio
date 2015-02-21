@@ -17,21 +17,10 @@
 package net.formio.choice;
 
 /**
- * Renders items for a form choice - ids and titles.
+ * Object with an identifier.
  * @author Radek Beran
  *
- * @param <T>
  */
-public interface ChoiceRenderer<T> {
-	
-	/**
-	 * Returns an item of a choice.
-	 * The identifier of returned choice item can be extracted from the item like a primary key; 
-	 * or if the list of objects is stable, 
-	 * id can be an item index converted to a String.
-	 * @param item
-	 * @param itemIndex
-	 * @return
-	 */
-	ChoiceItem getItem(T item, int itemIndex);
+public interface Identified<T> {
+	T getId();
 }

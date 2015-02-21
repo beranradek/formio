@@ -154,6 +154,61 @@ public class DefaultBinder implements Binder {
 		}
 		return args;
 	}
+	
+	/**
+	 * Updates given property of given object to given value.
+	 * @param obj object with property
+	 * @param propertyName name of property (without set, get or is - according to JavaBeans convention)
+	 * @param propertyValue value to set for the property
+	 * @param propertyBindErrors bind errors that can be filled
+	 * @param clientProvidedInstance flag that client provided own instance that should be filled
+	 * @throws BindingException if setter was not found or some other error occurred
+	 */
+	private void updatePropertyValue(Object obj, String propertyName,
+		BoundValuesInfo propertyValueInfo, Map<String, List<ParseError>> propertyBindErrors,
+		boolean clientProvidedInstance) {
+		if (propertyName == null || propertyName.isEmpty()) {
+			throw new IllegalArgumentException("Name of property is missing.");
+		}
+		boolean propertySet = false;
+		String setterName = null;
+		try {
+			Method[] objMethods = obj.getClass().getMethods();
+			for (Method objMethod : objMethods) {
+				if (!isPropertySetter(objMethod, propertyName)) {
+					continue;
+				}
+				setterName = objMethod.getName();
+				Class<?> methodParamClass = objMethod.getParameterTypes()[0];
+				Type genericParamType = objMethod.getGenericParameterTypes()[0];
+				ParsedValue parsedValue = convertToValue(propertyName, propertyValueInfo, methodParamClass, genericParamType);
+				Object propertyValue = parsedValue.getValue();
+				if (!parsedValue.isSuccessfullyParsed()) {
+					addParseError(propertyBindErrors, propertyName, parsedValue.getParseErrors());
+				}
+				if (propertyValue == null || methodParamClass.isAssignableFrom(propertyValue.getClass()) 
+					|| canBeImplicitlyConverted(propertyValue.getClass(), methodParamClass)) {
+					if (PrimitiveType.isPrimitiveType(methodParamClass) && propertyValue == null) {
+						// Using initial value for primitive type
+						propertyValue = PrimitiveType.byPrimitiveClass(methodParamClass).getInitialValue(); 
+					}
+					objMethod.invoke(obj, propertyValue);
+					propertySet = true;
+					break;
+				}
+			}
+		} catch (Exception ex) {
+			throw new BindingException("Invoking setter " + setterName
+					+ " of class " + obj.getClass().getSimpleName()
+					+ " failed: " + ex.getMessage(), ex);
+		}
+		// client-provided instance need not to use all the values from the form,
+		// because it can have constructor arguments already set to some different values
+		if (!clientProvidedInstance && !Forms.AUTH_TOKEN_FIELD_NAME.equals(propertyName) && !propertySet) {
+			throw new BindingException("Setter for property " + propertyName
+					+ " was not found in " + obj.getClass().getSimpleName());
+		}
+	}
 
 	/**
 	 * Converts form field values to one value (single value of collection/array of values)
@@ -247,61 +302,6 @@ public class DefaultBinder implements Binder {
 			resultValue = formValue;
 		}
 		return resultValue;
-	}
-
-	/**
-	 * Updates given property of given object to given value.
-	 * @param obj object with property
-	 * @param propertyName name of property (without set, get or is - according to JavaBeans convention)
-	 * @param propertyValue value to set for the property
-	 * @param propertyBindErrors bind errors that can be filled
-	 * @param clientProvidedInstance flag that client provided own instance that should be filled
-	 * @throws BindingException if setter was not found or some other error occurred
-	 */
-	private void updatePropertyValue(Object obj, String propertyName,
-		BoundValuesInfo propertyValueInfo, Map<String, List<ParseError>> propertyBindErrors,
-		boolean clientProvidedInstance) {
-		if (propertyName == null || propertyName.isEmpty()) {
-			throw new IllegalArgumentException("Name of property is missing.");
-		}
-		boolean propertySet = false;
-		String setterName = null;
-		try {
-			Method[] objMethods = obj.getClass().getMethods();
-			for (Method objMethod : objMethods) {
-				if (!isPropertySetter(objMethod, propertyName)) {
-					continue;
-				}
-				setterName = objMethod.getName();
-				Class<?> methodParamClass = objMethod.getParameterTypes()[0];
-				Type genericParamType = objMethod.getGenericParameterTypes()[0];
-				ParsedValue parsedValue = convertToValue(propertyName, propertyValueInfo, methodParamClass, genericParamType);
-				Object propertyValue = parsedValue.getValue();
-				if (!parsedValue.isSuccessfullyParsed()) {
-					addParseError(propertyBindErrors, propertyName, parsedValue.getParseErrors());
-				}
-				if (propertyValue == null || methodParamClass.isAssignableFrom(propertyValue.getClass()) 
-					|| canBeImplicitlyConverted(propertyValue.getClass(), methodParamClass)) {
-					if (PrimitiveType.isPrimitiveType(methodParamClass) && propertyValue == null) {
-						// Using initial value for primitive type
-						propertyValue = PrimitiveType.byPrimitiveClass(methodParamClass).getInitialValue(); 
-					}
-					objMethod.invoke(obj, propertyValue);
-					propertySet = true;
-					break;
-				}
-			}
-		} catch (Exception ex) {
-			throw new BindingException("Invoking setter " + setterName
-					+ " of class " + obj.getClass().getSimpleName()
-					+ " failed: " + ex.getMessage(), ex);
-		}
-		// client-provided instance need not to use all the values from the form,
-		// because it can have constructor arguments already set to some different values
-		if (!clientProvidedInstance && !Forms.AUTH_TOKEN_FIELD_NAME.equals(propertyName) && !propertySet) {
-			throw new BindingException("Setter for property " + propertyName
-					+ " was not found in " + obj.getClass().getSimpleName());
-		}
 	}
 
 	private boolean canBeImplicitlyConverted(

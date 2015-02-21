@@ -21,10 +21,10 @@ package net.formio;
  * @author Radek Beran
  */
 public enum Field {
-	TEXT_FIELD("text", "text"),
+	TEXT("text", "text"),
 	TEXT_AREA("textarea", ""),
 	PASSWORD("password", "password"),
-	HIDDEN_FIELD("hidden", "hidden"),
+	HIDDEN("hidden", "hidden"),
 	CHECK_BOX("checkbox", "checkbox"),
 	MULTIPLE_CHECK_BOX("checkbox-multiple", "checkbox"),
 	RADIO_CHOICE("radio", "radio"),

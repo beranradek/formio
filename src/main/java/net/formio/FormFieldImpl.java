@@ -75,7 +75,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 		this.type = fieldProps.getType();
 		this.pattern = fieldProps.getPattern();
 		this.formatter = fieldProps.getFormatter();
-		this.choiceProvider = fieldProps.getChoiceProvider();
+		this.choiceProvider = fieldProps.getChoices();
 		this.choiceRenderer = fieldProps.getChoiceRenderer();
 		this.formProperties = new FormPropertiesImpl(fieldProps.getFormProperties());
 		this.filledObjects = new ArrayList<T>(fieldProps.filledObjects);
@@ -173,7 +173,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	}
 	
 	@Override
-	public ChoiceProvider<T> getChoiceProvider() {
+	public ChoiceProvider<T> getChoices() {
 		return choiceProvider;
 	}
 	

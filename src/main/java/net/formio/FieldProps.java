@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
+import net.formio.choice.DefaultChoiceProvider;
 import net.formio.choice.DefaultChoiceRenderer;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
@@ -93,9 +94,13 @@ public class FieldProps<T> implements Serializable {
 		return this;
 	}
 	
-	public FieldProps<T> choiceProvider(ChoiceProvider<T> choiceProvider) {
+	public FieldProps<T> choices(ChoiceProvider<T> choiceProvider) {
 		this.choiceProvider = choiceProvider;
 		return this;
+	}
+	
+	public FieldProps<T> choices(List<? extends T> choices) {
+		return choices(new DefaultChoiceProvider<T>(choices));
 	}
 	
 	public FieldProps<T> choiceRenderer(ChoiceRenderer<T> choiceRenderer) {
@@ -215,7 +220,7 @@ public class FieldProps<T> implements Serializable {
 	 * or {@code null}.
 	 * @return
 	 */
-	public ChoiceProvider<T> getChoiceProvider() {
+	public ChoiceProvider<T> getChoices() {
 		return this.choiceProvider;
 	}
 	
@@ -286,7 +291,7 @@ public class FieldProps<T> implements Serializable {
 		this.type = field.getType();
 		this.pattern = field.getPattern();
 		this.formatter = field.getFormatter();
-		this.choiceProvider = field.getChoiceProvider();
+		this.choiceProvider = field.getChoices();
 		this.choiceRenderer = field.getChoiceRenderer();
 		this.formProperties = field.getFormProperties();
 		this.filledObjects = field.getFilledObjects();

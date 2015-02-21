@@ -24,27 +24,31 @@ import net.formio.common.MessageTranslator;
  *
  * @param <T>
  */
-public class DefaultChoiceRenderer<T> implements ChoiceRenderer<T>{
+public class DefaultChoiceRenderer<T> implements ChoiceRenderer<T> {
 
 	/**
-	 * Returns an item index as a String; or name of enum constant
-	 * if the item is of an enum type.
+	 * Returns {@link ChoiceItem} such that id is:
+	 * Id of {@link Identified} item; or name of enum constant
+	 * if the item is of an enum type; or index as a String.
+	 * Title is: Title of {@link Titled} item; or localized name of enum constant
+	 * if the item is of an enum type; or toString of the item.
 	 */
 	@Override
-	public String getId(T item, int itemIndex) {
+	public ChoiceItem getItem(T item, int itemIndex) {
+		return ChoiceItem.valueOf(getChoiceId(item, itemIndex), getChoiceTitle(item));
+	}
+	
+	private String getChoiceId(T item, int itemIndex) {
 		String id = "" + itemIndex;
-		if (item != null && item.getClass().isEnum()) {
+		if (item instanceof Identified) {
+			id = "" + ((Identified<?>)item).getId();
+		} else if (item != null && item.getClass().isEnum()) {
 			id = ((Enum<?>)item).name();
 		}
 		return id;
 	}
 
-	/**
-	 * Returns toString of the item as its title; or item's title
-	 * if the item implements {@link Titled} interface.
-	 */
-	@Override
-	public String getTitle(T item, int itemIndex) {
+	private String getChoiceTitle(T item) {
 		String title = "null";
 		if (item instanceof Titled) {
 			title = ((Titled)item).getTitle();

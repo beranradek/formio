@@ -71,7 +71,7 @@ public interface FormField<T> extends FormElement {
 	 * or {@code null}.
 	 * @return
 	 */
-	ChoiceProvider<T> getChoiceProvider();
+	ChoiceProvider<T> getChoices();
 	
 	/**
 	 * Returns renderer that prepares ids and titles of items when this
