@@ -45,7 +45,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	private final ChoiceProvider<T> choiceProvider;
 	private final ChoiceRenderer<T> choiceRenderer;
 	private final String strValue;
-	private final FormProperties formProperties;
+	private final FormFieldProperties formProperties;
 	private final int order;
 
 	/**
@@ -77,7 +77,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 		this.formatter = fieldProps.getFormatter();
 		this.choiceProvider = fieldProps.getChoices();
 		this.choiceRenderer = fieldProps.getChoiceRenderer();
-		this.formProperties = new FormPropertiesImpl(fieldProps.getFormProperties());
+		this.formProperties = new FormFieldPropertiesImpl(fieldProps.getFormProperties());
 		this.filledObjects = new ArrayList<T>(fieldProps.filledObjects);
 		this.strValue = fieldProps.strValue;
 		this.order = order;
@@ -99,7 +99,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 				// Override required only in case required != null, so the required flag from field props is not
 				// overriden by missing NotNull annotation...
 				required != null ? 
-					((FormPropertiesImpl)src.getFormProperties()).withProperty(FieldProperty.REQUIRED, required) :
+					((FormFieldPropertiesImpl)src.getFormProperties()).withProperty(FieldProperty.REQUIRED, required) :
 					src.getFormProperties()
 			)
 		);
@@ -213,12 +213,27 @@ public class FormFieldImpl<T> implements FormField<T> {
 	}
 	
 	@Override
+	public String getDataRelatedElement() {
+		return this.formProperties.getDataRelatedElement();
+	}
+	
+	@Override
+	public String getDataRelatedAncestor() {
+		return this.formProperties.getDataRelatedAncestor();
+	}
+	
+	@Override
+	public String getDataConfirm() {
+		return this.formProperties.getDataConfirm();
+	}
+	
+	@Override
 	public HeterogMap<String> getProperties() {
 		return this.formProperties.getProperties();
 	}
 	
 	@Override
-	public FormProperties getFormProperties() {
+	public FormFieldProperties getFormProperties() {
 		return this.formProperties;
 	}
 	

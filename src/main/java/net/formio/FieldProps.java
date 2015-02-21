@@ -44,7 +44,7 @@ public class FieldProps<T> implements Serializable {
 	private Formatter<T> formatter;
 	private ChoiceProvider<T> choiceProvider;
 	private ChoiceRenderer<T> choiceRenderer;
-	private FormProperties formProperties = new FormPropertiesImpl(FieldProperty.createDefaultFieldProperties());
+	private FormFieldProperties formProperties = new FormFieldPropertiesImpl(FieldProperty.createDefaultFieldProperties());
 	List<T> filledObjects = new ArrayList<T>();
 	String strValue;
 	int order;
@@ -109,7 +109,7 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	public <U> FieldProps<T> property(FieldProperty<U> fieldProperty, U value) {
-		this.formProperties = new FormPropertiesImpl(this.formProperties, fieldProperty, value);
+		this.formProperties = new FormFieldPropertiesImpl(this.formProperties, fieldProperty, value);
 		return this;
 	}
 	
@@ -135,6 +135,18 @@ public class FieldProps<T> implements Serializable {
 	
 	public FieldProps<T> dataAjaxUrl(String dataAjaxUrl) {
 		return property(FieldProperty.DATA_AJAX_URL, dataAjaxUrl);
+	}
+	
+	public FieldProps<T> dataRelatedElement(String dataRelatedElement) {
+		return property(FieldProperty.DATA_RELATED_ELEMENT, dataRelatedElement);
+	}
+	
+	public FieldProps<T> dataRelatedAncestor(String dataRelatedAncestor) {
+		return property(FieldProperty.DATA_RELATED_ANCESTOR, dataRelatedAncestor);
+	}
+	
+	public FieldProps<T> dataConfirm(String dataConfirm) {
+		return property(FieldProperty.DATA_CONFIRM, dataConfirm);
 	}
 	
 	// only for internal usage
@@ -171,7 +183,7 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	// for internal usage
-	<U> FieldProps<T> properties(FormProperties properties) {
+	<U> FieldProps<T> properties(FormFieldProperties properties) {
 		this.formProperties = properties;
 		return this;
 	}
@@ -238,7 +250,7 @@ public class FieldProps<T> implements Serializable {
 	 * Field form properties (flags like required, ... - see {@link FieldProperty}).
 	 * @return
 	 */
-	public FormProperties getFormProperties() {
+	public FormFieldProperties getFormProperties() {
 		return this.formProperties;
 	}
 	

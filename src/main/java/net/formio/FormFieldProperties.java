@@ -16,48 +16,41 @@
  */
 package net.formio;
 
-import net.formio.common.heterog.HeterogMap;
 
 /**
- * Definable properties of form field/mapping.
+ * Definable properties of form field.
  * These properties contain typical accessibility flags like required, enabled, readonly, visible
  * in addition to custom user-defined formProperties.
  * @author Radek Beran
  */
-public interface FormProperties {
+public interface FormFieldProperties extends FormProperties {
 	/**
-	 * Returns true if this field/mapping is visible.
+	 * Returns URL for processing change of form element on the server
+	 * using AJAX request (and AJAX response). 
 	 * @return
 	 */
-	boolean isVisible();
+	String getDataAjaxUrl();
 	
 	/**
-	 * Returns true if this field/mapping is enabled.
+	 * CSS selector (mostly ID selector) for finding AJAX-request-source element related elements. 
+	 * The selector is applied to the whole document. All related elements are informed about the TDI process 
+	 * flow the same way as TDI source element is. For example, data-related-element="#basket-container".
 	 * @return
 	 */
-	boolean isEnabled();
+	String getDataRelatedElement();
 	
 	/**
-	 * Returns true if this field/mapping is read-only.
+	 * CSS selector for finding the TDI AJAX-request-source element ancestor. The closest ancestor, 
+	 * which suits the CSS selector, is found. All related elements are informed about the TDI process 
+	 * flow the same way as TDI source element is. For example, data-related-element="tr".
 	 * @return
 	 */
-	boolean isReadonly();
+	String getDataRelatedAncestor();
 	
 	/**
-	 * Returns true if this field/mapping is required.
+	 * Confirm message. It allows confirming or rejecting of a TDI action. In case of rejection 
+	 * no TDI request will be sent to the server.
 	 * @return
 	 */
-	boolean isRequired();
-	
-	/**
-	 * Returns help for filling this field/mapping.
-	 * @return
-	 */
-	String getHelp();
-	
-	/**
-	 * Returns formProperties (flags) of this form field/mapping.
-	 * @return
-	 */
-	HeterogMap<String> getProperties();
+	String getDataConfirm();
 }

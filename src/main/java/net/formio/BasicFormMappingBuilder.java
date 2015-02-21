@@ -293,10 +293,6 @@ public class BasicFormMappingBuilder<T> {
 	public BasicFormMappingBuilder<T> help(String help) {
 		return property(FieldProperty.HELP, help);
 	}
-	
-	public BasicFormMappingBuilder<T> dataAjaxUrl(String dataAjaxUrl) {
-		return property(FieldProperty.DATA_AJAX_URL, dataAjaxUrl);
-	}
 
 	public FormMapping<T> build() {
 		boolean plainCopy = false;

@@ -41,7 +41,12 @@ public class FieldProperty<T> extends AbstractTypedKey<String, T> implements Pro
 	public static final FieldProperty<Boolean> READ_ONLY = register(new FieldProperty<Boolean>("readonly", Boolean.class, Boolean.FALSE));
 	public static final FieldProperty<Boolean> REQUIRED = register(new FieldProperty<Boolean>("required", Boolean.class, Boolean.FALSE));
 	public static final FieldProperty<String> HELP = register(new FieldProperty<String>("help", String.class, ""));
+	
+	// TDI properties
 	public static final FieldProperty<String> DATA_AJAX_URL = register(new FieldProperty<String>("dataAjaxUrl", String.class, ""));
+	public static final FieldProperty<String> DATA_RELATED_ELEMENT = register(new FieldProperty<String>("dataRelatedElement", String.class, ""));
+	public static final FieldProperty<String> DATA_RELATED_ANCESTOR = register(new FieldProperty<String>("dataRelatedAncestor", String.class, ""));
+	public static final FieldProperty<String> DATA_CONFIRM = register(new FieldProperty<String>("dataConfirm", String.class, ""));
 	
 	protected static <T> FieldProperty<T> register(FieldProperty<T> prop) {
 		if (props.contains(prop)) {

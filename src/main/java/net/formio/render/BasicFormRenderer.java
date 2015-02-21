@@ -318,15 +318,26 @@ public class BasicFormRenderer {
 
 	/**
 	 * Renders AJAX attributes of TDI library.
-	 * 
 	 * @param ctx
 	 * @param element
 	 * @return
 	 */
 	protected String renderAjaxAttributes(FormElement element) {
 		StringBuilder sb = new StringBuilder();
-		if (element.getDataAjaxUrl() != null && !element.getDataAjaxUrl().isEmpty()) {
-			sb.append(" data-ajax-url=\"" + element.getDataAjaxUrl() + "\"");
+		if (element instanceof FormField) {
+			FormField<?> field = (FormField<?>)element;
+			if (field.getDataAjaxUrl() != null && !field.getDataAjaxUrl().isEmpty()) {
+				sb.append(" data-ajax-url=\"" + field.getDataAjaxUrl() + "\"");
+			}
+			if (field.getDataRelatedElement() != null && !field.getDataRelatedElement().isEmpty()) {
+				sb.append(" data-related-element=\"" + field.getDataRelatedElement() + "\"");
+			}
+			if (field.getDataRelatedAncestor() != null && !field.getDataRelatedAncestor().isEmpty()) {
+				sb.append(" data-related-ancestor=\"" + field.getDataRelatedAncestor() + "\"");
+			}
+			if (field.getDataConfirm() != null && !field.getDataConfirm().isEmpty()) {
+				sb.append(" data-confirm=\"" + field.getDataConfirm() + "\"");
+			}
 		}
 		return sb.toString();
 	}

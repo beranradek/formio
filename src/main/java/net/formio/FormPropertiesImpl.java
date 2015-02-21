@@ -72,11 +72,6 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
-	public String getDataAjaxUrl() {
-		return this.properties.getTyped(FieldProperty.DATA_AJAX_URL);
-	}
-	
-	@Override
 	public HeterogMap<String> getProperties() {
 		return this.properties;
 	}
@@ -111,7 +106,7 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 		return true;
 	}
 
-	private static <T> HeterogMap<String> copyProperties(HeterogMap<String> source, FieldProperty<T> property, T value) {
+	static <T> HeterogMap<String> copyProperties(HeterogMap<String> source, FieldProperty<T> property, T value) {
 		final HeterogMap<String> map = HeterogCollections.<String>newLinkedMap();
 		map.putAllFromSource(source);
 		if (property != null) {
