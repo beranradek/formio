@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.formio.validation.DefaultInterpolatedMessage;
+import net.formio.validation.Severity;
 
 /**
  * Error while parsing a string value and converting it to target type of
@@ -35,27 +36,15 @@ public final class ParseError extends DefaultInterpolatedMessage {
 	public static final String MSG_ARG_TARGET_TYPE = "targetType";
 	public static final String MSG_ARG_VALUE_AS_STRING = "valueAsString";
 	private static final long serialVersionUID = -667660744330342475L;
-	private final String propertyName;
 	private final Class<?> targetTypeClass;
 	private final String valueAsString;
 	private final HumanReadableType humanReadableTargetType;
 
 	public ParseError(String propertyName, Class<?> targetTypeClass, String valueAsString) {
-		if (propertyName == null)
-			throw new IllegalArgumentException("propertyName cannot be null");
-		this.propertyName = propertyName;
+		super(propertyName, Severity.ERROR);
 		this.targetTypeClass = targetTypeClass;
 		this.valueAsString = valueAsString;
 		this.humanReadableTargetType = humanReadableTypeFromClass(targetTypeClass);
-	}
-
-	/**
-	 * Name of property for which the value is parsed.
-	 * 
-	 * @return
-	 */
-	public String getPropertyName() {
-		return propertyName;
 	}
 
 	/**

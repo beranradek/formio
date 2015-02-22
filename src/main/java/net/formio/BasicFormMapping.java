@@ -40,6 +40,7 @@ import net.formio.upload.MaxSizeExceededError;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ConstraintViolationMessage;
+import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationResult;
 
 /**
@@ -459,15 +460,15 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	ValidationResult validateInternal(T object, RequestProcessingError error, List<ParseError> parseErrors, Locale locale, Class<?> ... validationGroups) {
-		List<RequestProcessingError> requestErrors = new ArrayList<RequestProcessingError>();
+		List<InterpolatedMessage> customMessages = new ArrayList<InterpolatedMessage>();
 		if (error != null) {
-			requestErrors.add(error);
+			customMessages.add(error);
 		}
+		customMessages.addAll(parseErrors);
 		return getConfig().getBeanValidator().validate(
 			object,
 			getName(), 
-			requestErrors, 
-			parseErrors,
+			customMessages,
 			locale,
 			validationGroups);
 	}

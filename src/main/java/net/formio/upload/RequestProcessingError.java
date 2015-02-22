@@ -17,6 +17,7 @@
 package net.formio.upload;
 
 import net.formio.validation.DefaultInterpolatedMessage;
+import net.formio.validation.Severity;
 
 /**
  * Failure while processing the request.
@@ -29,13 +30,14 @@ public class RequestProcessingError extends DefaultInterpolatedMessage {
 	private final String causeMessage;
 	private final Throwable cause;
 
-	public RequestProcessingError(String causeMessage, Throwable cause) {
+	public RequestProcessingError(String propertyName, String causeMessage, Throwable cause) {
+		super(propertyName, Severity.ERROR);
 		this.causeMessage = causeMessage;
 		this.cause = cause;
 	}
 
-	public RequestProcessingError(String message) {
-		this(message, null);
+	public RequestProcessingError(String propertyName, String message) {
+		this(propertyName, message, null);
 	}
 
 	/**

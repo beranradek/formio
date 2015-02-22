@@ -51,7 +51,7 @@ public abstract class AbstractMultipartRequestParser implements MultipartRequest
 		} catch (SizeLimitExceededException ex) {
 			err = new MaxRequestSizeExceededError(ex.getMessage(), ex, ex.getActualSize(), ex.getPermittedSize());
 		} catch (FileUploadException ex) {
-			err = new RequestProcessingError(ex.getMessage(), ex);
+			err = new RequestProcessingError(null, ex.getMessage(), ex);
 		} finally {
 			this.error = err;
 		}

@@ -29,8 +29,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import net.formio.Forms;
-import net.formio.binding.ParseError;
-import net.formio.upload.RequestProcessingError;
 import net.formio.validation.constraints.NotEmpty;
 
 import org.junit.Test;
@@ -67,8 +65,7 @@ public class ValidationApiBeanValidatorTest {
 			c.setSizes2(new int[] {});
 			c.setInterests(new String[] {"a", "b", "c"});
 			ValidationResult r = v.validate(c, "",
-				Collections.<RequestProcessingError> emptyList(),
-				Collections.<ParseError> emptyList(),
+				Collections.<InterpolatedMessage> emptyList(),
 				new Locale("cs", "CZ"));
 			assertTrue("Validation should be successfull", r.isSuccess());
 		} catch (Exception ex) {

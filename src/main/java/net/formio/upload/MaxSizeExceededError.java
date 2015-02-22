@@ -29,8 +29,8 @@ public class MaxSizeExceededError extends RequestProcessingError {
 	private final long currentSize;
 	private final long maxSize;
 
-	public MaxSizeExceededError(String message, Throwable cause, long currentSize, long maxSize) {
-		super(message, cause);
+	public MaxSizeExceededError(String propertyName, String message, Throwable cause, long currentSize, long maxSize) {
+		super(propertyName, message, cause);
 		this.currentSize = currentSize;
 		this.maxSize = maxSize;
 	}

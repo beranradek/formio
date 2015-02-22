@@ -50,7 +50,7 @@ import net.formio.binding.HumanReadableType;
 import net.formio.binding.ParseError;
 import net.formio.internal.FormUtils;
 import net.formio.upload.MaxFileSizeExceededError;
-import net.formio.upload.RequestProcessingError;
+import net.formio.upload.MaxRequestSizeExceededError;
 import net.formio.validation.constraints.NotEmpty;
 
 /**
@@ -77,8 +77,7 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	@Override
 	public <T> ValidationResult validate(T inst, 
 		String propPrefix, 
-		List<RequestProcessingError> requestFailures,
-		List<ParseError> parseErrors, 
+		List<? extends InterpolatedMessage> customMessages,
 		Locale locale,
 		Class<?>... groups) {
 		if (inst == null) {
@@ -92,12 +91,12 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		final Set<ConstraintViolation<T>> violations = validator.validate(inst, groups);
 		final List<ConstraintViolation<T>> violationsList = new ArrayList<ConstraintViolation<T>>(violations);
 		Collections.sort(violationsList, constraintViolationComparator);
-		return buildReport(msgInterpolator, violationsList, requestFailures, parseErrors, propPrefix, locale);
+		return buildReport(msgInterpolator, violationsList, customMessages, propPrefix, locale);
 	}
 	
 	@Override
 	public <T> ValidationResult validate(T inst, Locale locale, Class<?> ... groups) {
-		return this.validate(inst, (String)null, Collections.<RequestProcessingError>emptyList(), Collections.<ParseError>emptyList(), locale, groups);
+		return this.validate(inst, (String)null, Collections.<InterpolatedMessage>emptyList(), locale, groups);
 	}
 	
 	@Override
@@ -164,61 +163,52 @@ public class ValidationApiBeanValidator implements BeanValidator {
 			.getValidator();
 	}
 	
-	protected void processRequestErrors(
-			MessageInterpolator msgInterpolator,
-			List<RequestProcessingError> requestFailures, String propPrefix,
-			Map<String, List<ConstraintViolationMessage>> fieldMessages,
-			List<ConstraintViolationMessage> globalMessages,
-			Locale locale) {
-		for (RequestProcessingError error : requestFailures) {
-			if (error instanceof MaxFileSizeExceededError) {
-				MaxFileSizeExceededError err = (MaxFileSizeExceededError)error;
-				List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, err.getFieldName());
-				msgs.add(new ConstraintViolationMessage(Severity.ERROR, 
-					interpolateMsg(msgInterpolator, error, locale),
-					error.getMessageKey(),
-					error.getMessageParameters()));	
-				fieldMessages.put(err.getFieldName(), msgs);
-			} else if (error != null && ValidationUtils.isTopLevelMapping(propPrefix)) {
-				// other request processing errors
-				globalMessages.add(new ConstraintViolationMessage(Severity.ERROR, 
-					interpolateMsg(msgInterpolator, error, locale),
-					ValidationUtils.removeBraces(error.getMessageKey()),
-					error.getMessageParameters()));
+	protected void processInterpolatedMessages(
+		MessageInterpolator msgInterpolator,
+		List<? extends InterpolatedMessage> interpolatedMessages,
+		String propPrefix,
+		Map<String, List<ConstraintViolationMessage>> fieldMessages,
+		List<ConstraintViolationMessage> globalMessages,
+		Locale locale) {
+		for (InterpolatedMessage im : interpolatedMessages) {
+			if (im != null) {
+				if (im instanceof MaxFileSizeExceededError) {
+					MaxFileSizeExceededError mfs = (MaxFileSizeExceededError)im;
+					List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, mfs.getFieldName());
+					msgs.add(createConstraintViolationMessage(im, msgInterpolator, locale));
+					fieldMessages.put(mfs.getFieldName(), msgs);
+				} else if (im instanceof MaxRequestSizeExceededError && ValidationUtils.isTopLevelMapping(propPrefix)) {
+					globalMessages.add(createConstraintViolationMessage(im, msgInterpolator, locale));
+				} else if (ValidationUtils.isTopLevelMapping(propPrefix)) {
+					globalMessages.add(createConstraintViolationMessage(im, msgInterpolator, locale));
+				} else if (im.getPropertyName() != null && !im.getPropertyName().isEmpty()) {
+					String formPrefixedPropName = pathPrefixedName(propPrefix, im.getPropertyName());
+					List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, formPrefixedPropName);
+					msgs.add(createConstraintViolationMessage(im, msgInterpolator, locale));
+					fieldMessages.put(formPrefixedPropName, msgs);
+				}
 			}
 		}
 	}
 	
-	protected void processParseErrors(
-			MessageInterpolator msgInterpolator,
-			List<ParseError> parseErrors,
-			String propPrefix,
-			Map<String, List<ConstraintViolationMessage>> fieldMessages,
-			Locale locale) {
-		for (ParseError err : parseErrors) {
-			String formPrefixedPropName = pathPrefixedName(propPrefix, err.getPropertyName());
-			List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, formPrefixedPropName);
-			msgs.add(new ConstraintViolationMessage(
-				Severity.ERROR, 
-				interpolateParseErrorMsg(msgInterpolator, err, locale), 
-				err.getMessageKey(),
-				err.getMessageParameters()));
-			fieldMessages.put(formPrefixedPropName, msgs);
-		}
+	private ConstraintViolationMessage createConstraintViolationMessage(
+		InterpolatedMessage message, MessageInterpolator msgInterpolator, Locale locale) {
+		return new ConstraintViolationMessage(message.getSeverity(), 
+			interpolateMessage(msgInterpolator, message, locale),
+			ValidationUtils.removeBraces(message.getMessageKey()),
+			message.getMessageParameters());
 	}
 	
-	private String interpolateParseErrorMsg(MessageInterpolator msgInterpolator, ParseError msg, Locale locale) {
-		HumanReadableType hrt = msg.getHumanReadableTargetType();
-		String humanReadableTargetType = interpolateMessage(msgInterpolator, humanReadableTypeToMsgTpl(hrt), 
-			Collections.<String, Serializable>emptyMap(), locale);
+	private String interpolateMessage(MessageInterpolator msgInterpolator, InterpolatedMessage msg, Locale locale) {
 		Map<String, Serializable> params = new LinkedHashMap<String, Serializable>();
 		params.putAll(msg.getMessageParameters());
-		params.put("humanReadableTargetType", humanReadableTargetType);
+		if (msg instanceof ParseError) {
+			ParseError parseError = (ParseError)msg;
+			params.put("humanReadableTargetType", interpolateMessage(msgInterpolator, 
+				humanReadableTypeToMsgTpl(parseError.getHumanReadableTargetType()), 
+				Collections.<String, Serializable>emptyMap(), locale));
+		}
 		return ValidationUtils.removeBraces(interpolateMessage(msgInterpolator, msg.getMessageKey(), params, locale));
-	}
-	
-	private String interpolateMsg(MessageInterpolator msgInterpolator, InterpolatedMessage msg, Locale locale) {
-		return ValidationUtils.removeBraces(interpolateMessage(msgInterpolator, msg.getMessageKey(), msg.getMessageParameters(), locale));
 	}
 	
 	private String humanReadableTypeToMsgTpl(HumanReadableType hrt) {
@@ -233,47 +223,47 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		return msgs;
 	}
 	
-	private <T> ValidationResult buildReport(MessageInterpolator msgInterpolator, List<ConstraintViolation<T>> violations, 
-		List<RequestProcessingError> requestFailures,
-		List<ParseError> parseErrors,	
+	private <T> ValidationResult buildReport(
+		MessageInterpolator msgInterpolator, 
+		List<ConstraintViolation<T>> violations, 
+		List<? extends InterpolatedMessage> customMessages,
 		String propPrefix,
 		Locale locale) {
 		Map<String, List<ConstraintViolationMessage>> fieldMessages = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
 		List<ConstraintViolationMessage> globalMessages = new ArrayList<ConstraintViolationMessage>();
 		
-		// request processing errors
-		processRequestErrors(msgInterpolator, requestFailures, propPrefix, fieldMessages, globalMessages, locale);
+		// processing parse errors and request processing errors and other custom errors (in addition to bean validation API violations)
+		processInterpolatedMessages(msgInterpolator, customMessages, propPrefix, fieldMessages, globalMessages, locale);
 		
-		// processing parse errors (in addition to validation errors)
-		processParseErrors(msgInterpolator, parseErrors, propPrefix, fieldMessages, locale);
-		
-		if (!violations.isEmpty()) {
-			for (ConstraintViolation<T> v : violations) {
-				Path path = v.getPropertyPath();
-				StringBuilder nodePath = new StringBuilder();
-				if (propPrefix != null) {
-					nodePath.append(propPrefix);
-				}
-				for (Node node : path) {
-					if (node.getName() != null) {
-						if (nodePath.length() > 0) {
-							nodePath.append(Forms.PATH_SEP);
-						}
-						nodePath.append(node.getName());
-					}
-				}
-				String fieldName = FormUtils.removeTrailingBrackets(nodePath.toString());
-				// Needed data should be taken from javax.ConstraintViolation, 
-				// ConstraintViolationMessage should be javax.validation API independent
-				ConstraintViolationMessage msg = new ConstraintViolationMessage(v);
-				if (fieldName.length() == 0 || !fieldName.contains(Forms.PATH_SEP)) {
-					globalMessages.add(msg);
-				} else {
-					appendFieldMsg(fieldMessages, fieldName, msg);
-				}
+		for (ConstraintViolation<T> v : violations) {
+			// Needed data should be taken from javax.ConstraintViolation, 
+			// ConstraintViolationMessage should be javax.validation API independent
+			String formElementName = constructFormElementName(propPrefix, v);
+			ConstraintViolationMessage msg = new ConstraintViolationMessage(v);
+			if (formElementName.length() == 0 || !formElementName.contains(Forms.PATH_SEP)) {
+				globalMessages.add(msg);
+			} else {
+				appendFieldMsg(fieldMessages, formElementName, msg);
 			}
 		}
 		return new ValidationResult(fieldMessages, globalMessages);
+	}
+
+	private <T> String constructFormElementName(String propPrefix, ConstraintViolation<T> v) {
+		Path path = v.getPropertyPath();
+		StringBuilder nodePath = new StringBuilder();
+		if (propPrefix != null) {
+			nodePath.append(propPrefix);
+		}
+		for (Node node : path) {
+			if (node.getName() != null) {
+				if (nodePath.length() > 0) {
+					nodePath.append(Forms.PATH_SEP);
+				}
+				nodePath.append(node.getName());
+			}
+		}
+		return FormUtils.removeTrailingBrackets(nodePath.toString());
 	}
 	
 	private void appendFieldMsg(Map<String, List<ConstraintViolationMessage>> fieldMessages, String fieldName, ConstraintViolationMessage msg) {

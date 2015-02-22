@@ -26,6 +26,24 @@ import java.util.Map;
  */
 public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializable {
 	private static final long serialVersionUID = 4956507046430112207L;
+	
+	private final String propertyName;
+	private final Severity severity;
+	
+	public DefaultInterpolatedMessage(String propertyName, Severity severity) {
+		this.propertyName = propertyName;
+		this.severity = severity;
+	}
+	
+	@Override
+	public String getPropertyName() {
+		return this.propertyName;
+	}
+	
+	@Override
+	public Severity getSeverity() {
+		return this.severity;
+	}
 
 	/**
 	 * Message key for translation file.

@@ -26,6 +26,20 @@ import javax.validation.MessageInterpolator;
  * @author Radek Beran
  */
 public interface InterpolatedMessage {
+	
+	/**
+	 * Name of property to which the validation constraint belongs, {@code null} if this
+	 * is global validation constraint.
+	 * @return
+	 */
+	String getPropertyName();
+	
+	/**
+	 * Severity of validation messages.
+	 * @return
+	 */
+	Severity getSeverity();
+	
 	/**
 	 * Message key for translation file.
 	 * @return

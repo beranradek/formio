@@ -22,8 +22,6 @@ import java.util.Locale;
 import javax.validation.groups.Default;
 
 import net.formio.FormElement;
-import net.formio.binding.ParseError;
-import net.formio.upload.RequestProcessingError;
 
 
 /**
@@ -38,8 +36,7 @@ public interface BeanValidator {
 	 * @param inst filled object
 	 * @param propPrefix path to validated object (formProperties of validated object should be prefixed by this path
 	 * when constructing resulting validation error messages)
-	 * @param requestErrors request processing errors that should be translated to field or global messages
-	 * @param parseErrors parse errors that should be translated to field messages
+	 * @param customMessages additional messages (request processing errors, parse errors)
 	 * @param locale locale for translation of messages
 	 * @param groups the group or list of groups targeted for validation (defaults to implicit 
 	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
@@ -49,8 +46,7 @@ public interface BeanValidator {
 	<T> ValidationResult validate(
 		T inst, 
 		String propPrefix, 
-		List<RequestProcessingError> requestErrors, 
-		List<ParseError> parseErrors, 
+		List<? extends InterpolatedMessage> customMessages, 
 		Locale locale,
 		Class<?>... groups);
 	

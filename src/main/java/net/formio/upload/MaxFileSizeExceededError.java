@@ -16,6 +16,8 @@
  */
 package net.formio.upload;
 
+import net.formio.internal.FormUtils;
+
 /**
  * Maximum size of one uploaded file was exceeded.
  * @author Radek Beran
@@ -25,7 +27,7 @@ public class MaxFileSizeExceededError extends MaxSizeExceededError {
 	private final String fieldName;
 
 	public MaxFileSizeExceededError(String message, Throwable cause, long currentSize, long maxSize, String fieldName) {
-		super(message, cause, currentSize, maxSize);
+		super(FormUtils.propertyName(fieldName), message, cause, currentSize, maxSize);
 		this.fieldName = fieldName;
 	}
 

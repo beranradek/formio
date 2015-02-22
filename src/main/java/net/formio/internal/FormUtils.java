@@ -86,6 +86,21 @@ public class FormUtils {
 	}
 	
 	/**
+	 * Returns last property name from given path.
+	 * @param path
+	 * @return
+	 */
+	public static String propertyName(String path) {
+		if (path == null) return null;
+		int lastSeparator = path.lastIndexOf(Forms.PATH_SEP);
+		String propName = path;
+		if (lastSeparator >= 0) {
+			propName = path.substring(lastSeparator + 1);
+		}
+		return removeTrailingBrackets(propName);
+	}
+	
+	/**
 	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Constucts label key for given path.
 	 * @param path
