@@ -82,7 +82,7 @@ public class BasicFormMappingTest {
 	private void testBasicRegFormElements(FormMapping<Registration> mapping) {
 		String pathSep = Forms.PATH_SEP;
 		String rootMappingName = "registration";
-		List<FormElement> elements = mapping.getElements();
+		List<FormElement<?>> elements = mapping.getElements();
 		assertEquals(8, elements.size());
 		assertEquals(rootMappingName + pathSep + "attendanceReasons", elements.get(0).getName());
 		assertEquals(rootMappingName + pathSep + "cv", elements.get(1).getName());
@@ -93,13 +93,13 @@ public class BasicFormMappingTest {
 		assertEquals(rootMappingName + pathSep + "collegues", elements.get(6).getName());
 		assertEquals(rootMappingName + pathSep + "newCollegue", elements.get(7).getName());
 		int index = 0;
-		for (FormElement el : elements) {
+		for (FormElement<?> el : elements) {
 			assertEquals(index, el.getOrder());
 			index++;
 		}
 		
 		FormMapping<Address> contactAddress = mapping.getMapping(Address.class, "contactAddress");
-		List<FormElement> addressElements = contactAddress.getElements();
+		List<FormElement<?>> addressElements = contactAddress.getElements();
 		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "street", addressElements.get(0).getName());
 		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "city", addressElements.get(1).getName());
 		assertEquals(rootMappingName + pathSep + "contactAddress" + pathSep + "zipCode", addressElements.get(2).getName());
@@ -108,7 +108,7 @@ public class BasicFormMappingTest {
 		index = 0;
 		for (FormMapping<Collegue> indexedCollegues : collegues.getList()) {
 			assertEquals(index, indexedCollegues.getOrder());
-			List<FormElement> elems = indexedCollegues.getElements();
+			List<FormElement<?>> elems = indexedCollegues.getElements();
 			assertEquals(rootMappingName + pathSep + "collegues[" + index + "]" + pathSep + "name", elems.get(0).getName());
 			assertEquals(rootMappingName + pathSep + "collegues[" + index + "]" + pathSep + "email", elems.get(1).getName());
 			assertEquals(rootMappingName + pathSep + "collegues[" + index + "]" + pathSep + "regDate", elems.get(2).getName());

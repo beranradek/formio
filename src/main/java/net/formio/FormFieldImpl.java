@@ -25,18 +25,15 @@ import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
 import net.formio.props.FormElementProperty;
-import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
 
 /**
  * Form field. Immutable.
  * @author Radek Beran
  */
-public class FormFieldImpl<T> implements FormField<T> {
+public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormField<T> {
 	// public because of introspection required by some template frameworks, constructors are not public
 	
-	private final FormMapping<?> parent;
-	private final String propertyName;
 	private final String type;
 	/** Data filled in form field - for e.g. items from a codebook. */
 	private final List<T> filledObjects;
@@ -70,8 +67,7 @@ public class FormFieldImpl<T> implements FormField<T> {
 	}
 	
 	FormFieldImpl(FieldProps<T> fieldProps, int order) {
-		this.parent = fieldProps.getParent();
-		this.propertyName = fieldProps.getPropertyName();
+		super(fieldProps.getParent(), fieldProps.getPropertyName(), fieldProps.getValidators());
 		this.type = fieldProps.getType();
 		this.pattern = fieldProps.getPattern();
 		this.formatter = fieldProps.getFormatter();
@@ -183,21 +179,6 @@ public class FormFieldImpl<T> implements FormField<T> {
 	}
 	
 	@Override
-	public boolean isVisible() {
-		return FormElementImpl.isVisible(this);
-	}
-	
-	@Override
-	public boolean isEnabled() {
-		return FormElementImpl.isEnabled(this);
-	}
-	
-	@Override
-	public boolean isReadonly() {
-		return FormElementImpl.isReadonly(this);
-	}
-	
-	@Override
 	public boolean isRequired() {
 		return this.formProperties.isRequired();
 	}
@@ -259,11 +240,6 @@ public class FormFieldImpl<T> implements FormField<T> {
 			result = getParent().getValidationResult();
 		}
 		return result;
-	}
-	
-	@Override
-	public List<ConstraintViolationMessage> getValidationMessages() {
-		return FormElementImpl.getValidationMessages(this);
 	}
 
 	@Override

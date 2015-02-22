@@ -28,6 +28,7 @@ import net.formio.choice.DefaultChoiceRenderer;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
 import net.formio.props.FormElementProperty;
+import net.formio.validation.Validator;
 
 /**
  * Specification of properties used to construct a {@link FormField}.
@@ -48,6 +49,7 @@ public class FieldProps<T> implements Serializable {
 	List<T> filledObjects = new ArrayList<T>();
 	String strValue;
 	int order;
+	List<Validator<T>> validators;
 	
 	FieldProps(String propertyName) {
 		this(propertyName, (String)null);
@@ -58,6 +60,7 @@ public class FieldProps<T> implements Serializable {
 		if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be specified");
 		this.propertyName = propertyName;
 		this.type = type;
+		this.validators = new ArrayList<Validator<T>>();
 	}
 	
 	FieldProps(FormField<T> field) {
@@ -105,6 +108,11 @@ public class FieldProps<T> implements Serializable {
 	
 	public FieldProps<T> choiceRenderer(ChoiceRenderer<T> choiceRenderer) {
 		this.choiceRenderer = choiceRenderer;
+		return this;
+	}
+	
+	public FieldProps<T> validator(Validator<T> validator) {
+		this.validators.add(validator);
 		return this;
 	}
 	
@@ -270,6 +278,10 @@ public class FieldProps<T> implements Serializable {
 		return this.order;
 	}
 	
+	public List<Validator<T>> getValidators() {
+		return this.validators;
+	}
+	
 	/**
 	 * Constructs new immutable form field.
 	 * @return
@@ -317,6 +329,7 @@ public class FieldProps<T> implements Serializable {
 		this.filledObjects = field.getFilledObjects();
 		this.strValue = field.getValue();
 		this.order = field.getOrder();
+		this.validators = new ArrayList<Validator<T>>(field.getValidators());
 		return this;
 	}
 }

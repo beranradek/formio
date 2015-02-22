@@ -50,11 +50,9 @@ import net.formio.validation.ValidationResult;
  * 
  * @author Radek Beran
  */
-public class BasicFormMapping<T> implements FormMapping<T> {
+public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormMapping<T> {
 	// public because of introspection required by some template frameworks, constructors are not public
 
-	final FormMapping<?> parent;
-	final String propertyName;
 	final Class<T> dataClass;
 	final Instantiator<T> instantiator;
 	final Config config;
@@ -77,8 +75,7 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	 * of parent mapping into fields and nested mappings is processed
 	 */
 	BasicFormMapping(BasicFormMappingBuilder<T> builder, boolean simpleCopy) {
-		this.parent = builder.parent;
-		this.propertyName = builder.propertyName;
+		super(builder.parent, builder.propertyName, builder.validators);
 		this.config = builder.config;
 		this.dataClass = assertNotNullArg(builder.dataClass, "data class must be filled before configuring fields");
 		this.instantiator = builder.instantiator;
@@ -170,13 +167,8 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 	}
 	
 	@Override
-	public List<ConstraintViolationMessage> getValidationMessages() {
-		return FormElementImpl.getValidationMessages(this);
-	}
-	
-	@Override
-	public List<FormElement> getElements() {
-		List<FormElement> elems = new ArrayList<FormElement>();
+	public List<FormElement<?>> getElements() {
+		List<FormElement<?>> elems = new ArrayList<FormElement<?>>();
 		elems.addAll(this.nested.values());
 		elems.addAll(this.fields.values());
 		Collections.sort(elems, new FormElementOrderAscComparator());
@@ -396,21 +388,6 @@ public class BasicFormMapping<T> implements FormMapping<T> {
 			fields,
 			nested, 
 			getList()).build(indent);
-	}
-	
-	@Override
-	public boolean isVisible() {
-		return FormElementImpl.isVisible(this);
-	}
-	
-	@Override
-	public boolean isEnabled() {
-		return FormElementImpl.isEnabled(this);
-	}
-	
-	@Override
-	public boolean isReadonly() {
-		return FormElementImpl.isReadonly(this);
 	}
 	
 	@Override

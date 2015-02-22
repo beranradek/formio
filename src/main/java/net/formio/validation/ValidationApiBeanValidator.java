@@ -81,7 +81,7 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		Locale locale,
 		Class<?>... groups) {
 		if (inst == null) {
-			throw new IllegalArgumentException("Validated object cannot be null");
+			throw new IllegalArgumentException("ValidationContext object cannot be null");
 		}
 		MessageInterpolator msgInterpolator = createMessageInterpolator(this.validatorFactory, this.messageBundleName, locale);
 		Validator validator = createValidator(this.validatorFactory, msgInterpolator);
@@ -105,7 +105,7 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	}
 	
 	@Override
-	public boolean isRequired(Class<?> cls, FormElement element) {
+	public boolean isRequired(Class<?> cls, FormElement<?> element) {
 		if (element.getPropertyName().equals(Forms.AUTH_TOKEN_FIELD_NAME)) {
 			return false; // handled specially
 		}

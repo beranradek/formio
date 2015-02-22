@@ -69,7 +69,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	public String renderElement(FormElement element) {
+	public String renderElement(FormElement<?> element) {
 		return renderHtmlElementPlaceholder(element, renderElementMarkup(element));
 	}
 
@@ -79,7 +79,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	public String renderElementMarkup(FormElement element) {
+	public String renderElementMarkup(FormElement<?> element) {
 		StringBuilder sb = new StringBuilder("");
 		if (element.isVisible()) {
 			sb.append(renderVisibleElement(element));
@@ -87,7 +87,7 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 		
-	public String renderVisibleElement(FormElement element) {
+	public String renderVisibleElement(FormElement<?> element) {
 		String html = null;
 		if (element instanceof FormMapping) {
 			html = renderVisibleMapping((FormMapping<?>)element);
@@ -114,7 +114,7 @@ public class BasicFormRenderer {
 				sb.append(renderElement(m));
 			}
 		} else {
-			for (FormElement el : mapping.getElements()) {
+			for (FormElement<?> el : mapping.getElements()) {
 				sb.append(renderElement(el));
 			}
 		}
@@ -220,7 +220,7 @@ public class BasicFormRenderer {
 		return new TdiResponseBuilder(this);
 	}
 	
-	protected String renderElementPlaceholderId(FormElement element) {
+	protected String renderElementPlaceholderId(FormElement<?> element) {
 		return renderElementPlaceholderId(element.getName());
 	}
 	
@@ -228,7 +228,7 @@ public class BasicFormRenderer {
 		return "placeholder-" + elementName;
 	}
 	
-	protected String renderHtmlElementPlaceholder(FormElement element, String innerMarkup) {
+	protected String renderHtmlElementPlaceholder(FormElement<?> element, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
 		// Element placeholder begin - rendered even for invisible element so there is reserved
 		// identified place that can be updated if the element becomes visible.
@@ -285,7 +285,7 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 
-	protected String renderMessageList(FormElement element) {
+	protected String renderMessageList(FormElement<?> element) {
 		return messageRenderer.renderMessageList(element);
 	}
 
@@ -297,15 +297,15 @@ public class BasicFormRenderer {
 		return labelRenderer.renderMappingLabelElement(mapping);
 	}
 
-	protected <T> String renderHtmlLabel(FormElement element) {
+	protected <T> String renderHtmlLabel(FormElement<?> element) {
 		return labelRenderer.renderHtmlLabel(element);
 	}
 	
-	protected String renderFieldAttributes(FormElement element) {
+	protected String renderFieldAttributes(FormElement<?> element) {
 		return renderAccessibilityAttributes(element) + renderAjaxAttributes(element);
 	}
 
-	protected String renderAccessibilityAttributes(FormElement element) {
+	protected String renderAccessibilityAttributes(FormElement<?> element) {
 		StringBuilder sb = new StringBuilder();
 		if (!element.isEnabled()) {
 			sb.append(" disabled=\"disabled\"");
@@ -322,7 +322,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	protected String renderAjaxAttributes(FormElement element) {
+	protected String renderAjaxAttributes(FormElement<?> element) {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
@@ -649,19 +649,19 @@ public class BasicFormRenderer {
 
 	// --- /Various field types - end ---
 
-	protected <T> String renderLabelBeginTag(FormElement formElement) {
+	protected <T> String renderLabelBeginTag(FormElement<?> formElement) {
 		return labelRenderer.renderLabelBeginTag(formElement);
 	}
 
-	protected <T> String renderLabelEndTag(FormElement formElement) {
+	protected <T> String renderLabelEndTag(FormElement<?> formElement) {
 		return labelRenderer.renderLabelEndTag(formElement);
 	}
 
-	protected <T> String renderLabelText(FormElement formElement) {
+	protected <T> String renderLabelText(FormElement<?> formElement) {
 		return labelRenderer.renderLabelText(formElement);
 	}
 
-	protected <T> String renderRequiredMark(FormElement formElement) {
+	protected <T> String renderRequiredMark(FormElement<?> formElement) {
 		return labelRenderer.renderRequiredMark(formElement);
 	}
 

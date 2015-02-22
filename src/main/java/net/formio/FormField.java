@@ -27,7 +27,7 @@ import net.formio.format.Formatter;
  * @param T type of data filled into this form field; field can be filled with one or more values of type T
  * @author Radek Beran
  */
-public interface FormField<T> extends FormElement, FormFieldProperties {
+public interface FormField<T> extends FormElement<T>, FormFieldProperties {
 	
 	/**
 	 * Type of form field, for e.g.: text, checkbox, textarea, ..., or {@code null} if not specified.

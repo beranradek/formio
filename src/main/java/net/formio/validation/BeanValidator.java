@@ -73,5 +73,5 @@ public interface BeanValidator {
 	 * @param element
 	 * @return
 	 */
-	boolean isRequired(Class<?> cls, FormElement element);
+	boolean isRequired(Class<?> cls, FormElement<?> element);
 }

@@ -20,12 +20,13 @@ import java.util.List;
 
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
+import net.formio.validation.Validator;
 
 /**
  * Element in a form - form field, group of fields (form mapping), ...
  * @author Radek Beran
  */
-public interface FormElement extends FormProperties {
+public interface FormElement<T> extends FormProperties {
 	
 	/**
 	 * Parent of this form element.
@@ -79,4 +80,11 @@ public interface FormElement extends FormProperties {
 	 * @return
 	 */
 	List<ConstraintViolationMessage> getValidationMessages();
+	
+	/**
+	 * Returns the validators used in the validation in addition to bean validation constraints defined
+	 * by annotations.
+	 * @return
+	 */
+	List<Validator<T>> getValidators();
 }

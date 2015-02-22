@@ -37,6 +37,7 @@ import net.formio.common.heterog.HeterogMap;
 import net.formio.props.FormElementProperty;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
+import net.formio.validation.Validator;
 
 /**
  * Basic builder of {@link FormMapping}.
@@ -54,6 +55,7 @@ public class BasicFormMappingBuilder<T> {
 	Map<String, FormMapping<?>> nested = new LinkedHashMap<String, FormMapping<?>>();
 	List<FormMapping<T>> listOfMappings = new ArrayList<FormMapping<T>>();
 	Config config;
+	List<Validator<T>> validators;
 	ValidationResult validationResult;
 	MappingType mappingType;
 	T filledObject;
@@ -82,6 +84,7 @@ public class BasicFormMappingBuilder<T> {
 		this.mappingType = mappingType;
 		this.automatic = automatic;
 		this.properties = FormElementProperty.createDefaultFieldProperties();
+		this.validators = new ArrayList<Validator<T>>();
 	}
 	
 	BasicFormMappingBuilder(Class<T> objectClass, String propertyName, Instantiator<T> inst, boolean automatic) {
@@ -104,6 +107,7 @@ public class BasicFormMappingBuilder<T> {
 		this.properties = properties;
 		this.order = src.order;
 		this.index = src.index;
+		this.validators = new ArrayList<Validator<T>>(src.validators);
 	}
 	
 	/**
@@ -164,6 +168,16 @@ public class BasicFormMappingBuilder<T> {
 	/** Only for internal usage. */
 	BasicFormMappingBuilder<T> validationResult(ValidationResult validationResult) {
 		this.validationResult = validationResult;
+		return this;
+	}
+	
+	/**
+	 * Adds validator.
+	 * @param validator
+	 * @return
+	 */
+	public BasicFormMappingBuilder<T> validator(Validator<T> validator) {
+		this.validators.add(validator);
 		return this;
 	}
 	

@@ -32,7 +32,7 @@ import net.formio.data.RequestContext;
  * 
  * @author Radek Beran
  */
-public interface FormMapping<T> extends FormElement {
+public interface FormMapping<T> extends FormElement<T> {
 	
 	/**
 	 * Object filled in this mapping, or {@code null} if this mapping is not filled yet.
@@ -166,7 +166,7 @@ public interface FormMapping<T> extends FormElement {
 	 * (in the same order as the elements were declared in form definition).
 	 * @return
 	 */
-	List<FormElement> getElements();
+	List<FormElement<?>> getElements();
 	
 	/**
 	 * Fields in this mapping by their property names.

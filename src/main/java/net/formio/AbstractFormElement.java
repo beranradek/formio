@@ -20,21 +20,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.formio.validation.ConstraintViolationMessage;
+import net.formio.validation.Validator;
 
 /**
  * Common implementations of {@link FormElement}'s methods.
  * @author Radek Beran
  */
-class FormElementImpl {
+abstract class AbstractFormElement<T> implements FormElement<T> {
+	
+	final FormMapping<?> parent;
+	final String propertyName;
+	final List<Validator<T>> validators;
+	
+	AbstractFormElement(FormMapping<?> parent, String propertyName, List<Validator<T>> validators) {
+		this.parent = parent;
+		this.propertyName = propertyName;
+		if (validators == null) {
+			throw new IllegalArgumentException("validators cannot be null");
+		}
+		this.validators = validators; 
+	}
+	
 	/**
 	 * Returns validation messages of form element.
-	 * @param fieldName
 	 * @return
 	 */
-	static List<ConstraintViolationMessage> getValidationMessages(FormElement el) {
+	@Override
+	public List<ConstraintViolationMessage> getValidationMessages() {
 		List<ConstraintViolationMessage> msgs = null;
-		if (el.getValidationResult() != null) {
-			msgs = el.getValidationResult().getFieldMessages().get(el.getName());
+		if (getValidationResult() != null) {
+			msgs = getValidationResult().getFieldMessages().get(getName());
 		}
 		if (msgs == null) {
 			msgs = new ArrayList<ConstraintViolationMessage>();
@@ -44,12 +59,12 @@ class FormElementImpl {
 	
 	/**
 	 * Returns true if given form element is visible.
-	 * @param el
 	 * @return
 	 */
-	static boolean isVisible(FormElement el) {
-		boolean visible = el.getFormProperties().isVisible();
-		if (el.getParent() != null && !el.getParent().isVisible()) {
+	@Override
+	public boolean isVisible() {
+		boolean visible = getFormProperties().isVisible();
+		if (getParent() != null && !getParent().isVisible()) {
 			visible = false;
 		}
 		return visible;
@@ -57,12 +72,12 @@ class FormElementImpl {
 	
 	/**
 	 * Returns true if given form element is enabled.
-	 * @param el
 	 * @return
 	 */
-	static boolean isEnabled(FormElement el) {
-		boolean enabled = el.getFormProperties().isEnabled();
-		if (el.getParent() != null && !el.getParent().isEnabled()) {
+	@Override
+	public boolean isEnabled() {
+		boolean enabled = getFormProperties().isEnabled();
+		if (getParent() != null && !getParent().isEnabled()) {
 			enabled = false;
 		}
 		return enabled;
@@ -70,17 +85,19 @@ class FormElementImpl {
 	
 	/**
 	 * Returns true if given form element is readonly.
-	 * @param el
 	 * @return
 	 */
-	static boolean isReadonly(FormElement el) {
-		boolean readonly = el.getFormProperties().isReadonly();
-		if (el.getParent() != null && el.getParent().isReadonly()) {
+	@Override
+	public boolean isReadonly() {
+		boolean readonly = getFormProperties().isReadonly();
+		if (getParent() != null && getParent().isReadonly()) {
 			readonly = true;
 		}
 		return readonly;
 	}
 	
-	private FormElementImpl() {
+	@Override
+	public List<Validator<T>> getValidators() {
+		return validators;
 	}
 }

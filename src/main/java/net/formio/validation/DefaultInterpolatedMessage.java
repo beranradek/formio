@@ -29,10 +29,33 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 	
 	private final String propertyName;
 	private final Severity severity;
+	private final String messageKey;
+	private final Map<String, Serializable> messageParameters;
 	
 	public DefaultInterpolatedMessage(String propertyName, Severity severity) {
+		this(propertyName, 
+			severity,
+			null);
+	}
+	
+	public DefaultInterpolatedMessage(String propertyName, Severity severity, String messageKey) {
+		this(propertyName, 
+			severity,
+			messageKey,
+			new LinkedHashMap<String, Serializable>());
+	}
+	
+	public DefaultInterpolatedMessage(String propertyName, Severity severity, String messageKey, Map<String, Serializable> messageParameters) {
 		this.propertyName = propertyName;
+		if (severity == null) {
+			throw new IllegalArgumentException("severity cannot be null");
+		}
 		this.severity = severity;
+		this.messageKey = messageKey;
+		if (messageParameters == null) {
+			throw new IllegalArgumentException("Message parameters cannot be null, only empty");
+		}
+		this.messageParameters = messageParameters;
 	}
 	
 	@Override
@@ -51,8 +74,11 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 	 */
 	@Override
 	public String getMessageKey() {
-		// interpolated message key must be enclosed in braces otherwise it will not be translated
-		return "{" + this.getClass().getSimpleName() + ".message}";
+		if (messageKey == null) {
+			// interpolated message key must be enclosed in braces otherwise it will not be translated
+			return "{" + getClass().getSimpleName() + ".message}";
+		}
+		return messageKey;
 	}
 	
 	/**
@@ -61,6 +87,6 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 	 */
 	@Override
 	public Map<String, Serializable> getMessageParameters() {
-		return new LinkedHashMap<String, Serializable>();
+		return messageParameters;
 	}
 }
