@@ -50,6 +50,28 @@ public class TdiResponseBuilder {
 	}
 	
 	/**
+	 * Adds instruction to AJAX response: Status.
+	 * The default value is OK. At this time, this is the only value recognised as success by TDI.
+	 * Any other value is treated as an error and is displayed using alert() function. 
+	 * @param status
+	 * @return
+	 */
+	public TdiResponseBuilder status(String status) {
+		instructions.add(getStatus(status));
+		return this;
+	}
+	
+	/**
+	 * Convenience method that writes TDI AJAX response with given status.
+	 * @param response
+	 * @param status
+	 * @return
+	 */
+	public void status(HttpServletResponse response, String status) {
+		status(status).writeToResponse(response);
+	}
+	
+	/**
 	 * Adds instruction to AJAX response: Update of form element.
 	 * @param filledElement
 	 * @return
@@ -81,9 +103,20 @@ public class TdiResponseBuilder {
 	public String asString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(renderXmlDeclaration() +
-			renderResponseBeginTag() +
-			renderOkStatus());
+			renderResponseBeginTag());
+		boolean statusFound = false;
 		for (String i : instructions) {
+			if (i.contains("<" + getStatusTagName())) {
+				statusFound = true;
+				break;
+			}
+		}
+		List<String> completeInstructions = new ArrayList<String>();
+		if (!statusFound) {
+			completeInstructions.add(getStatus("OK"));
+		}
+		completeInstructions.addAll(instructions);
+		for (String i : completeInstructions) {
 			sb.append(i);
 		}
 		sb.append(renderResponseEndTag());
@@ -135,10 +168,6 @@ public class TdiResponseBuilder {
 		return "</response>" + newLine(); 
 	}
 	
-	protected String renderOkStatus() {
-		return "<status>OK</status>" + newLine();
-	}
-	
 	protected String renderUpdateBeginTag(String id) {
 		return "<update target=\"" + id + "\" class-remove=\"hidden\">" + newLine();
 	}
@@ -169,5 +198,13 @@ public class TdiResponseBuilder {
 	
 	private String newLine() {
 		return System.getProperty("line.separator");
+	}
+	
+	private String getStatus(String statusText) {
+		return "<" + getStatusTagName() + ">" + statusText + "</" + getStatusTagName() + ">" + newLine();
+	}
+	
+	private String getStatusTagName() {
+		return "status";
 	}
 }
