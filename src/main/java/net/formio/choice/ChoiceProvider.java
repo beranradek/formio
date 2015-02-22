@@ -20,6 +20,9 @@ import java.util.List;
 
 /**
  * Provides data for a form choice.
+ * @param <T> T type of one item from codebook - should implement equals and hashCode to find the corresponding
+ * item from the provided items correctly (otherwise selected item need not to be recognized)
+ * 
  * @author Radek Beran
  */
 public interface ChoiceProvider<T> {
