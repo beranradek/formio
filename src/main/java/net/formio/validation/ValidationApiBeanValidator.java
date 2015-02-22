@@ -43,6 +43,7 @@ import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import net.formio.FormElement;
 import net.formio.Forms;
 import net.formio.ReflectionException;
 import net.formio.binding.HumanReadableType;
@@ -105,18 +106,27 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	}
 	
 	@Override
-	public boolean isRequired(Class<?> cls, String propertyName) {
-		if (propertyName.equals(Forms.AUTH_TOKEN_FIELD_NAME)) {
+	public boolean isRequired(Class<?> cls, FormElement element) {
+		if (element.getPropertyName().equals(Forms.AUTH_TOKEN_FIELD_NAME)) {
 			return false; // handled specially
 		}
 		boolean required = false;
 		try {
-			final Field fld = cls.getDeclaredField(propertyName);
-			if (fld != null && isRequired(fld.getAnnotations(), 0)) {
+			if (cls != null) {
+				final Field fld = cls.getDeclaredField(element.getPropertyName());
+				if (fld != null && isRequiredByAnnotations(fld.getAnnotations(), 0)) {
+					// isRequiredByAnnotations is intentionally checked first because this
+					// also checks if the field exists and throws exception in time of form definition
+					// building if not.
+					required = true;
+				}
+			}
+			if (element.isRequired()) {
 				required = true;
 			}
 		} catch (NoSuchFieldException ex) {
-			throw new ReflectionException("Error while checking if property " + propertyName + " of class " + cls.getName() + 
+			throw new ReflectionException("Error while checking if property " + element.getPropertyName() + 
+				" of class " + (cls != null ? cls.getName() : "<no class>") + 
 				" is required, the corresponding field does not exist: " + ex.getMessage(), ex);
 		}
 		return required;
@@ -282,7 +292,7 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		return pathPrefix + Forms.PATH_SEP + name;
 	}
 	
-	private boolean isRequired(Annotation[] annots, int level) {
+	private boolean isRequiredByAnnotations(Annotation[] annots, int level) {
 		boolean required = false;
 		if (level < 2) {
 			if (annots != null) {
@@ -300,7 +310,7 @@ public class ValidationApiBeanValidator implements BeanValidator {
 						required = true;
 						break;
 					} else {
-						if (isRequired(ann.annotationType().getAnnotations(), level + 1)) {
+						if (isRequiredByAnnotations(ann.annotationType().getAnnotations(), level + 1)) {
 							required = true;
 							break;
 						}

@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import javax.validation.groups.Default;
 
+import net.formio.FormElement;
 import net.formio.binding.ParseError;
 import net.formio.upload.RequestProcessingError;
 
@@ -71,10 +72,10 @@ public interface BeanValidator {
 	<T> ValidationResult validate(T inst, Class<?> ... groups);
 	
 	/**
-	 * Returns true if given property of given class is required (must be filled with data).
+	 * Returns true if given form element nested inside given class is required.
 	 * @param cls
-	 * @param propertyName
+	 * @param element
 	 * @return
 	 */
-	boolean isRequired(Class<?> cls, String propertyName);
+	boolean isRequired(Class<?> cls, FormElement element);
 }

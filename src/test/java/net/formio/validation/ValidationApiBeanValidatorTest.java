@@ -28,6 +28,7 @@ import javax.validation.Validation;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import net.formio.Forms;
 import net.formio.binding.ParseError;
 import net.formio.upload.RequestProcessingError;
 import net.formio.validation.constraints.NotEmpty;
@@ -46,14 +47,15 @@ public class ValidationApiBeanValidatorTest {
 		try {
 			ValidationApiBeanValidator v = new ValidationApiBeanValidator(
 				Validation.buildDefaultValidatorFactory(), "whatever");
-			assertTrue("name is required", v.isRequired(Contact.class, "name"));
-			assertTrue("email is required", v.isRequired(Contact.class, "email"));
-			assertTrue("age is required", v.isRequired(Contact.class, "age"));
-			assertFalse("phone is not required", v.isRequired(Contact.class, "phone"));
-			assertTrue("sizes are required", v.isRequired(Contact.class, "sizes"));
-			assertFalse("sizes2 are not required", v.isRequired(Contact.class, "sizes2"));
-			assertTrue("interests are required", v.isRequired(Contact.class, "interests"));
-			assertFalse("interestsByCodes are not required", v.isRequired(Contact.class, "interestsByCodes"));
+			assertTrue("name is required", v.isRequired(Contact.class, Forms.field("name").build()));
+			assertTrue("email is required", v.isRequired(Contact.class, Forms.field("email").build()));
+			assertTrue("age is required", v.isRequired(Contact.class, Forms.field("age").build()));
+			assertFalse("phone is not required", v.isRequired(Contact.class, Forms.field("phone").build()));
+			assertTrue("sizes are required", v.isRequired(Contact.class, Forms.field("sizes").build()));
+			assertFalse("sizes2 are not required", v.isRequired(Contact.class, Forms.field("sizes2").build()));
+			assertTrue("interests are required", v.isRequired(Contact.class, Forms.field("interests").build()));
+			assertFalse("interestsByCodes are not required", v.isRequired(Contact.class, Forms.field("interestsByCodes").build()));
+			assertTrue("interestsByCodes are required when the required property is set", v.isRequired(Contact.class, Forms.field("interestsByCodes").required(true).build()));
 
 			Contact c = new Contact();
 			c.setEmail("e");

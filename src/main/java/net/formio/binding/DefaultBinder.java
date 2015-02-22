@@ -269,7 +269,7 @@ public class DefaultBinder implements Binder {
 
 	private Object convertOneFormValue(String propertyName, Object formValue, List<ParseError> parseErrors, Class<?> targetClass, Formatter<Object> formatter, String pattern, Locale locale) {
 		Object resultValue = null;
-		if (!canBeImplicitlyConverted(formValue.getClass(), targetClass) 
+		if (formValue != null && !canBeImplicitlyConverted(formValue.getClass(), targetClass) 
 			&& formValue instanceof String && !targetClass.isInstance(formValue)) {
 			if (UploadedFile.class.isAssignableFrom(targetClass)) {
 				throw new IllegalStateException("Invalid String value for property '" + propertyName + "' of type " + 
