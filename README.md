@@ -1,4 +1,4 @@
-# Formio
+# Formio  [![Build Status](https://travis-ci.org/beranradek/formio.svg?branch=master)](https://travis-ci.org/beranradek/formio) 
 
 #### Form definition and binding library for Java platform:
 * Easy-to-use configurable handy tool.
