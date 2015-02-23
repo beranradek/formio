@@ -49,7 +49,7 @@ class LabelRenderer {
 		return sb.toString();
 	}
 
-	protected <T> String renderHtmlLabel(FormElement element) {
+	protected <T> String renderHtmlLabel(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getRenderContext().getLabelIndentClass() + "\">");
@@ -62,15 +62,15 @@ class LabelRenderer {
 		return sb.toString();
 	}
 	
-	protected <T> String renderLabelBeginTag(@SuppressWarnings("unused") FormElement formElement) {
+	protected <T> String renderLabelBeginTag(@SuppressWarnings("unused") FormElement<T> formElement) {
 		return "<label>" + newLine();
 	}
 
-	protected <T> String renderLabelEndTag(@SuppressWarnings("unused") FormElement formElement) {
+	protected <T> String renderLabelEndTag(@SuppressWarnings("unused") FormElement<T> formElement) {
 		return "</label>" + newLine();
 	}
 
-	protected <T> String renderLabelText(FormElement formElement) {
+	protected <T> String renderLabelText(FormElement<T> formElement) {
 		StringBuilder sb = new StringBuilder();
 		MessageTranslator tr = getRenderContext().createMessageTranslator(formElement);
 		String msgKey = formElement.getLabelKey();
@@ -91,7 +91,7 @@ class LabelRenderer {
 		return sb.toString();
 	}
 
-	protected <T> String renderRequiredMark(@SuppressWarnings("unused") FormElement formElement) {
+	protected <T> String renderRequiredMark(@SuppressWarnings("unused") FormElement<T> formElement) {
 		return "&nbsp;*";
 	}
 	

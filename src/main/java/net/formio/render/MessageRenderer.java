@@ -52,7 +52,7 @@ class MessageRenderer {
 		return sb.toString();
 	}
 	
-	protected String renderMessageList(FormElement element) {
+	protected <T> String renderMessageList(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder();
 		List<ConstraintViolationMessage> messages = element.getValidationMessages();
 		if (messages != null && !messages.isEmpty()) {

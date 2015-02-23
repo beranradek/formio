@@ -43,7 +43,7 @@ public class BindingTest {
 		values.put("male", BoundValuesInfo.getInstance(new Object[] { Boolean.TRUE }));
 		values.put("nation", BoundValuesInfo.getInstance(new Object[] { Nation.JEDI_KNIGHT }));
 		
-		FilledData<Person> filledPerson = createBinding().bindToNewInstance(Person.class, null, values);
+		BoundData<Person> filledPerson = createBinding().bindToNewInstance(Person.class, null, values);
 		assertNotNull(filledPerson);
 		assertNotNull(filledPerson.getData());
 	}
@@ -68,7 +68,7 @@ public class BindingTest {
 		values.put("personId", BoundValuesInfo.getInstance(new Object[] {personId}));
 		values.put("nation", BoundValuesInfo.getInstance(new Object[] {nation}));
 		
-		FilledData<Person> filledPerson = createBinding().bindToNewInstance(Person.class, null, values);
+		BoundData<Person> filledPerson = createBinding().bindToNewInstance(Person.class, null, values);
 		assertTrue(filledPerson.isSuccessfullyBound());
 		Person person = filledPerson.getData();
 		assertNotNull(person);

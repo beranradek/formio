@@ -22,10 +22,10 @@ import java.util.Comparator;
  * Compares form elements according their order attributes in ascendant direction.
  * @author Radek Beran
  */
-class FormElementOrderAscComparator implements Comparator<FormElement> {
+class FormElementOrderAscComparator implements Comparator<FormElement<?>> {
 
 	@Override
-	public int compare(FormElement e1, FormElement e2) {
+	public int compare(FormElement<?> e1, FormElement<?> e2) {
 		// e1 and e2 should not be null
 		if (e1.getOrder() > e2.getOrder()) {
 			return 1;

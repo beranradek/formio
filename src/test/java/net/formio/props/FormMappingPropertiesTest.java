@@ -42,7 +42,6 @@ public class FormMappingPropertiesTest {
 		
 		assertEquals(FormElementProperty.VISIBLE.getDefaultValue(), Boolean.valueOf(filledForm.getFormProperties().isVisible()));
 		assertEquals(FormElementProperty.ENABLED.getDefaultValue(), Boolean.valueOf(filledForm.getFormProperties().isEnabled()));
-		assertEquals(FormElementProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(filledForm.getFormProperties().isRequired()));
 		assertEquals(FormElementProperty.READ_ONLY.getDefaultValue(), Boolean.valueOf(filledForm.getFormProperties().isReadonly()));
 	}
 	
@@ -55,7 +54,6 @@ public class FormMappingPropertiesTest {
 		
 		assertEquals(FormElementProperty.VISIBLE.getDefaultValue(), Boolean.valueOf(address.getFormProperties().isVisible()));
 		assertEquals(FormElementProperty.ENABLED.getDefaultValue(), Boolean.valueOf(address.getFormProperties().isEnabled()));
-		assertEquals(FormElementProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(address.getFormProperties().isRequired()));
 		assertEquals(FormElementProperty.READ_ONLY.getDefaultValue(), Boolean.valueOf(address.getFormProperties().isReadonly()));
 	}
 	
@@ -65,7 +63,6 @@ public class FormMappingPropertiesTest {
 		FormMapping<CarDimensions> carMapping = form.getMapping(CarDimensions.class, "dimensions");
 		assertEquals(Boolean.FALSE, Boolean.valueOf(carMapping.getFormProperties().isVisible()));
 		assertEquals(FormElementProperty.ENABLED.getDefaultValue(), Boolean.valueOf(carMapping.getFormProperties().isEnabled()));
-		assertEquals(FormElementProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(carMapping.getFormProperties().isRequired()));
 		assertEquals(FormElementProperty.READ_ONLY.getDefaultValue(), Boolean.valueOf(carMapping.getFormProperties().isReadonly()));
 		
 		FormMapping<Car> filledForm = TestForms.CAR_ACCESSIBILITY_FORM.fill(
@@ -79,7 +76,6 @@ public class FormMappingPropertiesTest {
 		assertEquals("Visible property of length should be true even if invisible due to parent", 
 			Boolean.TRUE, Boolean.valueOf(filledCarMapping.getFields().get("length").getFormProperties().isVisible()));
 		assertEquals(FormElementProperty.ENABLED.getDefaultValue(), Boolean.valueOf(filledCarMapping.getFormProperties().isEnabled()));
-		assertEquals(FormElementProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(filledCarMapping.getFormProperties().isRequired()));
 		assertEquals(FormElementProperty.READ_ONLY.getDefaultValue(), Boolean.valueOf(filledCarMapping.getFormProperties().isReadonly()));
 	}
 }

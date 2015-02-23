@@ -39,9 +39,11 @@ public final class ParseError extends DefaultInterpolatedMessage {
 	private final Class<?> targetTypeClass;
 	private final String valueAsString;
 	private final HumanReadableType humanReadableTargetType;
+	private final String propertyName;
 
 	public ParseError(String propertyName, Class<?> targetTypeClass, String valueAsString) {
-		super(propertyName, Severity.ERROR);
+		super("", Severity.ERROR);
+		this.propertyName = propertyName;
 		this.targetTypeClass = targetTypeClass;
 		this.valueAsString = valueAsString;
 		this.humanReadableTargetType = humanReadableTypeFromClass(targetTypeClass);
@@ -63,6 +65,10 @@ public final class ParseError extends DefaultInterpolatedMessage {
 	 */
 	public String getValueAsString() {
 		return valueAsString;
+	}
+	
+	public String getPropertyName() {
+		return propertyName;
 	}
 
 	/**

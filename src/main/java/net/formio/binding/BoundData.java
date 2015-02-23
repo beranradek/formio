@@ -20,12 +20,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class FilledData<T> {
+public class BoundData<T> {
 
 	private final T data;
 	private final Map<String, List<ParseError>> propertyBindErrors;
 
-	public FilledData(T data, Map<String, List<ParseError>> propertyBindErrors) {
+	public BoundData(T data, Map<String, List<ParseError>> propertyBindErrors) {
 		this.data = data;
 		this.propertyBindErrors = propertyBindErrors != null ? propertyBindErrors : Collections.<String, List<ParseError>>emptyMap();
 	}

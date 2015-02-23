@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation;
+package net.formio;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -28,32 +26,28 @@ import javax.validation.Validation;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import net.formio.Forms;
+import net.formio.binding.DefaultBeanExtractor;
+import net.formio.validation.InterpolatedMessage;
+import net.formio.validation.DefaultBeanValidator;
+import net.formio.validation.ValidationResult;
 import net.formio.validation.constraints.NotEmpty;
 
 import org.junit.Test;
 
-/**
- * Tests for {@link ValidationApiBeanValidator}.
- * 
- * @author Radek Beran
- */
-public class ValidationApiBeanValidatorTest {
+public class AbstractFormElementTest {
 
 	@Test
 	public void testIsRequired() {
 		try {
-			ValidationApiBeanValidator v = new ValidationApiBeanValidator(
-				Validation.buildDefaultValidatorFactory(), "whatever");
-			assertTrue("name is required", v.isRequired(Contact.class, Forms.field("name").build()));
-			assertTrue("email is required", v.isRequired(Contact.class, Forms.field("email").build()));
-			assertTrue("age is required", v.isRequired(Contact.class, Forms.field("age").build()));
-			assertFalse("phone is not required", v.isRequired(Contact.class, Forms.field("phone").build()));
-			assertTrue("sizes are required", v.isRequired(Contact.class, Forms.field("sizes").build()));
-			assertFalse("sizes2 are not required", v.isRequired(Contact.class, Forms.field("sizes2").build()));
-			assertTrue("interests are required", v.isRequired(Contact.class, Forms.field("interests").build()));
-			assertFalse("interestsByCodes are not required", v.isRequired(Contact.class, Forms.field("interestsByCodes").build()));
-			assertTrue("interestsByCodes are required when the required property is set", v.isRequired(Contact.class, Forms.field("interestsByCodes").required(true).build()));
+			assertTrue("name is required", ((AbstractFormElement<?>)Forms.field("name").build()).isRequired(Contact.class));
+			assertTrue("email is required", ((AbstractFormElement<?>)Forms.field("email").build()).isRequired(Contact.class));
+			assertTrue("age is required", ((AbstractFormElement<?>)Forms.field("age").build()).isRequired(Contact.class));
+			assertFalse("phone is not required", ((AbstractFormElement<?>)Forms.field("phone").build()).isRequired(Contact.class));
+			assertTrue("sizes are required", ((AbstractFormElement<?>)Forms.field("sizes").build()).isRequired(Contact.class));
+			assertFalse("sizes2 are not required", ((AbstractFormElement<?>)Forms.field("sizes2").build()).isRequired(Contact.class));
+			assertTrue("interests are required", ((AbstractFormElement<?>)Forms.field("interests").build()).isRequired(Contact.class));
+			assertFalse("interestsByCodes are not required", ((AbstractFormElement<?>)Forms.field("interestsByCodes").build()).isRequired(Contact.class));
+			assertTrue("interestsByCodes are required when the required property is set", ((AbstractFormElement<?>)Forms.field("interestsByCodes").required(true).build()).isRequired(Contact.class));
 
 			Contact c = new Contact();
 			c.setEmail("e");
@@ -64,6 +58,7 @@ public class ValidationApiBeanValidatorTest {
 			c.setSizes(new int[] {90, 60, 90});
 			c.setSizes2(new int[] {});
 			c.setInterests(new String[] {"a", "b", "c"});
+			DefaultBeanValidator v = new DefaultBeanValidator(Validation.buildDefaultValidatorFactory(), new DefaultBeanExtractor());
 			ValidationResult r = v.validate(c, "",
 				Collections.<InterpolatedMessage> emptyList(),
 				new Locale("cs", "CZ"));
@@ -172,5 +167,4 @@ public class ValidationApiBeanValidatorTest {
 		}
 
 	}
-
 }

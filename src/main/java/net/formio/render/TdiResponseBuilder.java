@@ -45,7 +45,7 @@ public class TdiResponseBuilder {
 	 * @param filledElement
 	 * @return
 	 */
-	public TdiResponseBuilder update(FormElement element) {
+	public <T> TdiResponseBuilder update(FormElement<T> element) {
 		return update(element.getName(), renderElementMarkup(element));
 	}
 	
@@ -147,9 +147,9 @@ public class TdiResponseBuilder {
 	 * @param response
 	 * @param elements
 	 */
-	public void update(HttpServletResponse response, FormElement ... elements) {
+	public void update(HttpServletResponse response, FormElement<?> ... elements) {
 		if (elements != null) {
-			for (FormElement el : elements) {
+			for (FormElement<?> el : elements) {
 				update(el);
 			}
 		}
@@ -192,7 +192,7 @@ public class TdiResponseBuilder {
 		return instructions;
 	}
 	
-	protected String renderElementMarkup(FormElement element) {
+	protected <T> String renderElementMarkup(FormElement<T> element) {
 		return getRenderer().renderElementMarkup(element);
 	}
 	

@@ -44,12 +44,6 @@ public interface FormProperties {
 	boolean isReadonly();
 	
 	/**
-	 * Returns true if this field/mapping is required.
-	 * @return
-	 */
-	boolean isRequired();
-	
-	/**
 	 * Returns help for filling this field/mapping.
 	 * @return
 	 */

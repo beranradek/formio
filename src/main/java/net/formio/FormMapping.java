@@ -223,13 +223,12 @@ public interface FormMapping<T> extends FormElement<T> {
 	FormMapping<T> withOrder(int order);
 	
 	/**
-	 * Returns copy of this mapping that is attached to given parent and uses given required flag.
+	 * Returns copy of this mapping that is attached to given parent.
 	 * @param parent
 	 * @param config
-	 * @param required
 	 * @return
 	 */
-	FormMapping<T> withParent(FormMapping<?> parent, boolean required);
+	FormMapping<T> withParent(FormMapping<?> parent);
 	
 	/**
 	 * Returns true if this mapping is root mapping (without parent).

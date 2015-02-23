@@ -34,7 +34,7 @@ import net.formio.format.Formatters;
 import net.formio.security.HashTokenAuthorizer;
 import net.formio.security.TokenAuthorizer;
 import net.formio.validation.BeanValidator;
-import net.formio.validation.ValidationApiBeanValidator;
+import net.formio.validation.DefaultBeanValidator;
 
 /**
  * Configuration of form. Immutable.
@@ -168,7 +168,7 @@ public class Config {
 			if (this.setterRegex == null) this.setterRegex = DefaultBinder.DEFAULT_SETTER_REGEX;
 			if (this.beanExtractor == null) this.beanExtractor = defaultBeanExtractor(this.accessorRegex);
 			if (this.binder == null) this.binder = new DefaultBinder(this.formatters, this.collectionBuilders, this.argumentNameResolver, this.setterRegex);
-			if (this.beanValidator == null) this.beanValidator = new ValidationApiBeanValidator(Validation.buildDefaultValidatorFactory(), this.messageBundleName);
+			if (this.beanValidator == null) this.beanValidator = new DefaultBeanValidator(Validation.buildDefaultValidatorFactory(), this.beanExtractor, this.messageBundleName);
 			if (this.tokenAuthorizer == null) this.tokenAuthorizer = DEFAULT_TOKEN_AUTHORIZER;
 			
 			Config cfg = new Config(this);

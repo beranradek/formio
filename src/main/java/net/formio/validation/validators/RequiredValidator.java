@@ -27,6 +27,12 @@ import net.formio.validation.Validator;
  * @author Radek Beran
  */
 public class RequiredValidator<T> implements Validator<T> {
+	
+	private static final RequiredValidator<?> INSTANCE = new RequiredValidator<Object>();
+	
+	public static <U> RequiredValidator<U> getInstance() {
+		return (RequiredValidator<U>)INSTANCE;
+	}
 
 	@Override
 	public Validated<T> validate(ValidationContext<T> ctx) {

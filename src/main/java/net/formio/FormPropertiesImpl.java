@@ -62,11 +62,6 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
-	public boolean isRequired() {
-		return this.properties.getTyped(FormElementProperty.REQUIRED).booleanValue();
-	}
-	
-	@Override
 	public String getHelp() {
 		return this.properties.getTyped(FormElementProperty.HELP);
 	}

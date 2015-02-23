@@ -87,4 +87,10 @@ public interface FormElement<T> extends FormProperties {
 	 * @return
 	 */
 	List<Validator<T>> getValidators();
+	
+	/**
+	 * Returns true if filling this form element is required.
+	 * @return
+	 */
+	boolean isRequired();
 }

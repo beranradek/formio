@@ -38,6 +38,7 @@ import net.formio.props.FormElementProperty;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 import net.formio.validation.Validator;
+import net.formio.validation.validators.RequiredValidator;
 
 /**
  * Basic builder of {@link FormMapping}.
@@ -301,7 +302,13 @@ public class BasicFormMappingBuilder<T> {
 	}
 
 	public BasicFormMappingBuilder<T> required(boolean required) {
-		return property(FormElementProperty.REQUIRED, Boolean.valueOf(required));
+		if (required) {
+			Validator<T> validator = RequiredValidator.getInstance();
+			if (!validators.contains(validator)) {
+				validators.add(validator);
+			}
+		}
+		return this;
 	}
 	
 	public BasicFormMappingBuilder<T> help(String help) {
@@ -482,6 +489,17 @@ public class BasicFormMappingBuilder<T> {
 			if (!field.getName().startsWith(mapping.getName())) {
 				throw new IllegalStateException("Field name '" + field.getName() + "' does not start with mapping name '" + mapping.getName() + "'");
 			}
+			
+			checkRequired(field);
+		}
+		checkRequired(mapping);
+	}
+
+	private <U> void checkRequired(FormElement<U> element) {
+		// This is just to check if the property represented by the element exists (by introspection):
+		boolean required = element.isRequired();
+		if (required) {
+			// nothing
 		}
 	}
 

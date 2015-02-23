@@ -58,13 +58,11 @@ public class DefaultHeterogMapTest {
 		final HeterogMap<String> properties = HeterogCollections.<String>newLinkedMap();
 		properties.putTyped(FormElementProperty.VISIBLE, Boolean.FALSE);
 		properties.putTyped(FormElementProperty.ENABLED, Boolean.TRUE);
-		properties.putTyped(FormElementProperty.REQUIRED, Boolean.FALSE);
 		properties.putTyped(FormElementProperty.READ_ONLY, Boolean.FALSE);
 		final HeterogMap<String> copy = HeterogCollections.<String>newLinkedMap();
 		copy.putAllFromSource(properties);
 		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.VISIBLE));
 		assertEquals(Boolean.TRUE, copy.getTyped(FormElementProperty.ENABLED));
-		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.REQUIRED));
 		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.READ_ONLY));
 	}
 	
@@ -73,12 +71,10 @@ public class DefaultHeterogMapTest {
 		final DefaultHeterogMap<String> properties = new DefaultHeterogMap<String>();
 		properties.putTyped(FormElementProperty.VISIBLE, Boolean.FALSE);
 		properties.putTyped(FormElementProperty.ENABLED, Boolean.TRUE);
-		properties.putTyped(FormElementProperty.REQUIRED, Boolean.FALSE);
 		properties.putTyped(FormElementProperty.READ_ONLY, Boolean.FALSE);
 		final DefaultHeterogMap<String> copy = new DefaultHeterogMap<String>(properties);
 		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.VISIBLE));
 		assertEquals(Boolean.TRUE, copy.getTyped(FormElementProperty.ENABLED));
-		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.REQUIRED));
 		assertEquals(Boolean.FALSE, copy.getTyped(FormElementProperty.READ_ONLY));
 	}
 	

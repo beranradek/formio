@@ -28,11 +28,10 @@ import javax.validation.MessageInterpolator;
 public interface InterpolatedMessage {
 	
 	/**
-	 * Name of property to which the validation constraint belongs, {@code null} if this
-	 * is global validation constraint.
+	 * Name of element to which the validation message belongs.
 	 * @return
 	 */
-	String getPropertyName();
+	String getElementName();
 	
 	/**
 	 * Severity of validation messages.

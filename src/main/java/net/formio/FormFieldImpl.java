@@ -24,7 +24,6 @@ import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
-import net.formio.props.FormElementProperty;
 import net.formio.validation.ValidationResult;
 
 /**
@@ -46,13 +45,12 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	private final int order;
 
 	/**
-	 * Returns copy of field with given parent and required flag.
+	 * Returns copy of field with given parent.
 	 * @param src
 	 * @param parent
-	 * @param required null if required flag is not specified
 	 */
-	FormFieldImpl(FormField<T> src, FormMapping<?> parent, Boolean required) {
-		this(src, parent, src.getOrder(), required);
+	FormFieldImpl(FormField<T> src, FormMapping<?> parent) {
+		this(src, parent, src.getOrder());
 	}
 	
 	/**
@@ -63,7 +61,11 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	 * @return
 	 */
 	FormFieldImpl(FormField<T> src, FormMapping<?> parent, int order) {
-		this(src, parent, order, (Boolean)null);
+		this(new FieldProps<T>(src)
+			.parent(parent)
+			.order(order)
+			.properties(src.getFormProperties())
+		);
 	}
 	
 	FormFieldImpl(FieldProps<T> fieldProps, int order) {
@@ -77,28 +79,6 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 		this.filledObjects = new ArrayList<T>(fieldProps.filledObjects);
 		this.strValue = fieldProps.strValue;
 		this.order = order;
-	}
-	
-	/**
-	 * Returns copy of given field with given parent, order and required flag.
-	 * @param src copied form field
-	 * @param parent
-	 * @param order
-	 * @param required null if required flag is not specified
-	 * @return
-	 */
-	private FormFieldImpl(FormField<T> src, FormMapping<?> parent, int order, Boolean required) {
-		this(new FieldProps<T>(src)
-			.parent(parent)
-			.order(order)
-			.properties(
-				// Override required only in case required != null, so the required flag from field props is not
-				// overriden by missing NotNull annotation...
-				required != null ? 
-					((FormFieldPropertiesImpl)src.getFormProperties()).withProperty(FormElementProperty.REQUIRED, required) :
-					src.getFormProperties()
-			)
-		);
 	}
 	
 	private FormFieldImpl(FieldProps<T> fieldProps) {
@@ -176,11 +156,6 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	@Override
 	public ChoiceRenderer<T> getChoiceRenderer() {
 		return choiceRenderer;
-	}
-	
-	@Override
-	public boolean isRequired() {
-		return this.formProperties.isRequired();
 	}
 	
 	@Override

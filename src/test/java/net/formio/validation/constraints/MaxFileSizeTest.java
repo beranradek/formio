@@ -39,6 +39,7 @@ public class MaxFileSizeTest {
 			MaxFileSizeValidation.isValid(fileSize, maxFileSize);
 			fail("should throw parse exception");
 		} catch (IllegalArgumentException e) {
+			// ignored
 		}
 	}
 }

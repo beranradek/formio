@@ -29,6 +29,7 @@ import net.formio.format.Formatter;
 import net.formio.format.Formatters;
 import net.formio.props.FormElementProperty;
 import net.formio.validation.Validator;
+import net.formio.validation.validators.RequiredValidator;
 
 /**
  * Specification of properties used to construct a {@link FormField}.
@@ -134,7 +135,13 @@ public class FieldProps<T> implements Serializable {
 	}
 
 	public FieldProps<T> required(boolean required) {
-		return property(FormElementProperty.REQUIRED, Boolean.valueOf(required));
+		if (required) {
+			Validator<T> validator = RequiredValidator.getInstance();
+			if (!validators.contains(validator)) {
+				validators.add(validator);
+			}
+		}
+		return this;
 	}
 	
 	public FieldProps<T> help(String help) {

@@ -16,17 +16,25 @@
  */
 package net.formio;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.Validator;
+import net.formio.validation.constraints.NotEmpty;
+import net.formio.validation.validators.RequiredValidator;
 
 /**
  * Common implementations of {@link FormElement}'s methods.
  * @author Radek Beran
  */
-abstract class AbstractFormElement<T> implements FormElement<T> {
+public abstract class AbstractFormElement<T> implements FormElement<T> {
+	// public because of introspection required by some template frameworks, constructors are not public
 	
 	final FormMapping<?> parent;
 	final String propertyName;
@@ -99,5 +107,69 @@ abstract class AbstractFormElement<T> implements FormElement<T> {
 	@Override
 	public List<Validator<T>> getValidators() {
 		return validators;
+	}
+	
+	@Override
+	public boolean isRequired() {
+		Class<?> parentDataClass = null;
+		if (parent != null) {
+			parentDataClass = parent.getDataClass();
+		}
+		return isRequired(parentDataClass);
+	}
+	
+	protected boolean isRequired(Class<?> parentDataClass) {
+		if (getPropertyName().equals(Forms.AUTH_TOKEN_FIELD_NAME)) {
+			return false; // handled specially
+		}
+		boolean required = false;
+		if (parentDataClass != null) {
+			try {
+				final Field fld = parentDataClass.getDeclaredField(getPropertyName());
+				if (fld != null && isRequiredByAnnotations(fld.getAnnotations(), 0)) {
+					// isRequiredByAnnotations is intentionally checked first because this
+					// also checks if the field exists and throws exception in time of form definition
+					// building if not.
+					required = true;
+				}
+			} catch (NoSuchFieldException ex) {
+				throw new ReflectionException("Error while checking if property " + getPropertyName() + 
+					" of class " + parentDataClass.getName() + 
+					" is required, the corresponding field does not exist: " + ex.getMessage(), ex);
+			}
+		}
+		if (validators != null && validators.contains(RequiredValidator.getInstance())) {
+			required = true;
+		}
+		return required;
+	}
+	
+	private boolean isRequiredByAnnotations(Annotation[] annots, int level) {
+		boolean required = false;
+		if (level < 2) {
+			if (annots != null) {
+				for (Annotation ann : annots) {
+					if (ann instanceof Size) {
+						Size s = (Size) ann;
+						if (s.min() > 0) {
+							required = true;
+							break;
+						}
+					} else if (ann instanceof NotNull) {
+						required = true;
+						break;
+					} else if (ann instanceof NotEmpty) {
+						required = true;
+						break;
+					} else {
+						if (isRequiredByAnnotations(ann.annotationType().getAnnotations(), level + 1)) {
+							required = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		return required;
 	}
 }

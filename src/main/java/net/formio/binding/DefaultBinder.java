@@ -98,7 +98,7 @@ public class DefaultBinder implements Binder {
 	 * there is no way to bind it to the instance) - better to have reliable strict binding!
 	 */
 	@Override
-	public <T> FilledData<T> bindToNewInstance(Class<T> objClass, Instantiator<T> instantiator, Map<String, BoundValuesInfo> values) {
+	public <T> BoundData<T> bindToNewInstance(Class<T> objClass, Instantiator<T> instantiator, Map<String, BoundValuesInfo> values) {
 		Map<String, List<ParseError>> propertyBindErrors = new LinkedHashMap<String, List<ParseError>>();
 		if (values == null) throw new IllegalArgumentException("values cannot be null");
 		Set<String> notBoundYetParamNames = values.keySet();
@@ -127,7 +127,7 @@ public class DefaultBinder implements Binder {
 			updatePropertyValue(obj, paramName, valueInfo, propertyBindErrors, inst instanceof InstanceHoldingInstantiator);
 			// notBoundYetParamNames cannot be reduced here in cycle (ConcurrentModificationException)
 		}
-		return new FilledData<T>(obj, propertyBindErrors);
+		return new BoundData<T>(obj, propertyBindErrors);
 	}
 	
 	protected boolean isPropertySetter(Method method, String propertyName) {

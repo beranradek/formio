@@ -34,11 +34,11 @@ public final class BoundValuesInfo {
 		return new BoundValuesInfo(values, pattern, formatter, locale);
 	}
 	
-	public static BoundValuesInfo getInstance(Object[] values, String pattern) {
+	static BoundValuesInfo getInstance(Object[] values, String pattern) {
 		return getInstance(values, pattern, null, Locale.getDefault());
 	}
 	
-	public static BoundValuesInfo getInstance(Object[] values) {
+	static BoundValuesInfo getInstance(Object[] values) {
 		return getInstance(values, null);
 	}
 	

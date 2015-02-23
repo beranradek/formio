@@ -77,8 +77,8 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	 * @param parent
 	 * @param required
 	 */
-	BasicListFormMapping(BasicListFormMapping<T> src, FormMapping<?> parent, boolean required) {
-		super(src, parent, required);
+	BasicListFormMapping(BasicListFormMapping<T> src, FormMapping<?> parent) {
+		super(src, parent);
 		this.listOfMappings = newListOfMappings(src.listOfMappings);
 	}
 	
@@ -177,7 +177,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 			FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
 			
 			// Create filled nested mappings for current list index (data at current index)
-			Map<String, FormMapping<?>> filledIndexedNestedMappings = indexAndFillNestedMappings(index, formDataAtIndex, locale, ctx);
+			Map<String, FormMapping<?>> filledIndexedNestedMappings = indexAndFillNestedMappings(formDataAtIndex, locale, ctx);
 			
 			// Prepare values for mapping that is constructed for current list index.
 			// Previously created filled nested mappings will be assigned to mapping for current list index.
@@ -224,8 +224,8 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public BasicListFormMapping<T> withParent(FormMapping<?> parent, boolean required) {
-		return new BasicListFormMapping<T>(this, parent, required);
+	public BasicListFormMapping<T> withParent(FormMapping<?> parent) {
+		return new BasicListFormMapping<T>(this, parent);
 	}
 	
 	@Override
@@ -238,7 +238,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		return Clones.mergedValidationResults(validationResults);
 	}
 	
-	Map<String, FormMapping<?>> indexAndFillNestedMappings(int index, FormData<T> editedObj, Locale locale, RequestContext ctx) {
+	Map<String, FormMapping<?>> indexAndFillNestedMappings(FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
 			// nested data - nested object or list of nested objects in case of mapping to list

@@ -115,7 +115,7 @@ public class RenderContext {
 		return escapeHtml(value);
 	}
 	
-	protected <T> MessageTranslator createMessageTranslator(FormElement element) {
+	protected <T> MessageTranslator createMessageTranslator(FormElement<T> element) {
 		FormMapping<?> rootMapping = getRootMapping(element);
 		return new MessageTranslator(element.getParent().getDataClass(),
 			getLocale(), rootMapping.getDataClass());
@@ -133,12 +133,12 @@ public class RenderContext {
 		return "col-sm-offset-2 col-sm-10";
 	}
 	
-	protected String getMaxSeverityClass(FormElement el) {
+	protected <T> String getMaxSeverityClass(FormElement<T> el) {
 		Severity maxSeverity = Severity.max(el.getValidationMessages());
 		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
 	}
 	
-	private FormMapping<?> getRootMapping(FormElement element) {
+	private <T> FormMapping<?> getRootMapping(FormElement<T> element) {
 		FormMapping<?> rootMapping = element.getParent();
 		while (rootMapping != null && rootMapping.getParent() != null) {
 			rootMapping = rootMapping.getParent();

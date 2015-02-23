@@ -24,7 +24,7 @@ package net.formio.common.heterog;
  * @param <V>
  */
 public abstract class AbstractTypedKey<K, V> implements TypedKey<K, V> {
-
+	private static final long serialVersionUID = 7352616123923690614L;
 	private final K key;
 	private final Class<V> valueClass;
 	

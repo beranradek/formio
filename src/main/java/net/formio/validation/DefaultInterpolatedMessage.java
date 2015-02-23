@@ -27,26 +27,26 @@ import java.util.Map;
 public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializable {
 	private static final long serialVersionUID = 4956507046430112207L;
 	
-	private final String propertyName;
+	private final String elementName;
 	private final Severity severity;
 	private final String messageKey;
 	private final Map<String, Serializable> messageParameters;
 	
-	public DefaultInterpolatedMessage(String propertyName, Severity severity) {
-		this(propertyName, 
+	public DefaultInterpolatedMessage(String elementName, Severity severity) {
+		this(elementName, 
 			severity,
 			null);
 	}
 	
-	public DefaultInterpolatedMessage(String propertyName, Severity severity, String messageKey) {
-		this(propertyName, 
+	public DefaultInterpolatedMessage(String elementName, Severity severity, String messageKey) {
+		this(elementName, 
 			severity,
 			messageKey,
 			new LinkedHashMap<String, Serializable>());
 	}
 	
-	public DefaultInterpolatedMessage(String propertyName, Severity severity, String messageKey, Map<String, Serializable> messageParameters) {
-		this.propertyName = propertyName;
+	public DefaultInterpolatedMessage(String elementName, Severity severity, String messageKey, Map<String, Serializable> messageParameters) {
+		this.elementName = elementName;
 		if (severity == null) {
 			throw new IllegalArgumentException("severity cannot be null");
 		}
@@ -59,8 +59,8 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 	}
 	
 	@Override
-	public String getPropertyName() {
-		return this.propertyName;
+	public String getElementName() {
+		return this.elementName;
 	}
 	
 	@Override

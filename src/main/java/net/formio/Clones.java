@@ -70,9 +70,8 @@ final class Clones {
 		for (Map.Entry<String, FormMapping<?>> e : nestedMappings.entrySet()) {
 			final String propertyName = e.getKey();
 			final FormMapping<?> nestedMapping = e.getValue();
-			final boolean requiredProp = outerConfig.getBeanValidator().isRequired(outerClass, nestedMapping);
 			// put copy of nested form mapping that is newly attached to the parent mapping
-			newNestedMappings.put(propertyName, nestedMapping.withParent(parent, requiredProp));
+			newNestedMappings.put(propertyName, nestedMapping.withParent(parent));
 		}
 		return Collections.unmodifiableMap(newNestedMappings);
 	}
@@ -86,25 +85,19 @@ final class Clones {
 	 * @param dataClass
 	 * @return
 	 */
-	static <T> Map<String, FormField<?>> fieldsWithParent(FormMapping<?> parent, Map<String, FormField<?>> srcFields, Config cfg, Class<T> dataClass) {
-		if (dataClass == null) throw new IllegalStateException("data class cannot be null");
-		
+	static <T> Map<String, FormField<?>> fieldsWithParent(FormMapping<?> parent, Map<String, FormField<?>> srcFields) {
 		Map<String, FormField<?>> fields = new LinkedHashMap<String, FormField<?>>();
 		if (srcFields != null) {
 			for (Map.Entry<String, FormField<?>> e : srcFields.entrySet()) {
-				FormField<?> f = fieldWithParent(parent, cfg, e.getValue(), dataClass);
+				FormField<?> f = fieldWithParent(parent, e.getValue());
 				fields.put(e.getKey(), f);
 			}
 		}
 		return Collections.unmodifiableMap(fields);
 	}
 	
-	private static <T, U> FormField<U> fieldWithParent(FormMapping<?> parent, Config cfg, FormField<U> field, Class<T> dataClass) {
-		Boolean required = null; // not specified
-		if (cfg.getBeanValidator().isRequired(dataClass, field)) {
-			required = Boolean.TRUE;
-		} // else not specified, required remains null
-		return new FormFieldImpl<U>(field, parent, required);
+	private static <T, U> FormField<U> fieldWithParent(FormMapping<?> parent, FormField<U> field) {
+		return new FormFieldImpl<U>(field, parent);
 	}
 	
 	private Clones() {

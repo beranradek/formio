@@ -39,7 +39,6 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<Boolean> VISIBLE = register(new FormElementProperty<Boolean>("visible", Boolean.class, Boolean.TRUE));
 	public static final FormElementProperty<Boolean> ENABLED = register(new FormElementProperty<Boolean>("enabled", Boolean.class, Boolean.TRUE));
 	public static final FormElementProperty<Boolean> READ_ONLY = register(new FormElementProperty<Boolean>("readonly", Boolean.class, Boolean.FALSE));
-	public static final FormElementProperty<Boolean> REQUIRED = register(new FormElementProperty<Boolean>("required", Boolean.class, Boolean.FALSE));
 	public static final FormElementProperty<String> HELP = register(new FormElementProperty<String>("help", String.class, ""));
 	public static final FormElementProperty<Boolean> CHOOSE_OPTION_DISPLAYED = register(new FormElementProperty<Boolean>("chooseOptionDisplayed", Boolean.class, Boolean.FALSE));
 	public static final FormElementProperty<String> CHOOSE_OPTION_TITLE = register(new FormElementProperty<String>("chooseOptionTitle", String.class, "Choose One"));

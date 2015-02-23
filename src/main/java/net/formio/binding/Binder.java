@@ -31,5 +31,5 @@ public interface Binder {
 	 * @param values values to bind to new instance
 	 * @return
 	 */
-	<T> FilledData<T> bindToNewInstance(Class<T> objClass, Instantiator<T> instantiator, Map<String, BoundValuesInfo> values);
+	<T> BoundData<T> bindToNewInstance(Class<T> objClass, Instantiator<T> instantiator, Map<String, BoundValuesInfo> values);
 }

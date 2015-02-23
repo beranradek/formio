@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.formio.binding.BoundValuesInfo;
-import net.formio.binding.FilledData;
+import net.formio.binding.BoundData;
 import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
 import net.formio.binding.ParseError;
@@ -86,7 +86,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		this.order = builder.order;
 		this.index = builder.index;
 		this.fields = simpleCopy ? Collections.unmodifiableMap(builder.fields) : 
-			Clones.fieldsWithParent(this, builder.fields, getConfig(), builder.dataClass);
+			Clones.fieldsWithParent(this, builder.fields);
 		this.nested = simpleCopy ? Collections.unmodifiableMap(builder.nested) : 
 			Clones.mappingsWithParent(this, builder.nested, builder.dataClass, getConfig());
 	}
@@ -110,12 +110,11 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	 * @param config
 	 * @param required
 	 */
-	BasicFormMapping(BasicFormMapping<T> src, FormMapping<?> parent, boolean required) {
+	BasicFormMapping(BasicFormMapping<T> src, FormMapping<?> parent) {
 		this(new BasicFormMappingBuilder<T>(src, 
 			src.fields, 
 			src.nested)
-			.parent(parent)
-			.required(required), 
+			.parent(parent), 
 			false); // false = parent will be propagated to nested elements
 	}
 	
@@ -294,13 +293,13 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		}
 		
 		final RequestProcessingError error = paramsProvider.getRequestError();
-		Map<String, BoundValuesInfo> values = prepareValuesToBindForFields(paramsProvider, locale);
+		Map<String, BoundValuesInfo> valuesToBind = prepareValuesToBindForFields(paramsProvider, locale);
 		
 		// binding (and validating) data from paramsProvider to objects for nested mappings
 		// and adding it to available values to bind
 		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, ctx, validationGroups);
 		for (Map.Entry<String, FormData<?>> e : nestedFormData.entrySet()) {
-			values.put(e.getKey(), BoundValuesInfo.getInstance(
+			valuesToBind.put(e.getKey(), BoundValuesInfo.getInstance(
 				new Object[] { e.getValue().getData() }, 
 				(String)null, 
 				(Formatter<Object>)null,
@@ -318,13 +317,13 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			// use instance already prepared by client which the client wish to fill
 			instantiator = new InstanceHoldingInstantiator<T>(instance);
 		}
-		final FilledData<T> filledData = getConfig().getBinder().bindToNewInstance(this.dataClass, instantiator, values);
+		final BoundData<T> boundData = getConfig().getBinder().bindToNewInstance(this.dataClass, instantiator, valuesToBind);
 		
 		// validation of resulting object for this mapping
 		ValidationResult validationRes = validateInternal(
-			filledData.getData(),
+			boundData.getData(),
 			error, 
-			FormUtils.flatten(filledData.getPropertyBindErrors().values()), 
+			FormUtils.flatten(boundData.getPropertyBindErrors().values()), 
 			locale, 
 			validationGroups); 
 		
@@ -334,7 +333,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			validationResults.add(fd.getValidationResult());
 		}
 		
-		return new FormData<T>(filledData.getData(), Clones.mergedValidationResults(validationResults));
+		return new FormData<T>(boundData.getData(), Clones.mergedValidationResults(validationResults));
 	}
 
 	@Override
@@ -375,8 +374,8 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	}
 	
 	@Override
-	public BasicFormMapping<T> withParent(FormMapping<?> parent, boolean required) {
-		return new BasicFormMapping<T>(this, parent, required);
+	public BasicFormMapping<T> withParent(FormMapping<?> parent) {
+		return new BasicFormMapping<T>(this, parent);
 	}
 	
 	@Override
@@ -388,11 +387,6 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			fields,
 			nested, 
 			getList()).build(indent);
-	}
-	
-	@Override
-	public boolean isRequired() {
-		return this.formProperties.isRequired();
 	}
 	
 	@Override
@@ -445,6 +439,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		return getConfig().getBeanValidator().validate(
 			object,
 			getName(), 
+			this,
 			customMessages,
 			locale,
 			validationGroups);
@@ -618,7 +613,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			}
 			String propertyName = e.getKey();
 			values.put(propertyName, BoundValuesInfo.getInstance(
-			  paramValues, field.getPattern(), field.getFormatter(), locale));
+				paramValues, field.getPattern(), field.getFormatter(), locale));
 		}
 		return values;
 	}

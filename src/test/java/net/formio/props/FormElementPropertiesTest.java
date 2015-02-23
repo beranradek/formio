@@ -43,7 +43,6 @@ public class FormElementPropertiesTest {
 		FormField<?> field = filledForm.getFields().get("email");
 		assertEquals(FormElementProperty.VISIBLE.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isVisible()));
 		assertEquals(FormElementProperty.ENABLED.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isEnabled()));
-		assertEquals(FormElementProperty.REQUIRED.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isRequired()));
 		assertEquals(FormElementProperty.READ_ONLY.getDefaultValue(), Boolean.valueOf(field.getFormProperties().isReadonly()));
 	}
 	
@@ -59,7 +58,7 @@ public class FormElementPropertiesTest {
 		assertEquals(Boolean.TRUE, Boolean.valueOf(brand.getFormProperties().isReadonly()));
 		assertEquals(Boolean.FALSE, Boolean.valueOf(maxSpeed.getFormProperties().isEnabled()));
 		assertEquals(Boolean.FALSE, Boolean.valueOf(color.getFormProperties().isVisible()));
-		assertEquals(Boolean.TRUE, Boolean.valueOf(cylinderCount.getFormProperties().isRequired()));
+		assertEquals(Boolean.TRUE, Boolean.valueOf(cylinderCount.isRequired()));
 		assertEquals("In units...", volume.getFormProperties().getHelp());
 		
 		FormMapping<Car> filledForm = TestForms.CAR_ACCESSIBILITY_FORM.fill(
@@ -74,7 +73,7 @@ public class FormElementPropertiesTest {
 		assertEquals(Boolean.TRUE, Boolean.valueOf(filledBrand.getFormProperties().isReadonly()));
 		assertEquals(Boolean.FALSE, Boolean.valueOf(filledMaxSpeed.getFormProperties().isEnabled()));
 		assertEquals(Boolean.FALSE, Boolean.valueOf(filledColor.getFormProperties().isVisible()));
-		assertEquals(Boolean.TRUE, Boolean.valueOf(filledCylinderCount.getFormProperties().isRequired()));
+		assertEquals(Boolean.TRUE, Boolean.valueOf(filledCylinderCount.isRequired()));
 		assertEquals("In units...", filledVolume.getFormProperties().getHelp());
 	}
 }

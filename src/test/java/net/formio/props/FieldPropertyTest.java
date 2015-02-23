@@ -37,7 +37,6 @@ public class FieldPropertyTest {
 		assertEquals(FormElementProperty.ENABLED, FormElementProperty.ENABLED);
 		Property<Boolean> prop = FormElementProperty.ENABLED; 
 		assertFalse(FormElementProperty.READ_ONLY == prop);
-		assertFalse(FormElementProperty.REQUIRED == prop);
 		assertFalse(FormElementProperty.VISIBLE == prop);
 		Property<Boolean> prop2 = prop;
 		assertTrue(FormElementProperty.ENABLED == prop2);
@@ -53,7 +52,6 @@ public class FieldPropertyTest {
 	public void testDefaultProperties() {
 		assertTrue(FormElementProperty.VISIBLE.getDefaultValue().booleanValue());
 		assertTrue(FormElementProperty.ENABLED.getDefaultValue().booleanValue());
-		assertFalse(FormElementProperty.REQUIRED.getDefaultValue().booleanValue());
 		assertFalse(FormElementProperty.READ_ONLY.getDefaultValue().booleanValue());
 		assertEquals("", FormElementProperty.HELP.getDefaultValue());
 		assertEquals("", FormElementProperty.DATA_AJAX_URL.getDefaultValue());

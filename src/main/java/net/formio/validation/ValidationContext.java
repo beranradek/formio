@@ -16,23 +16,31 @@
  */
 package net.formio.validation;
 
+
 /**
  * Validation context with validated value.
  * @author Radek Beran
  */
 public class ValidationContext<T> {
-	private final String propertyName;
+	private final String elementName;
 	private final T validatedValue;
 
-	ValidationContext(String propertyName, T validatedValue) {
-		this.propertyName = propertyName;
+	ValidationContext(String elementName, T validatedValue) {
+		if (elementName == null) {
+			throw new IllegalArgumentException("elementName must be not null");
+		}
+		this.elementName = elementName;
 		this.validatedValue = validatedValue;
 	}
 
-	public String getPropertyName() {
-		return propertyName;
+	public String getElementName() {
+		return elementName;
 	}
 
+	/**
+	 * Value to validate (value bound to validated field/mapping).
+	 * @return
+	 */
 	public T getValidatedValue() {
 		return validatedValue;
 	}

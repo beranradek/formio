@@ -30,14 +30,14 @@ public class RequestProcessingError extends DefaultInterpolatedMessage {
 	private final String causeMessage;
 	private final Throwable cause;
 
-	public RequestProcessingError(String propertyName, String causeMessage, Throwable cause) {
-		super(propertyName, Severity.ERROR);
+	public RequestProcessingError(String elementName, String causeMessage, Throwable cause) {
+		super(elementName, Severity.ERROR);
 		this.causeMessage = causeMessage;
 		this.cause = cause;
 	}
 
-	public RequestProcessingError(String propertyName, String message) {
-		this(propertyName, message, null);
+	public RequestProcessingError(String elementName, String message) {
+		this(elementName, message, null);
 	}
 
 	/**

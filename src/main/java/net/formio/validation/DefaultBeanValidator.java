@@ -24,11 +24,10 @@
 package net.formio.validation;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,58 +39,97 @@ import javax.validation.Path;
 import javax.validation.Path.Node;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
+import net.formio.BasicListFormMapping;
 import net.formio.FormElement;
+import net.formio.FormMapping;
 import net.formio.Forms;
-import net.formio.ReflectionException;
+import net.formio.binding.BeanExtractor;
 import net.formio.binding.HumanReadableType;
 import net.formio.binding.ParseError;
 import net.formio.internal.FormUtils;
-import net.formio.upload.MaxFileSizeExceededError;
 import net.formio.upload.MaxRequestSizeExceededError;
-import net.formio.validation.constraints.NotEmpty;
 
 /**
- * Object validator using {@link ValidatorFactory}.
+ * Object validation using {@link ValidatorFactory} (bean validation API).
  *
  * @author Radek Beran
  */
-public class ValidationApiBeanValidator implements BeanValidator {
+public class DefaultBeanValidator implements BeanValidator {
 	
 	private final ValidatorFactory validatorFactory;
+	private final BeanExtractor beanExtractor;
 	private final String messageBundleName;
 	
-	public ValidationApiBeanValidator(ValidatorFactory validatorFactory, String messageBundleName) {
+	public DefaultBeanValidator(ValidatorFactory validatorFactory, BeanExtractor beanExtractor, String messageBundleName) {
 		if (validatorFactory == null) throw new IllegalArgumentException("validatorFactory cannot be null");
+		if (beanExtractor == null) throw new IllegalArgumentException("beanExtractor cannot be null");
 		if (messageBundleName == null || messageBundleName.isEmpty()) throw new IllegalArgumentException("messageBundleName cannot be null or empty");
 		this.validatorFactory = validatorFactory;
+		this.beanExtractor = beanExtractor;
 		this.messageBundleName = messageBundleName;
 	}
 	
-	public ValidationApiBeanValidator(ValidatorFactory validatorFactory) {
-		this(validatorFactory, ResBundleMessageInterpolator.DEFAULT_VALIDATION_MESSAGES);
+	public DefaultBeanValidator(ValidatorFactory validatorFactory, BeanExtractor beanExtractor) {
+		this(validatorFactory, beanExtractor, ResBundleMessageInterpolator.DEFAULT_VALIDATION_MESSAGES);
 	}
 	
+	@Override
+	public <T> ValidationResult validate(
+		T mappingBoundValue,
+		String propPrefix,
+		FormMapping<T> mapping,
+		List<? extends InterpolatedMessage> customMessages, 
+		Locale locale,
+		Class<?>... groups) {
+		if (mappingBoundValue == null) {
+			throw new IllegalArgumentException("Validated object cannot be null");
+		}
+		MessageInterpolator msgInterpolator = createMessageInterpolator(this.validatorFactory, this.messageBundleName, locale);
+		Validator beanValidator = createValidator(this.validatorFactory, msgInterpolator);
+		
+		// Unfortunately, implementation of bean validation API can return violations 
+		// in nondeterministic order as a HashSet (Hibernate validator)
+		final Set<ConstraintViolation<T>> violations = beanValidator.validate(mappingBoundValue, groups);
+		final List<ConstraintViolation<T>> violationsList = new ArrayList<ConstraintViolation<T>>(violations);
+		Collections.sort(violationsList, constraintViolationComparator);
+		
+		List<InterpolatedMessage> allCustomMessages = new ArrayList<InterpolatedMessage>();
+		allCustomMessages.addAll(customMessages);
+		
+		if (mapping != null && !(mapping instanceof BasicListFormMapping<?>) && mapping.isVisible() && mapping.isEnabled()) {
+			// Validate all nested elements
+			Map<String, Object> beanProperties = null;
+			for (FormElement<?> el : mapping.getElements()) {
+				if (el.getValidators() != null && !el.getValidators().isEmpty()) { // to avoid unnecessary visible/enabled checks
+					if (!(el instanceof BasicListFormMapping<?>) && el.isVisible() && el.isEnabled()) {
+						if (beanProperties == null) {
+							beanProperties = beanExtractor.extractBean(mappingBoundValue, gatherPropertyNames(mapping.getElements()));
+						}
+						Object elementValue = beanProperties.get(el.getPropertyName());
+						allCustomMessages.addAll(validateFormElement((FormElement<Object>)el, elementValue));
+					}
+				}
+			}
+			if (mapping.isRootMapping()) {
+				// validate also the root mapping (run global validators added to the root mapping itself) 
+				for (net.formio.validation.Validator<T> validator : mapping.getValidators()) {
+					allCustomMessages.addAll(validator.validate(
+						new ValidationContext<T>(mapping.getName(), mappingBoundValue)).getMessages());
+				}
+			}
+		}
+		
+		return buildReport(msgInterpolator, violationsList, allCustomMessages, propPrefix, locale);
+	}
+
 	@Override
 	public <T> ValidationResult validate(T inst, 
 		String propPrefix, 
 		List<? extends InterpolatedMessage> customMessages,
 		Locale locale,
 		Class<?>... groups) {
-		if (inst == null) {
-			throw new IllegalArgumentException("ValidationContext object cannot be null");
-		}
-		MessageInterpolator msgInterpolator = createMessageInterpolator(this.validatorFactory, this.messageBundleName, locale);
-		Validator validator = createValidator(this.validatorFactory, msgInterpolator);
-		
-		// Unfortunately, implementation of bean validation API can return violations 
-		// in nondeterministic order as a HashSet (Hibernate validator)
-		final Set<ConstraintViolation<T>> violations = validator.validate(inst, groups);
-		final List<ConstraintViolation<T>> violationsList = new ArrayList<ConstraintViolation<T>>(violations);
-		Collections.sort(violationsList, constraintViolationComparator);
-		return buildReport(msgInterpolator, violationsList, customMessages, propPrefix, locale);
+		return validate(inst, propPrefix, (FormMapping<T>)null, customMessages, locale, groups);
 	}
 	
 	@Override
@@ -102,33 +140,6 @@ public class ValidationApiBeanValidator implements BeanValidator {
 	@Override
 	public <T> ValidationResult validate(T inst, Class<?> ... groups) {
 		return this.validate(inst, Locale.getDefault(), groups);
-	}
-	
-	@Override
-	public boolean isRequired(Class<?> cls, FormElement<?> element) {
-		if (element.getPropertyName().equals(Forms.AUTH_TOKEN_FIELD_NAME)) {
-			return false; // handled specially
-		}
-		boolean required = false;
-		try {
-			if (cls != null) {
-				final Field fld = cls.getDeclaredField(element.getPropertyName());
-				if (fld != null && isRequiredByAnnotations(fld.getAnnotations(), 0)) {
-					// isRequiredByAnnotations is intentionally checked first because this
-					// also checks if the field exists and throws exception in time of form definition
-					// building if not.
-					required = true;
-				}
-			}
-			if (element.isRequired()) {
-				required = true;
-			}
-		} catch (NoSuchFieldException ex) {
-			throw new ReflectionException("Error while checking if property " + element.getPropertyName() + 
-				" of class " + (cls != null ? cls.getName() : "<no class>") + 
-				" is required, the corresponding field does not exist: " + ex.getMessage(), ex);
-		}
-		return required;
 	}
 	
 	/**
@@ -172,23 +183,34 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		Locale locale) {
 		for (InterpolatedMessage im : interpolatedMessages) {
 			if (im != null) {
-				if (im instanceof MaxFileSizeExceededError) {
-					MaxFileSizeExceededError mfs = (MaxFileSizeExceededError)im;
-					List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, mfs.getFieldName());
-					msgs.add(createConstraintViolationMessage(im, msgInterpolator, locale));
-					fieldMessages.put(mfs.getFieldName(), msgs);
-				} else if (im instanceof MaxRequestSizeExceededError && ValidationUtils.isTopLevelMapping(propPrefix)) {
-					globalMessages.add(createConstraintViolationMessage(im, msgInterpolator, locale));
-				} else if (ValidationUtils.isTopLevelMapping(propPrefix)) {
-					globalMessages.add(createConstraintViolationMessage(im, msgInterpolator, locale));
-				} else if (im.getPropertyName() != null && !im.getPropertyName().isEmpty()) {
-					String formPrefixedPropName = pathPrefixedName(propPrefix, im.getPropertyName());
+				if (im instanceof MaxRequestSizeExceededError) {
+					if (ValidationUtils.isTopLevelMapping(propPrefix)) {
+						globalMessages.add(createConstraintViolationMessage(im, msgInterpolator, locale));
+					}
+				} else if (im instanceof ParseError) {
+					ParseError parseMsg = (ParseError)im;
+					String formPrefixedPropName = pathPrefixedName(propPrefix, parseMsg.getPropertyName());
 					List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, formPrefixedPropName);
 					msgs.add(createConstraintViolationMessage(im, msgInterpolator, locale));
 					fieldMessages.put(formPrefixedPropName, msgs);
+				} else if (im.getElementName() != null && !im.getElementName().isEmpty()) {
+					// Also MaxFileSizeExceededError is processed here
+					List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, im.getElementName());
+					msgs.add(createConstraintViolationMessage(im, msgInterpolator, locale));
+					fieldMessages.put(im.getElementName(), msgs);
+				} else {
+					globalMessages.add(createConstraintViolationMessage(im, msgInterpolator, locale));
 				}
 			}
 		}
+	}
+	
+	private <T, U> List<InterpolatedMessage> validateFormElement(FormElement<T> element, T elementValue) {
+		List<InterpolatedMessage> messages = new ArrayList<InterpolatedMessage>();
+		for (net.formio.validation.Validator<T> validator : element.getValidators()) {
+			messages.addAll(validator.validate(new ValidationContext<T>(element.getName(), elementValue)).getMessages());
+		}
+		return messages;
 	}
 	
 	private ConstraintViolationMessage createConstraintViolationMessage(
@@ -282,34 +304,13 @@ public class ValidationApiBeanValidator implements BeanValidator {
 		return pathPrefix + Forms.PATH_SEP + name;
 	}
 	
-	private boolean isRequiredByAnnotations(Annotation[] annots, int level) {
-		boolean required = false;
-		if (level < 2) {
-			if (annots != null) {
-				for (Annotation ann : annots) {
-					if (ann instanceof Size) {
-						Size s = (Size) ann;
-						if (s.min() > 0) {
-							required = true;
-							break;
-						}
-					} else if (ann instanceof NotNull) {
-						required = true;
-						break;
-					} else if (ann instanceof NotEmpty) {
-						required = true;
-						break;
-					} else {
-						if (isRequiredByAnnotations(ann.annotationType().getAnnotations(), level + 1)) {
-							required = true;
-							break;
-						}
-					}
-				}
-			}
+	private Set<String> gatherPropertyNames(List<FormElement<?>> elements) {
+		Set<String> propertyNames = new LinkedHashSet<String>();
+		for (FormElement<?> el : elements) {
+			propertyNames.add(el.getPropertyName());
 		}
-		return required;
+		return propertyNames;
 	}
 	
-	private static final ConstraintViolationComparator constraintViolationComparator = new ConstraintViolationComparator(); 
+	private static final ConstraintViolationComparator constraintViolationComparator = new ConstraintViolationComparator();
 }

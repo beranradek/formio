@@ -21,7 +21,7 @@ import java.util.Locale;
 
 import javax.validation.groups.Default;
 
-import net.formio.FormElement;
+import net.formio.FormMapping;
 
 
 /**
@@ -34,9 +34,9 @@ public interface BeanValidator {
 	 * Validates object and returns result with validation errors.
 	 * @param <T> 
 	 * @param inst filled object
-	 * @param propPrefix path to validated object (formProperties of validated object should be prefixed by this path
+	 * @param propPrefix path to validated object (properties of validated object should be prefixed by this path
 	 * when constructing resulting validation error messages)
-	 * @param customMessages additional messages (request processing errors, parse errors)
+	 * @param customMessages additional validation messages (request processing errors, parse errors)
 	 * @param locale locale for translation of messages
 	 * @param groups the group or list of groups targeted for validation (defaults to implicit 
 	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
@@ -46,6 +46,28 @@ public interface BeanValidator {
 	<T> ValidationResult validate(
 		T inst, 
 		String propPrefix, 
+		List<? extends InterpolatedMessage> customMessages, 
+		Locale locale,
+		Class<?>... groups);
+	
+	/**
+	 * Validates object and returns result with validation errors.
+	 * @param <T> 
+	 * @param inst filled object
+	 * @param mapping validated mapping
+	 * @param propPrefix path to validated object (properties of validated object should be prefixed by this path
+	 * when constructing resulting validation error messages)
+	 * @param customMessages additional validation messages (request processing errors, parse errors)
+	 * @param locale locale for translation of messages
+	 * @param groups the group or list of groups targeted for validation (defaults to implicit 
+	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
+	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
+	 * @return validation report with validation errors
+	 */
+	<T> ValidationResult validate(
+		T inst, 
+		String propPrefix,
+		FormMapping<T> mapping,
 		List<? extends InterpolatedMessage> customMessages, 
 		Locale locale,
 		Class<?>... groups);
@@ -66,12 +88,4 @@ public interface BeanValidator {
 	 * @return
 	 */
 	<T> ValidationResult validate(T inst, Class<?> ... groups);
-	
-	/**
-	 * Returns true if given form element nested inside given class is required.
-	 * @param cls
-	 * @param element
-	 * @return
-	 */
-	boolean isRequired(Class<?> cls, FormElement<?> element);
 }
