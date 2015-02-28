@@ -16,6 +16,7 @@
  */
 package net.formio;
 
+import net.formio.ajax.JsEvent;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.props.FormElementProperty;
 
@@ -54,6 +55,11 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	@Override
 	public String getDataAjaxUrl() {
 		return getProperties().getTyped(FormElementProperty.DATA_AJAX_URL);
+	}
+	
+	@Override
+	public JsEvent getDataEvent() {
+		return getProperties().getTyped(FormElementProperty.DATA_EVENT);
 	}
 	
 	@Override

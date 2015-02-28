@@ -21,7 +21,7 @@ import net.formio.common.heterog.HeterogMap;
 /**
  * Definable properties of form field/mapping.
  * These properties contain typical accessibility flags like required, enabled, readonly, visible
- * in addition to custom user-defined formProperties.
+ * in addition to custom user-defined form properties.
  * @author Radek Beran
  */
 public interface FormProperties {

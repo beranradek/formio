@@ -16,6 +16,8 @@
  */
 package net.formio;
 
+import net.formio.ajax.JsEvent;
+
 
 
 /**
@@ -31,6 +33,12 @@ public interface FormFieldProperties extends FormProperties {
 	 * @return
 	 */
 	String getDataAjaxUrl();
+	
+	/**
+	 * Returns JavaScript event that invokes configured data-ajax-url using AJAX request. 
+	 * @return
+	 */
+	JsEvent getDataEvent();
 	
 	/**
 	 * CSS selector (mostly ID selector) for finding AJAX-request-source element related elements. 

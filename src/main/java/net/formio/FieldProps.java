@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import net.formio.ajax.JsEvent;
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.choice.DefaultChoiceProvider;
@@ -158,6 +159,10 @@ public class FieldProps<T> implements Serializable {
 	
 	public FieldProps<T> dataAjaxUrl(String dataAjaxUrl) {
 		return property(FormElementProperty.DATA_AJAX_URL, dataAjaxUrl);
+	}
+	
+	public FieldProps<T> dataEvent(JsEvent eventType) {
+		return property(FormElementProperty.DATA_EVENT, eventType);
 	}
 	
 	public FieldProps<T> dataRelatedElement(String dataRelatedElement) {

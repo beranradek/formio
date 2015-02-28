@@ -19,6 +19,7 @@ package net.formio;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.formio.ajax.JsEvent;
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.heterog.HeterogMap;
@@ -176,6 +177,11 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	@Override
 	public String getDataAjaxUrl() {
 		return this.formProperties.getDataAjaxUrl();
+	}
+	
+	@Override
+	public JsEvent getDataEvent() {
+		return this.formProperties.getDataEvent();
 	}
 	
 	@Override

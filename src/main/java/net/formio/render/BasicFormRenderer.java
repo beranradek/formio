@@ -350,7 +350,8 @@ public class BasicFormRenderer {
 	 */
 	protected <T> String renderInputClassContent(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		if (field.getDataAjaxUrl() != null && !field.getDataAjaxUrl().isEmpty()) {
+		boolean customJsEventSelected = field.getFormProperties().getDataEvent() != null;
+		if (field.getDataAjaxUrl() != null && !field.getDataAjaxUrl().isEmpty() && !customJsEventSelected) {
 			sb.append("tdi");
 		}
 		return sb.toString();
