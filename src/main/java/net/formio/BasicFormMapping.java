@@ -31,7 +31,6 @@ import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
 import net.formio.binding.ParseError;
 import net.formio.choice.ChoiceProvider;
-import net.formio.common.heterog.HeterogMap;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
@@ -390,17 +389,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	}
 	
 	@Override
-	public String getHelp() {
-		return this.formProperties.getHelp();
-	}
-	
-	@Override
-	public HeterogMap<String> getProperties() {
-		return this.formProperties.getProperties();
-	}
-	
-	@Override
-	public FormProperties getFormProperties() {
+	public FormProperties getProperties() {
 		return this.formProperties;
 	}
 	

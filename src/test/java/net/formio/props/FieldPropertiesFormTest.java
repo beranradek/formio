@@ -58,7 +58,7 @@ public class FieldPropertiesFormTest {
 			assertFalse("productionYear should be invisible", filledForm.getField(Integer.class, "productionYear").isVisible());
 			assertTrue("color should be required", filledForm.getField(Integer.class, "color").isRequired());
 			assertTrue("cylinderCount should be required", filledForm.getMapping(Engine.class, "engine").getField(Integer.class, "cylinderCount").isRequired());
-			assertEquals("In units...", filledForm.getMapping(Engine.class, "engine").getField(Integer.class, "volume").getHelp());
+			assertEquals("In units...", filledForm.getMapping(Engine.class, "engine").getField(Integer.class, "volume").getProperties().getHelp());
 			
 			// Default formProperties:
 			FormField<String> descriptionField = filledForm.getField(String.class, "description");
@@ -66,7 +66,7 @@ public class FieldPropertiesFormTest {
 			assertTrue("description field should be enabled", descriptionField.isEnabled());
 			assertTrue("description field should be visible", descriptionField.isVisible());
 			assertFalse("description field should not be required", descriptionField.isRequired());
-			assertEquals("description field should have empty help", "", descriptionField.getHelp());
+			assertEquals("description field should have empty help", "", descriptionField.getProperties().getHelp());
 			
 		} catch (Exception ex) {
 			ex.printStackTrace();

@@ -248,5 +248,4 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * @return
 	 */
 	Integer getIndex();
-	
 }

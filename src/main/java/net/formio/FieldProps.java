@@ -161,6 +161,12 @@ public class FieldProps<T> implements Serializable {
 		return property(FormElementProperty.DATA_AJAX_URL, dataAjaxUrl);
 	}
 	
+	public FieldProps<T> dataAjaxUrl(String dataAjaxUrl, JsEvent eventType) {
+		dataAjaxUrl(dataAjaxUrl);
+		dataEvent(eventType);
+		return this;
+	}
+	
 	public FieldProps<T> dataEvent(JsEvent eventType) {
 		return property(FormElementProperty.DATA_EVENT, eventType);
 	}
@@ -337,7 +343,7 @@ public class FieldProps<T> implements Serializable {
 		this.formatter = field.getFormatter();
 		this.choiceProvider = field.getChoices();
 		this.choiceRenderer = field.getChoiceRenderer();
-		this.formProperties = field.getFormProperties();
+		this.formProperties = field.getProperties();
 		this.filledObjects = field.getFilledObjects();
 		this.strValue = field.getValue();
 		this.order = field.getOrder();

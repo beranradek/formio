@@ -50,8 +50,8 @@ public interface FormProperties {
 	String getHelp();
 	
 	/**
-	 * Returns formProperties (flags) of this form field/mapping.
+	 * Returns properties of this form field/mapping in a map.
 	 * @return
 	 */
-	HeterogMap<String> getProperties();
+	HeterogMap<String> getPropertiesMap();
 }

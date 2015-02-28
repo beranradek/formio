@@ -92,7 +92,6 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	
 	protected FormElementProperty(String name, Class<T> valueClass, T defaultValue) {
 		super(name, valueClass);
-		if (defaultValue == null) throw new IllegalArgumentException("defaultValue cannot be null");
 		this.defaultValue = defaultValue;
 	}
 	

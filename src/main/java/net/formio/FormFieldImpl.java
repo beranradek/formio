@@ -19,10 +19,8 @@ package net.formio;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.formio.ajax.JsEvent;
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
-import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
 import net.formio.validation.ValidationResult;
@@ -42,7 +40,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	private final ChoiceProvider<T> choiceProvider;
 	private final ChoiceRenderer<T> choiceRenderer;
 	private final String strValue;
-	private final FormFieldProperties formProperties;
+	private final FormFieldProperties properties;
 	private final int order;
 
 	/**
@@ -65,7 +63,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 		this(new FieldProps<T>(src)
 			.parent(parent)
 			.order(order)
-			.properties(src.getFormProperties())
+			.properties(src.getProperties())
 		);
 	}
 	
@@ -76,7 +74,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 		this.formatter = fieldProps.getFormatter();
 		this.choiceProvider = fieldProps.getChoices();
 		this.choiceRenderer = fieldProps.getChoiceRenderer();
-		this.formProperties = new FormFieldPropertiesImpl(fieldProps.getFormProperties());
+		this.properties = new FormFieldPropertiesImpl(fieldProps.getFormProperties());
 		this.filledObjects = new ArrayList<T>(fieldProps.filledObjects);
 		this.strValue = fieldProps.strValue;
 		this.order = order;
@@ -160,53 +158,8 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	}
 	
 	@Override
-	public String getHelp() {
-		return this.formProperties.getHelp();
-	}
-	
-	@Override
-	public boolean isChooseOptionDisplayed() {
-		return this.formProperties.isChooseOptionDisplayed();
-	}
-	
-	@Override
-	public String getChooseOptionTitle() {
-		return this.formProperties.getChooseOptionTitle();
-	}
-	
-	@Override
-	public String getDataAjaxUrl() {
-		return this.formProperties.getDataAjaxUrl();
-	}
-	
-	@Override
-	public JsEvent getDataEvent() {
-		return this.formProperties.getDataEvent();
-	}
-	
-	@Override
-	public String getDataRelatedElement() {
-		return this.formProperties.getDataRelatedElement();
-	}
-	
-	@Override
-	public String getDataRelatedAncestor() {
-		return this.formProperties.getDataRelatedAncestor();
-	}
-	
-	@Override
-	public String getDataConfirm() {
-		return this.formProperties.getDataConfirm();
-	}
-	
-	@Override
-	public HeterogMap<String> getProperties() {
-		return this.formProperties.getProperties();
-	}
-	
-	@Override
-	public FormFieldProperties getFormProperties() {
-		return this.formProperties;
+	public FormFieldProperties getProperties() {
+		return this.properties;
 	}
 	
 	@Override

@@ -73,6 +73,10 @@ public enum Field {
 		return this == MULTIPLE_CHECK_BOX || this == RADIO_CHOICE || this == DROP_DOWN_CHOICE || this == MULTIPLE_CHOICE;
 	}
 	
+	public boolean isWithMultipleInputs() {
+		return this == MULTIPLE_CHECK_BOX || this == RADIO_CHOICE;
+	}
+	
 	public static Field findByType(String type) {
 		for (Field fc : Field.values()) {
 			if (fc.getType().equals(type)) {

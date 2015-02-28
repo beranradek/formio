@@ -43,7 +43,7 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	<T> FormPropertiesImpl(final FormProperties src, FormElementProperty<T> property, T value) {
-		this(copyProperties(src.getProperties(), property, value));
+		this(copyProperties(src.getPropertiesMap(), property, value));
 	}
 	
 	@Override
@@ -67,7 +67,7 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
-	public HeterogMap<String> getProperties() {
+	public HeterogMap<String> getPropertiesMap() {
 		return this.properties;
 	}
 	
@@ -113,15 +113,5 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 
 	public boolean isEmpty() {
 		return properties.isEmpty();
-	}
-	
-	/**
-	 * Returns new formProperties with added/replaced property.
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	<T> FormProperties withProperty(FormElementProperty<T> property, T value) {
-		return new FormPropertiesImpl(copyProperties(this.getProperties(), property, value));
 	}
 }

@@ -41,50 +41,39 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 		super(src, property, value);
 	}
 	
-	/**
-	 * Returns new properties with added/replaced property.
-	 * @param property
-	 * @param value
-	 * @return
-	 */
-	@Override
-	<T> FormFieldProperties withProperty(FormElementProperty<T> property, T value) {
-		return new FormFieldPropertiesImpl(copyProperties(this.getProperties(), property, value));
-	}
-	
 	@Override
 	public String getDataAjaxUrl() {
-		return getProperties().getTyped(FormElementProperty.DATA_AJAX_URL);
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_URL);
 	}
 	
 	@Override
 	public JsEvent getDataEvent() {
-		return getProperties().getTyped(FormElementProperty.DATA_EVENT);
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_EVENT);
 	}
 	
 	@Override
 	public String getDataRelatedElement() {
-		return getProperties().getTyped(FormElementProperty.DATA_RELATED_ELEMENT);
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_RELATED_ELEMENT);
 	}
 	
 	@Override
 	public String getDataRelatedAncestor() {
-		return getProperties().getTyped(FormElementProperty.DATA_RELATED_ANCESTOR);
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_RELATED_ANCESTOR);
 	}
 	
 	@Override
 	public String getDataConfirm() {
-		return getProperties().getTyped(FormElementProperty.DATA_CONFIRM);
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_CONFIRM);
 	}
 	
 	@Override
 	public boolean isChooseOptionDisplayed() {
-		Boolean b = getProperties().getTyped(FormElementProperty.CHOOSE_OPTION_DISPLAYED);
+		Boolean b = getPropertiesMap().getTyped(FormElementProperty.CHOOSE_OPTION_DISPLAYED);
 		return b != null && b.booleanValue();
 	}
 	
 	@Override
 	public String getChooseOptionTitle() {
-		return getProperties().getTyped(FormElementProperty.CHOOSE_OPTION_TITLE);
+		return getPropertiesMap().getTyped(FormElementProperty.CHOOSE_OPTION_TITLE);
 	}
 }

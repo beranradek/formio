@@ -23,6 +23,7 @@ import net.formio.Field;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
+import net.formio.ajax.JsEvent;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
 import net.formio.validation.ConstraintViolationMessage;
@@ -220,6 +221,14 @@ public class BasicFormRenderer {
 		return new TdiResponseBuilder(this);
 	}
 	
+	protected String renderElementId(FormElement<?> element) {
+		return "id-" + element.getName();
+	}
+	
+	protected <T> String renderElementIdWithIndex(FormField<T> field, int itemIndex) {
+		return renderElementId(field) + "-" + itemIndex;
+	}
+	
 	protected String renderElementPlaceholderId(FormElement<?> element) {
 		return renderElementPlaceholderId(element.getName());
 	}
@@ -326,17 +335,17 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
-			if (field.getDataAjaxUrl() != null && !field.getDataAjaxUrl().isEmpty()) {
-				sb.append(" data-ajax-url=\"" + field.getDataAjaxUrl() + "\"");
+			if (field.getProperties().getDataAjaxUrl() != null && !field.getProperties().getDataAjaxUrl().isEmpty()) {
+				sb.append(" data-ajax-url=\"" + field.getProperties().getDataAjaxUrl() + "\"");
 			}
-			if (field.getDataRelatedElement() != null && !field.getDataRelatedElement().isEmpty()) {
-				sb.append(" data-related-element=\"" + field.getDataRelatedElement() + "\"");
+			if (field.getProperties().getDataRelatedElement() != null && !field.getProperties().getDataRelatedElement().isEmpty()) {
+				sb.append(" data-related-element=\"" + field.getProperties().getDataRelatedElement() + "\"");
 			}
-			if (field.getDataRelatedAncestor() != null && !field.getDataRelatedAncestor().isEmpty()) {
-				sb.append(" data-related-ancestor=\"" + field.getDataRelatedAncestor() + "\"");
+			if (field.getProperties().getDataRelatedAncestor() != null && !field.getProperties().getDataRelatedAncestor().isEmpty()) {
+				sb.append(" data-related-ancestor=\"" + field.getProperties().getDataRelatedAncestor() + "\"");
 			}
-			if (field.getDataConfirm() != null && !field.getDataConfirm().isEmpty()) {
-				sb.append(" data-confirm=\"" + field.getDataConfirm() + "\"");
+			if (field.getProperties().getDataConfirm() != null && !field.getProperties().getDataConfirm().isEmpty()) {
+				sb.append(" data-confirm=\"" + field.getProperties().getDataConfirm() + "\"");
 			}
 		}
 		return sb.toString();
@@ -350,20 +359,51 @@ public class BasicFormRenderer {
 	 */
 	protected <T> String renderInputClassContent(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		boolean customJsEventSelected = field.getFormProperties().getDataEvent() != null;
-		if (field.getDataAjaxUrl() != null && !field.getDataAjaxUrl().isEmpty() && !customJsEventSelected) {
+		boolean customJsEventSelected = field.getProperties().getDataEvent() != null;
+		if (field.getProperties().getDataAjaxUrl() != null && 
+			!field.getProperties().getDataAjaxUrl().isEmpty() && 
+			!customJsEventSelected) {
 			sb.append("tdi");
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * Renders script for handling form field.
+	 * @param field
+	 * @param multipleInputs
+	 * @return
+	 */
+	protected <T> String renderFieldScript(FormField<T> field, boolean multipleInputs) {
+		StringBuilder sb = new StringBuilder();
+		if (field.getProperties().getDataEvent() != null) {
+			sb.append("<script>" + newLine());
+			if (multipleInputs) {
+				if (field.getChoices() != null && field.getChoiceRenderer() != null) {
+					List<?> items = field.getChoices().getItems();
+					if (items != null) {
+						for (int i = 0; i < items.size(); i++) {
+							String itemId = renderElementIdWithIndex(field, i);
+							sb.append(renderTdiSend(itemId, field.getProperties().getDataEvent()));
+						}
+					}
+				}
+			} else {
+				sb.append(renderTdiSend(renderElementId(field), field.getProperties().getDataEvent()));
+			}
+			sb.append("</script>" + newLine());
 		}
 		return sb.toString();
 	}
 
 	protected <T> String renderHtmlTextArea(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<textarea name=\"" + field.getName() + "\" id=\"id-"
-			+ field.getName() + "\" class=\"" + renderInputClassContent(field) + " input-sm form-control\"");
+		sb.append("<textarea name=\"" + field.getName() + "\" id=\"" + renderElementId(field) + 
+			"\" class=\"" + renderInputClassContent(field) + " input-sm form-control\"");
 		sb.append(renderFieldAttributes(field) + ">");
 		sb.append(getRenderContext().renderValue(field.getValue()));
 		sb.append("</textarea>" + newLine());
+		sb.append(renderFieldScript(field, false));
 		return sb.toString();
 	}
 
@@ -373,7 +413,7 @@ public class BasicFormRenderer {
 		String inputType = formComponent.getInputType();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"" + inputType + "\" name=\"" + field.getName()
-				+ "\" id=\"id-" + field.getName() + "\"");
+				+ "\" id=\"" + renderElementId(field) + "\"");
 		if (!Field.FILE_UPLOAD.getType().equals(typeId)) {
 			String value = getRenderContext().renderValue(field.getValue());
 			sb.append(" value=\"" + value + "\"");
@@ -387,13 +427,14 @@ public class BasicFormRenderer {
 		}
 		sb.append("\"");
 		sb.append("/>" + newLine());
+		sb.append(renderFieldScript(field, false));
 		return sb.toString();
 	}
 
 	protected <T> String renderHtmlCheckBox(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"checkbox\" name=\"" + field.getName()
-				+ "\" id=\"id-" + field.getName() + "\" value=\""
+				+ "\" id=\"" + renderElementId(field) + "\" value=\""
 				+ getRenderContext().renderValue("1") + "\"");
 		if (field.getValue() != null && !field.getValue().isEmpty()) {
 			String lc = field.getValue().toLowerCase();
@@ -404,12 +445,13 @@ public class BasicFormRenderer {
 		sb.append(renderFieldAttributes(field));
 		sb.append(" class=\"" + renderInputClassContent(field) + "\"");
 		sb.append("/>" + newLine());
+		sb.append(renderFieldScript(field, false));
 		return sb.toString();
 	}
 
 	protected <T> String renderHtmlSelect(FormField<T> field, boolean multiple, Integer size) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<select name=\"" + field.getName() + "\" id=\"id-" + field.getName() + "\"");
+		sb.append("<select name=\"" + field.getName() + "\" id=\"" + renderElementId(field) + "\"");
 		if (multiple) {
 			sb.append(" multiple=\"multiple\"");
 		}
@@ -423,8 +465,8 @@ public class BasicFormRenderer {
 			List<?> items = field.getChoices().getItems();
 			if (items != null) {
 				// First "Choose One" option
-				if (field.isChooseOptionDisplayed()) {
-					sb.append(renderHtmlOption("", field.getChooseOptionTitle(), false));
+				if (field.getProperties().isChooseOptionDisplayed()) {
+					sb.append(renderHtmlOption("", field.getProperties().getChooseOptionTitle(), false));
 				}
 				ChoiceRenderer<Object> choiceRenderer = getChoiceRenderer(field);
 				int itemIndex = 0;
@@ -438,6 +480,7 @@ public class BasicFormRenderer {
 			}
 		}
 		sb.append("</select>" + newLine());
+		sb.append(renderFieldScript(field, false));
 		return sb.toString();
 	}
 
@@ -454,10 +497,11 @@ public class BasicFormRenderer {
 				for (Object item : items) {
 					String value = getChoiceValue(choiceRenderer, item, itemIndex);
 					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
+					String itemId = renderElementIdWithIndex(field, itemIndex);
 
 					sb.append("<div class=\"" + type + "\">" + newLine());
 					sb.append(renderLabelBeginTag(field));
-					sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" value=\"" + value + "\"");
+					sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"" + itemId + "\" value=\"" + value + "\"");
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" checked=\"checked\"");
 					}
@@ -469,6 +513,7 @@ public class BasicFormRenderer {
 				}
 			}
 		}
+		sb.append(renderFieldScript(field, true));
 		return sb.toString();
 	}
 	
@@ -709,5 +754,13 @@ public class BasicFormRenderer {
 
 	private String getChoiceValue(ChoiceRenderer<Object> choiceRenderer, Object item, int itemIndex) {
 		return getRenderContext().renderValue(choiceRenderer.getItem(item, itemIndex).getId());
+	}
+	
+	private <T> String renderTdiSend(String inputId, JsEvent eventType) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("$('#" + inputId + "').on('" + eventType.getEventName() + "', function(evt) {"  + newLine());
+		sb.append("TDI.Ajax.send(this);" + newLine());
+		sb.append("});" + newLine());
+		return sb.toString();
 	}
 }

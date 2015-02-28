@@ -71,7 +71,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	 */
 	@Override
 	public boolean isVisible() {
-		boolean visible = getFormProperties().isVisible();
+		boolean visible = getProperties().isVisible();
 		if (getParent() != null && !getParent().isVisible()) {
 			visible = false;
 		}
@@ -84,7 +84,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	 */
 	@Override
 	public boolean isEnabled() {
-		boolean enabled = getFormProperties().isEnabled();
+		boolean enabled = getProperties().isEnabled();
 		if (getParent() != null && !getParent().isEnabled()) {
 			enabled = false;
 		}
@@ -97,7 +97,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	 */
 	@Override
 	public boolean isReadonly() {
-		boolean readonly = getFormProperties().isReadonly();
+		boolean readonly = getProperties().isReadonly();
 		if (getParent() != null && getParent().isReadonly()) {
 			readonly = true;
 		}

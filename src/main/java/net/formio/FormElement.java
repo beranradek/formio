@@ -26,7 +26,7 @@ import net.formio.validation.Validator;
  * Element in a form - form field, group of fields (form mapping), ...
  * @author Radek Beran
  */
-public interface FormElement<T> extends FormProperties {
+public interface FormElement<T> {
 	
 	/**
 	 * Parent of this form element.
@@ -58,10 +58,10 @@ public interface FormElement<T> extends FormProperties {
 	String getLabelKey();
 	
 	/**
-	 * Returns view with properties of this form element.
+	 * Returns properties of this form element.
 	 * @return
 	 */
-	FormProperties getFormProperties();
+	FormProperties getProperties();
 	
 	/**
 	 * Returns ordinal index of this form element.
@@ -93,4 +93,22 @@ public interface FormElement<T> extends FormProperties {
 	 * @return
 	 */
 	boolean isRequired();
+	
+	/**
+	 * Returns true if this field/mapping is visible.
+	 * @return
+	 */
+	boolean isVisible();
+	
+	/**
+	 * Returns true if this field/mapping is enabled.
+	 * @return
+	 */
+	boolean isEnabled();
+	
+	/**
+	 * Returns true if this field/mapping is read-only.
+	 * @return
+	 */
+	boolean isReadonly();
 }
