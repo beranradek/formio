@@ -16,9 +16,9 @@
  */
 package net.formio;
 
-import net.formio.ajax.JsEvent;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.props.FormElementProperty;
+import net.formio.props.JsEventToUrl;
 
 /**
  * Default implementation of {@link FormFieldProperties}. Immutable.
@@ -47,8 +47,8 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	}
 	
 	@Override
-	public JsEvent getDataEvent() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_EVENT);
+	public JsEventToUrl[] getDataAjaxEvents() {
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_EVENTS);
 	}
 	
 	@Override

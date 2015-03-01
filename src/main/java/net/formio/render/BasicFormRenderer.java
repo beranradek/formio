@@ -26,6 +26,7 @@ import net.formio.FormMapping;
 import net.formio.ajax.JsEvent;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
+import net.formio.props.JsEventToUrl;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
@@ -359,10 +360,11 @@ public class BasicFormRenderer {
 	 */
 	protected <T> String renderInputClassContent(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		boolean customJsEventSelected = field.getProperties().getDataEvent() != null;
+		boolean customJsEventsServed = field.getProperties().getDataAjaxEvents() != null && 
+			field.getProperties().getDataAjaxEvents().length > 0;
 		if (field.getProperties().getDataAjaxUrl() != null && 
 			!field.getProperties().getDataAjaxUrl().isEmpty() && 
-			!customJsEventSelected) {
+			!customJsEventsServed) {
 			sb.append("tdi");
 		}
 		return sb.toString();
@@ -376,7 +378,7 @@ public class BasicFormRenderer {
 	 */
 	protected <T> String renderFieldScript(FormField<T> field, boolean multipleInputs) {
 		StringBuilder sb = new StringBuilder();
-		if (field.getProperties().getDataEvent() != null) {
+		if (field.getProperties().getDataAjaxEvents() != null && field.getProperties().getDataAjaxEvents().length > 0) {
 			sb.append("<script>" + newLine());
 			if (multipleInputs) {
 				if (field.getChoices() != null && field.getChoiceRenderer() != null) {
@@ -384,12 +386,12 @@ public class BasicFormRenderer {
 					if (items != null) {
 						for (int i = 0; i < items.size(); i++) {
 							String itemId = renderElementIdWithIndex(field, i);
-							sb.append(renderTdiSend(itemId, field.getProperties().getDataEvent()));
+							sb.append(renderTdiSend(itemId, field.getProperties().getDataAjaxEvents()));
 						}
 					}
 				}
 			} else {
-				sb.append(renderTdiSend(renderElementId(field), field.getProperties().getDataEvent()));
+				sb.append(renderTdiSend(renderElementId(field), field.getProperties().getDataAjaxEvents()));
 			}
 			sb.append("</script>" + newLine());
 		}
@@ -756,11 +758,28 @@ public class BasicFormRenderer {
 		return getRenderContext().renderValue(choiceRenderer.getItem(item, itemIndex).getId());
 	}
 	
-	private <T> String renderTdiSend(String inputId, JsEvent eventType) {
+	private <T> String renderTdiSend(String inputId, JsEventToUrl[] events) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("$('#" + inputId + "').on('" + eventType.getEventName() + "', function(evt) {"  + newLine());
-		sb.append("TDI.Ajax.send(this);" + newLine());
-		sb.append("});" + newLine());
+		if (events != null && events.length > 0) {
+			for (int i = 0; i < events.length; i++) {
+				JsEventToUrl eventToUrl = events[i];
+				JsEvent eventType = eventToUrl.getEvent();
+				String url = eventToUrl.getUrl();
+				boolean useCustomUrl = url != null && !url.isEmpty();
+				String elm = "$('#" + inputId + "')";
+				sb.append(elm + ".on('" + eventType.getEventName() + "', function(evt) {"  + newLine());
+				if (useCustomUrl) {
+					// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
+					sb.append("prevUrl = " + elm + ".attr(\"data-ajax-url\");" + newLine());
+					sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + newLine());
+				}
+				sb.append("TDI.Ajax.send(this);" + newLine());
+				if (useCustomUrl) {
+					sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + newLine());
+				}
+				sb.append("});" + newLine());
+			}
+		}
 		return sb.toString();
 	}
 }

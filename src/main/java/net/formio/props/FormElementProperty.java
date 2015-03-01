@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.formio.ajax.JsEvent;
 import net.formio.common.heterog.AbstractTypedKey;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
@@ -46,7 +45,7 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	
 	// TDI properties
 	public static final FormElementProperty<String> DATA_AJAX_URL = register(new FormElementProperty<String>("dataAjaxUrl", String.class, ""));
-	public static final FormElementProperty<JsEvent> DATA_EVENT = register(new FormElementProperty<JsEvent>("dataEvent", JsEvent.class, null));
+	public static final FormElementProperty<JsEventToUrl[]> DATA_AJAX_EVENTS = register(new FormElementProperty<JsEventToUrl[]>("dataAjaxEvent", JsEventToUrl[].class, new JsEventToUrl[0]));
 	public static final FormElementProperty<String> DATA_RELATED_ELEMENT = register(new FormElementProperty<String>("dataRelatedElement", String.class, ""));
 	public static final FormElementProperty<String> DATA_RELATED_ANCESTOR = register(new FormElementProperty<String>("dataRelatedAncestor", String.class, ""));
 	public static final FormElementProperty<String> DATA_CONFIRM = register(new FormElementProperty<String>("dataConfirm", String.class, ""));

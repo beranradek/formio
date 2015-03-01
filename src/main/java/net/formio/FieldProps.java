@@ -29,6 +29,7 @@ import net.formio.choice.DefaultChoiceRenderer;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
 import net.formio.props.FormElementProperty;
+import net.formio.props.JsEventToUrl;
 import net.formio.validation.Validator;
 import net.formio.validation.validators.RequiredValidator;
 
@@ -161,14 +162,16 @@ public class FieldProps<T> implements Serializable {
 		return property(FormElementProperty.DATA_AJAX_URL, dataAjaxUrl);
 	}
 	
-	public FieldProps<T> dataAjaxUrl(String dataAjaxUrl, JsEvent eventType) {
-		dataAjaxUrl(dataAjaxUrl);
-		dataEvent(eventType);
-		return this;
+	public FieldProps<T> dataAjaxEvents(JsEvent eventType) {
+		return dataAjaxEvents(eventType, null);
 	}
 	
-	public FieldProps<T> dataEvent(JsEvent eventType) {
-		return property(FormElementProperty.DATA_EVENT, eventType);
+	public FieldProps<T> dataAjaxEvents(JsEvent eventType, String url) {
+		return dataAjaxEvents(new JsEventToUrl[] { new JsEventToUrl(eventType, url) });
+	}
+	
+	public FieldProps<T> dataAjaxEvents(JsEventToUrl[] events) {
+		return property(FormElementProperty.DATA_AJAX_EVENTS, events);
 	}
 	
 	public FieldProps<T> dataRelatedElement(String dataRelatedElement) {
