@@ -38,7 +38,10 @@ public enum JsEvent {
 	/** When a user pressed a key. */
 	KEYPRESS("keypress"),
 	/** When the user releases a key. */
-	KEYUP("keyup");
+	KEYUP("keyup"),
+	MOUSEENTER("mouseenter"),
+	MOUSELEAVE("mouseleave"),
+	CLICK("click");
 	
 	private final String eventName;
 	

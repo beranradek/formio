@@ -16,14 +16,10 @@
  */
 package net.formio.render;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-
-import net.formio.ContentTypes;
 import net.formio.FormElement;
 
 /**
@@ -41,15 +37,6 @@ public class TdiResponseBuilder {
 	}
 	
 	/**
-	 * Adds instruction to AJAX response: Update of form element.
-	 * @param filledElement
-	 * @return
-	 */
-	public <T> TdiResponseBuilder update(FormElement<T> element) {
-		return update(element.getName(), renderElementMarkup(element));
-	}
-	
-	/**
 	 * Adds instruction to AJAX response: Status.
 	 * The default value is OK. At this time, this is the only value recognised as success by TDI.
 	 * Any other value is treated as an error and is displayed using alert() function. 
@@ -62,13 +49,65 @@ public class TdiResponseBuilder {
 	}
 	
 	/**
-	 * Convenience method that writes TDI AJAX response with given status.
-	 * @param response
-	 * @param status
+	 * Adds instruction to AJAX response: Script.
+	 * @param script inline Javascript code - it is invoked in the window scope
+	 * @param src URL of the external Javascript
+	 * @param id ID of the script - if there is another script on the page with the same name, 
+	 * the script will not be downloaded more than once
 	 * @return
 	 */
-	public void status(HttpServletResponse response, String status) {
-		status(status).writeToResponse(response);
+	public TdiResponseBuilder script(String script, String src, String id) {
+		instructions.add(getScript(script, src, id));
+		return this;
+	}
+	
+	/**
+	 * Adds instruction to AJAX response: Script.
+	 * @param script inline Javascript code - it is invoked in the window scope
+	 * @param src URL of the external Javascript
+	 * @return
+	 */
+	public TdiResponseBuilder script(String script, String src) {
+		return script(script, src, null);
+	}
+	
+	/**
+	 * Adds instruction to AJAX response: Script.
+	 * @param script inline Javascript code - it is invoked in the window scope
+	 * @return
+	 */
+	public TdiResponseBuilder script(String script) {
+		return script(script, null);
+	}
+	
+	/**
+	 * Adds instruction to AJAX response: Set focus to element with given name.
+	 * @param elementName
+	 * @return
+	 */
+	public TdiResponseBuilder scriptFocusForName(String elementName) {
+		return script("$(\"#" + getIdForName(elementName) + "\").focus();");
+	}
+	
+	/**
+	 * Adds instruction to AJAX response: Set focus to element with given id.
+	 * @param elementId
+	 * @return
+	 */
+	public TdiResponseBuilder scriptFocusForId(String elementId) {
+		return script("$(\"#" + elementId + "\").focus();");
+	}
+	
+	/**
+	 * Adds instruction to AJAX response: Update of form element.
+	 * @param filledElement
+	 * @return
+	 */
+	public <T> TdiResponseBuilder update(FormElement<T> element) {
+		if (element == null) {
+			throw new IllegalArgumentException("updated element cannot be null");
+		}
+		return update(element.getName(), renderElementMarkup(element));
 	}
 	
 	/**
@@ -84,6 +123,29 @@ public class TdiResponseBuilder {
 			renderUpdateEndTag();
 		instructions.add(str);
 		return this;
+	}
+	
+	/**
+	 * Adds instructions to AJAX response: Updates of form elements.
+	 * @param elements
+	 * @return
+	 */
+	public TdiResponseBuilder update(List<FormElement<?>> elements) {
+		if (elements != null) {
+			for (FormElement<?> el : elements) {
+				update(el);
+			}
+		}
+		return this;
+	}
+	
+	/**
+	 * Adds instructions to AJAX response: Updates of form elements.
+	 * @param elements
+	 * @return
+	 */
+	public TdiResponseBuilder update(FormElement<?>[] elements) {
+		return update(elements == null ? new ArrayList<FormElement<?>>() : Arrays.asList(elements));
 	}
 	
 	/**
@@ -123,39 +185,6 @@ public class TdiResponseBuilder {
 		return sb.toString();
 	}
 	
-	/**
-	 * Writes AJAX response to {@link HttpServletResponse}. Response is closed for further writing.
-	 * @param response
-	 */
-	public void writeToResponse(final HttpServletResponse response) {
-		response.setContentType(ContentTypes.XML);
-		PrintWriter writer = null;
-		try {
-			writer = response.getWriter();
-			writer.write(asString());
-		} catch (IOException ex) {
-			throw new RuntimeException(ex.getMessage(), ex);
-		} finally {
-			if (writer != null) {
-				writer.close();
-			}
-		}
-	}
-	
-	/**
-	 * Convenience method that updates given form elements using TDI AJAX response.
-	 * @param response
-	 * @param elements
-	 */
-	public void update(HttpServletResponse response, FormElement<?> ... elements) {
-		if (elements != null) {
-			for (FormElement<?> el : elements) {
-				update(el);
-			}
-		}
-		writeToResponse(response);
-	}
-	
 	protected String renderXmlDeclaration() {
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + newLine(); 
 	}
@@ -188,6 +217,14 @@ public class TdiResponseBuilder {
 		return renderer;
 	}
 	
+	public String getElementId(FormElement<?> element) {
+		return renderer.renderElementId(element);
+	}
+	
+	public String getIdForName(String name) {
+		return renderer.renderIdForName(name);
+	}
+	
 	protected List<String> getInstructions() {
 		return instructions;
 	}
@@ -202,6 +239,23 @@ public class TdiResponseBuilder {
 	
 	private String getStatus(String statusText) {
 		return "<" + getStatusTagName() + ">" + statusText + "</" + getStatusTagName() + ">" + newLine();
+	}
+	
+	private String getScript(String script, String src, String id) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<script");
+		if (src != null && !src.isEmpty()) {
+			sb.append(" src=\"" + src + "\"");
+		}
+		if (id != null && !id.isEmpty()) {
+			sb.append(" id=\"" + id + "\"");
+		}
+		sb.append(">" + newLine());
+		if (script != null && !script.isEmpty()) {
+			sb.append(script + newLine());
+		} 
+		sb.append("</script>" + newLine());
+		return sb.toString();
 	}
 	
 	private String getStatusTagName() {

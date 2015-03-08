@@ -21,14 +21,15 @@ import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-
 import net.formio.AbstractRequestParams;
 import net.formio.RequestParams;
+import net.formio.ajax.AjaxParams;
 import net.formio.data.RequestContext;
 import net.formio.upload.MultipartRequestPreprocessor;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
+
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 /**
  * Implementation of {@link RequestParams} for servlet request that
@@ -115,6 +116,23 @@ public class ServletRequestParams extends AbstractRequestParams {
 	 */
 	public RequestContext getRequestContext() {
 		return new ServletRequestContext(this.request);
+	}
+	
+	/**
+	 * Returns true if given request is TDI AJAX request.
+	 * @param request
+	 * @return
+	 */
+	public boolean isTdiAjaxRequest() {
+		return request.getParameter(AjaxParams.INFUSE) != null;
+	}
+	
+	/**
+	 * Returns name of form element that initiated the TDI AJAX request. 
+	 * @return
+	 */
+	public String getTdiAjaxSrcElementName() {
+		return request.getParameter(AjaxParams.SRC_ELEMENT_NAME);
 	}
 	
 }
