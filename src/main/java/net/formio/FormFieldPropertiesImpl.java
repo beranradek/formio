@@ -76,4 +76,9 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	public String getChooseOptionTitle() {
 		return getPropertiesMap().getTyped(FormElementProperty.CHOOSE_OPTION_TITLE);
 	}
+	
+	@Override
+	public String getPlaceholder() {
+		return getPropertiesMap().getTyped(FormElementProperty.PLACEHOLDER);
+	}
 }

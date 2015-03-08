@@ -23,6 +23,8 @@ import net.formio.Field;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
+import net.formio.Forms;
+import net.formio.ajax.AjaxParams;
 import net.formio.ajax.JsEvent;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
@@ -222,12 +224,16 @@ public class BasicFormRenderer {
 		return new TdiResponseBuilder(this);
 	}
 	
-	protected String renderElementId(FormElement<?> element) {
-		return "id-" + element.getName();
+	public String renderElementId(FormElement<?> element) {
+		return renderIdForName(element.getName());
+	}
+	
+	public String renderIdForName(String name) {
+		return "id" + Forms.PATH_SEP + name;
 	}
 	
 	protected <T> String renderElementIdWithIndex(FormField<T> field, int itemIndex) {
-		return renderElementId(field) + "-" + itemIndex;
+		return renderElementId(field) + Forms.PATH_SEP + itemIndex;
 	}
 	
 	protected String renderElementPlaceholderId(FormElement<?> element) {
@@ -235,7 +241,7 @@ public class BasicFormRenderer {
 	}
 	
 	protected String renderElementPlaceholderId(String elementName) {
-		return "placeholder-" + elementName;
+		return "placeholder" + Forms.PATH_SEP + elementName;
 	}
 	
 	protected String renderHtmlElementPlaceholder(FormElement<?> element, String innerMarkup) {
@@ -265,12 +271,6 @@ public class BasicFormRenderer {
 		sb.append("<div class=\"" + getRenderContext().getFormBoxClass() + " " + 
 			getRenderContext().getMaxSeverityClass(field) + "\">" + newLine());
 		boolean checkbox = isCheckBox(field);
-		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);
-		
-		if (withoutLeadingLabel) {
-			// add an indentation instead of the label
-			sb.append("<div class=\"" + getRenderContext().getInputIndentClass() + "\">" + newLine());
-		}
 		if (checkbox) {
 			sb.append("<div class=\"" + Field.CHECK_BOX.getInputType() + "\">" + newLine());
 		}
@@ -280,16 +280,13 @@ public class BasicFormRenderer {
 		if (checkbox) {
 			sb.append("</div>" + newLine());
 		}
-		if (withoutLeadingLabel) {
-			sb.append("</div>" + newLine());
-		}
 		sb.append("</div>" + newLine() + newLine());
 		return sb.toString();
 	}
 
-	protected <T> String renderHtmlInputEnvelope(@SuppressWarnings("unused") FormField<T> field, String innerMarkup) {
+	protected <T> String renderHtmlInputEnvelope(FormField<T> field, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"col-sm-4\">" + newLine());
+		sb.append("<div class=\"" + getRenderContext().getInputEnvelopeClass(field) + "\">" + newLine());
 		sb.append(innerMarkup);
 		sb.append("</div>" + newLine());
 		return sb.toString();
@@ -304,11 +301,17 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderMappingLabelElement(FormMapping<T> mapping) {
-		return labelRenderer.renderMappingLabelElement(mapping);
+		if (mapping.getProperties().isLabelVisible()) {
+			return labelRenderer.renderMappingLabelElement(mapping);
+		}
+		return "";
 	}
 
 	protected <T> String renderHtmlLabel(FormElement<?> element) {
-		return labelRenderer.renderHtmlLabel(element);
+		if (element.getProperties().isLabelVisible()) {
+			return labelRenderer.renderHtmlLabel(element);
+		}
+		return "";
 	}
 	
 	protected String renderFieldAttributes(FormElement<?> element) {
@@ -367,6 +370,17 @@ public class BasicFormRenderer {
 			!customJsEventsServed) {
 			sb.append("tdi");
 		}
+		if (isFullWidthInput(field)) {
+			sb.append(" " + getRenderContext().getFullWidthInputClass());
+		}
+		return sb.toString();
+	}
+	
+	protected <T> String renderInputPlaceholderValue(FormField<T> field) {
+		StringBuilder sb = new StringBuilder();
+		if (field.getProperties().getPlaceholder() != null) {
+			sb.append(" placeholder=\"" + getRenderContext().renderValue(field.getProperties().getPlaceholder()) + "\"");
+		}
 		return sb.toString();
 	}
 	
@@ -386,12 +400,12 @@ public class BasicFormRenderer {
 					if (items != null) {
 						for (int i = 0; i < items.size(); i++) {
 							String itemId = renderElementIdWithIndex(field, i);
-							sb.append(renderTdiSend(itemId, field.getProperties().getDataAjaxEvents()));
+							sb.append(renderTdiSend(field, itemId, field.getProperties().getDataAjaxEvents()));
 						}
 					}
 				}
 			} else {
-				sb.append(renderTdiSend(renderElementId(field), field.getProperties().getDataAjaxEvents()));
+				sb.append(renderTdiSend(field, renderElementId(field), field.getProperties().getDataAjaxEvents()));
 			}
 			sb.append("</script>" + newLine());
 		}
@@ -401,8 +415,10 @@ public class BasicFormRenderer {
 	protected <T> String renderHtmlTextArea(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<textarea name=\"" + field.getName() + "\" id=\"" + renderElementId(field) + 
-			"\" class=\"" + renderInputClassContent(field) + " input-sm form-control\"");
-		sb.append(renderFieldAttributes(field) + ">");
+			"\" class=\"" + renderInputClassContent(field) + "\"");
+		sb.append(renderFieldAttributes(field));
+		sb.append(renderInputPlaceholderValue(field));
+		sb.append(">");
 		sb.append(getRenderContext().renderValue(field.getValue()));
 		sb.append("</textarea>" + newLine());
 		sb.append(renderFieldScript(field, false));
@@ -423,11 +439,8 @@ public class BasicFormRenderer {
 		if (!Field.HIDDEN.getType().equals(typeId)) {
 			sb.append(renderFieldAttributes(field));
 		}
-		sb.append(" class=\"" + renderInputClassContent(field));
-		if (isInputClassIncluded(typeId)) {
-			sb.append(" input-sm form-control");
-		}
-		sb.append("\"");
+		sb.append(" class=\"" + renderInputClassContent(field) + "\"");
+		sb.append(renderInputPlaceholderValue(field));
 		sb.append("/>" + newLine());
 		sb.append(renderFieldScript(field, false));
 		return sb.toString();
@@ -460,7 +473,7 @@ public class BasicFormRenderer {
 		if (size != null) {
 			sb.append(" size=\"" + size + "\"");
 		}
-		sb.append(" class=\"" + renderInputClassContent(field) + " input-sm form-control\"");
+		sb.append(" class=\"" + renderInputClassContent(field) + "\"");
 		sb.append(renderFieldAttributes(field));
 		sb.append(">" + newLine());
 		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
@@ -502,14 +515,20 @@ public class BasicFormRenderer {
 					String itemId = renderElementIdWithIndex(field, itemIndex);
 
 					sb.append("<div class=\"" + type + "\">" + newLine());
-					sb.append(renderLabelBeginTag(field));
+					if (field.getProperties().isLabelVisible()) {
+						sb.append(renderLabelBeginTag(field));
+					}
+					
 					sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"" + itemId + "\" value=\"" + value + "\"");
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" checked=\"checked\"");
 					}
 					sb.append(renderFieldAttributes(field));
 					sb.append(" class=\"" + renderInputClassContent(field) + "\"");
-					sb.append("/> " + title + renderLabelEndTag(field));
+					sb.append("/>");
+					if (field.getProperties().isLabelVisible()) {
+						sb.append(" " + title + renderLabelEndTag(field));
+					}
 					sb.append("</div>" + newLine());
 					itemIndex++;
 				}
@@ -554,7 +573,9 @@ public class BasicFormRenderer {
 	// --- Various field types - begin ---
 
 	protected <T> String renderFieldSubmitButton(FormField<T> field) {
-		return renderHtmlFieldBox(field, renderHtmlButton(field));
+		return renderHtmlFieldBox(field, 
+			renderHtmlInputEnvelope(field, 
+				renderHtmlButton(field)));
 	}
 
 	protected <T> String renderFieldHidden(FormField<T> field) {
@@ -629,12 +650,13 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderFieldCheckBox(FormField<T> field) {
-		return renderHtmlFieldBox(field, 
-			renderLabelBeginTag(field) +
-			renderHtmlCheckBox(field) + 
-			renderLabelText(field) +
-			renderLabelEndTag(field) +
-			renderMessageList(field) 
+		return renderHtmlFieldBox(field,
+			renderHtmlInputEnvelope(field,
+				renderLabelBeginTag(field) +
+				renderHtmlCheckBox(field) + 
+				renderLabelText(field) +
+				renderLabelEndTag(field) +
+				renderMessageList(field))
 		);
 	}
 
@@ -698,15 +720,24 @@ public class BasicFormRenderer {
 	// --- /Various field types - end ---
 
 	protected <T> String renderLabelBeginTag(FormElement<?> formElement) {
-		return labelRenderer.renderLabelBeginTag(formElement);
+		if (formElement.getProperties().isLabelVisible()) {
+			return labelRenderer.renderLabelBeginTag(formElement);
+		}
+		return "";
 	}
 
 	protected <T> String renderLabelEndTag(FormElement<?> formElement) {
-		return labelRenderer.renderLabelEndTag(formElement);
+		if (formElement.getProperties().isLabelVisible()) {
+			return labelRenderer.renderLabelEndTag(formElement);
+		}
+		return "";
 	}
 
 	protected <T> String renderLabelText(FormElement<?> formElement) {
-		return labelRenderer.renderLabelText(formElement);
+		if (formElement.getProperties().isLabelVisible()) {
+			return labelRenderer.renderLabelText(formElement);
+		}
+		return "";
 	}
 
 	protected <T> String renderRequiredMark(FormElement<?> formElement) {
@@ -717,11 +748,13 @@ public class BasicFormRenderer {
 		return ctx;
 	}
 
-	private boolean isInputClassIncluded(String type) {
-		return type != null
-			&& !type.equals(Field.FILE_UPLOAD.getType())
+	private <T> boolean isFullWidthInput(FormField<T> field) {
+		String type = getFieldType(field);
+		Field fld = Field.findByType(type);
+		return !type.equals(Field.FILE_UPLOAD.getType()) // otherwise border around field with "Browse" text is drawn
 			&& !type.equals(Field.HIDDEN.getType())
-			&& !type.equals(Field.CHECK_BOX.getType());
+			&& !type.equals(Field.CHECK_BOX.getType())
+			&& (fld == null || !Field.withMultipleInputs.contains(fld));
 	}
 
 	private <T> String getFieldType(FormField<T> field) {
@@ -734,11 +767,6 @@ public class BasicFormRenderer {
 	
 	private <T> boolean isCheckBox(FormField<T> field) {
 		return Field.CHECK_BOX.getType().equals(field.getType());
-	}
-	
-	private <T> boolean isWithoutLeadingLabel(FormField<T> field) {
-		return Field.SUBMIT_BUTTON.getType().equals(field.getType()) || 
-			Field.CHECK_BOX.getType().equals(field.getType());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -758,28 +786,61 @@ public class BasicFormRenderer {
 		return getRenderContext().renderValue(choiceRenderer.getItem(item, itemIndex).getId());
 	}
 	
-	private <T> String renderTdiSend(String inputId, JsEventToUrl[] events) {
+	/**
+	 * Composes JavaScript for given form field that initiates TDI AJAX request when
+	 * some given event occurs - different JavaScript events can have different URL addresses
+	 * for handling the AJAX request. The value of form field is part of the AJAX request
+	 * (if some value is filled).
+	 * @param formField
+	 * @param inputId
+	 * @param events
+	 * @return
+	 */
+	private <T> String renderTdiSend(FormField<T> formField, String inputId, JsEventToUrl[] events) {
 		StringBuilder sb = new StringBuilder();
 		if (events != null && events.length > 0) {
+			String elm = "$(\"#" + inputId + "\")";
+			sb.append(elm + ".on({" + newLine());
 			for (int i = 0; i < events.length; i++) {
 				JsEventToUrl eventToUrl = events[i];
 				JsEvent eventType = eventToUrl.getEvent();
 				String url = eventToUrl.getUrl();
-				boolean useCustomUrl = url != null && !url.isEmpty();
-				String elm = "$('#" + inputId + "')";
-				sb.append(elm + ".on('" + eventType.getEventName() + "', function(evt) {"  + newLine());
-				if (useCustomUrl) {
-					// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
-					sb.append("prevUrl = " + elm + ".attr(\"data-ajax-url\");" + newLine());
-					sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + newLine());
+				if (url == null || url.isEmpty()) {
+					url = formField.getProperties().getDataAjaxUrl();
 				}
-				sb.append("TDI.Ajax.send(this);" + newLine());
-				if (useCustomUrl) {
-					sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + newLine());
+				if (url == null || url.isEmpty()) {
+					throw new IllegalArgumentException("No URL for AJAX request is specified");
 				}
-				sb.append("});" + newLine());
+				url = urlWithAppendedParameter(url, AjaxParams.SRC_ELEMENT_NAME, formField.getName());
+				sb.append(eventType.getEventName() + ": function(evt) {"  + newLine());
+				// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
+				sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + newLine());
+				sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + newLine());
+				sb.append("TDI.Ajax.send(" + elm + ");" + newLine());
+				sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + newLine());
+				sb.append("var prevUrl = null;" + newLine());
+				sb.append("}");
+				if (i < events.length - 1) {
+					// not the last event handler
+					sb.append(",");
+				}
+				sb.append(newLine());
 			}
+			sb.append("});" + newLine());
 		}
 		return sb.toString();
+	}
+
+	private String urlWithAppendedParameter(String url, String paramName, String paramValue) {
+		if (url == null || url.isEmpty()) return null;
+		if (url.contains("?") && !url.endsWith("?")) {
+			if (!url.endsWith("&")) {
+				url = url + "&";
+			}
+		} else if (!url.endsWith("?")) {
+			url = url + "?"; 
+		}
+		url = url + paramName + "=" + paramValue;
+		return url;
 	}
 }

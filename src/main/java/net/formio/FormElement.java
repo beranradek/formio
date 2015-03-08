@@ -111,4 +111,19 @@ public interface FormElement<T> {
 	 * @return
 	 */
 	boolean isReadonly();
+	
+	/**
+	 * Returns element with given name, or {@code null}.
+	 * @param cls
+	 * @param name
+	 * @return
+	 */
+	<U> FormElement<U> findElement(Class<U> cls, String name);
+	
+	/**
+	 * Returns element with given name, or {@code null}.
+	 * @param name
+	 * @return
+	 */
+	FormElement<Object> findElement(String name);
 }

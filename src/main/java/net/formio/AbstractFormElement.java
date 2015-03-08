@@ -172,4 +172,56 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 		}
 		return required;
 	}
+	
+	@Override
+	public <U> FormElement<U> findElement(Class<U> cls, String name) {
+		FormElement<U> foundEl = null;
+		if (name != null && !name.isEmpty()) {
+			if (this.getName().equals(name)) {
+				foundEl = (FormElement<U>)this;
+			}
+			if (foundEl == null) {
+				FormMapping<?> root = getRoot();
+				if (root != null) {
+					foundEl = ((AbstractFormElement<?>)root).findElementRecursive(cls, name);
+				}
+			}
+		}
+		return foundEl;
+	}
+	
+	@Override
+	public FormElement<Object> findElement(String name) {
+		return findElement(Object.class, name);
+	}
+	
+	private <U> FormElement<U> findElementRecursive(Class<U> cls, String name) {
+		FormElement<U> foundEl = null;
+		if (this.getName().equals(name)) {
+			foundEl = (FormElement<U>)this;
+		} else if (this instanceof FormMapping<?>) {
+			for (FormElement<?> element : ((FormMapping<?>)this).getElements()) {
+				foundEl = ((AbstractFormElement<?>)element).findElementRecursive(cls, name);
+				if (foundEl != null) {
+					break;
+				}
+			}
+		}
+		return foundEl;
+	}
+
+	private FormMapping<?> getRoot() {
+		FormMapping<?> root = null;
+		if (this instanceof FormMapping<?>) {
+			root = (FormMapping<?>)this;
+		} else {
+			root = this.getParent();
+		}
+		if (root != null) {
+			while (root.getParent() != null) {
+				root = root.getParent();
+			}
+		}
+		return root;
+	}
 }

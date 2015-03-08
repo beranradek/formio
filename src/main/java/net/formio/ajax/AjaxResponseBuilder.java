@@ -16,8 +16,8 @@
  */
 package net.formio.ajax;
 
-import net.formio.FormElement;
+import net.formio.render.TdiResponseBuilder;
 
-public interface UpdatedElementsProvider<T> {
-	FormElement<?>[] apply(T formState);
+public interface AjaxResponseBuilder<T> {
+	TdiResponseBuilder apply(T formState, TdiResponseBuilder rb);
 }

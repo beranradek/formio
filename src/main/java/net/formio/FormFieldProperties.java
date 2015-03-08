@@ -74,4 +74,10 @@ public interface FormFieldProperties extends FormProperties {
 	 * @return
 	 */
 	String getChooseOptionTitle();
+	
+	/**
+	 * Returns placeholder text shown in the input when the input is empty.
+	 * @return
+	 */
+	String getPlaceholder();
 }

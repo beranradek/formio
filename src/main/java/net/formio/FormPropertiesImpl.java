@@ -67,6 +67,11 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
+	public boolean isLabelVisible() {
+		return this.properties.getTyped(FormElementProperty.LABEL_VISIBLE).booleanValue();
+	}
+	
+	@Override
 	public HeterogMap<String> getPropertiesMap() {
 		return this.properties;
 	}

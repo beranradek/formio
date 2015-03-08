@@ -172,43 +172,45 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		List<FormMapping<T>> newMappings = new ArrayList<FormMapping<T>>();
 		Set<String> propNames = FormUtils.getPropertiesFromFields(this.fields);
-		int index = 0;
-		for (T dataAtIndex : (List<T>)editedObj.getData()) {
-			FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
-			
-			// Create filled nested mappings for current list index (data at current index)
-			Map<String, FormMapping<?>> filledIndexedNestedMappings = indexAndFillNestedMappings(formDataAtIndex, locale, ctx);
-			
-			// Prepare values for mapping that is constructed for current list index.
-			// Previously created filled nested mappings will be assigned to mapping for current list index.
-			Map<String, Object> propValues = gatherPropertyValues(dataAtIndex, propNames, ctx);
-			
-			// Fill the fields of this mapping with prepared values for current list index
-			Map<String, FormField<?>> filledFields = fillFields(
-				propValues, 
-				editedObj.getValidationResult() != null ?
-					editedObj.getValidationResult().getFieldMessages() : new LinkedHashMap<String, List<ConstraintViolationMessage>>(),
-				index, 
-				locale);
-			
-			// Returning copy of this mapping (for current index) that is filled with form data,
-			// but with single mapping type (for an index) and now without list mappings
-			BasicFormMappingBuilder<T> builder = new BasicFormMappingBuilder<T>(this, filledFields, filledIndexedNestedMappings)
-				.index(Integer.valueOf(index))
-				.order(index)
-				.validationResult(formDataAtIndex.getValidationResult())
-				.filledObject(formDataAtIndex.getData());
-			builder.mappingType = MappingType.SINGLE;
-			newMappings.add(builder.build(getConfig()));
-			index++;
+		if (editedObj != null) {
+			int index = 0;
+			for (T dataAtIndex : (List<T>)editedObj.getData()) {
+				FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
+				
+				// Create filled nested mappings for current list index (data at current index)
+				Map<String, FormMapping<?>> filledIndexedNestedMappings = indexAndFillNestedMappings(formDataAtIndex, locale, ctx);
+				
+				// Prepare values for mapping that is constructed for current list index.
+				// Previously created filled nested mappings will be assigned to mapping for current list index.
+				Map<String, Object> propValues = gatherPropertyValues(dataAtIndex, propNames, ctx);
+				
+				// Fill the fields of this mapping with prepared values for current list index
+				Map<String, FormField<?>> filledFields = fillFields(
+					propValues, 
+					editedObj.getValidationResult() != null ?
+						editedObj.getValidationResult().getFieldMessages() : new LinkedHashMap<String, List<ConstraintViolationMessage>>(),
+					index, 
+					locale);
+				
+				// Returning copy of this mapping (for current index) that is filled with form data,
+				// but with single mapping type (for an index) and now without list mappings
+				BasicFormMappingBuilder<T> builder = new BasicFormMappingBuilder<T>(this, filledFields, filledIndexedNestedMappings)
+					.index(Integer.valueOf(index))
+					.order(index)
+					.validationResult(formDataAtIndex.getValidationResult())
+					.filledObject(formDataAtIndex.getData());
+				builder.mappingType = MappingType.SINGLE;
+				newMappings.add(builder.build(getConfig()));
+				index++;
+			}
 		}
 		// unindexed fields (that are only recipes for indexed fields) will not be part of filled form
 		// as well as unindexed nested mappings -> empty maps are used:
 		BasicFormMappingBuilder<T> builder = new BasicFormMappingBuilder<T>(this, 
 			Collections.unmodifiableMap(Collections.<String, FormField<?>>emptyMap()), 
 			Collections.unmodifiableMap(Collections.<String, FormMapping<?>>emptyMap()))
-			.validationResult(editedObj.getValidationResult())
-			.filledObject(editedObj.getData());
+			.validationResult(editedObj != null ? editedObj.getValidationResult() : ValidationResult.empty)
+			.filledObject(editedObj != null ? editedObj.getData() : null);
 		builder.listOfMappings = Collections.unmodifiableList(newMappings);
 		return builder;
 	}

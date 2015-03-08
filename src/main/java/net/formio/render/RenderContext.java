@@ -18,7 +18,9 @@ package net.formio.render;
 
 import java.util.Locale;
 
+import net.formio.Field;
 import net.formio.FormElement;
+import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.common.MessageTranslator;
 import net.formio.validation.Severity;
@@ -125,17 +127,40 @@ public class RenderContext {
 		return "form-group";
 	}
 
-	protected String getLabelIndentClass() {
-		return "control-label col-sm-2";
+	protected String getLabelClass() {
+		return "control-label col-sm-" + getLabelWidth();
 	}
-
-	protected String getInputIndentClass() {
-		return "col-sm-offset-2 col-sm-10";
+	
+	protected <T> String getInputEnvelopeClass(FormField<T> field) {
+		StringBuilder sb = new StringBuilder();
+		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);
+		if (withoutLeadingLabel) {
+			sb.append("col-sm-offset-" + getLabelWidth());
+		}
+		if (sb.length() > 0) {
+			sb.append(" ");
+		}
+		sb.append("col-sm-4");
+		return sb.toString();
+	}
+	
+	protected String getFullWidthInputClass() {
+		return "input-sm form-control";
 	}
 	
 	protected <T> String getMaxSeverityClass(FormElement<T> el) {
 		Severity maxSeverity = Severity.max(el.getValidationMessages());
 		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
+	}
+	
+	private int getLabelWidth() {
+		return 2;
+	}
+
+	private <T> boolean isWithoutLeadingLabel(FormField<T> field) {
+		return Field.SUBMIT_BUTTON.getType().equals(field.getType()) || 
+			Field.CHECK_BOX.getType().equals(field.getType()) ||
+			!field.getProperties().isLabelVisible();
 	}
 	
 	private <T> FormMapping<?> getRootMapping(FormElement<T> element) {

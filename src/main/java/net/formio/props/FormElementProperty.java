@@ -42,6 +42,8 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<String> HELP = register(new FormElementProperty<String>("help", String.class, ""));
 	public static final FormElementProperty<Boolean> CHOOSE_OPTION_DISPLAYED = register(new FormElementProperty<Boolean>("chooseOptionDisplayed", Boolean.class, Boolean.FALSE));
 	public static final FormElementProperty<String> CHOOSE_OPTION_TITLE = register(new FormElementProperty<String>("chooseOptionTitle", String.class, "Choose One"));
+	public static final FormElementProperty<String> PLACEHOLDER = register(new FormElementProperty<String>("placeholder", String.class, null));
+	public static final FormElementProperty<Boolean> LABEL_VISIBLE = register(new FormElementProperty<Boolean>("labelVisible", Boolean.class, Boolean.TRUE));
 	
 	// TDI properties
 	public static final FormElementProperty<String> DATA_AJAX_URL = register(new FormElementProperty<String>("dataAjaxUrl", String.class, ""));

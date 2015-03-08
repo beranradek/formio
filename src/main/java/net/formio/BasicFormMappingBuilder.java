@@ -314,6 +314,10 @@ public class BasicFormMappingBuilder<T> {
 	public BasicFormMappingBuilder<T> help(String help) {
 		return property(FormElementProperty.HELP, help);
 	}
+	
+	public BasicFormMappingBuilder<T> labelVisible(boolean visible) {
+		return property(FormElementProperty.LABEL_VISIBLE, Boolean.valueOf(visible));
+	}
 
 	public FormMapping<T> build() {
 		boolean plainCopy = false;

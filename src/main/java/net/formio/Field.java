@@ -16,6 +16,8 @@
  */
 package net.formio;
 
+import java.util.EnumSet;
+
 /**
  * Type of form field.
  * @author Radek Beran
@@ -70,12 +72,16 @@ public enum Field {
 	}
 
 	public boolean isChoice() {
-		return this == MULTIPLE_CHECK_BOX || this == RADIO_CHOICE || this == DROP_DOWN_CHOICE || this == MULTIPLE_CHOICE;
+		return choiceInputs.contains(this);
 	}
 	
 	public boolean isWithMultipleInputs() {
-		return this == MULTIPLE_CHECK_BOX || this == RADIO_CHOICE;
+		return withMultipleInputs.contains(this);
 	}
+	
+	public static final EnumSet<Field> choiceInputs = EnumSet.of(MULTIPLE_CHECK_BOX, RADIO_CHOICE, DROP_DOWN_CHOICE, MULTIPLE_CHOICE);
+	
+	public static final EnumSet<Field> withMultipleInputs = EnumSet.of(MULTIPLE_CHECK_BOX, RADIO_CHOICE);
 	
 	public static Field findByType(String type) {
 		for (Field fc : Field.values()) {

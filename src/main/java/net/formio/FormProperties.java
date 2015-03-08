@@ -50,6 +50,12 @@ public interface FormProperties {
 	String getHelp();
 	
 	/**
+	 * Returns true if the label should be shown.
+	 * @return
+	 */
+	boolean isLabelVisible();
+	
+	/**
 	 * Returns properties of this form field/mapping in a map.
 	 * @return
 	 */

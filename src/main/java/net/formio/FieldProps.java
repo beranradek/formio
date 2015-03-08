@@ -186,6 +186,14 @@ public class FieldProps<T> implements Serializable {
 		return property(FormElementProperty.DATA_CONFIRM, dataConfirm);
 	}
 	
+	public FieldProps<T> placeholder(String placeholderText) {
+		return property(FormElementProperty.PLACEHOLDER, placeholderText);
+	}
+	
+	public FieldProps<T> labelVisible(boolean visible) {
+		return property(FormElementProperty.LABEL_VISIBLE, Boolean.valueOf(visible));
+	}
+	
 	// only for internal usage
 	FieldProps<T> parent(FormMapping<?> parent) {
 		this.parent = parent;

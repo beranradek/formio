@@ -41,7 +41,7 @@ class LabelRenderer {
 		StringBuilder sb = new StringBuilder("");
 		if (!mapping.isRootMapping()) {
 			sb.append("<div class=\"" + getRenderContext().getFormBoxClass() + "\">" + newLine());
-			sb.append("<div class=\"" + getRenderContext().getLabelIndentClass() + "\">" + newLine());
+			sb.append("<div class=\"" + getRenderContext().getLabelClass() + "\">" + newLine());
 			sb.append(renderHtmlLabel(mapping));
 			sb.append("</div>" + newLine());
 			sb.append("</div>" + newLine());
@@ -52,7 +52,7 @@ class LabelRenderer {
 	protected <T> String renderHtmlLabel(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
-			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getRenderContext().getLabelIndentClass() + "\">");
+			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getRenderContext().getLabelClass() + "\">");
 		} else {
 			sb.append(renderLabelBeginTag(element));
 		}
@@ -77,7 +77,7 @@ class LabelRenderer {
 		if (formElement instanceof FormMapping) {
 			FormMapping<?> m = (FormMapping<?>) formElement;
 			if (m.getIndex() != null) {
-				msgKey = msgKey + Forms.PATH_SEP + "singular";
+				msgKey = msgKey + Forms.PATH_SEP + "single";
 			}
 		}
 		sb.append(getRenderContext().escapeHtml(tr.getMessage(msgKey, getRenderContext().getLocale())));
