@@ -116,7 +116,7 @@ public class TdiResponseBuilder {
 	 * @return
 	 */
 	public TdiResponseBuilder update(String elementName, String elementMarkup) {
-		String str = renderUpdateBeginTag(getRenderer().renderElementPlaceholderId(elementName)) +
+		String str = renderUpdateBeginTag(getRenderer().getElementPlaceholderId(elementName)) +
 			renderCDataBegin() +
 			elementMarkup +
 			renderCDataEnd() +
@@ -218,11 +218,11 @@ public class TdiResponseBuilder {
 	}
 	
 	public String getElementId(FormElement<?> element) {
-		return renderer.renderElementId(element);
+		return renderer.getElementId(element);
 	}
 	
 	public String getIdForName(String name) {
-		return renderer.renderIdForName(name);
+		return renderer.getIdForName(name);
 	}
 	
 	protected List<String> getInstructions() {

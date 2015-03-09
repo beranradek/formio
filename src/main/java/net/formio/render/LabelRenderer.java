@@ -39,59 +39,71 @@ class LabelRenderer {
 	
 	protected <T> String renderMappingLabelElement(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
-		if (!mapping.isRootMapping()) {
-			sb.append("<div class=\"" + getRenderContext().getFormBoxClass() + "\">" + newLine());
-			sb.append("<div class=\"" + getRenderContext().getLabelClass() + "\">" + newLine());
-			sb.append(renderHtmlLabel(mapping));
-			sb.append("</div>" + newLine());
-			sb.append("</div>" + newLine());
+		if (mapping.getProperties().isLabelVisible()) {
+			if (!mapping.isRootMapping()) {
+				sb.append("<div class=\"" + getRenderContext().getFormBoxClasses() + "\">" + newLine());
+				sb.append("<div class=\"" + getRenderContext().getLabelClasses() + "\">" + newLine());
+				sb.append(renderMarkupLabel(mapping));
+				sb.append("</div>" + newLine());
+				sb.append("</div>" + newLine());
+			}
 		}
 		return sb.toString();
 	}
 
-	protected <T> String renderHtmlLabel(FormElement<T> element) {
-		StringBuilder sb = new StringBuilder();
-		if (element instanceof FormField) {
-			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getRenderContext().getLabelClass() + "\">");
-		} else {
-			sb.append(renderLabelBeginTag(element));
+	protected <T> String renderMarkupLabel(FormElement<T> element) {
+		StringBuilder sb = new StringBuilder("");
+		if (element.getProperties().isLabelVisible()) {
+			if (element instanceof FormField) {
+				sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getRenderContext().getLabelClasses() + "\">");
+			} else {
+				sb.append(getLabelBeginTag(element));
+			}
+			sb.append(getLabelText(element));
+			sb.append(":");
+			sb.append(getLabelEndTag(element));
 		}
-		sb.append(renderLabelText(element));
-		sb.append(":");
-		sb.append(renderLabelEndTag(element));
 		return sb.toString();
 	}
 	
-	protected <T> String renderLabelBeginTag(@SuppressWarnings("unused") FormElement<T> formElement) {
-		return "<label>" + newLine();
+	protected <T> String getLabelBeginTag(FormElement<T> formElement) {
+		if (formElement.getProperties().isLabelVisible()) {
+			return "<label>" + newLine();
+		}
+		return "";
 	}
 
-	protected <T> String renderLabelEndTag(@SuppressWarnings("unused") FormElement<T> formElement) {
-		return "</label>" + newLine();
+	protected <T> String getLabelEndTag(FormElement<T> formElement) {
+		if (formElement.getProperties().isLabelVisible()) {
+			return "</label>" + newLine();
+		}
+		return "";
 	}
 
-	protected <T> String renderLabelText(FormElement<T> formElement) {
-		StringBuilder sb = new StringBuilder();
-		MessageTranslator tr = getRenderContext().createMessageTranslator(formElement);
-		String msgKey = formElement.getLabelKey();
-		if (formElement instanceof FormMapping) {
-			FormMapping<?> m = (FormMapping<?>) formElement;
-			if (m.getIndex() != null) {
-				msgKey = msgKey + Forms.PATH_SEP + "single";
+	protected <T> String getLabelText(FormElement<T> formElement) {
+		StringBuilder sb = new StringBuilder("");
+		if (formElement.getProperties().isLabelVisible()) {
+			MessageTranslator tr = getRenderContext().createMessageTranslator(formElement);
+			String msgKey = formElement.getLabelKey();
+			if (formElement instanceof FormMapping) {
+				FormMapping<?> m = (FormMapping<?>) formElement;
+				if (m.getIndex() != null) {
+					msgKey = msgKey + Forms.PATH_SEP + "single";
+				}
 			}
-		}
-		sb.append(getRenderContext().escapeHtml(tr.getMessage(msgKey, getRenderContext().getLocale())));
-		if (formElement instanceof BasicListFormMapping) {
-			FormMapping<?> listMapping = (FormMapping<?>) formElement;
-			sb.append(" (" + listMapping.getList().size() + ")");
-		}
-		if (formElement.isRequired()) {
-			sb.append(renderRequiredMark(formElement));
+			sb.append(getRenderContext().escapeHtml(tr.getMessage(msgKey, getRenderContext().getLocale())));
+			if (formElement instanceof BasicListFormMapping) {
+				FormMapping<?> listMapping = (FormMapping<?>) formElement;
+				sb.append(" (" + listMapping.getList().size() + ")");
+			}
+			if (formElement.isRequired()) {
+				sb.append(getRequiredMark(formElement));
+			}
 		}
 		return sb.toString();
 	}
 
-	protected <T> String renderRequiredMark(@SuppressWarnings("unused") FormElement<T> formElement) {
+	protected <T> String getRequiredMark(@SuppressWarnings("unused") FormElement<T> formElement) {
 		return "&nbsp;*";
 	}
 	

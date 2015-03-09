@@ -33,7 +33,7 @@ class DatePickerRenderer {
 		this.ctx = ctx;
 	}
 	
-	protected <T> String renderDatePickerJavaScript(FormField<T> field) {
+	protected <T> String renderDatePickerScript(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<script>" + newLine());
 		sb.append("$(function(){" + newLine());

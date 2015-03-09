@@ -22,6 +22,7 @@ import net.formio.Field;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
+import net.formio.Forms;
 import net.formio.common.MessageTranslator;
 import net.formio.validation.Severity;
 
@@ -110,7 +111,7 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
-	protected String renderValue(String value) {
+	protected String escapeValue(String value) {
 		if (value == null || value.isEmpty()) {
 			return "";
 		}
@@ -123,15 +124,15 @@ public class RenderContext {
 			getLocale(), rootMapping.getDataClass());
 	}
 	
-	protected String getFormBoxClass() {
+	protected String getFormBoxClasses() {
 		return "form-group";
 	}
 
-	protected String getLabelClass() {
+	protected String getLabelClasses() {
 		return "control-label col-sm-" + getLabelWidth();
 	}
 	
-	protected <T> String getInputEnvelopeClass(FormField<T> field) {
+	protected <T> String getInputEnvelopeClasses(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);
 		if (withoutLeadingLabel) {
@@ -144,13 +145,25 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
-	protected String getFullWidthInputClass() {
+	protected String getFullWidthInputClasses() {
 		return "input-sm form-control";
 	}
 	
 	protected <T> String getMaxSeverityClass(FormElement<T> el) {
 		Severity maxSeverity = Severity.max(el.getValidationMessages());
 		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
+	}
+	
+	String getElementId(FormElement<?> element) {
+		return getIdForName(element.getName());
+	}
+	
+	String getIdForName(String name) {
+		return "id" + Forms.PATH_SEP + name;
+	}
+	
+	<T> String getElementIdWithIndex(FormField<T> field, int itemIndex) {
+		return getElementId(field) + Forms.PATH_SEP + itemIndex;
 	}
 	
 	private int getLabelWidth() {
