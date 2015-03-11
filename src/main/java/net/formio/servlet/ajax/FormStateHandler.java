@@ -14,11 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.ajax;
+package net.formio.servlet.ajax;
 
 import javax.servlet.http.HttpServletRequest;
 
-public interface FormStateHandler<T> {
+import net.formio.servlet.ErrorHandler;
+
+/**
+ * Manipulates (loads/saves) form state and handles possible error
+ * that occured during the request. 
+ * @author Radek Beran
+ *
+ * @param <T>
+ */
+public interface FormStateHandler<T> extends ErrorHandler {
 	T findFormState(HttpServletRequest request);
 	
 	void saveFormState(HttpServletRequest request, T formState);

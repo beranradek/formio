@@ -19,10 +19,18 @@ package net.formio.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.formio.ContentTypes;
+import net.formio.ajax.AjaxResponseBuilder;
+import net.formio.render.TdiResponseBuilder;
+import net.formio.servlet.ajax.FormStateHandler;
 
+/**
+ * Convenience methods for handling (AJAX or non-AJAX) responses in servlet API.
+ * @author Radek Beran
+ */
 public final class ServletResponses {
 
 	/**
@@ -42,6 +50,27 @@ public final class ServletResponses {
 			if (writer != null) {
 				writer.close();
 			}
+		}
+	}
+	
+	/** 
+	 * Renders AJAX response constructed using given response builder.
+	 * @param request
+	 * @param response
+	 * @param formStateHandler manipulates form state and handles error that occured when processing an AJAX request
+	 * @param respBuilder processes the AJAX request using given form state and builds the AJAX response
+	 */
+	public static <T> void ajaxResponse(HttpServletRequest request, HttpServletResponse response, 
+		final FormStateHandler<T> formStateHandler,
+		final AjaxResponseBuilder<T> respBuilder) {
+		try {
+			T formState = formStateHandler.findFormState(request);
+			TdiResponseBuilder ajResp = respBuilder.apply(formState);
+			formStateHandler.saveFormState(request, formState);
+			// Update filled form elements using AJAX response
+			ServletResponses.write(response, ajResp.asString());
+		} catch (RuntimeException ex) {
+			formStateHandler.handleError(request, response, ex);
 		}
 	}
 	

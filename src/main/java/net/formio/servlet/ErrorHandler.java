@@ -14,21 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.ajax;
+package net.formio.servlet;
 
-import net.formio.render.TdiResponseBuilder;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-/**
- * Builds an AJAX response.
- * @author Radek Beran
- *
- * @param <T>
- */
-public interface AjaxResponseBuilder<T> {
+public interface ErrorHandler {
 	/**
-	 * Called to process AJAX request.
-	 * @param formState
-	 * @return AJAX response
+	 * Called in the case an error occured while handling a request.
+	 * @param request
+	 * @param response
+	 * @param cause
+	 * @return
 	 */
-	TdiResponseBuilder apply(T formState);
+	void handleError(HttpServletRequest request, HttpServletResponse response, Throwable cause);
 }

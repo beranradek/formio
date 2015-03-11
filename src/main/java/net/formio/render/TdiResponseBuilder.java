@@ -85,7 +85,7 @@ public class TdiResponseBuilder {
 	 * @param elementName
 	 * @return
 	 */
-	public TdiResponseBuilder scriptFocusForName(String elementName) {
+	public TdiResponseBuilder focusForName(String elementName) {
 		return script("$(\"#" + getIdForName(elementName) + "\").focus();");
 	}
 	
@@ -94,7 +94,7 @@ public class TdiResponseBuilder {
 	 * @param elementId
 	 * @return
 	 */
-	public TdiResponseBuilder scriptFocusForId(String elementId) {
+	public TdiResponseBuilder focusForId(String elementId) {
 		return script("$(\"#" + elementId + "\").focus();");
 	}
 	
