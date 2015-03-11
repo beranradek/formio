@@ -34,6 +34,8 @@ import net.formio.choice.ChoiceProvider;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
+import net.formio.props.FormProperties;
+import net.formio.props.FormPropertiesImpl;
 import net.formio.servlet.ServletRequestParams;
 import net.formio.upload.MaxSizeExceededError;
 import net.formio.upload.RequestProcessingError;

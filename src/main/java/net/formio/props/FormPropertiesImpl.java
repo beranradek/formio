@@ -14,13 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio;
+package net.formio.props;
 
 import java.io.Serializable;
 
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
-import net.formio.props.FormElementProperty;
 
 /**
  * Default implementation of {@link FormProperties}. Immutable.
@@ -33,7 +32,8 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	
 	private final HeterogMap<String> properties;
 	
-	FormPropertiesImpl(final HeterogMap<String> properties) {
+	/** For internal use only. */
+	public FormPropertiesImpl(final HeterogMap<String> properties) {
 		if (properties == null) throw new IllegalArgumentException("formProperties cannot be null, only empty");
 		this.properties = HeterogCollections.unmodifiableMap(properties);
 	}

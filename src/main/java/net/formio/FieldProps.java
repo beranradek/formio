@@ -29,6 +29,8 @@ import net.formio.choice.DefaultChoiceRenderer;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
 import net.formio.props.FormElementProperty;
+import net.formio.props.FormFieldProperties;
+import net.formio.props.FormFieldPropertiesImpl;
 import net.formio.props.JsEventToUrl;
 import net.formio.validation.Validator;
 import net.formio.validation.validators.RequiredValidator;

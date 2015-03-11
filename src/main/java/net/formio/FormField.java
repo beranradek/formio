@@ -21,6 +21,7 @@ import java.util.List;
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.format.Formatter;
+import net.formio.props.FormFieldProperties;
 
 /**
  * Form field representation. Implementations must be immutable.

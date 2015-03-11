@@ -18,6 +18,7 @@ package net.formio;
 
 import java.util.List;
 
+import net.formio.props.FormProperties;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.ValidationResult;
 import net.formio.validation.Validator;

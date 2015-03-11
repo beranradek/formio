@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio;
+package net.formio.props;
 
 import net.formio.common.heterog.HeterogMap;
-import net.formio.props.FormElementProperty;
-import net.formio.props.JsEventToUrl;
 
 /**
  * Default implementation of {@link FormFieldProperties}. Immutable.
@@ -29,15 +27,18 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	
 	private static final long serialVersionUID = 8353865315646591562L;
 	
-	FormFieldPropertiesImpl(final HeterogMap<String> properties) {
+	/** For internal use only. */
+	public FormFieldPropertiesImpl(final HeterogMap<String> properties) {
 		super(properties);
 	}
 	
-	FormFieldPropertiesImpl(final FormFieldProperties src) {
+	/** For internal use only. */
+	public FormFieldPropertiesImpl(final FormFieldProperties src) {
 		this(src, (FormElementProperty<?>)null, null);
 	}
 	
-	<T> FormFieldPropertiesImpl(final FormFieldProperties src, FormElementProperty<T> property, T value) {
+	/** For internal use only. */
+	public <T> FormFieldPropertiesImpl(final FormFieldProperties src, FormElementProperty<T> property, T value) {
 		super(src, property, value);
 	}
 	

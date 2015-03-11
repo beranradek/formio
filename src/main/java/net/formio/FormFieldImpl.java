@@ -23,6 +23,8 @@ import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
+import net.formio.props.FormFieldProperties;
+import net.formio.props.FormFieldPropertiesImpl;
 import net.formio.validation.ValidationResult;
 
 /**
