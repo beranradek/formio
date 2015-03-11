@@ -54,7 +54,8 @@ public final class ServletResponses {
 	}
 	
 	/** 
-	 * Renders AJAX response constructed using given response builder.
+	 * Updates data representing the state of form on the server
+	 * and renders AJAX response constructed using given response builder.
 	 * @param request
 	 * @param response
 	 * @param formStateHandler manipulates form state and handles error that occured when processing an AJAX request
