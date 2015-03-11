@@ -145,6 +145,31 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
+	/**
+	 * Returns value of class attribute for the input of given form field.
+	 * @param field
+	 * @return
+	 */
+	protected <T> String getInputClasses(FormField<T> field) {
+		StringBuilder sb = new StringBuilder();
+		boolean customJsEventsServed = field.getProperties().getDataAjaxEvents() != null && 
+			field.getProperties().getDataAjaxEvents().length > 0;
+		if (field.getProperties().getDataAjaxUrl() != null && 
+			!field.getProperties().getDataAjaxUrl().isEmpty() && 
+			!customJsEventsServed) {
+			sb.append("tdi");
+		}
+		if (isFullWidthInput(field)) {
+			sb.append(" " + getFullWidthInputClasses());
+		}
+		String type = getFieldType(field);
+		Field fld = Field.findByType(type);
+		if (fld != null && type.equals(Field.SUBMIT_BUTTON.getType())) {
+			sb.append(" " + getButtonClasses(field));
+		}
+		return sb.toString();
+	}
+	
 	protected String getFullWidthInputClasses() {
 		return "input-sm form-control";
 	}
@@ -154,12 +179,24 @@ public class RenderContext {
 		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
 	}
 	
+	protected <T> String getButtonClasses(FormField<T> field) {
+		return "btn btn-default";
+	}
+	
 	String getElementId(FormElement<?> element) {
 		return getIdForName(element.getName());
 	}
 	
 	String getIdForName(String name) {
 		return "id" + Forms.PATH_SEP + name;
+	}
+	
+	<T> String getFieldType(FormField<T> field) {
+		String type = field.getType();
+		if (type == null) {
+			type = Field.TEXT.getType();
+		}
+		return type.toLowerCase();
 	}
 	
 	<T> String getElementIdWithIndex(FormField<T> field, int itemIndex) {
@@ -182,6 +219,16 @@ public class RenderContext {
 			rootMapping = rootMapping.getParent();
 		}
 		return rootMapping;
+	}
+	
+	private <T> boolean isFullWidthInput(FormField<T> field) {
+		String type = getFieldType(field);
+		Field fld = Field.findByType(type);
+		return !type.equals(Field.FILE_UPLOAD.getType()) // otherwise border around field with "Browse" text is drawn
+			&& !type.equals(Field.HIDDEN.getType())
+			&& !type.equals(Field.CHECK_BOX.getType())
+			&& !type.equals(Field.SUBMIT_BUTTON.getType())
+			&& (fld == null || !Field.withMultipleInputs.contains(fld));
 	}
 	
 	String newLine() {
