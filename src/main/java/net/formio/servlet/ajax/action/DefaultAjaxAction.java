@@ -14,42 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.props;
+package net.formio.servlet.ajax.action;
 
-import java.io.Serializable;
+import javax.servlet.http.HttpServletRequest;
 
-import net.formio.FormElement;
-import net.formio.ajax.JsEvent;
+import net.formio.ajax.AjaxAction;
+import net.formio.render.TdiResponseBuilder;
 
 /**
- * JavaScript event mapped to handling URL address.
+ * Action that handles AJAX request and generates AJAX response in servlet environment.
  * @author Radek Beran
  */
-public class JsEventToUrl implements JsEventUrlResolvable, Serializable {
-	private static final long serialVersionUID = 2178054031308176325L;
-	private final JsEvent event;
-	private final String url;
+public interface DefaultAjaxAction extends AjaxAction {
 	
-	public JsEventToUrl(String url) {
-		this(null, url);
-	}
-	
-	public JsEventToUrl(JsEvent event, String url) {
-		this.event = event;
-		this.url = url;
-	}
-
-	@Override
-	public JsEvent getEvent() {
-		return event;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-	
-	@Override
-	public String getUrl(String urlBase, FormElement<?> element) {
-		return url;
-	}
+	/**
+	 * Generates AJAX response.
+	 * @param req
+	 * @return
+	 */
+	TdiResponseBuilder apply(HttpServletRequest req);
 }

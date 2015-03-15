@@ -19,24 +19,40 @@ package net.formio.props;
 import java.io.Serializable;
 
 import net.formio.FormElement;
+import net.formio.ajax.AjaxAction;
+import net.formio.ajax.AjaxParams;
 import net.formio.ajax.JsEvent;
+import net.formio.internal.FormUtils;
 
 /**
- * JavaScript event mapped to handling URL address.
+ * JavaScript event mapped to handling AJAX action.
  * @author Radek Beran
  */
-public class JsEventToUrl implements JsEventUrlResolvable, Serializable {
+public class JsEventToAction implements JsEventUrlResolvable, Serializable {
 	private static final long serialVersionUID = 2178054031308176325L;
 	private final JsEvent event;
-	private final String url;
+	private final AjaxAction action;
+	private final String requestParam;
 	
-	public JsEventToUrl(String url) {
-		this(null, url);
+	public JsEventToAction(JsEvent event, AjaxAction action) {
+		this(event, action, null);
 	}
 	
-	public JsEventToUrl(JsEvent event, String url) {
+	public JsEventToAction(AjaxAction action) {
+		this(null, action, null);
+	}
+	
+	public JsEventToAction(String requestParam, AjaxAction action) {
+		this(null, action, requestParam);
+	}
+	
+	private JsEventToAction(JsEvent event, AjaxAction action, String requestParam) {
+		if (action == null) {
+			throw new IllegalArgumentException("action must be specified");
+		}
 		this.event = event;
-		this.url = url;
+		this.action = action;
+		this.requestParam = requestParam;
 	}
 
 	@Override
@@ -44,12 +60,20 @@ public class JsEventToUrl implements JsEventUrlResolvable, Serializable {
 		return event;
 	}
 
-	public String getUrl() {
-		return url;
+	public AjaxAction getAction() {
+		return action;
 	}
 	
+	public String getRequestParam() {
+		return requestParam;
+	}
+
 	@Override
 	public String getUrl(String urlBase, FormElement<?> element) {
+		String url = urlBase;
+		if (event != null) {
+			url = FormUtils.urlWithAppendedParameter(url, AjaxParams.EVENT, event.getEventName());
+		}
 		return url;
 	}
 }

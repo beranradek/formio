@@ -32,6 +32,7 @@ import net.formio.props.FormElementProperty;
 import net.formio.props.FormFieldProperties;
 import net.formio.props.FormFieldPropertiesImpl;
 import net.formio.props.JsEventToUrl;
+import net.formio.props.JsEventUrlResolvable;
 import net.formio.validation.Validator;
 import net.formio.validation.validators.RequiredValidator;
 
@@ -160,20 +161,16 @@ public class FieldProps<T> implements Serializable {
 		return property(FormElementProperty.CHOOSE_OPTION_TITLE, title);
 	}
 	
-	public FieldProps<T> dataAjaxUrl(String dataAjaxUrl) {
-		return property(FormElementProperty.DATA_AJAX_URL, dataAjaxUrl);
+	public FieldProps<T> dataAjaxActions(JsEventUrlResolvable action) {
+		return dataAjaxActions(new JsEventUrlResolvable[] { action });
 	}
 	
-	public FieldProps<T> dataAjaxEvents(JsEvent eventType) {
-		return dataAjaxEvents(eventType, null);
+	public FieldProps<T> dataAjaxActions(JsEvent eventType, String url) {
+		return dataAjaxActions(new JsEventUrlResolvable[] { new JsEventToUrl(eventType, url) });
 	}
 	
-	public FieldProps<T> dataAjaxEvents(JsEvent eventType, String url) {
-		return dataAjaxEvents(new JsEventToUrl[] { new JsEventToUrl(eventType, url) });
-	}
-	
-	public FieldProps<T> dataAjaxEvents(JsEventToUrl[] events) {
-		return property(FormElementProperty.DATA_AJAX_EVENTS, events);
+	public FieldProps<T> dataAjaxActions(JsEventUrlResolvable[] actions) {
+		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
 	}
 	
 	public FieldProps<T> dataRelatedElement(String dataRelatedElement) {

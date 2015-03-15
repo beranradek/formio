@@ -43,31 +43,6 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	}
 	
 	@Override
-	public String getDataAjaxUrl() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_URL);
-	}
-	
-	@Override
-	public JsEventToUrl[] getDataAjaxEvents() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_EVENTS);
-	}
-	
-	@Override
-	public String getDataRelatedElement() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_RELATED_ELEMENT);
-	}
-	
-	@Override
-	public String getDataRelatedAncestor() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_RELATED_ANCESTOR);
-	}
-	
-	@Override
-	public String getDataConfirm() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_CONFIRM);
-	}
-	
-	@Override
 	public boolean isChooseOptionDisplayed() {
 		Boolean b = getPropertiesMap().getTyped(FormElementProperty.CHOOSE_OPTION_DISPLAYED);
 		return b != null && b.booleanValue();

@@ -21,7 +21,8 @@ import java.util.List;
 import net.formio.FormField;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.JsEvent;
-import net.formio.props.JsEventToUrl;
+import net.formio.internal.FormUtils;
+import net.formio.props.JsEventUrlResolvable;
 
 /**
  * Renders script for invoking AJAX events.
@@ -45,7 +46,8 @@ class AjaxEventRenderer {
 	 */
 	protected <T> String renderFieldScript(FormField<T> field, boolean multipleInputs) {
 		StringBuilder sb = new StringBuilder();
-		if (field.getProperties().getDataAjaxEvents() != null && field.getProperties().getDataAjaxEvents().length > 0) {
+		List<JsEventUrlResolvable> urlEvents = getRenderContext().gatherAjaxEvents(field);
+		if (urlEvents.size() > 0) {
 			sb.append("<script>" + newLine());
 			if (multipleInputs) {
 				if (field.getChoices() != null && field.getChoiceRenderer() != null) {
@@ -53,12 +55,12 @@ class AjaxEventRenderer {
 					if (items != null) {
 						for (int i = 0; i < items.size(); i++) {
 							String itemId = getRenderContext().getElementIdWithIndex(field, i);
-							sb.append(renderTdiSend(field, itemId, field.getProperties().getDataAjaxEvents()));
+							sb.append(renderTdiSend(field, itemId, urlEvents));
 						}
 					}
 				}
 			} else {
-				sb.append(renderTdiSend(field, getRenderContext().getElementId(field), field.getProperties().getDataAjaxEvents()));
+				sb.append(renderTdiSend(field, getRenderContext().getElementId(field), urlEvents));
 			}
 			sb.append("</script>" + newLine());
 		}
@@ -79,52 +81,38 @@ class AjaxEventRenderer {
 	 * @param events
 	 * @return
 	 */
-	private <T> String renderTdiSend(FormField<T> formField, String inputId, JsEventToUrl[] events) {
+	private <T> String renderTdiSend(FormField<T> formField, String inputId, List<JsEventUrlResolvable> events) {
 		StringBuilder sb = new StringBuilder();
-		if (events != null && events.length > 0) {
+		if (events != null && events.size() > 0) {
 			String elm = "$(\"#" + inputId + "\")";
 			sb.append(elm + ".on({" + newLine());
-			for (int i = 0; i < events.length; i++) {
-				JsEventToUrl eventToUrl = events[i];
+			for (int i = 0; i < events.size(); i++) {
+				JsEventUrlResolvable eventToUrl = events.get(i);
 				JsEvent eventType = eventToUrl.getEvent();
-				String url = eventToUrl.getUrl();
-				if (url == null || url.isEmpty()) {
-					url = formField.getProperties().getDataAjaxUrl();
+				if (eventType != null) {
+					String url = eventToUrl.getUrl(formField.getParent().getConfig().getUrlBase(), formField);
+					if (url == null || url.isEmpty()) {
+						throw new IllegalArgumentException("No URL for AJAX request is specified");
+					}
+					url = FormUtils.urlWithAppendedParameter(url, AjaxParams.SRC_ELEMENT_NAME, formField.getName());
+					sb.append(eventType.getEventName() + ": function(evt) {"  + newLine());
+					// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
+					sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + newLine());
+					sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + newLine());
+					sb.append("TDI.Ajax.send(" + elm + ");" + newLine());
+					sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + newLine());
+					sb.append("var prevUrl = null;" + newLine());
+					sb.append("}");
+					if (i < events.size() - 1) {
+						// not the last event handler
+						sb.append(",");
+					}
+					sb.append(newLine());
 				}
-				if (url == null || url.isEmpty()) {
-					throw new IllegalArgumentException("No URL for AJAX request is specified");
-				}
-				url = urlWithAppendedParameter(url, AjaxParams.SRC_ELEMENT_NAME, formField.getName());
-				sb.append(eventType.getEventName() + ": function(evt) {"  + newLine());
-				// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
-				sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + newLine());
-				sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + newLine());
-				sb.append("TDI.Ajax.send(" + elm + ");" + newLine());
-				sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + newLine());
-				sb.append("var prevUrl = null;" + newLine());
-				sb.append("}");
-				if (i < events.length - 1) {
-					// not the last event handler
-					sb.append(",");
-				}
-				sb.append(newLine());
 			}
 			sb.append("});" + newLine());
 		}
 		return sb.toString();
-	}
-
-	private String urlWithAppendedParameter(String url, String paramName, String paramValue) {
-		if (url == null || url.isEmpty()) return null;
-		if (url.contains("?") && !url.endsWith("?")) {
-			if (!url.endsWith("&")) {
-				url = url + "&";
-			}
-		} else if (!url.endsWith("?")) {
-			url = url + "?"; 
-		}
-		url = url + paramName + "=" + paramValue;
-		return url;
 	}
 	
 	private String newLine() {

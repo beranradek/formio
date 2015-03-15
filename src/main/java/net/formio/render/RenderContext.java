@@ -16,6 +16,8 @@
  */
 package net.formio.render;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import net.formio.Field;
@@ -24,16 +26,18 @@ import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.common.MessageTranslator;
+import net.formio.props.JsEventUrlResolvable;
 import net.formio.validation.Severity;
 
 /**
- * Context with common data for rendering a form.
+ * <p>Context with common data for rendering a form.
+ * <p>Thread-safe: Immutable.
  * @author Radek Beran
  */
 public class RenderContext {
-	private Locale locale;
-	private FormMethod method;
-	private String actionUrl;
+	private final Locale locale;
+	private final FormMethod method;
+	private final String actionUrl;
 	
 	public RenderContext() {
 		this(Locale.getDefault());
@@ -43,7 +47,7 @@ public class RenderContext {
 		this(locale, FormMethod.POST, "#");
 	}
 	
-	private RenderContext(Locale locale, FormMethod method, String actionUrl) {
+	public RenderContext(Locale locale, FormMethod method, String actionUrl) {
 		if (locale == null) {
 			throw new IllegalArgumentException("locale cannot be null");
 		}
@@ -56,24 +60,12 @@ public class RenderContext {
 		return method;
 	}
 
-	public void setMethod(FormMethod method) {
-		this.method = method;
-	}
-
 	public String getActionUrl() {
 		return actionUrl;
 	}
 
-	public void setActionUrl(String actionUrl) {
-		this.actionUrl = actionUrl;
-	}
-
 	public Locale getLocale() {
 		return locale;
-	}
-
-	public void setLocale(Locale locale) {
-		this.locale = locale;
 	}
 	
 	/**
@@ -152,12 +144,12 @@ public class RenderContext {
 	 */
 	protected <T> String getInputClasses(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		boolean customJsEventsServed = field.getProperties().getDataAjaxEvents() != null && 
-			field.getProperties().getDataAjaxEvents().length > 0;
-		if (field.getProperties().getDataAjaxUrl() != null && 
-			!field.getProperties().getDataAjaxUrl().isEmpty() && 
-			!customJsEventsServed) {
-			sb.append("tdi");
+		List<JsEventUrlResolvable> ajaxEvents = gatherAjaxEvents(field);
+		for (JsEventUrlResolvable e : ajaxEvents) {
+			if (e.getEvent() == null) {
+				sb.append("tdi");
+				break;
+			}
 		}
 		if (isFullWidthInput(field)) {
 			sb.append(" " + getFullWidthInputClasses());
@@ -181,6 +173,16 @@ public class RenderContext {
 	
 	protected <T> String getButtonClasses(FormField<T> field) {
 		return "btn btn-default";
+	}
+	
+	protected <T> List<JsEventUrlResolvable> gatherAjaxEvents(FormField<T> field) {
+		List<JsEventUrlResolvable> urlEvents = new ArrayList<JsEventUrlResolvable>();
+		if (field.getProperties().getDataAjaxActions() != null) {
+			for (JsEventUrlResolvable e : field.getProperties().getDataAjaxActions()) {
+				urlEvents.add(e);
+			}
+		}
+		return urlEvents;
 	}
 	
 	String getElementId(FormElement<?> element) {

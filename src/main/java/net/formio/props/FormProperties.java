@@ -56,6 +56,35 @@ public interface FormProperties {
 	boolean isLabelVisible();
 	
 	/**
+	 * Returns JavaScript events that invoke custom actions using AJAX request. 
+	 * @return
+	 */
+	JsEventUrlResolvable[] getDataAjaxActions();
+	
+	/**
+	 * CSS selector (mostly ID selector) for finding AJAX-request-source element related elements. 
+	 * The selector is applied to the whole document. All related elements are informed about the TDI process 
+	 * flow the same way as TDI source element is. For example, data-related-element="#basket-container".
+	 * @return
+	 */
+	String getDataRelatedElement();
+	
+	/**
+	 * CSS selector for finding the TDI AJAX-request-source element ancestor. The closest ancestor, 
+	 * which suits the CSS selector, is found. All related elements are informed about the TDI process 
+	 * flow the same way as TDI source element is. For example, data-related-element="tr".
+	 * @return
+	 */
+	String getDataRelatedAncestor();
+	
+	/**
+	 * Confirm message. It allows confirming or rejecting of a TDI action. In case of rejection 
+	 * no TDI request will be sent to the server.
+	 * @return
+	 */
+	String getDataConfirm();
+	
+	/**
 	 * Returns properties of this form field/mapping in a map.
 	 * @return
 	 */

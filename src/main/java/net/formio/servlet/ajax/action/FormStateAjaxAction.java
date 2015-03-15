@@ -14,20 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.ajax;
+package net.formio.servlet.ajax.action;
 
+import javax.servlet.http.HttpServletRequest;
+
+import net.formio.ajax.AjaxAction;
+import net.formio.ajax.AjaxResponse;
+import net.formio.servlet.ajax.FormStateHandler;
 
 /**
- * Builds an AJAX response.
+ * Action that handles AJAX request and generates AJAX response in servlet environment.
+ * Form state is loaded using a {@link FormStateHandler} and made available to this
+ * action. After this action completes, form state is automatically stored.
  * @author Radek Beran
- *
- * @param <T>
+ * @param <T> type of form state object
+ * @author Radek Beran
  */
-public interface AjaxResponseBuilder<T> {
+public interface FormStateAjaxAction<T> extends AjaxAction {
+	
 	/**
-	 * Called to process AJAX request.
+	 * Generates AJAX response based on given AJAX request and given current form state
+	 * that can be changed and that is automatically stored after this action completes.
+	 * @param req
 	 * @param formState
-	 * @return AJAX response
+	 * @return
 	 */
-	AjaxResponse<T> apply(T formState);
+	AjaxResponse<T> apply(HttpServletRequest req, T formState);
 }

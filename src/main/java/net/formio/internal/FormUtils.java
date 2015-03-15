@@ -33,7 +33,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.formio.FormElement;
 import net.formio.FormField;
+import net.formio.FormMapping;
 import net.formio.Forms;
 
 /**
@@ -198,6 +200,27 @@ public class FormUtils {
 	
 	/**
 	 * This method is NOT intended as a part of public API and should not be used outside the library!
+	 * @param cls
+	 * @param name
+	 * @return
+	 */
+	public static <U> FormElement<U> findElementRecursive(Class<U> cls, String name, FormElement<?> startElem) {
+		FormElement<U> foundEl = null;
+		if (startElem.getName().equals(name)) {
+			foundEl = (FormElement<U>)startElem;
+		} else if (startElem instanceof FormMapping<?>) {
+			for (FormElement<?> element : ((FormMapping<?>)startElem).getElements()) {
+				foundEl = findElementRecursive(cls, name, element);
+				if (foundEl != null) {
+					break;
+				}
+			}
+		}
+		return foundEl;
+	}
+	
+	/**
+	 * This method is NOT intended as a part of public API and should not be used outside the library!
 	 * Opens given URL in default browser of operating system.
 	 * @param uri
 	 */
@@ -263,6 +286,19 @@ public class FormUtils {
 				}
 			}
 		}
+	}
+	
+	public static String urlWithAppendedParameter(String url, String paramName, String paramValue) {
+		if (url == null || url.isEmpty()) return null;
+		if (url.contains("?") && !url.endsWith("?")) {
+			if (!url.endsWith("&")) {
+				url = url + "&";
+			}
+		} else if (!url.endsWith("?")) {
+			url = url + "?"; 
+		}
+		url = url + paramName + "=" + paramValue;
+		return url;
 	}
 	
 	private FormUtils() {

@@ -32,6 +32,8 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	private static final long serialVersionUID = 4271239940342562765L;
 	protected static List<FormElementProperty<Object>> props;
 	
+	private static final JsEventUrlResolvable[] EMPTY_EVENT_TO_ACTIONS = new JsEventUrlResolvable[0];
+	
 	static {
 		props = new ArrayList<FormElementProperty<Object>>();
 	}
@@ -46,8 +48,7 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<Boolean> LABEL_VISIBLE = register(new FormElementProperty<Boolean>("labelVisible", Boolean.class, Boolean.TRUE));
 	
 	// TDI properties
-	public static final FormElementProperty<String> DATA_AJAX_URL = register(new FormElementProperty<String>("dataAjaxUrl", String.class, ""));
-	public static final FormElementProperty<JsEventToUrl[]> DATA_AJAX_EVENTS = register(new FormElementProperty<JsEventToUrl[]>("dataAjaxEvent", JsEventToUrl[].class, new JsEventToUrl[0]));
+	public static final FormElementProperty<JsEventUrlResolvable[]> DATA_AJAX_ACTIONS = register(new FormElementProperty<JsEventUrlResolvable[]>("dataAjaxActions", JsEventUrlResolvable[].class, EMPTY_EVENT_TO_ACTIONS));	
 	public static final FormElementProperty<String> DATA_RELATED_ELEMENT = register(new FormElementProperty<String>("dataRelatedElement", String.class, ""));
 	public static final FormElementProperty<String> DATA_RELATED_ANCESTOR = register(new FormElementProperty<String>("dataRelatedAncestor", String.class, ""));
 	public static final FormElementProperty<String> DATA_CONFIRM = register(new FormElementProperty<String>("dataConfirm", String.class, ""));

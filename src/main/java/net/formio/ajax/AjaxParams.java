@@ -22,7 +22,8 @@ package net.formio.ajax;
  */
 public final class AjaxParams {
 	public static final String INFUSE = "_infuse";
-	public static final String SRC_ELEMENT_NAME = "_srcname";
+	public static final String SRC_ELEMENT_NAME = "_src";
+	public static final String EVENT = "_event";
 	
 	private AjaxParams() {
 	}

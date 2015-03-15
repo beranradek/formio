@@ -14,42 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.props;
+package net.formio.ajax;
 
-import java.io.Serializable;
-
-import net.formio.FormElement;
-import net.formio.ajax.JsEvent;
+import net.formio.render.TdiResponseBuilder;
 
 /**
- * JavaScript event mapped to handling URL address.
+ * Data for generating AJAX response including the resulting form state.
  * @author Radek Beran
+ *
+ * @param <T> type of form state object
  */
-public class JsEventToUrl implements JsEventUrlResolvable, Serializable {
-	private static final long serialVersionUID = 2178054031308176325L;
-	private final JsEvent event;
-	private final String url;
+public class AjaxResponse<T> {
+	private final TdiResponseBuilder responseBuilder;
+	private final T updatedFormState;
 	
-	public JsEventToUrl(String url) {
-		this(null, url);
-	}
-	
-	public JsEventToUrl(JsEvent event, String url) {
-		this.event = event;
-		this.url = url;
+	public AjaxResponse(TdiResponseBuilder responseBuilder, T updatedFormState) {
+		this.responseBuilder = responseBuilder;
+		this.updatedFormState = updatedFormState;
 	}
 
-	@Override
-	public JsEvent getEvent() {
-		return event;
+	/**
+	 * AJAX response builder that contains instructions to generate AJAX response.
+	 * @return
+	 */
+	public TdiResponseBuilder getResponseBuilder() {
+		return responseBuilder;
 	}
 
-	public String getUrl() {
-		return url;
-	}
-	
-	@Override
-	public String getUrl(String urlBase, FormElement<?> element) {
-		return url;
+	/**
+	 * Resulting form state after processing the AJAX request.
+	 * @return
+	 */
+	public T getUpdatedFormState() {
+		return updatedFormState;
 	}
 }

@@ -36,6 +36,12 @@ public interface FormElement<T> {
 	FormMapping<?> getParent();
 	
 	/**
+	 * Root mapping of the form.
+	 * @return
+	 */
+	FormMapping<?> getRoot();
+	
+	/**
 	 * Name of this form element (full path from outer object to potentially nested property).
 	 * It represents an identifier of this element in the form and should be used as value 
 	 * for the name attribute in the markup.

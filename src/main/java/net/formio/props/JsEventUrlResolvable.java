@@ -16,40 +16,15 @@
  */
 package net.formio.props;
 
-import java.io.Serializable;
-
 import net.formio.FormElement;
 import net.formio.ajax.JsEvent;
 
 /**
- * JavaScript event mapped to handling URL address.
+ * Object capable to return JavaScript event and handling URL.
  * @author Radek Beran
  */
-public class JsEventToUrl implements JsEventUrlResolvable, Serializable {
-	private static final long serialVersionUID = 2178054031308176325L;
-	private final JsEvent event;
-	private final String url;
+public interface JsEventUrlResolvable {
+	JsEvent getEvent();
 	
-	public JsEventToUrl(String url) {
-		this(null, url);
-	}
-	
-	public JsEventToUrl(JsEvent event, String url) {
-		this.event = event;
-		this.url = url;
-	}
-
-	@Override
-	public JsEvent getEvent() {
-		return event;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-	
-	@Override
-	public String getUrl(String urlBase, FormElement<?> element) {
-		return url;
-	}
+	String getUrl(String urlBase, FormElement<?> element);
 }

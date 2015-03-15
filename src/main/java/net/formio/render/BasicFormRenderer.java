@@ -24,8 +24,11 @@ import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.Forms;
+import net.formio.ajax.AjaxParams;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
+import net.formio.internal.FormUtils;
+import net.formio.props.JsEventUrlResolvable;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
@@ -33,6 +36,7 @@ import net.formio.validation.ConstraintViolationMessage;
  * <p>You probably want to override the rendered markup to meet your needs - you
  * can create custom subclass that uses your favorite templating system and
  * overrides some or all methods with "renderMarkup" prefix.
+ * <p>Thread-safe: Immutable.
  * 
  * @author Radek Beran
  */
@@ -389,6 +393,7 @@ public class BasicFormRenderer {
 			+ getRenderContext().escapeValue("1") + "\"");
 		if (field.getValue() != null && !field.getValue().isEmpty()) {
 			String lc = field.getValue().toLowerCase();
+			// TODO: Use some formatter logic from field!
 			if (Boolean.valueOf(lc.equals("t") || lc.equals("y") || lc.equals("true") || lc.equals("1")).booleanValue()) {
 				sb.append(" checked=\"checked\" ");
 			}
@@ -524,8 +529,14 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
-			if (field.getProperties().getDataAjaxUrl() != null && !field.getProperties().getDataAjaxUrl().isEmpty()) {
-				sb.append(" data-ajax-url=\"" + field.getProperties().getDataAjaxUrl() + "\"");
+			List<JsEventUrlResolvable> ajaxEvents = getRenderContext().gatherAjaxEvents(field);
+			for (JsEventUrlResolvable e : ajaxEvents) {
+				if (e.getEvent() == null) {
+					String url = FormUtils.urlWithAppendedParameter(e.getUrl(field.getParent().getConfig().getUrlBase(), field), 
+						AjaxParams.SRC_ELEMENT_NAME, element.getName());
+					sb.append(" data-ajax-url=\"" + url + "\"");
+					break;
+				}
 			}
 			if (field.getProperties().getDataRelatedElement() != null && !field.getProperties().getDataRelatedElement().isEmpty()) {
 				sb.append(" data-related-element=\"" + field.getProperties().getDataRelatedElement() + "\"");

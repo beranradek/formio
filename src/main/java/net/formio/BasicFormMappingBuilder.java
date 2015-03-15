@@ -35,6 +35,7 @@ import net.formio.binding.collection.ItemsOrder;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.props.FormElementProperty;
+import net.formio.props.JsEventUrlResolvable;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 import net.formio.validation.Validator;
@@ -317,6 +318,14 @@ public class BasicFormMappingBuilder<T> {
 	
 	public BasicFormMappingBuilder<T> labelVisible(boolean visible) {
 		return property(FormElementProperty.LABEL_VISIBLE, Boolean.valueOf(visible));
+	}
+	
+	public BasicFormMappingBuilder<T> dataAjaxActions(JsEventUrlResolvable action) {
+		return dataAjaxActions(new JsEventUrlResolvable[] { action });
+	}
+	
+	public BasicFormMappingBuilder<T> dataAjaxActions(JsEventUrlResolvable[] actions) {
+		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
 	}
 
 	public FormMapping<T> build() {

@@ -54,6 +54,7 @@ public class Config {
 	private final boolean inputTrimmed;
 	private final PropertyMethodRegex accessorRegex;
 	private final PropertyMethodRegex setterRegex;
+	private final String urlBase;
 	
 	Config(Builder builder) {
 		this.locale = builder.locale;
@@ -68,6 +69,7 @@ public class Config {
 		this.inputTrimmed = builder.inputTrimmed;
 		this.accessorRegex = builder.accessorRegex;
 		this.setterRegex = builder.setterRegex;
+		this.urlBase = builder.urlBase;
 	}
 	
 	public static class Builder {
@@ -87,6 +89,7 @@ public class Config {
 		boolean binderSpecified;
 		boolean validatorSpecified;
 		boolean inputTrimmed = true;
+		String urlBase;
 
 		Builder() {
 			// package-default access so only Forms (and classes in current package) can create the builder
@@ -155,6 +158,16 @@ public class Config {
 		
 		public Builder inputTrimmed(boolean inputTrimmed) {
 			this.inputTrimmed = inputTrimmed;
+			return this;
+		}
+		
+		/**
+		 * Base URL for handling AJAX requests.
+		 * @param urlBase
+		 * @return
+		 */
+		public Builder urlBase(String urlBase) {
+			this.urlBase = urlBase;
 			return this;
 		}
 		
@@ -246,6 +259,14 @@ public class Config {
 
 	public PropertyMethodRegex getSetterRegex() {
 		return setterRegex;
-	}	
+	}
+	
+	/**
+	 * Base URL for handling AJAX requests.
+	 * @return
+	 */
+	public String getUrlBase() {
+		return urlBase;
+	}
 	
 }

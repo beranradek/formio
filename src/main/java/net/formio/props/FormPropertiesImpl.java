@@ -72,6 +72,26 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
+	public JsEventUrlResolvable[] getDataAjaxActions() {
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_ACTIONS);
+	}
+	
+	@Override
+	public String getDataRelatedElement() {
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_RELATED_ELEMENT);
+	}
+	
+	@Override
+	public String getDataRelatedAncestor() {
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_RELATED_ANCESTOR);
+	}
+	
+	@Override
+	public String getDataConfirm() {
+		return getPropertiesMap().getTyped(FormElementProperty.DATA_CONFIRM);
+	}
+	
+	@Override
 	public HeterogMap<String> getPropertiesMap() {
 		return this.properties;
 	}

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import net.formio.internal.FormUtils;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.Validator;
 import net.formio.validation.constraints.NotEmpty;
@@ -183,7 +184,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 			if (foundEl == null) {
 				FormMapping<?> root = getRoot();
 				if (root != null) {
-					foundEl = ((AbstractFormElement<?>)root).findElementRecursive(cls, name);
+					foundEl = FormUtils.findElementRecursive(cls, name, root);
 				}
 			}
 		}
@@ -194,23 +195,9 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	public FormElement<Object> findElement(String name) {
 		return findElement(Object.class, name);
 	}
-	
-	private <U> FormElement<U> findElementRecursive(Class<U> cls, String name) {
-		FormElement<U> foundEl = null;
-		if (this.getName().equals(name)) {
-			foundEl = (FormElement<U>)this;
-		} else if (this instanceof FormMapping<?>) {
-			for (FormElement<?> element : ((FormMapping<?>)this).getElements()) {
-				foundEl = ((AbstractFormElement<?>)element).findElementRecursive(cls, name);
-				if (foundEl != null) {
-					break;
-				}
-			}
-		}
-		return foundEl;
-	}
 
-	private FormMapping<?> getRoot() {
+	@Override
+	public FormMapping<?> getRoot() {
 		FormMapping<?> root = null;
 		if (this instanceof FormMapping<?>) {
 			root = (FormMapping<?>)this;
