@@ -41,7 +41,7 @@ public abstract class AjaxAlertErrorHandler implements ErrorHandler {
 	 */
 	@Override
 	public void handleError(HttpServletRequest request, HttpServletResponse response, Throwable t) {
-		ServletResponses.write(response,
+		ServletResponses.ajaxResponse(response,
 			new BasicFormRenderer(new RenderContext(Locale.ENGLISH)).ajaxResponse()
 				.status("ERROR")
 				.script("alert(\"AJAX Error\")")

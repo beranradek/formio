@@ -42,14 +42,15 @@ import net.formio.servlet.ajax.action.FormStateAjaxAction;
  * @author Radek Beran
  */
 public final class ServletResponses {
-
+	
 	/**
-	 * Writes AJAX response to {@link HttpServletResponse}. Response is closed for further writing.
+	 * Writes response to {@link HttpServletResponse}. Response is closed for further writing.
 	 * @param response
 	 * @param content
+	 * @param contentType
 	 */
-	public static void write(final HttpServletResponse response, String content) {
-		response.setContentType(ContentTypes.XML);
+	public static void write(final HttpServletResponse response, String content, String contentType) {
+		response.setContentType(contentType);
 		PrintWriter writer = null;
 		try {
 			writer = response.getWriter();
@@ -61,6 +62,24 @@ public final class ServletResponses {
 				writer.close();
 			}
 		}
+	}
+	
+	/**
+	 * Writes HTML response to {@link HttpServletResponse}. Response is closed for further writing.
+	 * @param response
+	 * @param content
+	 */
+	public static void writeHtml(final HttpServletResponse response, String content) {
+		write(response, content, ContentTypes.HTML);
+	}
+
+	/**
+	 * Writes AJAX response to {@link HttpServletResponse}. Response is closed for further writing.
+	 * @param response
+	 * @param content
+	 */
+	public static void ajaxResponse(final HttpServletResponse response, String content) {
+		write(response, content, ContentTypes.XML);
 	}
 	
 	/** 
@@ -77,7 +96,7 @@ public final class ServletResponses {
 		try {
 			AjaxResponse<T> ajResp = ajaxResponseBuilder(request, response, formStateHandler, respBuilder);
 			formStateHandler.saveFormState(request, ajResp.getUpdatedFormState());
-			ServletResponses.write(response, ajResp.getResponseBuilder().asString());
+			ServletResponses.ajaxResponse(response, ajResp.getResponseBuilder().asString());
 		} catch (Exception ex) {
 			formStateHandler.handleError(request, response, ex);
 		}
@@ -187,7 +206,7 @@ public final class ServletResponses {
 				notFound(res, "Action handling AJAX request was not found");
 			} else {
 				TdiResponseBuilder ajResp = action.apply(req);
-				write(res, ajResp.asString());
+				ajaxResponse(res, ajResp.asString());
 			}
 		} catch (Exception ex) {
 			errorHandler.handleError(req, res, ex);
@@ -215,7 +234,7 @@ public final class ServletResponses {
 					}
 				});
 				formStateHandler.saveFormState(req, ajResp.getUpdatedFormState());
-				write(res, ajResp.getResponseBuilder().asString());
+				ajaxResponse(res, ajResp.getResponseBuilder().asString());
 			}
 		} catch (Exception ex) {
 			formStateHandler.handleError(req, res, ex);
