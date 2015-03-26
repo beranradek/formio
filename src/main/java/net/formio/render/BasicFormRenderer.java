@@ -32,7 +32,7 @@ import net.formio.props.JsEventUrlResolvable;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
- * <p>Basic implementation of {@link FormRenderer} using Bootstrap markup and styles.
+ * <p>Form renderer that is using Bootstrap markup and styles.
  * <p>You probably want to override the rendered markup to meet your needs - you
  * can create custom subclass that uses your favorite templating system and
  * overrides some or all methods with "renderMarkup" prefix.
@@ -120,7 +120,7 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		
 		// Label
-		sb.append(renderMarkupMappingLabelElement(mapping));
+		sb.append(renderMarkupMappingLabel(mapping));
 
 		// Mapping messages
 		sb.append(renderMarkupMessageList(mapping));
@@ -344,12 +344,12 @@ public class BasicFormRenderer {
 		return messageRenderer.renderMessage(msg);
 	}
 
-	protected <T> String renderMarkupMappingLabelElement(FormMapping<T> mapping) {
-		return labelRenderer.renderMappingLabelElement(mapping);
+	protected <T> String renderMarkupMappingLabel(FormMapping<T> mapping) {
+		return labelRenderer.renderMappingLabel(mapping);
 	}
 
-	protected <T> String renderMarkupLabel(FormElement<?> element) {
-		return labelRenderer.renderMarkupLabel(element);
+	protected <T> String renderMarkupFieldLabel(FormField<T> field) {
+		return labelRenderer.renderFieldLabel(field);
 	}
 	
 	protected <T> String renderMarkupTextArea(FormField<T> field) {
@@ -572,7 +572,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderTextFieldInternal(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
 				renderMarkupMessageList(field)));
@@ -651,7 +651,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderFieldTextArea(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupTextArea(field) + 
 				renderMarkupMessageList(field)));
@@ -670,7 +670,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderFieldPassword(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) +
 				renderMarkupMessageList(field)));
@@ -678,7 +678,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderFieldFileUpload(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
 				renderMarkupMessageList(field)));
@@ -686,7 +686,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderFieldDatePicker(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
 				renderDatePickerScript(field) + 
@@ -695,7 +695,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderFieldDropDownChoice(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupSelect(field, false, null) + 
 				renderMarkupMessageList(field)));
@@ -703,7 +703,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderFieldMultipleChoice(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupSelect(field, true, null) + 
 				renderMarkupMessageList(field)));
@@ -711,7 +711,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderFieldMultipleCheckbox(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupChecks(field) + 
 				renderMarkupMessageList(field)));
@@ -719,7 +719,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderFieldRadioChoice(FormField<T> field) {
 		return renderMarkupFieldBox(field, 
-			renderMarkupLabel(field) + 
+			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupChecks(field) + 
 				renderMarkupMessageList(field)));

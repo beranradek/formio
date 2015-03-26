@@ -18,7 +18,6 @@ package net.formio.render;
 
 import net.formio.BasicListFormMapping;
 import net.formio.FormElement;
-import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.common.MessageTranslator;
@@ -37,28 +36,22 @@ class LabelRenderer {
 		this.ctx = ctx;
 	}
 	
-	protected <T> String renderMappingLabelElement(FormMapping<T> mapping) {
+	protected <T> String renderMappingLabel(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
-		if (mapping.getProperties().isLabelVisible()) {
-			if (!mapping.isRootMapping()) {
-				sb.append("<div class=\"" + getRenderContext().getFormBoxClasses() + "\">" + newLine());
-				sb.append("<div class=\"" + getRenderContext().getLabelClasses() + "\">" + newLine());
-				sb.append(renderMarkupLabel(mapping));
-				sb.append("</div>" + newLine());
-				sb.append("</div>" + newLine());
-			}
+		if (mapping.getProperties().isLabelVisible() && !mapping.isRootMapping()) {
+			sb.append("<div class=\"" + getRenderContext().getFormBoxClasses() + "\">" + newLine());
+			sb.append("<div class=\"" + getRenderContext().getLabelClasses() + "\">" + newLine());
+			sb.append(getLabelBeginTag(mapping) + getLabelText(mapping) + ":" + getLabelEndTag(mapping));
+			sb.append("</div>" + newLine());
+			sb.append("</div>" + newLine());
 		}
 		return sb.toString();
 	}
 
-	protected <T> String renderMarkupLabel(FormElement<T> element) {
+	protected <T> String renderFieldLabel(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder("");
 		if (element.getProperties().isLabelVisible()) {
-			if (element instanceof FormField) {
-				sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getRenderContext().getLabelClasses() + "\">");
-			} else {
-				sb.append(getLabelBeginTag(element));
-			}
+			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getRenderContext().getLabelClasses() + "\">");
 			sb.append(getLabelText(element));
 			sb.append(":");
 			sb.append(getLabelEndTag(element));

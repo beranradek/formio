@@ -74,7 +74,7 @@ public class RenderContext {
 	 * @param s
 	 * @return
 	 */
-	protected String escapeHtml(String s) {
+	public String escapeHtml(String s) {
 		if (s == null)
 			return null;
 		if (s.isEmpty())
@@ -103,6 +103,14 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
+	public String getLabelClasses() {
+		return "control-label col-sm-" + getLabelWidth();
+	}
+	
+	public String getFormBoxClasses() {
+		return "form-group";
+	}
+	
 	protected String escapeValue(String value) {
 		if (value == null || value.isEmpty()) {
 			return "";
@@ -114,14 +122,6 @@ public class RenderContext {
 		FormMapping<?> rootMapping = getRootMapping(element);
 		return new MessageTranslator(element.getParent().getDataClass(),
 			getLocale(), rootMapping.getDataClass());
-	}
-	
-	protected String getFormBoxClasses() {
-		return "form-group";
-	}
-
-	protected String getLabelClasses() {
-		return "control-label col-sm-" + getLabelWidth();
 	}
 	
 	protected <T> String getInputEnvelopeClasses(FormField<T> field) {
