@@ -171,7 +171,7 @@ public class RenderContext {
 		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
 	}
 	
-	protected <T> String getButtonClasses(FormField<T> field) {
+	protected <T> String getButtonClasses(@SuppressWarnings("unused") FormField<T> field) {
 		return "btn btn-default";
 	}
 	

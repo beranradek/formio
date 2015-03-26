@@ -76,7 +76,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	public String renderElement(FormElement<?> element) {
+	public <T> String renderElement(FormElement<T> element) {
 		return renderMarkupElementPlaceholder(element, renderElementMarkup(element));
 	}
 
@@ -86,7 +86,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	public String renderElementMarkup(FormElement<?> element) {
+	public <T> String renderElementMarkup(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder("");
 		if (element.isVisible()) {
 			sb.append(renderVisibleElement(element));
@@ -99,7 +99,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	public String renderVisibleElement(FormElement<?> element) {
+	public <T> String renderVisibleElement(FormElement<T> element) {
 		String html = null;
 		if (element instanceof FormMapping) {
 			html = renderVisibleMapping((FormMapping<?>)element);
@@ -247,7 +247,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	public String getElementId(FormElement<?> element) {
+	public <T> String getElementId(FormElement<T> element) {
 		return getRenderContext().getElementId(element);
 	}
 	
@@ -275,7 +275,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	protected String getElementPlaceholderId(FormElement<?> element) {
+	protected <T> String getElementPlaceholderId(FormElement<T> element) {
 		return getElementPlaceholderId(element.getName());
 	}
 	
@@ -288,7 +288,7 @@ public class BasicFormRenderer {
 		return "placeholder" + Forms.PATH_SEP + name;
 	}
 	
-	protected String renderMarkupElementPlaceholder(FormElement<?> element, String innerMarkup) {
+	protected <T> String renderMarkupElementPlaceholder(FormElement<T> element, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
 		// Element placeholder begin - rendered even for invisible element so there is reserved
 		// identified place that can be updated if the element becomes visible.
@@ -336,7 +336,7 @@ public class BasicFormRenderer {
 		return sb.toString();
 	}
 
-	protected String renderMarkupMessageList(FormElement<?> element) {
+	protected <T> String renderMarkupMessageList(FormElement<T> element) {
 		return messageRenderer.renderMessageList(element);
 	}
 
@@ -505,11 +505,11 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	protected String getElementAttributes(FormElement<?> element) {
+	protected <T> String getElementAttributes(FormElement<T> element) {
 		return getAccessibilityAttributes(element) + getAjaxAttributes(element);
 	}
 
-	protected String getAccessibilityAttributes(FormElement<?> element) {
+	protected <T> String getAccessibilityAttributes(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder();
 		if (!element.isEnabled()) {
 			sb.append(" disabled=\"disabled\"");
@@ -525,7 +525,7 @@ public class BasicFormRenderer {
 	 * @param element
 	 * @return
 	 */
-	protected String getAjaxAttributes(FormElement<?> element) {
+	protected <T> String getAjaxAttributes(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
@@ -727,19 +727,19 @@ public class BasicFormRenderer {
 
 	// --- /Various field types - end ---
 
-	protected <T> String getLabelBeginTag(FormElement<?> formElement) {
+	protected <T> String getLabelBeginTag(FormElement<T> formElement) {
 		return labelRenderer.getLabelBeginTag(formElement);
 	}
 
-	protected <T> String getLabelEndTag(FormElement<?> formElement) {
+	protected <T> String getLabelEndTag(FormElement<T> formElement) {
 		return labelRenderer.getLabelEndTag(formElement);
 	}
 
-	protected <T> String getLabelText(FormElement<?> formElement) {
+	protected <T> String getLabelText(FormElement<T> formElement) {
 		return labelRenderer.getLabelText(formElement);
 	}
 
-	protected <T> String getRequiredMark(FormElement<?> formElement) {
+	protected <T> String getRequiredMark(FormElement<T> formElement) {
 		return labelRenderer.getRequiredMark(formElement);
 	}
 
@@ -752,7 +752,7 @@ public class BasicFormRenderer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private ChoiceRenderer<Object> getChoiceRenderer(FormField<?> field) {
+	private <T> ChoiceRenderer<Object> getChoiceRenderer(FormField<T> field) {
 		return (ChoiceRenderer<Object>)field.getChoiceRenderer();
 	}
 	
