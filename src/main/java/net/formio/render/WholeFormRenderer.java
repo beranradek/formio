@@ -82,11 +82,12 @@ public class WholeFormRenderer extends BasicFormRenderer {
 		sb.append("<form action=\"" + getRenderContext().getActionUrl() + 
 			"\" method=\"" + getRenderContext().getMethod().name() + 
 			"\" class=\"form-horizontal\" role=\"form\">" + newLine());
-		
-		sb.append(renderGlobalMessages(formMapping));
-		sb.append(renderElement(formMapping));
-		if (!containsSubmitButton(formMapping)) {
-			sb.append(renderDefaultSubmitButton());
+		if (formMapping.isVisible()) {
+			sb.append(renderMarkupGlobalMessages(formMapping));
+			sb.append(renderElement(formMapping));
+			if (!containsSubmitButton(formMapping)) {
+				sb.append(renderDefaultSubmitButton());
+			}
 		}
 		sb.append("</form>" + newLine());
 		return sb.toString();

@@ -27,12 +27,17 @@ import net.formio.common.MessageTranslator;
  * @author Radek Beran
  */
 class LabelRenderer {
+	private final BasicFormRenderer renderer;
 	private final RenderContext ctx;
 
-	LabelRenderer(RenderContext ctx) {
+	LabelRenderer(BasicFormRenderer renderer, RenderContext ctx) {
+		if (renderer == null) {
+			throw new IllegalArgumentException("renderer cannot be null");
+		}
 		if (ctx == null) {
 			throw new IllegalArgumentException("ctx cannot be null");
 		}
+		this.renderer = renderer;
 		this.ctx = ctx;
 	}
 	
@@ -40,8 +45,8 @@ class LabelRenderer {
 		StringBuilder sb = new StringBuilder("");
 		if (mapping.getProperties().isLabelVisible() && !mapping.isRootMapping()) {
 			sb.append("<div class=\"" + getRenderContext().getFormBoxClasses() + "\">" + newLine());
-			sb.append("<div class=\"" + getRenderContext().getLabelClasses() + "\">" + newLine());
-			sb.append(getLabelBeginTag(mapping) + getLabelText(mapping) + ":" + getLabelEndTag(mapping));
+			sb.append("<div class=\"" + getLabelClasses() + "\">" + newLine());
+			sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>");
 			sb.append("</div>" + newLine());
 			sb.append("</div>" + newLine());
 		}
@@ -51,26 +56,12 @@ class LabelRenderer {
 	protected <T> String renderFieldLabel(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder("");
 		if (element.getProperties().isLabelVisible()) {
-			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getRenderContext().getLabelClasses() + "\">");
-			sb.append(getLabelText(element));
+			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getLabelClasses() + "\">");
+			sb.append(renderer.getLabelText(element));
 			sb.append(":");
-			sb.append(getLabelEndTag(element));
+			sb.append("</label>");
 		}
 		return sb.toString();
-	}
-	
-	protected <T> String getLabelBeginTag(FormElement<T> formElement) {
-		if (formElement.getProperties().isLabelVisible()) {
-			return "<label>" + newLine();
-		}
-		return "";
-	}
-
-	protected <T> String getLabelEndTag(FormElement<T> formElement) {
-		if (formElement.getProperties().isLabelVisible()) {
-			return "</label>" + newLine();
-		}
-		return "";
 	}
 
 	protected <T> String getLabelText(FormElement<T> formElement) {
@@ -90,7 +81,7 @@ class LabelRenderer {
 				sb.append(" (" + listMapping.getList().size() + ")");
 			}
 			if (formElement.isRequired()) {
-				sb.append(getRequiredMark(formElement));
+				sb.append(renderer.getRequiredMark(formElement));
 			}
 		}
 		return sb.toString();
@@ -98,6 +89,10 @@ class LabelRenderer {
 
 	protected <T> String getRequiredMark(@SuppressWarnings("unused") FormElement<T> formElement) {
 		return "&nbsp;*";
+	}
+	
+	protected String getLabelClasses() {
+		return "control-label col-sm-" + getRenderContext().getLabelWidth();
 	}
 	
 	protected RenderContext getRenderContext() {

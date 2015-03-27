@@ -103,10 +103,6 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
-	public String getLabelClasses() {
-		return "control-label col-sm-" + getLabelWidth();
-	}
-	
 	public String getFormBoxClasses() {
 		return "form-group";
 	}
@@ -118,7 +114,7 @@ public class RenderContext {
 		return escapeHtml(value);
 	}
 	
-	protected <T> MessageTranslator createMessageTranslator(FormElement<T> element) {
+	public <T> MessageTranslator createMessageTranslator(FormElement<T> element) {
 		FormMapping<?> rootMapping = getRootMapping(element);
 		return new MessageTranslator(element.getParent().getDataClass(),
 			getLocale(), rootMapping.getDataClass());
@@ -142,7 +138,7 @@ public class RenderContext {
 	 * @param field
 	 * @return
 	 */
-	protected <T> String getInputClasses(FormField<T> field) {
+	public <T> String getInputClasses(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		List<JsEventUrlResolvable> ajaxEvents = gatherAjaxEvents(field);
 		for (JsEventUrlResolvable e : ajaxEvents) {
@@ -205,7 +201,7 @@ public class RenderContext {
 		return getElementId(field) + Forms.PATH_SEP + itemIndex;
 	}
 	
-	private int getLabelWidth() {
+	protected int getLabelWidth() {
 		return 2;
 	}
 

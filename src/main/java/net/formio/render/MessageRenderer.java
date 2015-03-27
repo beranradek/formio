@@ -28,12 +28,17 @@ import net.formio.validation.ValidationResult;
  * @author Radek Beran
  */
 class MessageRenderer {
+	private final BasicFormRenderer renderer;
 	private final RenderContext ctx;
 
-	MessageRenderer(RenderContext ctx) {
+	MessageRenderer(BasicFormRenderer renderer, RenderContext ctx) {
+		if (renderer == null) {
+			throw new IllegalArgumentException("renderer cannot be null");
+		}
 		if (ctx == null) {
 			throw new IllegalArgumentException("ctx cannot be null");
 		}
+		this.renderer = renderer;
 		this.ctx = ctx;
 	}
 	
@@ -43,9 +48,8 @@ class MessageRenderer {
 		if (!validationResult.isEmpty() && !validationResult.isSuccess()) {
 			sb.append("<div class=\"alert alert-danger\">" + newLine());
 			sb.append("<div>Form contains validation errors.</div>" + newLine());
-			for (ConstraintViolationMessage msg : validationResult
-					.getGlobalMessages()) {
-				sb.append(renderMessage(msg));
+			for (ConstraintViolationMessage msg : validationResult.getGlobalMessages()) {
+				sb.append(renderer.renderMarkupMessage(msg));
 			}
 			sb.append("</div>" + newLine());
 		}
@@ -57,7 +61,7 @@ class MessageRenderer {
 		List<ConstraintViolationMessage> messages = element.getValidationMessages();
 		if (messages != null && !messages.isEmpty()) {
 			for (ConstraintViolationMessage msg : messages) {
-				sb.append(renderMessage(msg));
+				sb.append(renderer.renderMarkupMessage(msg));
 			}
 		}
 		return sb.toString();

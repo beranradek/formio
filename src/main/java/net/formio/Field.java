@@ -52,6 +52,8 @@ public enum Field {
 	WEEK("week", "week");
 	
 	// LABEL("label"),
+	// TODO: Add action link (for e.g. moving from one list to another, interaction between different form fields, adding/removing etc.,
+	// allow JavaScript confirmation for links)
 	// LINK("link"),
 	// TODO: Multiple date and file?
 	

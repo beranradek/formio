@@ -54,14 +54,10 @@ public class BasicFormRenderer {
 			throw new IllegalArgumentException("ctx cannot be null");
 		}
 		this.ctx = ctx;
-		this.messageRenderer = new MessageRenderer(ctx);
-		this.labelRenderer = new LabelRenderer(ctx);
+		this.messageRenderer = new MessageRenderer(this, ctx);
+		this.labelRenderer = new LabelRenderer(this, ctx);
 		this.datePickerRenderer = new DatePickerRenderer(ctx);
 		this.ajaxEventRenderer = new AjaxEventRenderer(ctx);
-	}
-
-	public <T> String renderGlobalMessages(FormMapping<T> formMapping) {
-		return messageRenderer.renderGlobalMessages(formMapping);
 	}
 
 	/**
@@ -335,6 +331,10 @@ public class BasicFormRenderer {
 		sb.append("</div>" + newLine());
 		return sb.toString();
 	}
+	
+	public <T> String renderMarkupGlobalMessages(FormMapping<T> formMapping) {
+		return messageRenderer.renderGlobalMessages(formMapping);
+	}
 
 	protected <T> String renderMarkupMessageList(FormElement<T> element) {
 		return messageRenderer.renderMessageList(element);
@@ -457,7 +457,7 @@ public class BasicFormRenderer {
 
 					sb.append("<div class=\"" + type + "\">" + newLine());
 					if (field.getProperties().isLabelVisible()) {
-						sb.append(getLabelBeginTag(field));
+						sb.append("<label>");
 					}
 					
 					sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"" + itemId + "\" value=\"" + value + "\"");
@@ -468,7 +468,7 @@ public class BasicFormRenderer {
 					sb.append(" class=\"" + getRenderContext().getInputClasses(field) + "\"");
 					sb.append("/>");
 					if (field.getProperties().isLabelVisible()) {
-						sb.append(" " + title + getLabelEndTag(field));
+						sb.append(" " + title + "</label>");
 					}
 					sb.append("</div>" + newLine());
 					itemIndex++;
@@ -660,10 +660,10 @@ public class BasicFormRenderer {
 	protected <T> String renderFieldCheckBox(FormField<T> field) {
 		return renderMarkupFieldBox(field,
 			renderMarkupInputEnvelope(field,
-				getLabelBeginTag(field) +
+				"<label>" +
 				renderMarkupCheckBox(field) + 
 				getLabelText(field) +
-				getLabelEndTag(field) +
+				"</label>" +
 				renderMarkupMessageList(field))
 		);
 	}
@@ -727,20 +727,12 @@ public class BasicFormRenderer {
 
 	// --- /Various field types - end ---
 
-	protected <T> String getLabelBeginTag(FormElement<T> formElement) {
-		return labelRenderer.getLabelBeginTag(formElement);
+	protected <T> String getLabelText(FormElement<T> element) {
+		return labelRenderer.getLabelText(element);
 	}
-
-	protected <T> String getLabelEndTag(FormElement<T> formElement) {
-		return labelRenderer.getLabelEndTag(formElement);
-	}
-
-	protected <T> String getLabelText(FormElement<T> formElement) {
-		return labelRenderer.getLabelText(formElement);
-	}
-
-	protected <T> String getRequiredMark(FormElement<T> formElement) {
-		return labelRenderer.getRequiredMark(formElement);
+	
+	protected <T> String getRequiredMark(FormElement<T> element) {
+		return labelRenderer.getRequiredMark(element);
 	}
 
 	protected RenderContext getRenderContext() {
