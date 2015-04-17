@@ -1,4 +1,5 @@
-# Formio  [![Build Status](https://travis-ci.org/beranradek/formio.svg?branch=master)](https://travis-ci.org/beranradek/formio) 
+# Formio  [![Build Status](https://travis-ci.org/beranradek/formio.svg?branch=master)](https://travis-ci.org/beranradek/formio) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.formio/formio/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.formio/formio/badge.svg)
+
 
 #### Form definition and binding library for Java platform:
 * Easy-to-use configurable handy tool.
