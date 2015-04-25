@@ -14,34 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.servlet.ajax;
+package net.formio.ajax.error;
 
-import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
 
-import net.formio.RequestParams;
+import net.formio.ajax.AjaxResponse;
+import net.formio.ajax.TdiAjaxRequestParams;
 import net.formio.render.BasicFormRenderer;
 import net.formio.render.RenderContext;
-import net.formio.servlet.ServletResponses;
 
 /**
- * {@link ErrorHandler} that shows an alert using AJAX response.
+ * {@link AjaxErrorHandler} that shows an alert using AJAX response.
  * @author Radek Beran
  */
-public class AjaxAlertErrorHandler implements ErrorHandler {
+public class AjaxAlertErrorHandler<T> implements AjaxErrorHandler<T> {
 
 	/**
 	 * Handles error in processing an AJAX request by generating AJAX response that shows "AJAX error" alert.
 	 * @param requestParams
-	 * @param response
 	 * @param t exception thrown during processing an AJAX request
 	 */
 	@Override
-	public void handleError(RequestParams requestParams, HttpServletResponse response, Throwable cause) {
-		ServletResponses.ajaxResponse(response,
-			new BasicFormRenderer(new RenderContext()).ajaxResponse()
-				.status("ERROR")
-				.script("alert(\"AJAX Error\")")
-				.asString());
+	public AjaxResponse<T> errorResponse(TdiAjaxRequestParams requestParams, Throwable cause) {
+		return new AjaxResponse<T>(new BasicFormRenderer(new RenderContext(Locale.ENGLISH)).ajaxResponse()
+			.status("ERROR")
+			.script("alert(\"AJAX Error\")")
+			.asString());
 	}
 
 }

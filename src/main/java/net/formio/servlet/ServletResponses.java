@@ -19,14 +19,12 @@ package net.formio.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletResponse;
 
 import net.formio.ContentTypes;
 import net.formio.FormElement;
 import net.formio.FormMapping;
-import net.formio.RequestParams;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.AjaxResponse;
 import net.formio.ajax.JsEvent;
@@ -34,9 +32,8 @@ import net.formio.ajax.TdiAjaxRequestParams;
 import net.formio.ajax.action.AjaxAction;
 import net.formio.ajax.action.HandledJsEvent;
 import net.formio.ajax.action.JsEventToAction;
-import net.formio.render.BasicFormRenderer;
-import net.formio.render.RenderContext;
-import net.formio.servlet.ajax.ErrorHandler;
+import net.formio.ajax.error.AjaxAlertErrorHandler;
+import net.formio.ajax.error.AjaxErrorHandler;
 
 /**
  * Convenience methods for handling (AJAX or non-AJAX) responses in servlet API.
@@ -92,7 +89,7 @@ public final class ServletResponses {
 	 * @param action
 	 * @param errorHandler
 	 */
-	public static <T> void ajaxResponse(TdiAjaxRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action, ErrorHandler errorHandler) {
+	public static <T> void ajaxResponse(TdiAjaxRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action, AjaxErrorHandler<T> errorHandler) {
 		if (requestParams == null) {
 			throw new IllegalArgumentException("request params must be specified");
 		}
@@ -110,7 +107,8 @@ public final class ServletResponses {
 				ajaxResponse(res, ajRes.getResponse());
 			}
 		} catch (Exception ex) {
-			errorHandler.handleError(requestParams, res, ex);
+			AjaxResponse<T> ajRes = errorHandler.errorResponse(requestParams, ex);
+			ajaxResponse(res, ajRes.getResponse());
 		}
 	}
 	
@@ -122,17 +120,7 @@ public final class ServletResponses {
 	 * @param action
 	 */
 	public static <T> void ajaxResponse(TdiAjaxRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action) {
-		ajaxResponse(requestParams, res, action, new ErrorHandler() {
-			
-			@Override
-			public void handleError(RequestParams requestParams, HttpServletResponse response, Throwable cause) {
-				ServletResponses.ajaxResponse(response,
-					new BasicFormRenderer(new RenderContext(Locale.ENGLISH)).ajaxResponse()
-						.status("ERROR")
-						.script("alert(\"AJAX Error\")")
-						.asString());
-			}
-		});
+		ajaxResponse(requestParams, res, action, new AjaxAlertErrorHandler<T>());
 	}
 	
 	// TODO RBe: Move to formio package independent on servlet request

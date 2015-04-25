@@ -14,20 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.servlet.ajax;
+package net.formio.ajax.error;
 
-import javax.servlet.http.HttpServletResponse;
+import net.formio.ajax.AjaxResponse;
+import net.formio.ajax.TdiAjaxRequestParams;
 
-import net.formio.RequestParams;
-
-public interface ErrorHandler {
+/**
+ * Generates an error response when the processing of AJAX request failed.
+ * @author Radek Beran
+ *
+ * @param <T>
+ */
+public interface AjaxErrorHandler<T> {
 	/**
 	 * Called in the case an error occured while handling an AJAX action
 	 * processing AJAX request.
 	 * @param requestParams
-	 * @param response
 	 * @param cause
 	 * @return
 	 */
-	void handleError(RequestParams requestParams, HttpServletResponse response, Throwable cause);
+	AjaxResponse<T> errorResponse(TdiAjaxRequestParams requestParams, Throwable cause);
 }
