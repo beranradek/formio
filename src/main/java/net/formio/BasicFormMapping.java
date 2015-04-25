@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import net.formio.ajax.TdiAjaxRequestParams;
 import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.BoundData;
 import net.formio.binding.InstanceHoldingInstantiator;
@@ -246,6 +247,16 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	@Override
 	public FormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, Class<?>... validationGroups) {
 		return fillAndValidate(formData, locale, (RequestContext)null, validationGroups);
+	}
+	
+	@Override
+	public FormElement<?> fillTdiAjaxSrcElement(TdiAjaxRequestParams requestParams, Locale locale, Class<?>... validationGroups) {
+		FormElement<?> el = null;
+		if (requestParams.isTdiAjaxRequest()) {
+			FormMapping<?> filledMapping = fill(bind(requestParams, locale, validationGroups), locale);
+			el = filledMapping.findElement(requestParams.getTdiAjaxSrcElementName());
+		}
+		return el;
 	}
 	
 	@Override

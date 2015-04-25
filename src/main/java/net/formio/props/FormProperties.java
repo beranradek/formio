@@ -16,6 +16,7 @@
  */
 package net.formio.props;
 
+import net.formio.ajax.action.HandledJsEvent;
 import net.formio.common.heterog.HeterogMap;
 
 /**
@@ -59,7 +60,7 @@ public interface FormProperties {
 	 * Returns JavaScript events that invoke custom actions using AJAX request. 
 	 * @return
 	 */
-	JsEventUrlResolvable[] getDataAjaxActions();
+	HandledJsEvent[] getDataAjaxActions();
 	
 	/**
 	 * CSS selector (mostly ID selector) for finding AJAX-request-source element related elements. 

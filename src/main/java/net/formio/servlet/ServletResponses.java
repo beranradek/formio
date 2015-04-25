@@ -18,24 +18,25 @@ package net.formio.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.formio.ContentTypes;
 import net.formio.FormElement;
 import net.formio.FormMapping;
-import net.formio.ajax.AjaxAction;
+import net.formio.RequestParams;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.AjaxResponse;
-import net.formio.ajax.AjaxResponseBuilder;
 import net.formio.ajax.JsEvent;
-import net.formio.props.JsEventToAction;
-import net.formio.props.JsEventUrlResolvable;
-import net.formio.render.TdiResponseBuilder;
-import net.formio.servlet.ajax.FormStateHandler;
-import net.formio.servlet.ajax.action.DefaultAjaxAction;
-import net.formio.servlet.ajax.action.FormStateAjaxAction;
+import net.formio.ajax.TdiAjaxRequestParams;
+import net.formio.ajax.action.AjaxAction;
+import net.formio.ajax.action.HandledJsEvent;
+import net.formio.ajax.action.JsEventToAction;
+import net.formio.render.BasicFormRenderer;
+import net.formio.render.RenderContext;
+import net.formio.servlet.ajax.ErrorHandler;
 
 /**
  * Convenience methods for handling (AJAX or non-AJAX) responses in servlet API.
@@ -74,85 +75,91 @@ public final class ServletResponses {
 	}
 
 	/**
-	 * Writes AJAX response to {@link HttpServletResponse}. Response is closed for further writing.
+	 * Writes AJAX response to {@link HttpServletResponse}. Response is closed, further 
+	 * response writing is not possible.
 	 * @param response
 	 * @param content
 	 */
 	public static void ajaxResponse(final HttpServletResponse response, String content) {
 		write(response, content, ContentTypes.XML);
 	}
-	
-	/** 
-	 * Updates data representing the state of form on the server
-	 * and renders AJAX response constructed using given response builder.
-	 * @param request
-	 * @param response
-	 * @param formStateHandler manipulates form state and handles error that occured when processing an AJAX request
-	 * @param respBuilder processes the AJAX request using given form state and builds the AJAX response
+
+	/**
+	 * Renders AJAX response by applying given action and rendering obtained AJAX response.
+	 * If given action is {@code null}, HTTP 404 status is returned.
+	 * @param requestParams
+	 * @param res
+	 * @param action
+	 * @param errorHandler
 	 */
-	public static <T> void ajaxResponse(HttpServletRequest request, HttpServletResponse response, 
-		final FormStateHandler<T> formStateHandler,
-		final AjaxResponseBuilder<T> respBuilder) {
+	public static <T> void ajaxResponse(TdiAjaxRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action, ErrorHandler errorHandler) {
+		if (requestParams == null) {
+			throw new IllegalArgumentException("request params must be specified");
+		}
+		if (res == null) {
+			throw new IllegalArgumentException("response must be specified");
+		}
+		if (errorHandler == null) {
+			throw new IllegalArgumentException("error handler must be specified");
+		}
 		try {
-			AjaxResponse<T> ajResp = ajaxResponseBuilder(request, response, formStateHandler, respBuilder);
-			formStateHandler.saveFormState(request, ajResp.getUpdatedFormState());
-			ServletResponses.ajaxResponse(response, ajResp.getResponseBuilder().asString());
+			if (action == null) {
+				notFound(res, "Action handling AJAX request was not specified");
+			} else {
+				AjaxResponse<T> ajRes = action.apply(requestParams);
+				ajaxResponse(res, ajRes.getResponse());
+			}
 		} catch (Exception ex) {
-			formStateHandler.handleError(request, response, ex);
+			errorHandler.handleError(requestParams, res, ex);
 		}
 	}
 	
 	/**
-	 * Finds an action capable of handling given AJAX request that was initiated by some source form element.
-	 * If no such source element with its handling action
-	 * is found or no AJAX action matching the request parameters is registered for this element, 
-	 * {@code null} is returned.
-	 * @param req
-	 * @param formDefinition form definition for finding the form element that invoked the AJAX event
+	 * Renders AJAX response by applying given action and rendering obtained AJAX response.
+	 * If given action is {@code null}, HTTP 404 status is returned.
+	 * @param requestParams
+	 * @param res
+	 * @param action
 	 */
-	public static <U> FormStateAjaxAction<U> findFormStateAjaxAction(HttpServletRequest req, FormMapping<U> formDefinition) {
-		return (FormStateAjaxAction<U>)findAjaxAction(FormStateAjaxAction.class, req, formDefinition);
+	public static <T> void ajaxResponse(TdiAjaxRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action) {
+		ajaxResponse(requestParams, res, action, new ErrorHandler() {
+			
+			@Override
+			public void handleError(RequestParams requestParams, HttpServletResponse response, Throwable cause) {
+				ServletResponses.ajaxResponse(response,
+					new BasicFormRenderer(new RenderContext(Locale.ENGLISH)).ajaxResponse()
+						.status("ERROR")
+						.script("alert(\"AJAX Error\")")
+						.asString());
+			}
+		});
 	}
 	
+	// TODO RBe: Move to formio package independent on servlet request
 	/**
 	 * Finds an action capable of handling given AJAX request that was initiated by some source form element.
 	 * If no such source element with its handling action
 	 * is found or no AJAX action matching the request parameters is registered for this element, 
 	 * {@code null} is returned.
-	 * @param req
+	 * @param requestParams
 	 * @param formDefinition form definition for finding the form element that invoked the AJAX event
 	 */
-	public static <U> DefaultAjaxAction findDefaultAjaxAction(HttpServletRequest req, FormMapping<U> formDefinition) {
-		return findAjaxAction(DefaultAjaxAction.class, req, formDefinition);
-	}
-	
-	/**
-	 * Finds an action capable of handling given AJAX request that was initiated by some source form element.
-	 * If no such source element with its handling action
-	 * is found or no AJAX action matching the request parameters is registered for this element, 
-	 * {@code null} is returned.
-	 * @param actionClass
-	 * @param req
-	 * @param formDefinition form definition for finding the form element that invoked the AJAX event
-	 */
-	private static <U, T extends AjaxAction> T findAjaxAction(Class<T> actionClass, HttpServletRequest req, FormMapping<U> formDefinition) {
+	public static <U, T> AjaxAction<T> findAjaxAction(TdiAjaxRequestParams requestParams, FormMapping<U> formDefinition) {
 		// try to find action in given form mapping according to presence of request parameter
-		T action = findAjaxActionByRequestParam(actionClass, req, formDefinition);
+		AjaxAction<T> action = findAjaxActionByRequestParam(requestParams, formDefinition);
 		if (action == null) {
 			// find action according to name of source form element and name of JavaScript event
-			String srcElement = req.getParameter(AjaxParams.SRC_ELEMENT_NAME);
+			String srcElement = requestParams.getParamValue(AjaxParams.SRC_ELEMENT_NAME);
 			if (srcElement != null && !srcElement.isEmpty()) {
 				FormElement<Object> el = formDefinition.findElement(srcElement);
 				if (el != null) {
-					String eventType = req.getParameter(AjaxParams.EVENT);
-					for (JsEventUrlResolvable ev : el.getProperties().getDataAjaxActions()) {
+					String eventType = requestParams.getParamValue(AjaxParams.EVENT);
+					for (HandledJsEvent ev : el.getProperties().getDataAjaxActions()) {
 						if (ev instanceof JsEventToAction) {
-							JsEventToAction evToAction = (JsEventToAction)ev;
+							JsEventToAction<T> evToAction = (JsEventToAction<T>)ev;
 							if (eventMatches(eventType, evToAction.getEvent())) {
-								if (actionClass.isAssignableFrom(evToAction.getAction().getClass())) {
-									action = actionClass.cast(evToAction.getAction());
-									break;
-								}
+								action = evToAction.getAction();
+								break;
 							}
 						}
 					}
@@ -160,102 +167,6 @@ public final class ServletResponses {
 			}
 		}
 		return action;
-	}
-
-	private static <T extends AjaxAction, U> T findAjaxActionByRequestParam(Class<T> actionClass, HttpServletRequest req, FormElement<U> element) {
-		T action = null;
-		for (JsEventUrlResolvable ev : element.getProperties().getDataAjaxActions()) {
-			if (ev instanceof JsEventToAction) {
-				JsEventToAction evToAction = (JsEventToAction)ev;
-				if (evToAction.getRequestParam() != null && 
-					!evToAction.getRequestParam().isEmpty() && 
-					req.getParameter(evToAction.getRequestParam()) != null) {
-					if (actionClass.isAssignableFrom(evToAction.getAction().getClass())) {
-						action = actionClass.cast(evToAction.getAction());
-						break;
-					}
-				}
-			}
-		}
-		if (action == null) {
-			if (element instanceof FormMapping<?>) {
-				FormMapping<?> mapping = (FormMapping<?>)element;
-				for (FormElement<?> el : mapping.getElements()) {
-					action = findAjaxActionByRequestParam(actionClass, req, el);
-					if (action != null) {
-						break;
-					}
-				}
-			}
-		}
-		return action;
-	}
-	
-	/**
-	 * Renders AJAX response by applying given action and rendering obtained AJAX response.
-	 * If given action is {@code null}, HTTP 404 status is returned.
-	 * @param req
-	 * @param res
-	 * @param action
-	 * @param errorHandler
-	 */
-	public static void ajaxResponse(HttpServletRequest req, HttpServletResponse res, 
-		DefaultAjaxAction action, ErrorHandler errorHandler) {
-		try {
-			if (action == null) {
-				notFound(res, "Action handling AJAX request was not found");
-			} else {
-				TdiResponseBuilder ajResp = action.apply(req);
-				ajaxResponse(res, ajResp.asString());
-			}
-		} catch (Exception ex) {
-			errorHandler.handleError(req, res, ex);
-		}
-	}
-	
-	/**
-	 * Renders AJAX response by applying given action and rendering obtained AJAX response.
-	 * If given action is {@code null}, HTTP 404 status is returned.
-	 * @param req
-	 * @param res
-	 * @param action
-	 * @param formStateHandler
-	 */
-	public static <T> void ajaxResponse(final HttpServletRequest req, final HttpServletResponse res, 
-		final FormStateAjaxAction<T> action, FormStateHandler<T> formStateHandler) {
-		try {
-			if (action == null) {
-				notFound(res, "Action handling AJAX request was not found");
-			} else {
-				AjaxResponse<T> ajResp = ServletResponses.ajaxResponseBuilder(req, res, formStateHandler, new AjaxResponseBuilder<T>() {
-					@Override
-					public AjaxResponse<T> apply(T formState) {
-						return action.apply(req, formState);
-					}
-				});
-				formStateHandler.saveFormState(req, ajResp.getUpdatedFormState());
-				ajaxResponse(res, ajResp.getResponseBuilder().asString());
-			}
-		} catch (Exception ex) {
-			formStateHandler.handleError(req, res, ex);
-		}
-	}
-	
-	/** 
-	 * Updates data representing the state of form on the server
-	 * and returns AJAX response builder that contains instructions
-	 * to generate AJAX response.
-	 * @param request
-	 * @param response
-	 * @param formStateHandler manipulates form state and handles error that occured when processing an AJAX request
-	 * @param respBuilder processes the AJAX request using given form state and builds the AJAX response
-	 * @return AJAX response builder
-	 */
-	static <T> AjaxResponse<T> ajaxResponseBuilder(HttpServletRequest request, HttpServletResponse response, 
-		final FormStateHandler<T> formStateHandler,
-		final AjaxResponseBuilder<T> respBuilder) {
-		T formState = formStateHandler.findFormState(request);
-		return respBuilder.apply(formState);
 	}
 	
 	private static void notFound(HttpServletResponse res, String msg) throws IOException {
@@ -270,6 +181,47 @@ public final class ServletResponses {
 			return false;
 		}
 		return jsEvent.getEventName().equals(event);
+	}
+	
+	private static <T, U> AjaxAction<T> findAjaxActionByRequestParam(TdiAjaxRequestParams requestParams, FormElement<U> element) {
+		AjaxAction<T> action = null;
+		for (HandledJsEvent ev : element.getProperties().getDataAjaxActions()) {
+			if (ev instanceof JsEventToAction) {
+				JsEventToAction<T> evToAction = (JsEventToAction<T>)ev;
+				if (evToAction.getRequestParam() != null && 
+					!evToAction.getRequestParam().isEmpty() && 
+					containsParam(requestParams.getParamNames(), evToAction.getRequestParam())) {
+					action = evToAction.getAction();
+					break;
+				}
+			}
+		}
+		if (action == null) {
+			if (element instanceof FormMapping<?>) {
+				FormMapping<?> mapping = (FormMapping<?>)element;
+				for (FormElement<?> el : mapping.getElements()) {
+					action = findAjaxActionByRequestParam(requestParams, el);
+					if (action != null) {
+						break;
+					}
+				}
+			}
+		}
+		return action;
+	}
+	
+	private static boolean containsParam(Iterable<String> paramNames, String requestParam) {
+		boolean found = false;
+		if (paramNames != null && requestParam != null) {
+			for (Iterator<String> it = paramNames.iterator(); it.hasNext();) {
+				String p = it.next();
+				if (p != null && p.equals(requestParam)) {
+					found = true;
+					break;
+				}
+			}
+		}
+		return found;
 	}
 	
 	private ServletResponses() {

@@ -21,6 +21,7 @@ import java.util.Locale;
 import net.formio.binding.Instantiator;
 import net.formio.binding.StaticFactoryMethod;
 import net.formio.internal.FormUtils;
+import net.formio.render.BasicFormRenderer;
 import net.formio.render.RenderContext;
 import net.formio.render.WholeFormRenderer;
 
@@ -295,7 +296,7 @@ public final class Forms {
 	 * @param locale
 	 */
 	public static <T> void previewForm(FormMapping<T> form, Locale locale) {
-		String html = new WholeFormRenderer(new RenderContext(locale)).renderHtmlFormPage(form);
+		String html = new WholeFormRenderer(new BasicFormRenderer(new RenderContext(locale))).renderHtmlFormPage(form);
 		FormUtils.openHtmlInBrowser(html);
 	}
 	

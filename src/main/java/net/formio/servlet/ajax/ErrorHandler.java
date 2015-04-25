@@ -16,19 +16,18 @@
  */
 package net.formio.servlet.ajax;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import net.formio.servlet.ErrorHandler;
+import net.formio.RequestParams;
 
-/**
- * Manipulates (loads/saves) form state and handles possible error
- * that occured during the request. 
- * @author Radek Beran
- *
- * @param <T>
- */
-public interface FormStateHandler<T> extends ErrorHandler {
-	T findFormState(HttpServletRequest request);
-	
-	void saveFormState(HttpServletRequest request, T formState);
+public interface ErrorHandler {
+	/**
+	 * Called in the case an error occured while handling an AJAX action
+	 * processing AJAX request.
+	 * @param requestParams
+	 * @param response
+	 * @param cause
+	 * @return
+	 */
+	void handleError(RequestParams requestParams, HttpServletResponse response, Throwable cause);
 }

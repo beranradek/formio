@@ -24,6 +24,7 @@ import javax.portlet.PortletRequest;
 
 import net.formio.AbstractRequestParams;
 import net.formio.RequestParams;
+import net.formio.ajax.AjaxParams;
 import net.formio.data.RequestContext;
 import net.formio.upload.MultipartRequestPreprocessor;
 import net.formio.upload.RequestProcessingError;
@@ -115,6 +116,24 @@ public class PortletRequestParams extends AbstractRequestParams {
 	 */
 	public RequestContext getRequestContext() {
 		return new PortletRequestContext(this.request);
+	}
+
+	@Override
+	public boolean isTdiAjaxRequest() {
+		return request.getParameter(AjaxParams.INFUSE) != null;
+	}
+	
+	@Override
+	public String getTdiAjaxSrcElementName() {
+		return request.getParameter(AjaxParams.SRC_ELEMENT_NAME);
+	}
+	
+	/**
+	 * Returns underlying request.
+	 * @return
+	 */
+	public PortletRequest getRequest() {
+		return request;
 	}
 	
 }

@@ -98,6 +98,8 @@ public class TdiResponseBuilder {
 		return script("$(\"#" + elementId + "\").focus();");
 	}
 	
+	// TODO: Insert instruction
+	
 	/**
 	 * Adds instruction to AJAX response: Update of form element.
 	 * @param filledElement

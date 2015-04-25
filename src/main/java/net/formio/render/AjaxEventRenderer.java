@@ -21,8 +21,8 @@ import java.util.List;
 import net.formio.FormField;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.JsEvent;
+import net.formio.ajax.action.HandledJsEvent;
 import net.formio.internal.FormUtils;
-import net.formio.props.JsEventUrlResolvable;
 
 /**
  * Renders script for invoking AJAX events.
@@ -46,7 +46,7 @@ class AjaxEventRenderer {
 	 */
 	protected <T> String renderFieldScript(FormField<T> field, boolean multipleInputs) {
 		StringBuilder sb = new StringBuilder();
-		List<JsEventUrlResolvable> urlEvents = getRenderContext().gatherAjaxEvents(field);
+		List<HandledJsEvent> urlEvents = getRenderContext().gatherAjaxEvents(field);
 		if (urlEvents.size() > 0) {
 			sb.append("<script>" + newLine());
 			if (multipleInputs) {
@@ -81,13 +81,13 @@ class AjaxEventRenderer {
 	 * @param events
 	 * @return
 	 */
-	private <T> String renderTdiSend(FormField<T> formField, String inputId, List<JsEventUrlResolvable> events) {
+	private <T> String renderTdiSend(FormField<T> formField, String inputId, List<HandledJsEvent> events) {
 		StringBuilder sb = new StringBuilder();
 		if (events != null && events.size() > 0) {
 			String elm = "$(\"#" + inputId + "\")";
 			sb.append(elm + ".on({" + newLine());
 			for (int i = 0; i < events.size(); i++) {
-				JsEventUrlResolvable eventToUrl = events.get(i);
+				HandledJsEvent eventToUrl = events.get(i);
 				JsEvent eventType = eventToUrl.getEvent();
 				if (eventType != null) {
 					String url = eventToUrl.getUrl(formField.getParent().getConfig().getUrlBase(), formField);

@@ -25,8 +25,8 @@ import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.Forms;
+import net.formio.ajax.action.HandledJsEvent;
 import net.formio.common.MessageTranslator;
-import net.formio.props.JsEventUrlResolvable;
 import net.formio.validation.Severity;
 
 /**
@@ -70,15 +70,13 @@ public class RenderContext {
 	
 	/**
 	 * Escapes HTML (converts HTML text to XML entities).
-	 * 
 	 * @param s
 	 * @return
 	 */
 	public String escapeHtml(String s) {
-		if (s == null)
-			return null;
-		if (s.isEmpty())
+		if (s == null || s.isEmpty()) {
 			return "";
+		}
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
@@ -103,23 +101,18 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
+	// TODO: Move to renderer! It does not belong to context
 	public String getFormBoxClasses() {
 		return "form-group";
 	}
 	
-	protected String escapeValue(String value) {
-		if (value == null || value.isEmpty()) {
-			return "";
-		}
-		return escapeHtml(value);
-	}
-	
-	public <T> MessageTranslator createMessageTranslator(FormElement<T> element) {
-		FormMapping<?> rootMapping = getRootMapping(element);
+	public <T> MessageTranslator getMessageTranslator(FormElement<T> element) {
+		FormMapping<?> rootMapping = element.getRoot();
 		return new MessageTranslator(element.getParent().getDataClass(),
 			getLocale(), rootMapping.getDataClass());
 	}
 	
+	// TODO: Move to renderer! It does not belong to context
 	protected <T> String getInputEnvelopeClasses(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);
@@ -133,6 +126,7 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
+	// TODO: Move to renderer (or to auxiliary class)! It does not belong to context
 	/**
 	 * Returns value of class attribute for the input of given form field.
 	 * @param field
@@ -140,8 +134,8 @@ public class RenderContext {
 	 */
 	public <T> String getInputClasses(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		List<JsEventUrlResolvable> ajaxEvents = gatherAjaxEvents(field);
-		for (JsEventUrlResolvable e : ajaxEvents) {
+		List<HandledJsEvent> ajaxEvents = gatherAjaxEvents(field);
+		for (HandledJsEvent e : ajaxEvents) {
 			if (e.getEvent() == null) {
 				sb.append("tdi");
 				break;
@@ -158,23 +152,26 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
+	// TODO: Move to renderer! It does not belong to context
 	protected String getFullWidthInputClasses() {
 		return "input-sm form-control";
 	}
 	
+	// TODO: Move to renderer! It does not belong to context
 	protected <T> String getMaxSeverityClass(FormElement<T> el) {
 		Severity maxSeverity = Severity.max(el.getValidationMessages());
 		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
 	}
 	
+	// TODO: Move to renderer! It does not belong to context
 	protected <T> String getButtonClasses(@SuppressWarnings("unused") FormField<T> field) {
 		return "btn btn-default";
 	}
 	
-	protected <T> List<JsEventUrlResolvable> gatherAjaxEvents(FormField<T> field) {
-		List<JsEventUrlResolvable> urlEvents = new ArrayList<JsEventUrlResolvable>();
+	protected <T> List<HandledJsEvent> gatherAjaxEvents(FormField<T> field) {
+		List<HandledJsEvent> urlEvents = new ArrayList<HandledJsEvent>();
 		if (field.getProperties().getDataAjaxActions() != null) {
-			for (JsEventUrlResolvable e : field.getProperties().getDataAjaxActions()) {
+			for (HandledJsEvent e : field.getProperties().getDataAjaxActions()) {
 				urlEvents.add(e);
 			}
 		}
@@ -201,6 +198,7 @@ public class RenderContext {
 		return getElementId(field) + Forms.PATH_SEP + itemIndex;
 	}
 	
+	// TODO: Move to renderer! It does not belong to context
 	protected int getLabelWidth() {
 		return 2;
 	}
@@ -211,14 +209,7 @@ public class RenderContext {
 			!field.getProperties().isLabelVisible();
 	}
 	
-	private <T> FormMapping<?> getRootMapping(FormElement<T> element) {
-		FormMapping<?> rootMapping = element.getParent();
-		while (rootMapping != null && rootMapping.getParent() != null) {
-			rootMapping = rootMapping.getParent();
-		}
-		return rootMapping;
-	}
-	
+	// TODO: Move to renderer (or auxiliary class - StyleRenderer)! It does not belong to context
 	private <T> boolean isFullWidthInput(FormField<T> field) {
 		String type = getFieldType(field);
 		Field fld = Field.findByType(type);

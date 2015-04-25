@@ -16,11 +16,17 @@
  */
 package net.formio.data;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import net.formio.Field;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.MappingType;
+import net.formio.choice.ChoiceItem;
+import net.formio.choice.ChoiceRenderer;
+import net.formio.choice.EnumChoiceProvider;
 import net.formio.domain.Address;
 import net.formio.domain.BigDecimalValue;
 import net.formio.domain.Car;
@@ -31,6 +37,12 @@ import net.formio.domain.NewCollegue;
 import net.formio.domain.Person;
 import net.formio.domain.RegDate;
 import net.formio.domain.Registration;
+import net.formio.domain.inputs.Country;
+import net.formio.domain.inputs.Employer;
+import net.formio.domain.inputs.Function;
+import net.formio.domain.inputs.Profile;
+import net.formio.domain.inputs.Salutation;
+import net.formio.domain.inputs.Skill;
 
 /**
  * Form definitions for tests.
@@ -103,6 +115,74 @@ public final class TestForms {
 				.visible(false)
 				.build())
 			.build();
+	
+	public static final FormMapping<Profile> ALL_FIELDS_FORM = Forms.basic(Profile.class, "profile")
+		.field("profileId", Field.HIDDEN)
+		.field(Forms.<Salutation>field("salutation", Field.RADIO_CHOICE)
+			.choices(new EnumChoiceProvider<Salutation>(Salutation.class)))
+		.field("firstName", Field.TEXT)
+		.field("password", Field.PASSWORD)
+		.field(Forms.<Country>field("country", Field.DROP_DOWN_CHOICE)
+			.choices(new EnumChoiceProvider<Country>(Country.class)))
+		.field("birthDate", Field.DATE_PICKER)
+		.nested(Forms.basic(Employer.class, "employers", MappingType.LIST)
+			.field(Forms.field("name", Field.TEXT).readonly(true))
+			.field("fromYear", Field.TEXT)
+			.field("toYear", Field.TEXT)
+			.build()
+		)
+		.field(Forms.<Skill>field("skills", Field.MULTIPLE_CHECK_BOX)
+			.choices(skillsCodebook())
+			.choiceRenderer(new ChoiceRenderer<Skill>() {
+				@Override
+				public ChoiceItem getItem(Skill item, int itemIndex) {
+					return ChoiceItem.valueOf("" + item.getId(), item.getName());
+				}
+			})
+		)	
+		.field(Forms.<Function>field("functions", Field.MULTIPLE_CHOICE)
+			.choices(functionsCodebook())
+			.choiceRenderer(new ChoiceRenderer<Function>() {
+				@Override
+				public ChoiceItem getItem(Function item, int itemIndex) {
+					return ChoiceItem.valueOf("" + item.getId(), item.getName());
+				}
+			})
+		 )
+		.field("certificate", Field.FILE_UPLOAD)
+		.field(Forms.field("note", Field.TEXT_AREA).enabled(false))
+		.nested(Forms.automatic(Address.class, "contactAddress", Forms.factoryMethod(Address.class, "getInstance"))
+			.fields("street", "city", "zipCode").build())
+		.field(Forms.field("registrationDate", Field.DATE).pattern("yyyy-MM-dd"))
+		.field("email", Field.EMAIL)
+		.field("phone", Field.TEL)
+		.field("favoriteColor", Field.COLOR)
+		.field("yearMonth", Field.MONTH)
+		.field("yearWeek", Field.WEEK)
+		.field("favoriteNumber", Field.NUMBER)
+		.field("secondFavoriteNumber", Field.RANGE)
+		.field("search", Field.SEARCH)
+		.field("homepage", Field.URL)
+		.field("agreement", Field.CHECK_BOX)
+		.field("submitValue", Field.SUBMIT_BUTTON)
+		.build();
+	
+	private static List<Skill> skillsCodebook() {
+		List<Skill> skills = new ArrayList<Skill>();
+		skills.add(new Skill(Long.valueOf(5), "Leadership"));
+		skills.add(new Skill(Long.valueOf(2), "Management"));
+		skills.add(new Skill(Long.valueOf(17), "CRM"));
+		skills.add(new Skill(Long.valueOf(19), "Sales"));
+		return skills;
+	}
+	
+	private static List<Function> functionsCodebook() {
+		List<Function> functions = new ArrayList<Function>();
+		functions.add(new Function(Long.valueOf(200), "Student"));
+		functions.add(new Function(Long.valueOf(300), "Sportsman"));
+		functions.add(new Function(Long.valueOf(400), "Manager"));
+		return functions;
+	}
 	
 	private TestForms() {
 	}

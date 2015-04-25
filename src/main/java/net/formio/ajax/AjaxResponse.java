@@ -16,29 +16,31 @@
  */
 package net.formio.ajax;
 
-import net.formio.render.TdiResponseBuilder;
-
 /**
- * Data for generating AJAX response including the resulting form state.
+ * AJAX response including the resulting form state.
  * @author Radek Beran
  *
  * @param <T> type of form state object
  */
 public class AjaxResponse<T> {
-	private final TdiResponseBuilder responseBuilder;
+	private final String response;
 	private final T updatedFormState;
 	
-	public AjaxResponse(TdiResponseBuilder responseBuilder, T updatedFormState) {
-		this.responseBuilder = responseBuilder;
+	public AjaxResponse(String response, T updatedFormState) {
+		this.response = response;
 		this.updatedFormState = updatedFormState;
+	}
+	
+	public AjaxResponse(String response) {
+		this(response, null);
 	}
 
 	/**
-	 * AJAX response builder that contains instructions to generate AJAX response.
+	 * TDI AJAX response.
 	 * @return
 	 */
-	public TdiResponseBuilder getResponseBuilder() {
-		return responseBuilder;
+	public String getResponse() {
+		return response;
 	}
 
 	/**

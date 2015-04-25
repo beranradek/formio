@@ -14,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.props;
+package net.formio.ajax.action;
 
-import net.formio.FormElement;
-import net.formio.ajax.JsEvent;
+import net.formio.ajax.AjaxResponse;
+import net.formio.ajax.TdiAjaxRequestParams;
 
 /**
- * Object capable to return JavaScript event and handling URL.
+ * Action that handles AJAX request and generates AJAX response.
  * @author Radek Beran
  */
-public interface JsEventUrlResolvable {
-	JsEvent getEvent();
-	
-	String getUrl(String urlBase, FormElement<?> element);
+public interface AjaxAction<T> {
+	AjaxResponse<T> apply(TdiAjaxRequestParams requestParams);
 }

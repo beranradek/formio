@@ -18,6 +18,7 @@ package net.formio.props;
 
 import java.io.Serializable;
 
+import net.formio.ajax.action.HandledJsEvent;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 
@@ -72,7 +73,7 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
-	public JsEventUrlResolvable[] getDataAjaxActions() {
+	public HandledJsEvent[] getDataAjaxActions() {
 		return getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_ACTIONS);
 	}
 	

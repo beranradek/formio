@@ -19,7 +19,10 @@ package net.formio.data;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +36,12 @@ import net.formio.domain.Nation;
 import net.formio.domain.NewCollegue;
 import net.formio.domain.Person;
 import net.formio.domain.Registration;
+import net.formio.domain.inputs.Country;
+import net.formio.domain.inputs.Employer;
+import net.formio.domain.inputs.Function;
+import net.formio.domain.inputs.Profile;
+import net.formio.domain.inputs.Salutation;
+import net.formio.domain.inputs.Skill;
 
 /**
  * Common data for tests.
@@ -95,6 +104,61 @@ public final class TestData {
 		dimensions.setHeight(1295);
 		car.setDimensions(dimensions);
 		return car;
+	}
+	
+	public static Profile newAllFields() {
+		Profile profile = new Profile();
+		profile.setAgreement(true);
+		Calendar birthCal = Calendar.getInstance();
+		birthCal.set(1980, 11, 6);
+		profile.setBirthDate(birthCal.getTime());
+		profile.setCertificate(null);
+		profile.setCountry(Country.GB);
+		profile.setFirstName("Marry " + getScriptInjectionAttempt());
+		List<Function> functions = new ArrayList<Function>();
+		functions.add(new Function(Long.valueOf(200), "Student"));
+		functions.add(new Function(Long.valueOf(400), "Manager"));
+		profile.setFunctions(functions);
+		profile.setHeader("Research");
+		profile.setNote("These are the most important moments of my life... " + getScriptInjectionAttempt());
+		profile.setPassword("");
+		profile.setProfileId("ab565");
+		profile.setSalutation(Salutation.MS);
+		Set<Skill> skills = new LinkedHashSet<Skill>();
+		skills.add(new Skill(Long.valueOf(17), "CRM"));
+		profile.setSkills(skills);
+		
+		List<Employer> employers = new ArrayList<Employer>();
+		Employer e1 = new Employer();
+		e1.setName("IBM");
+		e1.setFromYear(19999); // invalid year
+		e1.setToYear(1999);
+		employers.add(e1);
+		
+		Employer e2 = new Employer();
+		e2.setName("Microsoft");
+		e2.setFromYear(1999);
+		e2.setToYear(2014);
+		employers.add(e2);
+		
+		profile.setEmployers(employers);
+		
+		profile.setRegistrationDate(new Date());
+		profile.setSubmitValue("submitted");
+		profile.setEmail("invalid-email.com");
+		profile.setPhone("invalid-/%@phone123");
+		profile.setFavoriteColor("#0000ff");
+		profile.setFavoriteNumber(Integer.valueOf(4));
+		profile.setSecondFavoriteNumber(Integer.valueOf(7));
+		profile.setSearch("Something to search for...");
+		profile.setHomepage("invalid-url");
+		profile.setYearWeek("2014-W15");
+		profile.setYearMonth("2014-04");
+		return profile;
+	}	
+	
+	private static String getScriptInjectionAttempt() {
+		return "\" onFocus=\"window.alert('Alert attempt');\" style=\"";
 	}
 	
 	private TestData() {

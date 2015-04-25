@@ -14,18 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.servlet;
+package net.formio.ajax.action;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import net.formio.FormElement;
+import net.formio.ajax.JsEvent;
 
-public interface ErrorHandler {
-	/**
-	 * Called in the case an error occured while handling a request.
-	 * @param request
-	 * @param response
-	 * @param cause
-	 * @return
-	 */
-	void handleError(HttpServletRequest request, HttpServletResponse response, Throwable cause);
+/**
+ * Object capable to return JavaScript event and handling URL.
+ * @author Radek Beran
+ */
+public interface HandledJsEvent {
+	JsEvent getEvent();
+	
+	String getUrl(String urlBase, FormElement<?> element);
 }

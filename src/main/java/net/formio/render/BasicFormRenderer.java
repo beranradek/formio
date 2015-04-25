@@ -25,10 +25,10 @@ import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.ajax.AjaxParams;
+import net.formio.ajax.action.HandledJsEvent;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
 import net.formio.internal.FormUtils;
-import net.formio.props.JsEventUrlResolvable;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
@@ -359,7 +359,7 @@ public class BasicFormRenderer {
 		sb.append(getElementAttributes(field));
 		sb.append(getInputPlaceholderAttribute(field));
 		sb.append(">");
-		sb.append(getRenderContext().escapeValue(field.getValue()));
+		sb.append(getRenderContext().escapeHtml(field.getValue()));
 		sb.append("</textarea>" + newLine());
 		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
 		return sb.toString();
@@ -373,7 +373,7 @@ public class BasicFormRenderer {
 		sb.append("<input type=\"" + inputType + "\" name=\"" + field.getName()
 				+ "\" id=\"" + getElementId(field) + "\"");
 		if (!Field.FILE_UPLOAD.getType().equals(typeId)) {
-			String value = getRenderContext().escapeValue(field.getValue());
+			String value = getRenderContext().escapeHtml(field.getValue());
 			sb.append(" value=\"" + value + "\"");
 		}
 		if (!Field.HIDDEN.getType().equals(typeId)) {
@@ -389,8 +389,7 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupCheckBox(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"checkbox\" name=\"" + field.getName()
-			+ "\" id=\"" + getElementId(field) + "\" value=\""
-			+ getRenderContext().escapeValue("1") + "\"");
+			+ "\" id=\"" + getElementId(field) + "\" value=\"1\"");
 		if (field.getValue() != null && !field.getValue().isEmpty()) {
 			String lc = field.getValue().toLowerCase();
 			// TODO: Use some formatter logic from field!
@@ -491,9 +490,9 @@ public class BasicFormRenderer {
 	
 	protected <T> String renderMarkupButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<button type=\"submit\" value=\"" + getRenderContext().escapeValue(field.getValue()) + 
+		sb.append("<button type=\"submit\" value=\"" + getRenderContext().escapeHtml(field.getValue()) + 
 			"\" class=\"" + getRenderContext().getInputClasses(field) + "\">");
-		MessageTranslator tr = getRenderContext().createMessageTranslator(field);
+		MessageTranslator tr = getRenderContext().getMessageTranslator(field);
 		String text = getRenderContext().escapeHtml(tr.getMessage(field.getLabelKey()));
 		sb.append(text);
 		sb.append("</button>" + newLine());
@@ -529,8 +528,8 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
-			List<JsEventUrlResolvable> ajaxEvents = getRenderContext().gatherAjaxEvents(field);
-			for (JsEventUrlResolvable e : ajaxEvents) {
+			List<HandledJsEvent> ajaxEvents = getRenderContext().gatherAjaxEvents(field);
+			for (HandledJsEvent e : ajaxEvents) {
 				if (e.getEvent() == null) {
 					String url = FormUtils.urlWithAppendedParameter(e.getUrl(field.getParent().getConfig().getUrlBase(), field), 
 						AjaxParams.SRC_ELEMENT_NAME, element.getName());
@@ -561,7 +560,7 @@ public class BasicFormRenderer {
 	protected <T> String getInputPlaceholderAttribute(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		if (field.getProperties().getPlaceholder() != null) {
-			sb.append(" placeholder=\"" + getRenderContext().escapeValue(field.getProperties().getPlaceholder()) + "\"");
+			sb.append(" placeholder=\"" + getRenderContext().escapeHtml(field.getProperties().getPlaceholder()) + "\"");
 		}
 		return sb.toString();
 	}
@@ -757,6 +756,6 @@ public class BasicFormRenderer {
 	}
 
 	private String getChoiceValue(ChoiceRenderer<Object> choiceRenderer, Object item, int itemIndex) {
-		return getRenderContext().escapeValue(choiceRenderer.getItem(item, itemIndex).getId());
+		return getRenderContext().escapeHtml(choiceRenderer.getItem(item, itemIndex).getId());
 	}
 }

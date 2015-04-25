@@ -16,33 +16,29 @@
  */
 package net.formio.servlet.ajax;
 
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.formio.RequestParams;
 import net.formio.render.BasicFormRenderer;
 import net.formio.render.RenderContext;
-import net.formio.servlet.ErrorHandler;
 import net.formio.servlet.ServletResponses;
 
 /**
  * {@link ErrorHandler} that shows an alert using AJAX response.
  * @author Radek Beran
  */
-public abstract class AjaxAlertErrorHandler implements ErrorHandler {
+public class AjaxAlertErrorHandler implements ErrorHandler {
 
 	/**
 	 * Handles error in processing an AJAX request by generating AJAX response that shows "AJAX error" alert.
-	 * Subclasses should call super implementation in the end of overriden method. 
-	 * @param request
+	 * @param requestParams
 	 * @param response
 	 * @param t exception thrown during processing an AJAX request
 	 */
 	@Override
-	public void handleError(HttpServletRequest request, HttpServletResponse response, Throwable t) {
+	public void handleError(RequestParams requestParams, HttpServletResponse response, Throwable cause) {
 		ServletResponses.ajaxResponse(response,
-			new BasicFormRenderer(new RenderContext(Locale.ENGLISH)).ajaxResponse()
+			new BasicFormRenderer(new RenderContext()).ajaxResponse()
 				.status("ERROR")
 				.script("alert(\"AJAX Error\")")
 				.asString());

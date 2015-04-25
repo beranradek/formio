@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.formio.ajax.action.HandledJsEvent;
 import net.formio.binding.BeanExtractor;
 import net.formio.binding.BindingReflectionUtils;
 import net.formio.binding.ConstructionDescription;
@@ -35,7 +36,6 @@ import net.formio.binding.collection.ItemsOrder;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.props.FormElementProperty;
-import net.formio.props.JsEventUrlResolvable;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 import net.formio.validation.Validator;
@@ -320,12 +320,16 @@ public class BasicFormMappingBuilder<T> {
 		return property(FormElementProperty.LABEL_VISIBLE, Boolean.valueOf(visible));
 	}
 	
-	public BasicFormMappingBuilder<T> dataAjaxActions(JsEventUrlResolvable action) {
-		return dataAjaxActions(new JsEventUrlResolvable[] { action });
+	public BasicFormMappingBuilder<T> dataAjaxActions(HandledJsEvent action) {
+		return dataAjaxActions(new HandledJsEvent[] { action });
 	}
 	
-	public BasicFormMappingBuilder<T> dataAjaxActions(JsEventUrlResolvable[] actions) {
+	public BasicFormMappingBuilder<T> dataAjaxActions(HandledJsEvent[] actions) {
 		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
+	}
+	
+	public BasicFormMappingBuilder<T> dataAjaxActions(List<? extends HandledJsEvent> actions) {
+		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions.toArray(new HandledJsEvent[0]));
 	}
 
 	public FormMapping<T> build() {

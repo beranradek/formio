@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.validation.groups.Default;
 
+import net.formio.ajax.TdiAjaxRequestParams;
 import net.formio.binding.Instantiator;
 import net.formio.data.RequestContext;
 
@@ -111,6 +112,16 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * @return
 	 */
 	FormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, Class<?> ... validationGroups);
+	
+	/**
+	 * Returns form element that invoked the TDI AJAX request, filled with request data (and validation messages);
+	 * or {@code null} of no such element exists (e.g. given request is not an TDI AJAX request).
+	 * @param requestParams
+	 * @param locale
+	 * @param validationGroups
+	 * @return
+	 */
+	FormElement<?> fillTdiAjaxSrcElement(TdiAjaxRequestParams requestParams, Locale locale, Class<?>... validationGroups);
 	
 	FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups);
 	FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups);

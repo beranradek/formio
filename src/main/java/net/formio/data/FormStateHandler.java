@@ -14,14 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.ajax;
+package net.formio.data;
 
+import net.formio.RequestParams;
 
 /**
- * Marker interface for action that handles AJAX request and generates AJAX response.
+ * Manipulates (loads/saves) form state.
  * @author Radek Beran
  *
+ * @param <T>
  */
-public interface AjaxAction {
-	// marker interface
+public interface FormStateHandler<T> {
+	T findFormState(RequestParams requestParams);
+	
+	void saveFormState(RequestParams requestParams, T formState);
 }

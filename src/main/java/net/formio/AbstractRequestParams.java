@@ -16,6 +16,7 @@
  */
 package net.formio;
 
+import net.formio.ajax.TdiAjaxRequestParams;
 import net.formio.internal.FormUtils;
 import net.formio.upload.UploadedFile;
 
@@ -23,7 +24,7 @@ import net.formio.upload.UploadedFile;
  * Basis for {@link RequestParams} implementations.
  * @author Radek Beran
  */
-public abstract class AbstractRequestParams implements RequestParams {
+public abstract class AbstractRequestParams implements TdiAjaxRequestParams {
 
 	@Override
 	public String getParamValue(String paramName) {

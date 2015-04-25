@@ -118,30 +118,22 @@ public class ServletRequestParams extends AbstractRequestParams {
 		return new ServletRequestContext(this.request);
 	}
 	
-	/**
-	 * Returns true if given request is TDI AJAX request.
-	 * @param request
-	 * @return
-	 */
+	@Override
 	public boolean isTdiAjaxRequest() {
-		return isTdiAjaxRequest(request);
+		return request.getParameter(AjaxParams.INFUSE) != null;
 	}
 	
-	/**
-	 * Returns true if given request is TDI AJAX request.
-	 * @param req
-	 * @return
-	 */
-	public static boolean isTdiAjaxRequest(HttpServletRequest req) {
-		return req.getParameter(AjaxParams.INFUSE) != null;
-	} 
-	
-	/**
-	 * Returns name of form element that initiated the TDI AJAX request. 
-	 * @return
-	 */
+	@Override
 	public String getTdiAjaxSrcElementName() {
 		return request.getParameter(AjaxParams.SRC_ELEMENT_NAME);
+	}
+
+	/**
+	 * Returns underlying request.
+	 * @return
+	 */
+	public HttpServletRequest getRequest() {
+		return request;
 	}
 	
 }

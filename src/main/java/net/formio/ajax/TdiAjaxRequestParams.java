@@ -14,23 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.servlet.ajax.action;
+package net.formio.ajax;
 
-import javax.servlet.http.HttpServletRequest;
-
-import net.formio.ajax.AjaxAction;
-import net.formio.render.TdiResponseBuilder;
+import net.formio.RequestParams;
 
 /**
- * Action that handles AJAX request and generates AJAX response in servlet environment.
+ * {@link RequestParams} that allow identification of TDI AJAX request
+ * and of the source element that ivoked the TDI AJAX request. 
  * @author Radek Beran
  */
-public interface DefaultAjaxAction extends AjaxAction {
-	
+public interface TdiAjaxRequestParams extends RequestParams {
 	/**
-	 * Generates AJAX response.
-	 * @param req
+	 * Returns true if given request is TDI AJAX request.
 	 * @return
 	 */
-	TdiResponseBuilder apply(HttpServletRequest req);
+	boolean isTdiAjaxRequest();
+	
+	/**
+	 * Returns name of the form element that initiated the TDI AJAX request,
+	 * {@code null} if this is not an TDI AJAX request. 
+	 * @return
+	 */
+	String getTdiAjaxSrcElementName();
 }

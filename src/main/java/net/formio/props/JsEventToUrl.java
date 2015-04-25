@@ -20,12 +20,13 @@ import java.io.Serializable;
 
 import net.formio.FormElement;
 import net.formio.ajax.JsEvent;
+import net.formio.ajax.action.HandledJsEvent;
 
 /**
  * JavaScript event mapped to handling URL address.
  * @author Radek Beran
  */
-public class JsEventToUrl implements JsEventUrlResolvable, Serializable {
+public class JsEventToUrl implements HandledJsEvent, Serializable {
 	private static final long serialVersionUID = 2178054031308176325L;
 	private final JsEvent event;
 	private final String url;

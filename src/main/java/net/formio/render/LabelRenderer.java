@@ -67,7 +67,7 @@ class LabelRenderer {
 	protected <T> String getLabelText(FormElement<T> formElement) {
 		StringBuilder sb = new StringBuilder("");
 		if (formElement.getProperties().isLabelVisible()) {
-			MessageTranslator tr = getRenderContext().createMessageTranslator(formElement);
+			MessageTranslator tr = getRenderContext().getMessageTranslator(formElement);
 			String msgKey = formElement.getLabelKey();
 			if (formElement instanceof FormMapping) {
 				FormMapping<?> m = (FormMapping<?>) formElement;
