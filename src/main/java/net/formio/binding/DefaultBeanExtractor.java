@@ -105,7 +105,7 @@ public class DefaultBeanExtractor implements BeanExtractor {
 				throw (RuntimeException) c;
 			if (c instanceof Error)
 				throw (Error) c;
-			throw new DataExtractionException("invocation of "+method+" failed", c);
+			throw new DataExtractionException("invocation of " + method + " failed: " + e.getMessage(), c);
 		} catch (IllegalAccessException e) {
 			throw new DataExtractionException("illegal access: " + e.getMessage(), e);
 		}
