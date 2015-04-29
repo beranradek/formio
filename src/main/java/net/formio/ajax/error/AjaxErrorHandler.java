@@ -16,8 +16,8 @@
  */
 package net.formio.ajax.error;
 
+import net.formio.AbstractRequestParams;
 import net.formio.ajax.AjaxResponse;
-import net.formio.ajax.TdiAjaxRequestParams;
 
 /**
  * Generates an error response when the processing of AJAX request failed.
@@ -33,5 +33,5 @@ public interface AjaxErrorHandler<T> {
 	 * @param cause
 	 * @return
 	 */
-	AjaxResponse<T> errorResponse(TdiAjaxRequestParams requestParams, Throwable cause);
+	AjaxResponse<T> errorResponse(AbstractRequestParams requestParams, Throwable cause);
 }

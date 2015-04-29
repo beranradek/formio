@@ -27,9 +27,9 @@ import java.util.logging.Logger;
 import net.formio.FormData;
 import net.formio.FormMapping;
 import net.formio.Forms;
-import net.formio.MapParams;
 import net.formio.data.TestForms;
 import net.formio.domain.BigDecimalValue;
+import net.formio.inmemory.MapParams;
 import net.formio.validation.ValidationResult;
 
 import org.junit.Test;

@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import net.formio.data.MockRequestContext;
 import net.formio.data.RequestContext;
 import net.formio.data.TestForms;
+import net.formio.inmemory.MapParams;
 import net.formio.security.HashTokenAuthorizer;
 import net.formio.security.InvalidTokenException;
 import net.formio.security.TokenAuthorizer;

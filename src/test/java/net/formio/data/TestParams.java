@@ -17,8 +17,8 @@
 package net.formio.data;
 
 import net.formio.Forms;
-import net.formio.MapParams;
 import net.formio.domain.AttendanceReason;
+import net.formio.inmemory.MapParams;
 
 /**
  * Data "filled" into the forms, for test purposes.

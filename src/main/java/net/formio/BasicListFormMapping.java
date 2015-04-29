@@ -27,7 +27,6 @@ import java.util.Set;
 
 import net.formio.data.RequestContext;
 import net.formio.internal.FormUtils;
-import net.formio.servlet.ServletRequestParams;
 import net.formio.upload.MaxSizeExceededError;
 import net.formio.upload.RequestProcessingError;
 import net.formio.validation.ConstraintViolationMessage;
@@ -99,12 +98,6 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	
 	@Override
 	public FormData<T> bind(final RequestParams paramsProvider, final Locale locale, final T instance, final RequestContext context, final Class<?>... validationGroups) {
-		RequestContext ctx = context;
-		if (ctx == null && paramsProvider instanceof ServletRequestParams) {
-			// fallback to ctx retrieved from ServletRequestParams, so the user need not to specify ctx explicitly for bind method
-			ctx = ((ServletRequestParams)paramsProvider).getRequestContext();
-		}
-		
 		final RequestProcessingError error = paramsProvider.getRequestError();
 		
 		// Finding how many parameters are in the request - check for max. index available in request params name, 
@@ -146,7 +139,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 					instanceForIndex = listInstance.get(index);
 				}
 			}
-			FormData<T> formData = m.bind(paramsProvider, locale, instanceForIndex, ctx, validationGroups);
+			FormData<T> formData = m.bind(paramsProvider, locale, instanceForIndex, context, validationGroups);
 			data.add(formData.getData());
 			fieldMsgs.putAll(formData.getValidationResult().getFieldMessages());
 			globalMsgs.addAll(formData.getValidationResult().getGlobalMessages());
@@ -159,7 +152,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 					+ "in root list mapping. Please create SINGLE root mapping with nested list mapping.");
 			}
 			if (this.secured) {
-				AuthTokens.verifyAuthToken(ctx, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
+				AuthTokens.verifyAuthToken(context, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
 			}
 		}
 		

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.servlet;
+package net.formio.servlet.common;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,13 +22,13 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletResponse;
 
+import net.formio.AbstractRequestParams;
 import net.formio.ContentTypes;
 import net.formio.FormElement;
 import net.formio.FormMapping;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.AjaxResponse;
 import net.formio.ajax.JsEvent;
-import net.formio.ajax.TdiAjaxRequestParams;
 import net.formio.ajax.action.AjaxAction;
 import net.formio.ajax.action.HandledJsEvent;
 import net.formio.ajax.action.JsEventToAction;
@@ -89,7 +89,7 @@ public final class ServletResponses {
 	 * @param action
 	 * @param errorHandler
 	 */
-	public static <T> void ajaxResponse(TdiAjaxRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action, AjaxErrorHandler<T> errorHandler) {
+	public static <T> void ajaxResponse(AbstractRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action, AjaxErrorHandler<T> errorHandler) {
 		if (requestParams == null) {
 			throw new IllegalArgumentException("request params must be specified");
 		}
@@ -119,7 +119,7 @@ public final class ServletResponses {
 	 * @param res
 	 * @param action
 	 */
-	public static <T> void ajaxResponse(TdiAjaxRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action) {
+	public static <T> void ajaxResponse(AbstractRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action) {
 		ajaxResponse(requestParams, res, action, new AjaxAlertErrorHandler<T>());
 	}
 	
@@ -132,7 +132,7 @@ public final class ServletResponses {
 	 * @param requestParams
 	 * @param formDefinition form definition for finding the form element that invoked the AJAX event
 	 */
-	public static <U, T> AjaxAction<T> findAjaxAction(TdiAjaxRequestParams requestParams, FormMapping<U> formDefinition) {
+	public static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> formDefinition) {
 		// try to find action in given form mapping according to presence of request parameter
 		AjaxAction<T> action = findAjaxActionByRequestParam(requestParams, formDefinition);
 		if (action == null) {
@@ -171,7 +171,7 @@ public final class ServletResponses {
 		return jsEvent.getEventName().equals(event);
 	}
 	
-	private static <T, U> AjaxAction<T> findAjaxActionByRequestParam(TdiAjaxRequestParams requestParams, FormElement<U> element) {
+	private static <T, U> AjaxAction<T> findAjaxActionByRequestParam(AbstractRequestParams requestParams, FormElement<U> element) {
 		AjaxAction<T> action = null;
 		for (HandledJsEvent ev : element.getProperties().getDataAjaxActions()) {
 			if (ev instanceof JsEventToAction) {

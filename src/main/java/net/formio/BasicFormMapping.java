@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import net.formio.ajax.TdiAjaxRequestParams;
 import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.BoundData;
 import net.formio.binding.InstanceHoldingInstantiator;
@@ -37,7 +36,6 @@ import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
 import net.formio.props.FormProperties;
 import net.formio.props.FormPropertiesImpl;
-import net.formio.servlet.ServletRequestParams;
 import net.formio.upload.MaxSizeExceededError;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
@@ -250,7 +248,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	}
 	
 	@Override
-	public FormElement<?> fillTdiAjaxSrcElement(TdiAjaxRequestParams requestParams, Locale locale, Class<?>... validationGroups) {
+	public FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Locale locale, Class<?>... validationGroups) {
 		FormElement<?> el = null;
 		if (requestParams.isTdiAjaxRequest()) {
 			FormMapping<?> filledMapping = fill(bind(requestParams, locale, validationGroups), locale);
@@ -297,19 +295,12 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	@Override
 	public FormData<T> bind(final RequestParams paramsProvider, final Locale locale, final T instance, final RequestContext context, final Class<?>... validationGroups) {
 		if (paramsProvider == null) throw new IllegalArgumentException("paramsProvider cannot be null");
-		RequestContext ctx = context;
-		if (ctx == null && paramsProvider instanceof ServletRequestParams) {
-			// fallback to ctx retrieved from ServletRequestParams, 
-			// so the user need not to specify ctx explicitly for bind method
-			ctx = ((ServletRequestParams)paramsProvider).getRequestContext();
-		}
-		
 		final RequestProcessingError error = paramsProvider.getRequestError();
 		Map<String, BoundValuesInfo> valuesToBind = prepareValuesToBindForFields(paramsProvider, locale);
 		
 		// binding (and validating) data from paramsProvider to objects for nested mappings
 		// and adding it to available values to bind
-		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, ctx, validationGroups);
+		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, context, validationGroups);
 		for (Map.Entry<String, FormData<?>> e : nestedFormData.entrySet()) {
 			valuesToBind.put(e.getKey(), BoundValuesInfo.getInstance(
 				new Object[] { e.getValue().getData() }, 
@@ -320,7 +311,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		
 		if (!(error instanceof MaxSizeExceededError) && this.secured) {
 			// Must be executed after processing of nested mappings
-			AuthTokens.verifyAuthToken(ctx, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
+			AuthTokens.verifyAuthToken(context, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
 		}
 		
 		// binding data from "values" to resulting object for this mapping

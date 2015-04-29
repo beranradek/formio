@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio;
+package net.formio.inmemory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.formio.AbstractRequestParams;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
 

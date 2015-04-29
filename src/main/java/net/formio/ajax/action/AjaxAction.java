@@ -16,13 +16,13 @@
  */
 package net.formio.ajax.action;
 
+import net.formio.AbstractRequestParams;
 import net.formio.ajax.AjaxResponse;
-import net.formio.ajax.TdiAjaxRequestParams;
 
 /**
  * Action that handles AJAX request and generates AJAX response.
  * @author Radek Beran
  */
 public interface AjaxAction<T> {
-	AjaxResponse<T> apply(TdiAjaxRequestParams requestParams);
+	AjaxResponse<T> apply(AbstractRequestParams requestParams);
 }

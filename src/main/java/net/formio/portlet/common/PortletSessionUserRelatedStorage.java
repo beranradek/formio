@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.portlet;
+package net.formio.portlet.common;
 
 import javax.portlet.PortletSession;
 

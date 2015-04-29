@@ -17,6 +17,7 @@
 package net.formio;
 
 import static org.junit.Assert.*;
+import net.formio.inmemory.MapParams;
 
 import org.junit.Test;
 

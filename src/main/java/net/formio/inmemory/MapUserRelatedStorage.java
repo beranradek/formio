@@ -14,26 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.ajax;
+package net.formio.inmemory;
 
-import net.formio.RequestParams;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.formio.data.UserRelatedStorage;
 
 /**
- * {@link RequestParams} that allow identification of TDI AJAX request
- * and of the source element that ivoked the TDI AJAX request. 
+ * Implementation of {@link UserRelatedStorage} using a {@link Map}.
  * @author Radek Beran
  */
-public interface TdiAjaxRequestParams extends RequestParams {
-	/**
-	 * Returns true if given request is TDI AJAX request.
-	 * @return
-	 */
-	boolean isTdiAjaxRequest();
+public class MapUserRelatedStorage implements UserRelatedStorage {
+
+	private final Map<String, String> map;
 	
-	/**
-	 * Returns name of the form element that initiated the TDI AJAX request,
-	 * {@code null} if this is not an TDI AJAX request. 
-	 * @return
-	 */
-	String getTdiAjaxSrcElementName();
+	public MapUserRelatedStorage() {
+		this.map = new HashMap<String, String>();
+	}
+	
+	@Override
+	public String set(String key, String value) {
+		map.put(key, value);
+		return value;
+	}
+
+	@Override
+	public String get(String key) {
+		return map.get(key);
+	}
+
+	@Override
+	public boolean delete(String key) {
+		return map.remove(key) != null;
+	}
+	
 }

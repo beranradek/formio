@@ -25,6 +25,7 @@ import net.formio.data.TestParams;
 import net.formio.domain.NewCollegue;
 import net.formio.domain.Registration;
 import net.formio.domain.NewCollegue.New;
+import net.formio.inmemory.MapParams;
 
 import org.junit.Test;
 

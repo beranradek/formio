@@ -21,6 +21,7 @@ import javax.portlet.PortletSession;
 
 import net.formio.data.RequestContext;
 import net.formio.data.UserRelatedStorage;
+import net.formio.portlet.common.PortletSessionUserRelatedStorage;
 
 /**
  * Implementation of {@link RequestContext} for portlet API.

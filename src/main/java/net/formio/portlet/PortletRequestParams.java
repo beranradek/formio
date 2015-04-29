@@ -25,7 +25,6 @@ import javax.portlet.PortletRequest;
 import net.formio.AbstractRequestParams;
 import net.formio.RequestParams;
 import net.formio.ajax.AjaxParams;
-import net.formio.data.RequestContext;
 import net.formio.upload.MultipartRequestPreprocessor;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
@@ -108,14 +107,6 @@ public class PortletRequestParams extends AbstractRequestParams {
 	@Override
 	public RequestProcessingError getRequestError() {
 		return error;
-	}
-	
-	/**
-	 * Convenience method for constructing a {@link RequestContext}.
-	 * @return request context
-	 */
-	public RequestContext getRequestContext() {
-		return new PortletRequestContext(this.request);
 	}
 
 	@Override

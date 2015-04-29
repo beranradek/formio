@@ -31,6 +31,7 @@ import net.formio.data.TestForms;
 import net.formio.domain.MarriedPerson;
 import net.formio.domain.Nation;
 import net.formio.domain.Person;
+import net.formio.inmemory.MapParams;
 import net.formio.validation.ValidationResult;
 
 import org.junit.Test;
