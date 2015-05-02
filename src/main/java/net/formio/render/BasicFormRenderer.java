@@ -395,8 +395,9 @@ public class BasicFormRenderer {
 			+ "\" id=\"" + getElementId(field) + "\" value=\"1\"");
 		if (field.getValue() != null && !field.getValue().isEmpty()) {
 			String lc = field.getValue().toLowerCase();
-			// TODO: Use some formatter logic from field!
-			if (Boolean.valueOf(lc.equals("t") || lc.equals("y") || lc.equals("true") || lc.equals("1")).booleanValue()) {
+			Boolean checked = field.getParent().getConfig().getFormatters().parseFromString(
+				lc, Boolean.class, (String)null, getRenderContext().getLocale());
+			if (checked != null && checked.booleanValue()) {
 				sb.append(" checked=\"checked\" ");
 			}
 		}
