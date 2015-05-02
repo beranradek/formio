@@ -16,8 +16,6 @@
  */
 package net.formio.render;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import net.formio.Field;
@@ -25,12 +23,11 @@ import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.Forms;
-import net.formio.ajax.action.HandledJsEvent;
 import net.formio.common.MessageTranslator;
-import net.formio.validation.Severity;
 
 /**
- * <p>Context with common data for rendering a form.
+ * <p>Context for which the form is rendered: Locale, form URL and method, message translator for elements.
+ * Contains also utility methods for manipulation with form elements.
  * <p>Thread-safe: Immutable.
  * @author Radek Beran
  */
@@ -101,81 +98,10 @@ public class RenderContext {
 		return sb.toString();
 	}
 	
-	// TODO: Move to renderer! It does not belong to context
-	public String getFormBoxClasses() {
-		return "form-group";
-	}
-	
 	public <T> MessageTranslator getMessageTranslator(FormElement<T> element) {
 		FormMapping<?> rootMapping = element.getRoot();
 		return new MessageTranslator(element.getParent().getDataClass(),
 			getLocale(), rootMapping.getDataClass());
-	}
-	
-	// TODO: Move to renderer! It does not belong to context
-	protected <T> String getInputEnvelopeClasses(FormField<T> field) {
-		StringBuilder sb = new StringBuilder();
-		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);
-		if (withoutLeadingLabel) {
-			sb.append("col-sm-offset-" + getLabelWidth());
-		}
-		if (sb.length() > 0) {
-			sb.append(" ");
-		}
-		sb.append("col-sm-4");
-		return sb.toString();
-	}
-	
-	// TODO: Move to renderer (or to auxiliary class)! It does not belong to context
-	/**
-	 * Returns value of class attribute for the input of given form field.
-	 * @param field
-	 * @return
-	 */
-	public <T> String getInputClasses(FormField<T> field) {
-		StringBuilder sb = new StringBuilder();
-		List<HandledJsEvent> ajaxEvents = gatherAjaxEvents(field);
-		for (HandledJsEvent e : ajaxEvents) {
-			if (e.getEvent() == null) {
-				sb.append("tdi");
-				break;
-			}
-		}
-		if (isFullWidthInput(field)) {
-			sb.append(" " + getFullWidthInputClasses());
-		}
-		String type = getFieldType(field);
-		Field fld = Field.findByType(type);
-		if (fld != null && type.equals(Field.SUBMIT_BUTTON.getType())) {
-			sb.append(" " + getButtonClasses(field));
-		}
-		return sb.toString();
-	}
-	
-	// TODO: Move to renderer! It does not belong to context
-	protected String getFullWidthInputClasses() {
-		return "input-sm form-control";
-	}
-	
-	// TODO: Move to renderer! It does not belong to context
-	protected <T> String getMaxSeverityClass(FormElement<T> el) {
-		Severity maxSeverity = Severity.max(el.getValidationMessages());
-		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
-	}
-	
-	// TODO: Move to renderer! It does not belong to context
-	protected <T> String getButtonClasses(@SuppressWarnings("unused") FormField<T> field) {
-		return "btn btn-default";
-	}
-	
-	protected <T> List<HandledJsEvent> gatherAjaxEvents(FormField<T> field) {
-		List<HandledJsEvent> urlEvents = new ArrayList<HandledJsEvent>();
-		if (field.getProperties().getDataAjaxActions() != null) {
-			for (HandledJsEvent e : field.getProperties().getDataAjaxActions()) {
-				urlEvents.add(e);
-			}
-		}
-		return urlEvents;
 	}
 	
 	String getElementId(FormElement<?> element) {
@@ -196,28 +122,6 @@ public class RenderContext {
 	
 	<T> String getElementIdWithIndex(FormField<T> field, int itemIndex) {
 		return getElementId(field) + Forms.PATH_SEP + itemIndex;
-	}
-	
-	// TODO: Move to renderer! It does not belong to context
-	protected int getLabelWidth() {
-		return 2;
-	}
-
-	private <T> boolean isWithoutLeadingLabel(FormField<T> field) {
-		return Field.SUBMIT_BUTTON.getType().equals(field.getType()) || 
-			Field.CHECK_BOX.getType().equals(field.getType()) ||
-			!field.getProperties().isLabelVisible();
-	}
-	
-	// TODO: Move to renderer (or auxiliary class - StyleRenderer)! It does not belong to context
-	private <T> boolean isFullWidthInput(FormField<T> field) {
-		String type = getFieldType(field);
-		Field fld = Field.findByType(type);
-		return !type.equals(Field.FILE_UPLOAD.getType()) // otherwise border around field with "Browse" text is drawn
-			&& !type.equals(Field.HIDDEN.getType())
-			&& !type.equals(Field.CHECK_BOX.getType())
-			&& !type.equals(Field.SUBMIT_BUTTON.getType())
-			&& (fld == null || !Field.withMultipleInputs.contains(fld));
 	}
 	
 	String newLine() {

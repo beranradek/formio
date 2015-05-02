@@ -295,21 +295,4 @@ public class BasicFormattersTest {
 			return Collections.unmodifiableMap(formatters);
 		}
 	}
-	
-//	@Test
-//	public void testDotToCommaForSomeLocale() {
-//		assertEquals("123,34", new BasicFormatters().dotToCommaForSomeLocale("123.34", null, new Locale("cs")));
-//		assertEquals("123,34", new BasicFormatters().dotToCommaForSomeLocale("123.34", null, new Locale("CS")));
-//		assertEquals("123,34", new BasicFormatters().dotToCommaForSomeLocale("123.34", null, new Locale("cs", "CZ")));
-//		assertEquals("123.34", new BasicFormatters().dotToCommaForSomeLocale("123.34", null, new Locale("en")));
-//	}
-//	
-//	@Test
-//	public void testCommaToDotForSomeLocale() {
-//		assertEquals("123.34", new BasicFormatters().commaToDotForSomeLocale("123,34", null, new Locale("cs")));
-//		assertEquals("123.34", new BasicFormatters().commaToDotForSomeLocale("123,34", null, new Locale("CS")));
-//		assertEquals("123.34", new BasicFormatters().commaToDotForSomeLocale("123,34", null, new Locale("cs", "CZ")));
-//		assertEquals("123,34", new BasicFormatters().commaToDotForSomeLocale("123,34", null, new Locale("en")));
-//	}
-
 }

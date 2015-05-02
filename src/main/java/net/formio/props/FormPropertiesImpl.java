@@ -74,7 +74,11 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	
 	@Override
 	public HandledJsEvent[] getDataAjaxActions() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_ACTIONS);
+		HandledJsEvent[] events = getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_ACTIONS);
+		if (events == null) {
+			events = new HandledJsEvent[0];
+		}
+		return events;
 	}
 	
 	@Override

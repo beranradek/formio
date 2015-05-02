@@ -16,6 +16,7 @@
  */
 package net.formio.render;
 
+import java.util.Arrays;
 import java.util.List;
 
 import net.formio.BasicListFormMapping;
@@ -44,6 +45,7 @@ public class BasicFormRenderer {
 
 	private final RenderContext ctx;
 	// Auxiliary renderers
+	private final StyleRenderer styleRenderer;
 	private final MessageRenderer messageRenderer;
 	private final LabelRenderer labelRenderer;
 	private final DatePickerRenderer datePickerRenderer;
@@ -54,8 +56,9 @@ public class BasicFormRenderer {
 			throw new IllegalArgumentException("ctx cannot be null");
 		}
 		this.ctx = ctx;
+		this.styleRenderer = new StyleRenderer(this, ctx);
 		this.messageRenderer = new MessageRenderer(this, ctx);
-		this.labelRenderer = new LabelRenderer(this, ctx);
+		this.labelRenderer = new LabelRenderer(this, this.styleRenderer, ctx);
 		this.datePickerRenderer = new DatePickerRenderer(ctx);
 		this.ajaxEventRenderer = new AjaxEventRenderer(ctx);
 	}
@@ -300,7 +303,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderMarkupMappingBox(FormMapping<T> mapping, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + getRenderContext().getMaxSeverityClass(mapping) + "\">" + newLine());
+		sb.append("<div class=\"" + styleRenderer.getMaxSeverityClass(mapping) + "\">" + newLine());
 		sb.append(innerMarkup);
 		sb.append("</div>" + newLine());
 		return sb.toString();
@@ -308,8 +311,8 @@ public class BasicFormRenderer {
 	
 	protected <T> String renderMarkupFieldBox(FormField<T> field, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + getRenderContext().getFormBoxClasses() + " " + 
-			getRenderContext().getMaxSeverityClass(field) + "\">" + newLine());
+		sb.append("<div class=\"" + styleRenderer.getFormBoxClasses() + " " + 
+			styleRenderer.getMaxSeverityClass(field) + "\">" + newLine());
 		boolean checkbox = isCheckBox(field);
 		if (checkbox) {
 			sb.append("<div class=\"" + Field.CHECK_BOX.getInputType() + "\">" + newLine());
@@ -326,7 +329,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderMarkupInputEnvelope(FormField<T> field, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + getRenderContext().getInputEnvelopeClasses(field) + "\">" + newLine());
+		sb.append("<div class=\"" + styleRenderer.getInputEnvelopeClasses(field) + "\">" + newLine());
 		sb.append(innerMarkup);
 		sb.append("</div>" + newLine());
 		return sb.toString();
@@ -355,7 +358,7 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupTextArea(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<textarea name=\"" + field.getName() + "\" id=\"" + getElementId(field) + 
-			"\" class=\"" + getRenderContext().getInputClasses(field) + "\"");
+			"\" class=\"" + styleRenderer.getInputClasses(field) + "\"");
 		sb.append(getElementAttributes(field));
 		sb.append(getInputPlaceholderAttribute(field));
 		sb.append(">");
@@ -379,7 +382,7 @@ public class BasicFormRenderer {
 		if (!Field.HIDDEN.getType().equals(typeId)) {
 			sb.append(getElementAttributes(field));
 		}
-		sb.append(" class=\"" + getRenderContext().getInputClasses(field) + "\"");
+		sb.append(" class=\"" + styleRenderer.getInputClasses(field) + "\"");
 		sb.append(getInputPlaceholderAttribute(field));
 		sb.append("/>" + newLine());
 		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
@@ -398,7 +401,7 @@ public class BasicFormRenderer {
 			}
 		}
 		sb.append(getElementAttributes(field));
-		sb.append(" class=\"" + getRenderContext().getInputClasses(field) + "\"");
+		sb.append(" class=\"" + styleRenderer.getInputClasses(field) + "\"");
 		sb.append("/>" + newLine());
 		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
 		return sb.toString();
@@ -413,7 +416,7 @@ public class BasicFormRenderer {
 		if (size != null) {
 			sb.append(" size=\"" + size + "\"");
 		}
-		sb.append(" class=\"" + getRenderContext().getInputClasses(field) + "\"");
+		sb.append(" class=\"" + styleRenderer.getInputClasses(field) + "\"");
 		sb.append(getElementAttributes(field));
 		sb.append(">" + newLine());
 		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
@@ -464,7 +467,7 @@ public class BasicFormRenderer {
 						sb.append(" checked=\"checked\"");
 					}
 					sb.append(getElementAttributes(field));
-					sb.append(" class=\"" + getRenderContext().getInputClasses(field) + "\"");
+					sb.append(" class=\"" + styleRenderer.getInputClasses(field) + "\"");
 					sb.append("/>");
 					if (field.getProperties().isLabelVisible()) {
 						sb.append(" " + title + "</label>");
@@ -491,7 +494,7 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<button type=\"submit\" value=\"" + getRenderContext().escapeHtml(field.getValue()) + 
-			"\" class=\"" + getRenderContext().getInputClasses(field) + "\">");
+			"\" class=\"" + styleRenderer.getInputClasses(field) + "\">");
 		MessageTranslator tr = getRenderContext().getMessageTranslator(field);
 		String text = getRenderContext().escapeHtml(tr.getMessage(field.getLabelKey()));
 		sb.append(text);
@@ -528,7 +531,7 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
-			List<HandledJsEvent> ajaxEvents = getRenderContext().gatherAjaxEvents(field);
+			List<HandledJsEvent> ajaxEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
 			for (HandledJsEvent e : ajaxEvents) {
 				if (e.getEvent() == null) {
 					String url = FormUtils.urlWithAppendedParameter(e.getUrl(field.getParent().getConfig().getUrlBase(), field), 

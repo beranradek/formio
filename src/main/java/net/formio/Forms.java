@@ -18,6 +18,7 @@ package net.formio;
 
 import java.util.Locale;
 
+import net.formio.ajax.action.AjaxAction;
 import net.formio.binding.Instantiator;
 import net.formio.binding.StaticFactoryMethod;
 import net.formio.internal.FormUtils;
@@ -308,6 +309,18 @@ public final class Forms {
 	 */
 	public static <T> void previewForm(FormMapping<T> form) {
 		previewForm(form, Locale.ENGLISH);
+	}
+	
+	/**
+	 * Finds an action capable of handling given AJAX request that was initiated by some source form element.
+	 * If no such source element with its handling action
+	 * is found or no AJAX action matching the request parameters is registered for this element, 
+	 * {@code null} is returned.
+	 * @param requestParams request parameters
+	 * @param formDefinition form definition for finding the form element that invoked the AJAX event
+	 */
+	public static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> formDefinition) {
+		return AjaxForms.findAjaxAction(requestParams, formDefinition);
 	}
 	
 	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String propertyName, Instantiator<T> instantiator, boolean automatic, MappingType mappingType, boolean secured) {

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.formio.ajax.action.HandledJsEvent;
+import net.formio.ajax.action.JsEventToAction;
 import net.formio.binding.BeanExtractor;
 import net.formio.binding.BindingReflectionUtils;
 import net.formio.binding.ConstructionDescription;
@@ -36,6 +37,7 @@ import net.formio.binding.collection.ItemsOrder;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.props.FormElementProperty;
+import net.formio.props.JsEventToUrl;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 import net.formio.validation.Validator;
@@ -325,6 +327,14 @@ public class BasicFormMappingBuilder<T> {
 	}
 	
 	public BasicFormMappingBuilder<T> dataAjaxActions(HandledJsEvent[] actions) {
+		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
+	}
+	
+	public BasicFormMappingBuilder<T> dataAjaxActions(JsEventToUrl[] actions) {
+		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
+	}
+	
+	public BasicFormMappingBuilder<T> dataAjaxActions(JsEventToAction<?>[] actions) {
 		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
 	}
 	

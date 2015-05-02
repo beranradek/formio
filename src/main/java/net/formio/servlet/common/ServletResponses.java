@@ -18,20 +18,13 @@ package net.formio.servlet.common;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Iterator;
 
 import javax.servlet.http.HttpServletResponse;
 
 import net.formio.AbstractRequestParams;
 import net.formio.ContentTypes;
-import net.formio.FormElement;
-import net.formio.FormMapping;
-import net.formio.ajax.AjaxParams;
 import net.formio.ajax.AjaxResponse;
-import net.formio.ajax.JsEvent;
 import net.formio.ajax.action.AjaxAction;
-import net.formio.ajax.action.HandledJsEvent;
-import net.formio.ajax.action.JsEventToAction;
 import net.formio.ajax.error.AjaxAlertErrorHandler;
 import net.formio.ajax.error.AjaxErrorHandler;
 
@@ -85,7 +78,7 @@ public final class ServletResponses {
 	 * Renders AJAX response by applying given action and rendering obtained AJAX response.
 	 * If given action is {@code null}, HTTP 404 status is returned.
 	 * @param requestParams
-	 * @param res
+	 * @param res response
 	 * @param action
 	 * @param errorHandler
 	 */
@@ -123,93 +116,8 @@ public final class ServletResponses {
 		ajaxResponse(requestParams, res, action, new AjaxAlertErrorHandler<T>());
 	}
 	
-	// TODO RBe: Move to formio package independent on servlet request
-	/**
-	 * Finds an action capable of handling given AJAX request that was initiated by some source form element.
-	 * If no such source element with its handling action
-	 * is found or no AJAX action matching the request parameters is registered for this element, 
-	 * {@code null} is returned.
-	 * @param requestParams
-	 * @param formDefinition form definition for finding the form element that invoked the AJAX event
-	 */
-	public static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> formDefinition) {
-		// try to find action in given form mapping according to presence of request parameter
-		AjaxAction<T> action = findAjaxActionByRequestParam(requestParams, formDefinition);
-		if (action == null) {
-			// find action according to name of source form element and name of JavaScript event
-			String srcElement = requestParams.getParamValue(AjaxParams.SRC_ELEMENT_NAME);
-			if (srcElement != null && !srcElement.isEmpty()) {
-				FormElement<Object> el = formDefinition.findElement(srcElement);
-				if (el != null) {
-					String eventType = requestParams.getParamValue(AjaxParams.EVENT);
-					for (HandledJsEvent ev : el.getProperties().getDataAjaxActions()) {
-						if (ev instanceof JsEventToAction) {
-							JsEventToAction<T> evToAction = (JsEventToAction<T>)ev;
-							if (eventMatches(eventType, evToAction.getEvent())) {
-								action = evToAction.getAction();
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		return action;
-	}
-	
 	private static void notFound(HttpServletResponse res, String msg) throws IOException {
 		res.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
-	}
-	
-	private static boolean eventMatches(String event, JsEvent jsEvent) {
-		if (event == null && jsEvent == null) {
-			return true;
-		}
-		if (event == null || jsEvent == null) {
-			return false;
-		}
-		return jsEvent.getEventName().equals(event);
-	}
-	
-	private static <T, U> AjaxAction<T> findAjaxActionByRequestParam(AbstractRequestParams requestParams, FormElement<U> element) {
-		AjaxAction<T> action = null;
-		for (HandledJsEvent ev : element.getProperties().getDataAjaxActions()) {
-			if (ev instanceof JsEventToAction) {
-				JsEventToAction<T> evToAction = (JsEventToAction<T>)ev;
-				if (evToAction.getRequestParam() != null && 
-					!evToAction.getRequestParam().isEmpty() && 
-					containsParam(requestParams.getParamNames(), evToAction.getRequestParam())) {
-					action = evToAction.getAction();
-					break;
-				}
-			}
-		}
-		if (action == null) {
-			if (element instanceof FormMapping<?>) {
-				FormMapping<?> mapping = (FormMapping<?>)element;
-				for (FormElement<?> el : mapping.getElements()) {
-					action = findAjaxActionByRequestParam(requestParams, el);
-					if (action != null) {
-						break;
-					}
-				}
-			}
-		}
-		return action;
-	}
-	
-	private static boolean containsParam(Iterable<String> paramNames, String requestParam) {
-		boolean found = false;
-		if (paramNames != null && requestParam != null) {
-			for (Iterator<String> it = paramNames.iterator(); it.hasNext();) {
-				String p = it.next();
-				if (p != null && p.equals(requestParam)) {
-					found = true;
-					break;
-				}
-			}
-		}
-		return found;
 	}
 	
 	private ServletResponses() {

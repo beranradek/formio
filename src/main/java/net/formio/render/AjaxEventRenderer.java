@@ -16,6 +16,7 @@
  */
 package net.formio.render;
 
+import java.util.Arrays;
 import java.util.List;
 
 import net.formio.FormField;
@@ -46,7 +47,7 @@ class AjaxEventRenderer {
 	 */
 	protected <T> String renderFieldScript(FormField<T> field, boolean multipleInputs) {
 		StringBuilder sb = new StringBuilder();
-		List<HandledJsEvent> urlEvents = getRenderContext().gatherAjaxEvents(field);
+		List<HandledJsEvent> urlEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
 		if (urlEvents.size() > 0) {
 			sb.append("<script>" + newLine());
 			if (multipleInputs) {

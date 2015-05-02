@@ -28,24 +28,29 @@ import net.formio.common.MessageTranslator;
  */
 class LabelRenderer {
 	private final BasicFormRenderer renderer;
+	private final StyleRenderer styleRenderer;
 	private final RenderContext ctx;
 
-	LabelRenderer(BasicFormRenderer renderer, RenderContext ctx) {
+	LabelRenderer(BasicFormRenderer renderer, StyleRenderer styleRenderer, RenderContext ctx) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
+		}
+		if (styleRenderer == null) {
+			throw new IllegalArgumentException("styleRenderer cannot be null");
 		}
 		if (ctx == null) {
 			throw new IllegalArgumentException("ctx cannot be null");
 		}
 		this.renderer = renderer;
+		this.styleRenderer = styleRenderer;
 		this.ctx = ctx;
 	}
 	
 	protected <T> String renderMappingLabel(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
 		if (mapping.getProperties().isLabelVisible() && !mapping.isRootMapping()) {
-			sb.append("<div class=\"" + getRenderContext().getFormBoxClasses() + "\">" + newLine());
-			sb.append("<div class=\"" + getLabelClasses() + "\">" + newLine());
+			sb.append("<div class=\"" + styleRenderer.getFormBoxClasses() + "\">" + newLine());
+			sb.append("<div class=\"" + styleRenderer.getLabelClasses() + "\">" + newLine());
 			sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>");
 			sb.append("</div>" + newLine());
 			sb.append("</div>" + newLine());
@@ -56,7 +61,7 @@ class LabelRenderer {
 	protected <T> String renderFieldLabel(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder("");
 		if (element.getProperties().isLabelVisible()) {
-			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + getLabelClasses() + "\">");
+			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + styleRenderer.getLabelClasses() + "\">");
 			sb.append(renderer.getLabelText(element));
 			sb.append(":");
 			sb.append("</label>");
@@ -89,10 +94,6 @@ class LabelRenderer {
 
 	protected <T> String getRequiredMark(@SuppressWarnings("unused") FormElement<T> formElement) {
 		return "&nbsp;*";
-	}
-	
-	protected String getLabelClasses() {
-		return "control-label col-sm-" + getRenderContext().getLabelWidth();
 	}
 	
 	protected RenderContext getRenderContext() {
