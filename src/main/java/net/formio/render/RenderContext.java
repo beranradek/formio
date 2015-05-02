@@ -18,7 +18,6 @@ package net.formio.render;
 
 import java.util.Locale;
 
-import net.formio.Field;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
@@ -104,20 +103,22 @@ public class RenderContext {
 			getLocale(), rootMapping.getDataClass());
 	}
 	
+	protected <T> boolean isChecked(FormField<T> field) {
+		Boolean checked = Boolean.FALSE;
+		if (field.getValue() != null && !field.getValue().isEmpty()) {
+			String lc = field.getValue().toLowerCase();
+			checked = field.getParent().getConfig().getFormatters().parseFromString(
+				lc, Boolean.class, (String)null, getLocale());
+		}
+		return checked != null && checked.booleanValue();
+	}
+	
 	String getElementId(FormElement<?> element) {
 		return getIdForName(element.getName());
 	}
 	
 	String getIdForName(String name) {
 		return "id" + Forms.PATH_SEP + name;
-	}
-	
-	<T> String getFieldType(FormField<T> field) {
-		String type = field.getType();
-		if (type == null) {
-			type = Field.TEXT.getType();
-		}
-		return type.toLowerCase();
 	}
 	
 	<T> String getElementIdWithIndex(FormField<T> field, int itemIndex) {

@@ -71,7 +71,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	
 	FormFieldImpl(FieldProps<T> fieldProps, int order) {
 		super(fieldProps.getParent(), fieldProps.getPropertyName(), fieldProps.getValidators());
-		this.type = fieldProps.getType();
+		this.type = fieldProps.getType() != null ? fieldProps.getType() : Field.TEXT.getType();
 		this.pattern = fieldProps.getPattern();
 		this.formatter = fieldProps.getFormatter();
 		this.choiceProvider = fieldProps.getChoices();

@@ -31,17 +31,12 @@ import net.formio.validation.Severity;
  */
 class StyleRenderer {
 	private final BasicFormRenderer renderer;
-	private final RenderContext ctx;
 
-	StyleRenderer(BasicFormRenderer renderer, RenderContext ctx) {
+	StyleRenderer(BasicFormRenderer renderer) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
 		}
-		if (ctx == null) {
-			throw new IllegalArgumentException("ctx cannot be null");
-		}
 		this.renderer = renderer;
-		this.ctx = ctx;
 	}
 	
 	protected String getFormBoxClasses() {
@@ -82,7 +77,7 @@ class StyleRenderer {
 		if (isFullWidthInput(field)) {
 			sb.append(" " + getFullWidthInputClasses());
 		}
-		String type = ctx.getFieldType(field);
+		String type = field.getType();
 		Field fld = Field.findByType(type);
 		if (fld != null && type.equals(Field.SUBMIT_BUTTON.getType())) {
 			sb.append(" " + getButtonClasses(field));
@@ -114,7 +109,7 @@ class StyleRenderer {
 	}
 	
 	private <T> boolean isFullWidthInput(FormField<T> field) {
-		String type = ctx.getFieldType(field);
+		String type = field.getType();
 		Field fld = Field.findByType(type);
 		return !type.equals(Field.FILE_UPLOAD.getType()) // otherwise border around field with "Browse" text is drawn
 			&& !type.equals(Field.HIDDEN.getType())

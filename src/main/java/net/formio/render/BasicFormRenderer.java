@@ -56,7 +56,7 @@ public class BasicFormRenderer {
 			throw new IllegalArgumentException("ctx cannot be null");
 		}
 		this.ctx = ctx;
-		this.styleRenderer = new StyleRenderer(this, ctx);
+		this.styleRenderer = new StyleRenderer(this);
 		this.messageRenderer = new MessageRenderer(this, ctx);
 		this.labelRenderer = new LabelRenderer(this, this.styleRenderer, ctx);
 		this.datePickerRenderer = new DatePickerRenderer(ctx);
@@ -144,7 +144,7 @@ public class BasicFormRenderer {
 	 */
 	public <T> String renderVisibleField(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		String type = getRenderContext().getFieldType(field);
+		String type = field.getType();
 		Field formComponent = Field.findByType(type);
 		if (formComponent != null) {
 			switch (formComponent) {
@@ -224,8 +224,7 @@ public class BasicFormRenderer {
 				sb.append(renderFieldSubmitButton(field));
 				break;
 			default:
-				throw new UnsupportedOperationException(
-						"Cannot render component with type " + type);
+				throw new UnsupportedOperationException("Cannot render component with type " + type);
 			}
 		} else {
 			throw new UnsupportedOperationException("Unsupported component with type " + type);
@@ -358,7 +357,7 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupTextArea(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<textarea name=\"" + field.getName() + "\" id=\"" + getElementId(field) + 
-			"\" class=\"" + styleRenderer.getInputClasses(field) + "\"");
+			"\" class=\"" + getInputClasses(field) + "\"");
 		sb.append(getElementAttributes(field));
 		sb.append(getInputPlaceholderAttribute(field));
 		sb.append(">");
@@ -369,23 +368,25 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderMarkupInput(FormField<T> field) {
-		String typeId = getRenderContext().getFieldType(field);
-		Field formComponent = Field.findByType(typeId);
-		String inputType = formComponent.getInputType();
 		StringBuilder sb = new StringBuilder();
-		sb.append("<input type=\"" + inputType + "\" name=\"" + field.getName()
-				+ "\" id=\"" + getElementId(field) + "\"");
-		if (!Field.FILE_UPLOAD.getType().equals(typeId)) {
-			String value = getRenderContext().escapeHtml(field.getValue());
-			sb.append(" value=\"" + value + "\"");
+		String typeId = field.getType();
+		Field formComponent = Field.findByType(typeId);
+		if (formComponent != null) {
+			String inputType = formComponent.getInputType();
+			sb.append("<input type=\"" + inputType + "\" name=\"" + field.getName()
+					+ "\" id=\"" + getElementId(field) + "\"");
+			if (!Field.FILE_UPLOAD.getType().equals(typeId)) {
+				String value = getRenderContext().escapeHtml(field.getValue());
+				sb.append(" value=\"" + value + "\"");
+			}
+			if (!Field.HIDDEN.getType().equals(typeId)) {
+				sb.append(getElementAttributes(field));
+			}
+			sb.append(" class=\"" + getInputClasses(field) + "\"");
+			sb.append(getInputPlaceholderAttribute(field));
+			sb.append("/>" + newLine());
+			sb.append(ajaxEventRenderer.renderFieldScript(field, false));
 		}
-		if (!Field.HIDDEN.getType().equals(typeId)) {
-			sb.append(getElementAttributes(field));
-		}
-		sb.append(" class=\"" + styleRenderer.getInputClasses(field) + "\"");
-		sb.append(getInputPlaceholderAttribute(field));
-		sb.append("/>" + newLine());
-		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
 		return sb.toString();
 	}
 
@@ -393,16 +394,12 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"checkbox\" name=\"" + field.getName()
 			+ "\" id=\"" + getElementId(field) + "\" value=\"1\"");
-		if (field.getValue() != null && !field.getValue().isEmpty()) {
-			String lc = field.getValue().toLowerCase();
-			Boolean checked = field.getParent().getConfig().getFormatters().parseFromString(
-				lc, Boolean.class, (String)null, getRenderContext().getLocale());
-			if (checked != null && checked.booleanValue()) {
-				sb.append(" checked=\"checked\" ");
-			}
+		boolean checked = getRenderContext().isChecked(field);
+		if (checked) {
+			sb.append(" checked=\"checked\" ");
 		}
 		sb.append(getElementAttributes(field));
-		sb.append(" class=\"" + styleRenderer.getInputClasses(field) + "\"");
+		sb.append(" class=\"" + getInputClasses(field) + "\"");
 		sb.append("/>" + newLine());
 		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
 		return sb.toString();
@@ -417,7 +414,7 @@ public class BasicFormRenderer {
 		if (size != null) {
 			sb.append(" size=\"" + size + "\"");
 		}
-		sb.append(" class=\"" + styleRenderer.getInputClasses(field) + "\"");
+		sb.append(" class=\"" + getInputClasses(field) + "\"");
 		sb.append(getElementAttributes(field));
 		sb.append(">" + newLine());
 		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
@@ -468,7 +465,7 @@ public class BasicFormRenderer {
 						sb.append(" checked=\"checked\"");
 					}
 					sb.append(getElementAttributes(field));
-					sb.append(" class=\"" + styleRenderer.getInputClasses(field) + "\"");
+					sb.append(" class=\"" + getInputClasses(field) + "\"");
 					sb.append("/>");
 					if (field.getProperties().isLabelVisible()) {
 						sb.append(" " + title + "</label>");
@@ -495,7 +492,7 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<button type=\"submit\" value=\"" + getRenderContext().escapeHtml(field.getValue()) + 
-			"\" class=\"" + styleRenderer.getInputClasses(field) + "\">");
+			"\" class=\"" + getInputClasses(field) + "\">");
 		MessageTranslator tr = getRenderContext().getMessageTranslator(field);
 		String text = getRenderContext().escapeHtml(tr.getMessage(field.getLabelKey()));
 		sb.append(text);
@@ -552,6 +549,14 @@ public class BasicFormRenderer {
 			}
 		}
 		return sb.toString();
+	}
+	
+	/**
+	 * Returns CSS classes for given form field.
+	 * @param field
+	 */
+	protected <T> String getInputClasses(FormField<T> field) {
+		return styleRenderer.getInputClasses(field);
 	}
 	
 	/**
