@@ -57,10 +57,10 @@ public class BasicFormRenderer {
 		}
 		this.ctx = ctx;
 		this.styleRenderer = new StyleRenderer(this);
-		this.messageRenderer = new MessageRenderer(this, ctx);
-		this.labelRenderer = new LabelRenderer(this, this.styleRenderer, ctx);
-		this.datePickerRenderer = new DatePickerRenderer(ctx);
-		this.ajaxEventRenderer = new AjaxEventRenderer(ctx);
+		this.messageRenderer = new MessageRenderer(this);
+		this.labelRenderer = new LabelRenderer(this, this.styleRenderer);
+		this.datePickerRenderer = new DatePickerRenderer(this);
+		this.ajaxEventRenderer = new AjaxEventRenderer(this);
 	}
 
 	/**
@@ -241,34 +241,6 @@ public class BasicFormRenderer {
 	}
 	
 	/**
-	 * Returns value of id attribute for given element.
-	 * @param element
-	 * @return
-	 */
-	public <T> String getElementId(FormElement<T> element) {
-		return getRenderContext().getElementId(element);
-	}
-	
-	/**
-	 * Returns value of id attribute for given form field name.
-	 * @param name
-	 * @return
-	 */
-	public String getIdForName(String name) {
-		return getRenderContext().getIdForName(name);
-	}
-	
-	/**
-	 * Returns value of id attribute for given form field with given index (order).
-	 * @param field
-	 * @param index
-	 * @return
-	 */
-	protected <T> String getElementIdWithIndex(FormField<T> field, int index) {
-		return getRenderContext().getElementIdWithIndex(field, index);
-	}
-	
-	/**
 	 * Returns id of placeholder element for given form element.
 	 * @param element
 	 * @return
@@ -356,12 +328,12 @@ public class BasicFormRenderer {
 	
 	protected <T> String renderMarkupTextArea(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<textarea name=\"" + field.getName() + "\" id=\"" + getElementId(field) + 
+		sb.append("<textarea name=\"" + field.getName() + "\" id=\"" + field.getElementId() + 
 			"\" class=\"" + getInputClasses(field) + "\"");
 		sb.append(getElementAttributes(field));
 		sb.append(getInputPlaceholderAttribute(field));
 		sb.append(">");
-		sb.append(getRenderContext().escapeHtml(field.getValue()));
+		sb.append(escapeHtml(field.getValue()));
 		sb.append("</textarea>" + newLine());
 		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
 		return sb.toString();
@@ -374,9 +346,9 @@ public class BasicFormRenderer {
 		if (formComponent != null) {
 			String inputType = formComponent.getInputType();
 			sb.append("<input type=\"" + inputType + "\" name=\"" + field.getName()
-					+ "\" id=\"" + getElementId(field) + "\"");
+					+ "\" id=\"" + field.getElementId() + "\"");
 			if (!Field.FILE_UPLOAD.getType().equals(typeId)) {
-				String value = getRenderContext().escapeHtml(field.getValue());
+				String value = escapeHtml(field.getValue());
 				sb.append(" value=\"" + value + "\"");
 			}
 			if (!Field.HIDDEN.getType().equals(typeId)) {
@@ -393,9 +365,8 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupCheckBox(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"checkbox\" name=\"" + field.getName()
-			+ "\" id=\"" + getElementId(field) + "\" value=\"1\"");
-		boolean checked = getRenderContext().isChecked(field);
-		if (checked) {
+			+ "\" id=\"" + field.getElementId() + "\" value=\"1\"");
+		if (field.isFilledWithTrue()) {
 			sb.append(" checked=\"checked\" ");
 		}
 		sb.append(getElementAttributes(field));
@@ -407,7 +378,7 @@ public class BasicFormRenderer {
 
 	protected <T> String renderMarkupSelect(FormField<T> field, boolean multiple, Integer size) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<select name=\"" + field.getName() + "\" id=\"" + getElementId(field) + "\"");
+		sb.append("<select name=\"" + field.getName() + "\" id=\"" + field.getElementId() + "\"");
 		if (multiple) {
 			sb.append(" multiple=\"multiple\"");
 		}
@@ -453,7 +424,7 @@ public class BasicFormRenderer {
 				for (Object item : items) {
 					String value = getChoiceValue(choiceRenderer, item, itemIndex);
 					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
-					String itemId = getElementIdWithIndex(field, itemIndex);
+					String itemId = field.getElementIdWithIndex(itemIndex);
 
 					sb.append("<div class=\"" + type + "\">" + newLine());
 					if (field.getProperties().isLabelVisible()) {
@@ -481,23 +452,27 @@ public class BasicFormRenderer {
 	
 	protected String renderMarkupOption(String value, String title, boolean selected) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<option value=\"" + getRenderContext().escapeHtml(value) + "\"");
+		sb.append("<option value=\"" + escapeHtml(value) + "\"");
 		if (selected) {
 			sb.append(" selected=\"selected\"");
 		}
-		sb.append(">" + getRenderContext().escapeHtml(title) + "</option>" + newLine());
+		sb.append(">" + escapeHtml(title) + "</option>" + newLine());
 		return sb.toString();
 	}
 	
 	protected <T> String renderMarkupButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<button type=\"submit\" value=\"" + getRenderContext().escapeHtml(field.getValue()) + 
+		sb.append("<button type=\"submit\" value=\"" + escapeHtml(field.getValue()) + 
 			"\" class=\"" + getInputClasses(field) + "\">");
-		MessageTranslator tr = getRenderContext().getMessageTranslator(field);
-		String text = getRenderContext().escapeHtml(tr.getMessage(field.getLabelKey()));
+		MessageTranslator tr = getMessageTranslator(field);
+		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
 		sb.append(text);
 		sb.append("</button>" + newLine());
 		return sb.toString();
+	}
+
+	protected <T> MessageTranslator getMessageTranslator(FormElement<T> element) {
+		return RenderUtils.getMessageTranslator(element, getRenderContext().getLocale());
 	}
 	
 	/**
@@ -569,7 +544,7 @@ public class BasicFormRenderer {
 	protected <T> String getInputPlaceholderAttribute(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		if (field.getProperties().getPlaceholder() != null) {
-			sb.append(" placeholder=\"" + getRenderContext().escapeHtml(field.getProperties().getPlaceholder()) + "\"");
+			sb.append(" placeholder=\"" + escapeHtml(field.getProperties().getPlaceholder()) + "\"");
 		}
 		return sb.toString();
 	}
@@ -747,6 +722,14 @@ public class BasicFormRenderer {
 		return ctx;
 	}
 	
+	String escapeHtml(String html) {
+		return RenderUtils.escapeHtml(html);
+	}
+	
+	String newLine() {
+		return System.getProperty("line.separator");
+	}
+	
 	private <T> boolean isCheckBox(FormField<T> field) {
 		return Field.CHECK_BOX.getType().equals(field.getType());
 	}
@@ -756,15 +739,11 @@ public class BasicFormRenderer {
 		return (ChoiceRenderer<Object>)field.getChoiceRenderer();
 	}
 	
-	private String newLine() {
-		return getRenderContext().newLine();
-	}
-	
 	private String getChoiceTitle(ChoiceRenderer<Object> choiceRenderer, Object item, int itemIndex) {
-		return getRenderContext().escapeHtml(choiceRenderer.getItem(item, itemIndex).getTitle());
+		return escapeHtml(choiceRenderer.getItem(item, itemIndex).getTitle());
 	}
 
 	private String getChoiceValue(ChoiceRenderer<Object> choiceRenderer, Object item, int itemIndex) {
-		return getRenderContext().escapeHtml(choiceRenderer.getItem(item, itemIndex).getId());
+		return escapeHtml(choiceRenderer.getItem(item, itemIndex).getId());
 	}
 }

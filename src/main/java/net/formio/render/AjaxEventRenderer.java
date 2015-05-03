@@ -30,13 +30,13 @@ import net.formio.internal.FormUtils;
  * @author Radek Beran
  */
 class AjaxEventRenderer {
-	private final RenderContext ctx;
+	private final BasicFormRenderer renderer;
 
-	AjaxEventRenderer(RenderContext ctx) {
-		if (ctx == null) {
-			throw new IllegalArgumentException("ctx cannot be null");
+	AjaxEventRenderer(BasicFormRenderer renderer) {
+		if (renderer == null) {
+			throw new IllegalArgumentException("renderer cannot be null");
 		}
-		this.ctx = ctx;
+		this.renderer = renderer;
 	}
 	
 	/**
@@ -49,27 +49,23 @@ class AjaxEventRenderer {
 		StringBuilder sb = new StringBuilder();
 		List<HandledJsEvent> urlEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
 		if (urlEvents.size() > 0) {
-			sb.append("<script>" + newLine());
+			sb.append("<script>" + renderer.newLine());
 			if (multipleInputs) {
 				if (field.getChoices() != null && field.getChoiceRenderer() != null) {
 					List<?> items = field.getChoices().getItems();
 					if (items != null) {
 						for (int i = 0; i < items.size(); i++) {
-							String itemId = getRenderContext().getElementIdWithIndex(field, i);
+							String itemId = field.getElementIdWithIndex(i);
 							sb.append(renderTdiSend(field, itemId, urlEvents));
 						}
 					}
 				}
 			} else {
-				sb.append(renderTdiSend(field, getRenderContext().getElementId(field), urlEvents));
+				sb.append(renderTdiSend(field, field.getElementId(), urlEvents));
 			}
-			sb.append("</script>" + newLine());
+			sb.append("</script>" + renderer.newLine());
 		}
 		return sb.toString();
-	}
-	
-	protected RenderContext getRenderContext() {
-		return ctx;
 	}
 	
 	/**
@@ -86,7 +82,7 @@ class AjaxEventRenderer {
 		StringBuilder sb = new StringBuilder();
 		if (events != null && events.size() > 0) {
 			String elm = "$(\"#" + inputId + "\")";
-			sb.append(elm + ".on({" + newLine());
+			sb.append(elm + ".on({" + renderer.newLine());
 			for (int i = 0; i < events.size(); i++) {
 				HandledJsEvent eventToUrl = events.get(i);
 				JsEvent eventType = eventToUrl.getEvent();
@@ -96,27 +92,23 @@ class AjaxEventRenderer {
 						throw new IllegalArgumentException("No URL for AJAX request is specified");
 					}
 					url = FormUtils.urlWithAppendedParameter(url, AjaxParams.SRC_ELEMENT_NAME, formField.getName());
-					sb.append(eventType.getEventName() + ": function(evt) {"  + newLine());
+					sb.append(eventType.getEventName() + ": function(evt) {"  + renderer.newLine());
 					// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
-					sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + newLine());
-					sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + newLine());
-					sb.append("TDI.Ajax.send(" + elm + ");" + newLine());
-					sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + newLine());
-					sb.append("var prevUrl = null;" + newLine());
+					sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + renderer.newLine());
+					sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + renderer.newLine());
+					sb.append("TDI.Ajax.send(" + elm + ");" + renderer.newLine());
+					sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + renderer.newLine());
+					sb.append("var prevUrl = null;" + renderer.newLine());
 					sb.append("}");
 					if (i < events.size() - 1) {
 						// not the last event handler
 						sb.append(",");
 					}
-					sb.append(newLine());
+					sb.append(renderer.newLine());
 				}
 			}
-			sb.append("});" + newLine());
+			sb.append("});" + renderer.newLine());
 		}
 		return sb.toString();
-	}
-	
-	private String newLine() {
-		return getRenderContext().newLine();
 	}
 }

@@ -18,12 +18,6 @@ package net.formio.render;
 
 import java.util.Locale;
 
-import net.formio.FormElement;
-import net.formio.FormField;
-import net.formio.FormMapping;
-import net.formio.Forms;
-import net.formio.common.MessageTranslator;
-
 /**
  * <p>Context for which the form is rendered: Locale, form URL and method, message translator for elements.
  * Contains also utility methods for manipulation with form elements.
@@ -62,70 +56,5 @@ public class RenderContext {
 
 	public Locale getLocale() {
 		return locale;
-	}
-	
-	/**
-	 * Escapes HTML (converts HTML text to XML entities).
-	 * @param s
-	 * @return
-	 */
-	public String escapeHtml(String s) {
-		if (s == null || s.isEmpty()) {
-			return "";
-		}
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
-			switch (c) {
-			case '&':
-				sb.append("&amp;");
-				break;
-			case '<':
-				sb.append("&lt;");
-				break;
-			case '>':
-				sb.append("&gt;");
-				break;
-			case '"':
-				sb.append("&quot;");
-				break;
-			default:
-				sb.append(c);
-				break;
-			}
-		}
-		return sb.toString();
-	}
-	
-	public <T> MessageTranslator getMessageTranslator(FormElement<T> element) {
-		FormMapping<?> rootMapping = element.getRoot();
-		return new MessageTranslator(element.getParent().getDataClass(),
-			getLocale(), rootMapping.getDataClass());
-	}
-	
-	protected <T> boolean isChecked(FormField<T> field) {
-		Boolean checked = Boolean.FALSE;
-		if (field.getValue() != null && !field.getValue().isEmpty()) {
-			String lc = field.getValue().toLowerCase();
-			checked = field.getParent().getConfig().getFormatters().parseFromString(
-				lc, Boolean.class, (String)null, getLocale());
-		}
-		return checked != null && checked.booleanValue();
-	}
-	
-	String getElementId(FormElement<?> element) {
-		return getIdForName(element.getName());
-	}
-	
-	String getIdForName(String name) {
-		return "id" + Forms.PATH_SEP + name;
-	}
-	
-	<T> String getElementIdWithIndex(FormField<T> field, int itemIndex) {
-		return getElementId(field) + Forms.PATH_SEP + itemIndex;
-	}
-	
-	String newLine() {
-		return System.getProperty("line.separator");
 	}
 }

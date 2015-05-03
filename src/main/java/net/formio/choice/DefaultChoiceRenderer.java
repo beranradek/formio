@@ -16,7 +16,9 @@
  */
 package net.formio.choice;
 
-import net.formio.common.MessageTranslator;
+import java.util.Locale;
+
+import net.formio.common.BundleMessageTranslator;
 
 /**
  * Default implementation of {@link ChoiceRenderer}.
@@ -26,6 +28,16 @@ import net.formio.common.MessageTranslator;
  */
 public class DefaultChoiceRenderer<T> implements ChoiceRenderer<T> {
 
+	private final Locale locale;
+	
+	public DefaultChoiceRenderer(Locale locale) {
+		this.locale = locale;
+	}
+	
+	public Locale getLocale() {
+		return locale;
+	}
+	
 	/**
 	 * Returns {@link ChoiceItem} such that id is:
 	 * Id of {@link Identified} item; or name of enum constant
@@ -49,12 +61,12 @@ public class DefaultChoiceRenderer<T> implements ChoiceRenderer<T> {
 	}
 
 	private String getChoiceTitle(T item) {
-		String title = "null";
+		String title = "???";
 		if (item instanceof Titled) {
 			title = ((Titled)item).getTitle();
 		} else if (item != null && item.getClass().isEnum()) {
 			Enum<?> e = (Enum<?>)item;
-			MessageTranslator tr = new MessageTranslator(item.getClass());
+			BundleMessageTranslator tr = new BundleMessageTranslator(item.getClass(), this.locale);
 			title = tr.getMessage(e.name());
 		} else if (item != null) {
 			title = "" + item.toString();

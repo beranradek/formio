@@ -54,6 +54,12 @@ public interface FormField<T> extends FormElement<T> {
 	 * @return
 	 */
 	String getValue();
+	
+	/**
+	 * Returns true if single/first value of this field can be converted to {@link Boolean#TRUE}. 
+	 * @return
+	 */
+	boolean isFilledWithTrue();
 
 	/**
 	 * Formatting pattern for conversion of value to/from string.

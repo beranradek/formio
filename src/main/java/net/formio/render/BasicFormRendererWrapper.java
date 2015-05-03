@@ -103,37 +103,6 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 	}
 	
 	/**
-	 * Returns value of id attribute for given element.
-	 * @param element
-	 * @return
-	 */
-	@Override
-	public <T> String getElementId(FormElement<T> element) {
-		return getInnerRenderer().getElementId(element);
-	}
-	
-	/**
-	 * Returns value of id attribute for given form field name.
-	 * @param name
-	 * @return
-	 */
-	@Override
-	public String getIdForName(String name) {
-		return getInnerRenderer().getIdForName(name);
-	}
-	
-	/**
-	 * Returns value of id attribute for given form field with given index (order).
-	 * @param field
-	 * @param index
-	 * @return
-	 */
-	@Override
-	protected <T> String getElementIdWithIndex(FormField<T> field, int index) {
-		return getInnerRenderer().getElementIdWithIndex(field, index);
-	}
-	
-	/**
 	 * Returns id of placeholder element for given form element.
 	 * @param element
 	 * @return

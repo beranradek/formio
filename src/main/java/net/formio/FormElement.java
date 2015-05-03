@@ -50,6 +50,19 @@ public interface FormElement<T> {
 	String getName();
 	
 	/**
+	 * Id of this form element (value for id attribute in the markup).
+	 * @return
+	 */
+	String getElementId();
+	
+	/**
+	 * Returns id of this form element with given index (order) appended.
+	 * @param index
+	 * @return
+	 */
+	String getElementIdWithIndex(int index);
+	
+	/**
 	 * Name of property to which this form element is bound to.
 	 * @return
 	 */

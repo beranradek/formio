@@ -17,93 +17,12 @@
 package net.formio.common;
 
 import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 
 /**
- * <p>Retrieves translations from {@link ResourceBundle}s.</p>
- * <ul>
- * 	<li>Thread-safe: Immutable
- * </ul>
+ * Translates message keys to localized messages.
  * @author Radek Beran
  */
-public class MessageTranslator {
-	
-	private final String bundleName;
-	private final String fallbackBundleName;
-	private final Locale locale;
-	
-	/**
-	 * Creates new message translator.
-	 * @param bundleName
-	 * @param locale
-	 * @param fallbackBundleName
-	 */
-	public MessageTranslator(String bundleName, Locale locale, String fallbackBundleName) {
-		if (bundleName == null) throw new IllegalArgumentException("bundleName cannot be null");
-		if (locale == null) throw new IllegalArgumentException("locale cannot be null");
-		this.locale = locale;
-		this.bundleName = bundleName;
-		this.fallbackBundleName = fallbackBundleName;
-		try { 
-			ResourceBundle.getBundle(bundleName, locale);
-		} catch (MissingResourceException ex) {
-			// ignored, so the user is not forced to create properties for all classes
-		}
-	}
-	
-	/**
-	 * Creates new message translator.
-	 * @param bundleName
-	 * @param locale
-	 */
-	public MessageTranslator(String bundleName, Locale locale) {
-		this(bundleName, locale, (String)null);
-	}
-	
-	/**
-	 * Creates new message translator.
-	 * @param bundleName
-	 * @param fallbackBundleName
-	 */
-	public MessageTranslator(String bundleName, String fallbackBundleName) {
-		this(bundleName, Locale.getDefault(), fallbackBundleName);
-	}
-	
-	/**
-	 * Creates new message translator.
-	 * @param bundleName
-	 */
-	public MessageTranslator(String bundleName) {
-		this(bundleName, (String)null);
-	}
-	
-	/**
-	 * Creates new message translator.
-	 * @param cls class for which the resource bundle is searched
-	 * @param locale
-	 */
-	public MessageTranslator(Class<?> cls, Locale locale) {
-		this(classToBundleName(cls), locale);
-	}
-	
-	/**
-	 * Creates new message translator.
-	 * @param cls class for which the resource bundle is searched
-	 * @param locale
-	 * @param cls2 fallback class for which the resource bundle is searched if not found for first class
-	 */
-	public MessageTranslator(Class<?> cls, Locale locale, Class<?> cls2) {
-		this(classToBundleName(cls), locale, classToBundleName(cls2));
-	}
-	
-	/**
-	 * Creates new message translator.
-	 * @param cls class for which the resource bundle is searched
-	 */
-	public MessageTranslator(Class<?> cls) {
-		this(classToBundleName(cls));
-	}
+public interface MessageTranslator {
 	
 	/**
 	 * Returns translation of the message for given message key, locale and arguments.
@@ -112,35 +31,7 @@ public class MessageTranslator {
 	 * @param args
 	 * @return
 	 */
-	public String getMessage(String msgKey, Locale locale, Object ... args) {
-		if (msgKey == null) throw new IllegalArgumentException("msgKey cannot be null");
-		String text = null;
-		try {
-			try {
-				text = getStrFromBundle(this.bundleName, msgKey, locale);
-			} catch (MissingResourceException ex) {
-				// message was not found in resource bundle, ignored
-				text = null;
-			}
-			if ((text == null || text.equals(createMissingMessage(msgKey))) && this.fallbackBundleName != null) {
-				text = getStrFromBundle(this.fallbackBundleName, msgKey, locale);
-			}
-		} catch (MissingResourceException ex) {
-			// message was not found in resource bundle, ignored
-			text = null;
-		}
-		if (text == null) {
-			text = createMissingMessage(msgKey);
-		} else {
-			if (args != null && args.length > 0) {
-				for (int i = 0; i < args.length; i++) {
-					Object arg = args[i];
-					text = text.replaceAll("\\{" + i + "\\}", arg != null ? arg.toString() : "{" + i + "}");
-				}
-			}
-		}
-		return text;
-	}
+	String getMessage(String msgKey, Locale locale, Object ... args);
 	
 	/**
 	 * Returns translation of the message for given message key and arguments.
@@ -148,22 +39,5 @@ public class MessageTranslator {
 	 * @param args
 	 * @return
 	 */
-	public String getMessage(String msgKey, Object ... args) {
-		return getMessage(msgKey, this.locale, args);
-	}
-	
-	public static String classToBundleName(Class<?> cls) {
-		if (cls == null) return null;
-		return cls.getName().replace(".", "/");
-	}
-	
-	private String createMissingMessage(String msgKey) {
-		return "???" + msgKey + "???";
-	}
-	
-	private String getStrFromBundle(String baseName, String msgKey, Locale locale) {
-		// getBundle caches resulting bundles
-		ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale);
-		return bundle.getString(msgKey);
-	}
+	String getMessage(String msgKey, Object ... args);
 }

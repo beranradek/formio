@@ -31,7 +31,7 @@ public enum WeekDays {
 	SATURDAY("sa"),
 	SUNDAY("su");
 	
-	private static final MessageTranslator tr = new MessageTranslator(WeekDays.class);
+	private static final MessageTranslator tr = new BundleMessageTranslator(WeekDays.class);
 	private final String shortcut;
 	
 	private WeekDays(String shortcut) {

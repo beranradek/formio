@@ -29,31 +29,26 @@ import net.formio.common.MessageTranslator;
 class LabelRenderer {
 	private final BasicFormRenderer renderer;
 	private final StyleRenderer styleRenderer;
-	private final RenderContext ctx;
 
-	LabelRenderer(BasicFormRenderer renderer, StyleRenderer styleRenderer, RenderContext ctx) {
+	LabelRenderer(BasicFormRenderer renderer, StyleRenderer styleRenderer) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
 		}
 		if (styleRenderer == null) {
 			throw new IllegalArgumentException("styleRenderer cannot be null");
 		}
-		if (ctx == null) {
-			throw new IllegalArgumentException("ctx cannot be null");
-		}
 		this.renderer = renderer;
 		this.styleRenderer = styleRenderer;
-		this.ctx = ctx;
 	}
 	
 	protected <T> String renderMappingLabel(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
 		if (mapping.getProperties().isLabelVisible() && !mapping.isRootMapping()) {
-			sb.append("<div class=\"" + styleRenderer.getFormBoxClasses() + "\">" + newLine());
-			sb.append("<div class=\"" + styleRenderer.getLabelClasses() + "\">" + newLine());
+			sb.append("<div class=\"" + styleRenderer.getFormBoxClasses() + "\">" + renderer.newLine());
+			sb.append("<div class=\"" + styleRenderer.getLabelClasses() + "\">" + renderer.newLine());
 			sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>");
-			sb.append("</div>" + newLine());
-			sb.append("</div>" + newLine());
+			sb.append("</div>" + renderer.newLine());
+			sb.append("</div>" + renderer.newLine());
 		}
 		return sb.toString();
 	}
@@ -72,7 +67,7 @@ class LabelRenderer {
 	protected <T> String getLabelText(FormElement<T> formElement) {
 		StringBuilder sb = new StringBuilder("");
 		if (formElement.getProperties().isLabelVisible()) {
-			MessageTranslator tr = getRenderContext().getMessageTranslator(formElement);
+			MessageTranslator tr = renderer.getMessageTranslator(formElement);
 			String msgKey = formElement.getLabelKey();
 			if (formElement instanceof FormMapping) {
 				FormMapping<?> m = (FormMapping<?>) formElement;
@@ -80,7 +75,7 @@ class LabelRenderer {
 					msgKey = msgKey + Forms.PATH_SEP + "single";
 				}
 			}
-			sb.append(getRenderContext().escapeHtml(tr.getMessage(msgKey, getRenderContext().getLocale())));
+			sb.append(renderer.escapeHtml(tr.getMessage(msgKey, renderer.getRenderContext().getLocale())));
 			if (formElement instanceof BasicListFormMapping) {
 				FormMapping<?> listMapping = (FormMapping<?>) formElement;
 				sb.append(" (" + listMapping.getList().size() + ")");
@@ -94,13 +89,5 @@ class LabelRenderer {
 
 	protected <T> String getRequiredMark(@SuppressWarnings("unused") FormElement<T> formElement) {
 		return "&nbsp;*";
-	}
-	
-	protected RenderContext getRenderContext() {
-		return ctx;
-	}
-	
-	private String newLine() {
-		return getRenderContext().newLine();
 	}
 }

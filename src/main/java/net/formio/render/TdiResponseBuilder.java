@@ -86,7 +86,7 @@ public class TdiResponseBuilder {
 	 * @return
 	 */
 	public TdiResponseBuilder focusForName(String elementName) {
-		return script("$(\"#" + getIdForName(elementName) + "\").focus();");
+		return script("$(\"#" + RenderUtils.getElementIdForName(elementName) + "\").focus();");
 	}
 	
 	/**
@@ -217,14 +217,6 @@ public class TdiResponseBuilder {
 	
 	protected BasicFormRenderer getRenderer() {
 		return renderer;
-	}
-	
-	public String getElementId(FormElement<?> element) {
-		return renderer.getElementId(element);
-	}
-	
-	public String getIdForName(String name) {
-		return renderer.getIdForName(name);
 	}
 	
 	protected List<String> getInstructions() {

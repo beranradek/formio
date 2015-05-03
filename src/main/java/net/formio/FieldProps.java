@@ -86,6 +86,9 @@ public class FieldProps<T> implements Serializable {
 		}
 		// "this" cannot be used before this initialization of fields:
 		initFromField(field).value(strValue).filledObjects(values);
+		if (field.getChoiceRenderer() instanceof DefaultChoiceRenderer) {
+			choiceRenderer(new DefaultChoiceRenderer<T>(locale));
+		}
 	}
 		
 	public FieldProps<T> type(String type) {
@@ -330,7 +333,8 @@ public class FieldProps<T> implements Serializable {
 		if (this.choiceRenderer == null && this.type != null && !this.type.isEmpty()) {
 			Field formComponent = Field.findByType(this.type);
 			if (formComponent != null && formComponent.isChoice()) {
-				this.choiceRenderer = new DefaultChoiceRenderer<T>();
+				// This default locale will be replaced by the desired one when the form field is filled
+				this.choiceRenderer = new DefaultChoiceRenderer<T>(Locale.getDefault());
 			}
 		}
 		return new FormFieldImpl<T>(this, order);

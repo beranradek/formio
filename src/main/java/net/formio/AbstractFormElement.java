@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import net.formio.internal.FormUtils;
+import net.formio.render.RenderUtils;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.Validator;
 import net.formio.validation.constraints.NotEmpty;
@@ -210,5 +211,15 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 			}
 		}
 		return root;
+	}
+	
+	@Override
+	public String getElementId() {
+		return RenderUtils.getElementIdForName(getName());
+	}
+	
+	@Override
+	public String getElementIdWithIndex(int index) {
+		return getElementId() + Forms.PATH_SEP + index;
 	}
 }

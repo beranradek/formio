@@ -109,9 +109,5 @@ public class WholeFormRenderer extends BasicFormRendererWrapper {
 			Field.SUBMIT_BUTTON.getType()).build());
 	}
 	
-	private String newLine() {
-		return getInnerRenderer().getRenderContext().newLine();
-	}
-	
 	private final String PROPERTY_DEFAULT_SUBMIT = "_defaultSubmitButton";
 }

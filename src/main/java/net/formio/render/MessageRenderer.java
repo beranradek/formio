@@ -29,29 +29,24 @@ import net.formio.validation.ValidationResult;
  */
 class MessageRenderer {
 	private final BasicFormRenderer renderer;
-	private final RenderContext ctx;
 
-	MessageRenderer(BasicFormRenderer renderer, RenderContext ctx) {
+	MessageRenderer(BasicFormRenderer renderer) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
 		}
-		if (ctx == null) {
-			throw new IllegalArgumentException("ctx cannot be null");
-		}
 		this.renderer = renderer;
-		this.ctx = ctx;
 	}
 	
 	protected <T> String renderGlobalMessages(FormMapping<T> formMapping) {
 		StringBuilder sb = new StringBuilder();
 		ValidationResult validationResult = formMapping.getValidationResult();
 		if (!validationResult.isEmpty() && !validationResult.isSuccess()) {
-			sb.append("<div class=\"alert alert-danger\">" + newLine());
-			sb.append("<div>Form contains validation errors.</div>" + newLine());
+			sb.append("<div class=\"alert alert-danger\">" + renderer.newLine());
+			sb.append("<div>Form contains validation errors.</div>" + renderer.newLine());
 			for (ConstraintViolationMessage msg : validationResult.getGlobalMessages()) {
 				sb.append(renderer.renderMarkupMessage(msg));
 			}
-			sb.append("</div>" + newLine());
+			sb.append("</div>" + renderer.newLine());
 		}
 		return sb.toString();
 	}
@@ -70,15 +65,7 @@ class MessageRenderer {
 	protected String renderMessage(ConstraintViolationMessage msg) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"" + msg.getSeverity().getStyleClass() + "\">" + 
-			getRenderContext().escapeHtml(msg.getText()) + "</div>" + newLine());
+			renderer.escapeHtml(msg.getText()) + "</div>" + renderer.newLine());
 		return sb.toString();
-	}
-	
-	protected RenderContext getRenderContext() {
-		return ctx;
-	}
-	
-	private String newLine() {
-		return getRenderContext().newLine();
 	}
 }

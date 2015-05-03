@@ -138,6 +138,17 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	public String getValue() {
 		return strValue;
 	}
+	
+	@Override
+	public boolean isFilledWithTrue() {
+		Boolean checked = Boolean.FALSE;
+		if (getValue() != null && !getValue().isEmpty()) {
+			String lc = getValue().toLowerCase();
+			checked = getParent().getConfig().getFormatters().parseFromString(
+				lc, Boolean.class, (String)null, getParent().getConfig().getLocale());
+		}
+		return checked != null && checked.booleanValue();
+	}
 
 	@Override
 	public String getPattern() {

@@ -17,6 +17,9 @@
 package net.formio.choice;
 
 import static org.junit.Assert.*;
+
+import java.util.Locale;
+
 import net.formio.domain.inputs.Country;
 import net.formio.domain.inputs.Salutation;
 
@@ -27,21 +30,23 @@ import org.junit.Test;
  * @author Radek Beran
  */
 public class DefaultChoiceRendererTest {
+	
+	private static final Locale LOCALE = Locale.ENGLISH;
 
 	@Test
 	public void testGetTitle() {
-		DefaultChoiceRenderer<Country> countryRenderer = new DefaultChoiceRenderer<Country>();
+		DefaultChoiceRenderer<Country> countryRenderer = new DefaultChoiceRenderer<Country>(LOCALE);
 		assertEquals(Country.GB.getTitle(), countryRenderer.getItem(Country.GB, 0).getTitle());
-		DefaultChoiceRenderer<Salutation> salutationRenderer = new DefaultChoiceRenderer<Salutation>();
+		DefaultChoiceRenderer<Salutation> salutationRenderer = new DefaultChoiceRenderer<Salutation>(LOCALE);
 		assertEquals("Mr.", salutationRenderer.getItem(Salutation.MR, 0).getTitle());
-		assertEquals("null", salutationRenderer.getItem(null, 0).getTitle());
+		assertEquals("???", salutationRenderer.getItem(null, 0).getTitle());
 	}
 	
 	@Test
 	public void testGetId() {
-		DefaultChoiceRenderer<Country> countryRenderer = new DefaultChoiceRenderer<Country>();
+		DefaultChoiceRenderer<Country> countryRenderer = new DefaultChoiceRenderer<Country>(LOCALE);
 		assertEquals(Country.GB.name(), countryRenderer.getItem(Country.GB, 0).getId());
-		DefaultChoiceRenderer<Salutation> salutationRenderer = new DefaultChoiceRenderer<Salutation>();
+		DefaultChoiceRenderer<Salutation> salutationRenderer = new DefaultChoiceRenderer<Salutation>(LOCALE);
 		assertEquals(Salutation.MR.name(), salutationRenderer.getItem(Salutation.MR, 0).getId());
 		assertEquals("0", salutationRenderer.getItem(null, 0).getId());
 	}

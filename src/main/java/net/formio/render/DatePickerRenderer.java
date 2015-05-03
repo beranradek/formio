@@ -24,35 +24,27 @@ import net.formio.FormField;
  * @author Radek Beran
  */
 class DatePickerRenderer {
-	private final RenderContext ctx;
+	private final BasicFormRenderer renderer;
 
-	DatePickerRenderer(RenderContext ctx) {
-		if (ctx == null) {
-			throw new IllegalArgumentException("ctx cannot be null");
+	DatePickerRenderer(BasicFormRenderer renderer) {
+		if (renderer == null) {
+			throw new IllegalArgumentException("renderer cannot be null");
 		}
-		this.ctx = ctx;
+		this.renderer = renderer;
 	}
 	
 	protected <T> String renderDatePickerScript(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<script>" + newLine());
-		sb.append("$(function(){" + newLine());
+		sb.append("<script>" + renderer.newLine());
+		sb.append("$(function(){" + renderer.newLine());
 		sb.append("	$('#id-" + field.getName() + "').datepicker({ dateFormat: \""
-			+ getDatePickerPattern(field) + "\" });" + newLine());
-		sb.append("});" + newLine());
-		sb.append("</script>" + newLine());
+			+ getDatePickerPattern(field) + "\" });" + renderer.newLine());
+		sb.append("});" + renderer.newLine());
+		sb.append("</script>" + renderer.newLine());
 		return sb.toString();
-	}
-	
-	protected RenderContext getRenderContext() {
-		return ctx;
 	}
 	
 	private <T> String getDatePickerPattern(@SuppressWarnings("unused") FormField<T> field) {
 		return "d.m.yy";
-	}
-	
-	private String newLine() {
-		return getRenderContext().newLine();
 	}
 }
