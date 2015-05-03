@@ -17,6 +17,7 @@
 package net.formio.render;
 
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * <p>Context for which the form is rendered: Locale, form URL and method, message translator for elements.
@@ -26,6 +27,7 @@ import java.util.Locale;
  */
 public class RenderContext {
 	private final Locale locale;
+	private final TimeZone timeZone;
 	private final FormMethod method;
 	private final String actionUrl;
 	
@@ -34,16 +36,28 @@ public class RenderContext {
 	}
 	
 	public RenderContext(Locale locale) {
-		this(locale, FormMethod.POST, "#");
+		this(FormMethod.POST, "#", locale, TimeZone.getDefault());
 	}
 	
-	public RenderContext(Locale locale, FormMethod method, String actionUrl) {
+	public RenderContext(Locale locale, TimeZone timeZone) {
+		this(FormMethod.POST, "#", locale, timeZone);
+	}
+	
+	public RenderContext(FormMethod method, String actionUrl, Locale locale) {
+		this(method, actionUrl, locale, TimeZone.getDefault());
+	}
+	
+	public RenderContext(FormMethod method, String actionUrl, Locale locale, TimeZone timeZone) {
 		if (locale == null) {
 			throw new IllegalArgumentException("locale cannot be null");
 		}
-		this.locale = locale;
+		if (timeZone == null) {
+			throw new IllegalArgumentException("timeZone cannot be null");
+		}
 		this.method = method;
 		this.actionUrl = actionUrl;
+		this.locale = locale;
+		this.timeZone = timeZone;
 	}
 
 	public FormMethod getMethod() {
@@ -56,5 +70,9 @@ public class RenderContext {
 
 	public Locale getLocale() {
 		return locale;
+	}
+	
+	public TimeZone getTimeZone() {
+		return timeZone;
 	}
 }
