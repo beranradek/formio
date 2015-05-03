@@ -335,7 +335,7 @@ public class BasicFormRenderer {
 		sb.append(">");
 		sb.append(escapeHtml(field.getValue()));
 		sb.append("</textarea>" + newLine());
-		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
+		sb.append(renderFieldScript(field, false));
 		return sb.toString();
 	}
 
@@ -357,7 +357,7 @@ public class BasicFormRenderer {
 			sb.append(" class=\"" + getInputClasses(field) + "\"");
 			sb.append(getInputPlaceholderAttribute(field));
 			sb.append("/>" + newLine());
-			sb.append(ajaxEventRenderer.renderFieldScript(field, false));
+			sb.append(renderFieldScript(field, false));
 		}
 		return sb.toString();
 	}
@@ -372,7 +372,7 @@ public class BasicFormRenderer {
 		sb.append(getElementAttributes(field));
 		sb.append(" class=\"" + getInputClasses(field) + "\"");
 		sb.append("/>" + newLine());
-		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
+		sb.append(renderFieldScript(field, false));
 		return sb.toString();
 	}
 
@@ -407,7 +407,7 @@ public class BasicFormRenderer {
 			}
 		}
 		sb.append("</select>" + newLine());
-		sb.append(ajaxEventRenderer.renderFieldScript(field, false));
+		sb.append(renderFieldScript(field, false));
 		return sb.toString();
 	}
 
@@ -446,7 +446,7 @@ public class BasicFormRenderer {
 				}
 			}
 		}
-		sb.append(ajaxEventRenderer.renderFieldScript(field, true));
+		sb.append(renderFieldScript(field, true));
 		return sb.toString();
 	}
 	
@@ -551,6 +551,16 @@ public class BasicFormRenderer {
 
 	protected <T> String renderDatePickerScript(FormField<T> field) {
 		return datePickerRenderer.renderDatePickerScript(field);
+	}
+	
+	/**
+	 * Renders client-side script for handling form field AJAX events.
+	 * @param field
+	 * @param multipleInputs true if given form field represents multiple form inputs
+	 * @return
+	 */
+	protected <T> String renderFieldScript(FormField<T> field, boolean multipleInputs) {
+		return ajaxEventRenderer.renderFieldScript(field, multipleInputs);
 	}
 
 	protected <T> String renderTextFieldInternal(FormField<T> field) {
