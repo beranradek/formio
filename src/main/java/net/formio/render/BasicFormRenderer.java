@@ -455,7 +455,7 @@ public class BasicFormRenderer {
 	
 	protected <T> String renderMarkupButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<button type=\"submit\" value=\"" + escapeHtml(field.getValue()) + 
+		sb.append("<button type=\"" + Field.SUBMIT_BUTTON.getInputType() + "\" value=\"" + escapeHtml(field.getValue()) + 
 			"\" class=\"" + getInputClasses(field) + "\">");
 		MessageTranslator tr = getMessageTranslator(field);
 		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
