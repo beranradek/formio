@@ -412,11 +412,9 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderMarkupChecks(FormField<T> field) {
-		String type = Field.RADIO_CHOICE.getType().equals(field.getType()) ? 
-			Field.RADIO_CHOICE.getType() : 
-			Field.CHECK_BOX.getType();
 		StringBuilder sb = new StringBuilder();
-		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
+		Field formComponent = Field.findByType(field.getType());
+		if (formComponent != null && field.getChoices() != null && field.getChoiceRenderer() != null) {
 			List<?> items = field.getChoices().getItems();
 			if (items != null) {
 				ChoiceRenderer<Object> choiceRenderer = getChoiceRenderer(field);
@@ -426,12 +424,12 @@ public class BasicFormRenderer {
 					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
 					String itemId = field.getElementIdWithIndex(itemIndex);
 
-					sb.append("<div class=\"" + type + "\">" + newLine());
+					sb.append("<div class=\"" + formComponent.getInputType() + "\">" + newLine());
 					if (field.getProperties().isLabelVisible()) {
 						sb.append("<label>");
 					}
 					
-					sb.append("<input type=\"" + type + "\" name=\"" + field.getName() + "\" id=\"" + itemId + "\" value=\"" + value + "\"");
+					sb.append("<input type=\"" + formComponent.getInputType() + "\" name=\"" + field.getName() + "\" id=\"" + itemId + "\" value=\"" + value + "\"");
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" checked=\"checked\"");
 					}
