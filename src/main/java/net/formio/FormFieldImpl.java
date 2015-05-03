@@ -35,6 +35,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	// public because of introspection required by some template frameworks, constructors are not public
 	
 	private final String type;
+	private final String inputType;
 	/** Data filled in form field - for e.g. items from a codebook. */
 	private final List<T> filledObjects;
 	private final String pattern;
@@ -72,6 +73,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	FormFieldImpl(FieldProps<T> fieldProps, int order) {
 		super(fieldProps.getParent(), fieldProps.getPropertyName(), fieldProps.getValidators());
 		this.type = fieldProps.getType() != null ? fieldProps.getType() : Field.TEXT.getType();
+		this.inputType = fieldProps.getInputType() != null ? fieldProps.getInputType() : null;
 		this.pattern = fieldProps.getPattern();
 		this.formatter = fieldProps.getFormatter();
 		this.choiceProvider = fieldProps.getChoices();
@@ -113,6 +115,18 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	@Override
 	public String getType() {
 		return type;
+	}
+	
+	@Override
+	public String getInputType() {
+		String retInputType = inputType;
+		if (retInputType == null) {
+			Field fld = Field.findByType(getType());
+			if (fld != null) {
+				retInputType = fld.getInputType();
+			}
+		}
+		return retInputType;
 	}
 	
 	@Override

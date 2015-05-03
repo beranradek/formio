@@ -47,6 +47,7 @@ public class FieldProps<T> implements Serializable {
 	private FormMapping<?> parent;
 	private String propertyName;
 	private String type;
+	private String inputType;
 	private String pattern;
 	private Formatter<T> formatter;
 	private ChoiceProvider<T> choiceProvider;
@@ -58,14 +59,27 @@ public class FieldProps<T> implements Serializable {
 	List<Validator<T>> validators;
 	
 	FieldProps(String propertyName) {
-		this(propertyName, (String)null);
+		this(propertyName, Field.TEXT.getType());
+	}
+	
+	FieldProps(String propertyName, String type) {
+		// when the inputType is null, it will be taken from the found Field enum constant,
+		// see the implementation of getInputType()
+		this(propertyName, type, null);
 	}
 		
-	FieldProps(String propertyName, String type) {
+	FieldProps(String propertyName, String type, String inputType) {
 		// package-default access so only Forms (and classes in current package) can create the builder
 		if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be specified");
 		this.propertyName = propertyName;
 		this.type = type;
+		if (inputType == null && type != null) {
+			Field fld = Field.findByType(type);
+			if (fld != null) {
+				inputType = fld.getInputType();
+			}
+		}
+		this.inputType = inputType;
 		this.validators = new ArrayList<Validator<T>>();
 	}
 	
@@ -93,6 +107,11 @@ public class FieldProps<T> implements Serializable {
 		
 	public FieldProps<T> type(String type) {
 		this.type = type;
+		return this;
+	}
+	
+	public FieldProps<T> inputType(String inputType) {
+		this.inputType = inputType;
 		return this;
 	}
 		
@@ -252,17 +271,24 @@ public class FieldProps<T> implements Serializable {
 	}
 
 	/**
-	 * Type of form field, for e.g.: text, checkbox, textarea, ...
-	 * 
+	 * Type of form field, for e.g.: text, checkbox, textarea, select-multiple, date-picker ..., 
+	 * or {@code null} if not specified.
 	 * @return
 	 */
 	public String getType() {
 		return type;
 	}
+	
+	/**
+	 * Type of HTML input(s) that is used to render this form field.
+	 * @return
+	 */
+	public String getInputType() {
+		return inputType;
+	}
 
 	/**
 	 * Pattern for formatting the value.
-	 * 
 	 * @return
 	 */
 	public String getPattern() {
@@ -357,6 +383,7 @@ public class FieldProps<T> implements Serializable {
 		this.propertyName = field.getPropertyName();
 		this.parent = field.getParent();
 		this.type = field.getType();
+		this.inputType = field.getInputType();
 		this.pattern = field.getPattern();
 		this.formatter = field.getFormatter();
 		this.choiceProvider = field.getChoices();

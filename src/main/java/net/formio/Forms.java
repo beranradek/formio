@@ -265,10 +265,21 @@ public final class Forms {
 	 * Creates specification of form field.
 	 * @param propertyName
 	 * @param type
+	 * @param inputType
+	 * @return
+	 */
+	public static <T> FieldProps<T> field(String propertyName, String type, String inputType) {
+		return new FieldProps<T>(propertyName, type, inputType);
+	}
+	
+	/**
+	 * Creates specification of form field.
+	 * @param propertyName
+	 * @param type
 	 * @return
 	 */
 	public static <T> FieldProps<T> field(String propertyName, String type) {
-		return new FieldProps<T>(propertyName, type);
+		return field(propertyName, type, null);
 	}
 	
 	/**
@@ -278,7 +289,7 @@ public final class Forms {
 	 * @return
 	 */
 	public static <T> FieldProps<T> field(String propertyName, Field type) {
-		return field(propertyName, type.getType());
+		return field(propertyName, type.getType(), type.getInputType());
 	}
 	
 	/**

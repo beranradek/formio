@@ -342,29 +342,25 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupInput(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		String typeId = field.getType();
-		Field formComponent = Field.findByType(typeId);
-		if (formComponent != null) {
-			String inputType = formComponent.getInputType();
-			sb.append("<input type=\"" + inputType + "\" name=\"" + field.getName()
-					+ "\" id=\"" + field.getElementId() + "\"");
-			if (!Field.FILE_UPLOAD.getType().equals(typeId)) {
-				String value = escapeHtml(field.getValue());
-				sb.append(" value=\"" + value + "\"");
-			}
-			if (!Field.HIDDEN.getType().equals(typeId)) {
-				sb.append(getElementAttributes(field));
-			}
-			sb.append(" class=\"" + getInputClasses(field) + "\"");
-			sb.append(getInputPlaceholderAttribute(field));
-			sb.append("/>" + newLine());
-			sb.append(renderFieldScript(field, false));
+		sb.append("<input type=\"" + field.getInputType() + "\" name=\"" + field.getName()
+				+ "\" id=\"" + field.getElementId() + "\"");
+		if (!Field.FILE_UPLOAD.getType().equals(typeId)) {
+			String value = escapeHtml(field.getValue());
+			sb.append(" value=\"" + value + "\"");
 		}
+		if (!Field.HIDDEN.getType().equals(typeId)) {
+			sb.append(getElementAttributes(field));
+		}
+		sb.append(" class=\"" + getInputClasses(field) + "\"");
+		sb.append(getInputPlaceholderAttribute(field));
+		sb.append("/>" + newLine());
+		sb.append(renderFieldScript(field, false));
 		return sb.toString();
 	}
 
 	protected <T> String renderMarkupCheckBox(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<input type=\"checkbox\" name=\"" + field.getName()
+		sb.append("<input type=\"" + Field.CHECK_BOX.getInputType() + "\" name=\"" + field.getName()
 			+ "\" id=\"" + field.getElementId() + "\" value=\"1\"");
 		if (field.isFilledWithTrue()) {
 			sb.append(" checked=\"checked\" ");
@@ -389,15 +385,15 @@ public class BasicFormRenderer {
 		sb.append(getElementAttributes(field));
 		sb.append(">" + newLine());
 		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
-			List<?> items = field.getChoices().getItems();
+			List<T> items = (List<T>)field.getChoices().getItems();
 			if (items != null) {
 				// First "Choose One" option
 				if (field.getProperties().isChooseOptionDisplayed()) {
 					sb.append(renderMarkupOption("", field.getProperties().getChooseOptionTitle(), false));
 				}
-				ChoiceRenderer<Object> choiceRenderer = getChoiceRenderer(field);
+				ChoiceRenderer<T> choiceRenderer = field.getChoiceRenderer();
 				int itemIndex = 0;
-				for (Object item : items) {
+				for (T item : items) {
 					String value = getChoiceValue(choiceRenderer, item, itemIndex);
 					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
 					boolean selected = field.getFilledObjects().contains(item);
@@ -413,23 +409,22 @@ public class BasicFormRenderer {
 
 	protected <T> String renderMarkupChecks(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		Field formComponent = Field.findByType(field.getType());
-		if (formComponent != null && field.getChoices() != null && field.getChoiceRenderer() != null) {
-			List<?> items = field.getChoices().getItems();
+		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
+			List<T> items = (List<T>)field.getChoices().getItems();
 			if (items != null) {
-				ChoiceRenderer<Object> choiceRenderer = getChoiceRenderer(field);
+				ChoiceRenderer<T> choiceRenderer = field.getChoiceRenderer();
 				int itemIndex = 0;
-				for (Object item : items) {
+				for (T item : items) {
 					String value = getChoiceValue(choiceRenderer, item, itemIndex);
 					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
 					String itemId = field.getElementIdWithIndex(itemIndex);
 
-					sb.append("<div class=\"" + formComponent.getInputType() + "\">" + newLine());
+					sb.append("<div class=\"" + field.getInputType() + "\">" + newLine());
 					if (field.getProperties().isLabelVisible()) {
 						sb.append("<label>");
 					}
 					
-					sb.append("<input type=\"" + formComponent.getInputType() + "\" name=\"" + field.getName() + "\" id=\"" + itemId + "\" value=\"" + value + "\"");
+					sb.append("<input type=\"" + field.getInputType() + "\" name=\"" + field.getName() + "\" id=\"" + itemId + "\" value=\"" + value + "\"");
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" checked=\"checked\"");
 					}
@@ -442,9 +437,9 @@ public class BasicFormRenderer {
 					sb.append("</div>" + newLine());
 					itemIndex++;
 				}
+				sb.append(renderFieldScript(field, true));
 			}
 		}
-		sb.append(renderFieldScript(field, true));
 		return sb.toString();
 	}
 	
@@ -742,16 +737,11 @@ public class BasicFormRenderer {
 		return Field.CHECK_BOX.getType().equals(field.getType());
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> ChoiceRenderer<Object> getChoiceRenderer(FormField<T> field) {
-		return (ChoiceRenderer<Object>)field.getChoiceRenderer();
-	}
-	
-	private String getChoiceTitle(ChoiceRenderer<Object> choiceRenderer, Object item, int itemIndex) {
+	private <T> String getChoiceTitle(ChoiceRenderer<T> choiceRenderer, T item, int itemIndex) {
 		return escapeHtml(choiceRenderer.getItem(item, itemIndex).getTitle());
 	}
 
-	private String getChoiceValue(ChoiceRenderer<Object> choiceRenderer, Object item, int itemIndex) {
+	private <T> String getChoiceValue(ChoiceRenderer<T> choiceRenderer, T item, int itemIndex) {
 		return escapeHtml(choiceRenderer.getItem(item, itemIndex).getId());
 	}
 }

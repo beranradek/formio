@@ -86,9 +86,11 @@ public enum Field {
 	public static final EnumSet<Field> withMultipleInputs = EnumSet.of(MULTIPLE_CHECK_BOX, RADIO_CHOICE);
 	
 	public static Field findByType(String type) {
-		for (Field fc : Field.values()) {
-			if (fc.getType().equals(type)) {
-				return fc;
+		if (type != null) {
+			for (Field fc : Field.values()) {
+				if (fc.getType().equals(type)) {
+					return fc;
+				}
 			}
 		}
 		return null;

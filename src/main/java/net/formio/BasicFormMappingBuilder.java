@@ -213,11 +213,22 @@ public class BasicFormMappingBuilder<T> {
 	/**
 	 * Adds form field specification.
 	 * @param propertyName name of mapped property
-	 * @param type type of form field, for e.g.: text, checkbox, textarea, ...
+	 * @param type type of form field, for e.g.: text, checkbox, textarea, date-picker, ...
+	 * @param inputType type of HTML input(s) that is used to render the form field
+	 * @return
+	 */
+	public <U> BasicFormMappingBuilder<T> field(String propertyName, String type, String inputType) {
+		return field(Forms.field(propertyName, type, inputType));
+	}
+	
+	/**
+	 * Adds form field specification.
+	 * @param propertyName name of mapped property
+	 * @param type type of form field, for e.g.: text, checkbox, textarea, date-picker, ...
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(String propertyName, String type) {
-		return field(Forms.field(propertyName, type));
+		return field(propertyName, type, null);
 	}
 	
 	/**
@@ -227,7 +238,7 @@ public class BasicFormMappingBuilder<T> {
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(String propertyName, Field type) {
-		return field(propertyName, type.getType());
+		return field(propertyName, type.getType(), type.getInputType());
 	}
 	
 	/**

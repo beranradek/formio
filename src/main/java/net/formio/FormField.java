@@ -31,10 +31,17 @@ import net.formio.props.FormFieldProperties;
 public interface FormField<T> extends FormElement<T> {
 	
 	/**
-	 * Type of form field, for e.g.: text, checkbox, textarea, ..., or {@code null} if not specified.
+	 * Type of form field, for e.g.: text, checkbox, textarea, select-multiple, date-picker ..., 
+	 * or {@code null} if not specified.
 	 * @return
 	 */
 	String getType();
+	
+	/**
+	 * Type of HTML input(s) that is used to render this form field.
+	 * @return
+	 */
+	String getInputType();
 	
 	/**
 	 * Single/first object which this field is filled with.
