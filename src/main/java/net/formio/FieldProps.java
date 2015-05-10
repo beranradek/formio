@@ -140,7 +140,9 @@ public class FieldProps<T> implements Serializable {
 	}
 	
 	public FieldProps<T> validator(Validator<T> validator) {
-		this.validators.add(validator);
+		if (validator != null) {
+			this.validators.add(validator);
+		}
 		return this;
 	}
 	
