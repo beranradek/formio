@@ -56,6 +56,13 @@ public interface FormElement<T> {
 	String getElementId();
 	
 	/**
+	 * Id of placeholder element that is used to reserve place in markup for
+	 * this element when the element is not visible etc.
+	 * @return
+	 */
+	String getElementPlaceholderId();
+	
+	/**
 	 * Returns id of this form element with given index (order) appended.
 	 * @param index
 	 * @return
@@ -131,6 +138,13 @@ public interface FormElement<T> {
 	 * @return
 	 */
 	boolean isReadonly();
+	
+	/**
+	 * Returns CSS class of maximum severity of validations messages
+	 * of this form element. 
+	 * @return
+	 */
+	String getMaxSeverityClass();
 	
 	/**
 	 * Returns element with given name, or {@code null}.

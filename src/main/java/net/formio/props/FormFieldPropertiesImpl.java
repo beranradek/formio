@@ -44,17 +44,17 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	
 	@Override
 	public boolean isChooseOptionDisplayed() {
-		Boolean b = getPropertiesMap().getTyped(FormElementProperty.CHOOSE_OPTION_DISPLAYED);
+		Boolean b = getProperty(FormElementProperty.CHOOSE_OPTION_DISPLAYED);
 		return b != null && b.booleanValue();
 	}
 	
 	@Override
 	public String getChooseOptionTitle() {
-		return getPropertiesMap().getTyped(FormElementProperty.CHOOSE_OPTION_TITLE);
+		return getProperty(FormElementProperty.CHOOSE_OPTION_TITLE);
 	}
 	
 	@Override
 	public String getPlaceholder() {
-		return getPropertiesMap().getTyped(FormElementProperty.PLACEHOLDER);
+		return getProperty(FormElementProperty.PLACEHOLDER);
 	}
 }

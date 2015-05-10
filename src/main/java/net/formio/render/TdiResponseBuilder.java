@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.formio.AbstractFormElement;
 import net.formio.FormElement;
 
 /**
@@ -118,7 +119,7 @@ public class TdiResponseBuilder {
 	 * @return
 	 */
 	public TdiResponseBuilder update(String elementName, String elementMarkup) {
-		String str = renderUpdateBeginTag(getRenderer().getElementPlaceholderId(elementName)) +
+		String str = renderUpdateBeginTag(AbstractFormElement.getElementPlaceholderId(elementName)) +
 			renderCDataBegin() +
 			elementMarkup +
 			renderCDataEnd() +

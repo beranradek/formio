@@ -16,14 +16,8 @@
  */
 package net.formio.render;
 
-import java.util.Arrays;
-import java.util.List;
-
 import net.formio.Field;
-import net.formio.FormElement;
 import net.formio.FormField;
-import net.formio.ajax.action.HandledJsEvent;
-import net.formio.validation.Severity;
 
 /**
  * Renders CSS styles of forms.
@@ -39,7 +33,7 @@ class StyleRenderer {
 		this.renderer = renderer;
 	}
 	
-	protected String getFormBoxClasses() {
+	protected String getFormGroupClasses() {
 		return "form-group";
 	}
 	
@@ -47,10 +41,7 @@ class StyleRenderer {
 		StringBuilder sb = new StringBuilder();
 		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);
 		if (withoutLeadingLabel) {
-			sb.append("col-sm-offset-" + getLabelWidth());
-		}
-		if (sb.length() > 0) {
-			sb.append(" ");
+			sb.append("col-sm-offset-" + getLabelWidth() + " ");
 		}
 		sb.append("col-sm-4");
 		return sb.toString();
@@ -67,35 +58,16 @@ class StyleRenderer {
 	 */
 	protected <T> String getInputClasses(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		List<HandledJsEvent> ajaxEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
-		for (HandledJsEvent e : ajaxEvents) {
-			if (e.getEvent() == null) {
-				sb.append("tdi");
-				break;
-			}
+		if (field.getProperties().getDataAjaxActionWithoutEvent() != null) {
+			sb.append("tdi");
 		}
 		if (isFullWidthInput(field)) {
 			sb.append(" " + getFullWidthInputClasses());
 		}
-		String type = field.getType();
-		Field fld = Field.findByType(type);
-		if (fld != null && type.equals(Field.SUBMIT_BUTTON.getType())) {
+		if (Field.SUBMIT_BUTTON.getType().equals(field.getType())) {
 			sb.append(" " + getButtonClasses(field));
 		}
 		return sb.toString();
-	}
-	
-	protected String getFullWidthInputClasses() {
-		return "input-sm form-control";
-	}
-	
-	protected <T> String getMaxSeverityClass(FormElement<T> el) {
-		Severity maxSeverity = Severity.max(el.getValidationMessages());
-		return maxSeverity != null ? ("has-" + maxSeverity.getStyleClass()) : "";
-	}
-	
-	protected <T> String getButtonClasses(@SuppressWarnings("unused") FormField<T> field) {
-		return "btn btn-default";
 	}
 	
 	private int getLabelWidth() {
@@ -110,11 +82,19 @@ class StyleRenderer {
 	
 	private <T> boolean isFullWidthInput(FormField<T> field) {
 		String type = field.getType();
-		Field fld = Field.findByType(type);
-		return !type.equals(Field.FILE_UPLOAD.getType()) // otherwise border around field with "Browse" text is drawn
-			&& !type.equals(Field.HIDDEN.getType())
-			&& !type.equals(Field.CHECK_BOX.getType())
-			&& !type.equals(Field.SUBMIT_BUTTON.getType())
-			&& (fld == null || !Field.withMultipleInputs.contains(fld));
+		return !Field.FILE_UPLOAD.getType().equals(type) // otherwise border around field with "Browse" text is drawn
+			&& !Field.HIDDEN.getType().equals(type)
+			&& !Field.CHECK_BOX.getType().equals(type)
+			&& !Field.SUBMIT_BUTTON.getType().equals(type)
+			&& !Field.MULTIPLE_CHECK_BOX.getType().equals(type)
+			&& !Field.RADIO_CHOICE.getType().equals(type);
+	}
+	
+	private String getFullWidthInputClasses() {
+		return "input-sm form-control";
+	}
+	
+	private <T> String getButtonClasses(@SuppressWarnings("unused") FormField<T> field) {
+		return "btn btn-default";
 	}
 }

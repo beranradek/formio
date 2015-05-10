@@ -16,6 +16,8 @@
  */
 package net.formio.props;
 
+import java.util.Map;
+
 import net.formio.ajax.action.HandledJsEvent;
 import net.formio.common.heterog.HeterogMap;
 
@@ -63,6 +65,13 @@ public interface FormProperties {
 	HandledJsEvent[] getDataAjaxActions();
 	
 	/**
+	 * Returns AJAX action without specified invoking JavaScript event,
+	 * or {@code null} if no such action exists.
+	 * @return
+	 */
+	HandledJsEvent getDataAjaxActionWithoutEvent();
+	
+	/**
 	 * CSS selector (mostly ID selector) for finding AJAX-request-source element related elements. 
 	 * The selector is applied to the whole document. All related elements are informed about the TDI process 
 	 * flow the same way as TDI source element is. For example, data-related-element="#basket-container".
@@ -86,8 +95,21 @@ public interface FormProperties {
 	String getDataConfirm();
 	
 	/**
+	 * Returns properties of this form field/mapping in a heterogeneous map.
+	 * @return
+	 */
+	HeterogMap<String> getHeterogMap();
+	
+	/**
 	 * Returns properties of this form field/mapping in a map.
 	 * @return
 	 */
-	HeterogMap<String> getPropertiesMap();
+	Map<String, Object> getMap();
+	
+	/**
+	 * Returns value of given property.
+	 * @param property
+	 * @return
+	 */
+	<T> T getProperty(FormElementProperty<T> property);
 }

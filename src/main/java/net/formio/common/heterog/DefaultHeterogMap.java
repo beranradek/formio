@@ -256,6 +256,15 @@ class DefaultHeterogMap<K> implements Serializable, HeterogMap<K>, Map<TypedKey<
         return h;
     }
     
+    @Override
+    public Map<K, Object> asMap() {
+    	Map<K, Object> map = new HashMap<K, Object>();
+    	for (Map.Entry<TypedKey<K, ?>, Object> e : entrySet()) {
+    		map.put(e.getKey().getKey(), e.getValue());
+    	}
+    	return map;
+    }
+    
     /**
      * Returns a string representation of this map.  The string representation
      * consists of a list of key-value mappings in the order returned by the

@@ -107,7 +107,7 @@ public class BasicFormMappingBuilder<T> {
 		this.secured = src.secured;
 		this.validationResult = src.validationResult;
 		final HeterogMap<String> properties = HeterogCollections.<String>newLinkedMap();
-		properties.putAllFromSource(src.formProperties.getPropertiesMap());
+		properties.putAllFromSource(src.formProperties.getHeterogMap());
 		this.properties = properties;
 		this.order = src.order;
 		this.index = src.index;

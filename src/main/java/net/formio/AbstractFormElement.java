@@ -27,6 +27,7 @@ import javax.validation.constraints.Size;
 import net.formio.internal.FormUtils;
 import net.formio.render.RenderUtils;
 import net.formio.validation.ConstraintViolationMessage;
+import net.formio.validation.Severity;
 import net.formio.validation.Validator;
 import net.formio.validation.constraints.NotEmpty;
 import net.formio.validation.validators.RequiredValidator;
@@ -219,7 +220,22 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	}
 	
 	@Override
+	public String getElementPlaceholderId() {
+		return getElementPlaceholderId(getName());
+	}
+	
+	public static String getElementPlaceholderId(String elementName) {
+		return "placeholder" + Forms.PATH_SEP + elementName;
+	}
+	
+	@Override
 	public String getElementIdWithIndex(int index) {
 		return getElementId() + Forms.PATH_SEP + index;
+	}
+	
+	@Override
+	public String getMaxSeverityClass() {
+		Severity maxSeverity = Severity.max(getValidationMessages());
+		return maxSeverity != null ? maxSeverity.getStyleClass() : "";
 	}
 }

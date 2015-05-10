@@ -102,26 +102,6 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 		return getInnerRenderer().ajaxResponse();
 	}
 	
-	/**
-	 * Returns id of placeholder element for given form element.
-	 * @param element
-	 * @return
-	 */
-	@Override
-	protected <T> String getElementPlaceholderId(FormElement<T> element) {
-		return getInnerRenderer().getElementPlaceholderId(element);
-	}
-	
-	/**
-	 * Returns id of placeholder element for given name of form field/form mapping.
-	 * @param name
-	 * @return
-	 */
-	@Override
-	protected String getElementPlaceholderId(String name) {
-		return getInnerRenderer().getElementPlaceholderId(name);
-	}
-	
 	@Override
 	protected <T> String renderMarkupElementPlaceholder(FormElement<T> element, String innerMarkup) {
 		return getInnerRenderer().renderMarkupElementPlaceholder(element, innerMarkup);
@@ -133,8 +113,8 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 	}
 	
 	@Override
-	protected <T> String renderMarkupFieldBox(FormField<T> field, String innerMarkup) {
-		return getInnerRenderer().renderMarkupFieldBox(field, innerMarkup);
+	protected <T> String renderMarkupFormGroup(FormField<T> field, String innerMarkup) {
+		return getInnerRenderer().renderMarkupFormGroup(field, innerMarkup);
 	}
 
 	@Override
@@ -178,23 +158,18 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 	}
 
 	@Override
-	protected <T> String renderMarkupCheckBox(FormField<T> field) {
-		return getInnerRenderer().renderMarkupCheckBox(field);
+	protected <T> String renderMarkupCheckbox(FormField<T> field) {
+		return getInnerRenderer().renderMarkupCheckbox(field);
 	}
 
 	@Override
-	protected <T> String renderMarkupSelect(FormField<T> field, boolean multiple, Integer size) {
-		return getInnerRenderer().renderMarkupSelect(field, multiple, size);
+	protected <T> String renderMarkupSelect(FormField<T> field) {
+		return getInnerRenderer().renderMarkupSelect(field);
 	}
 
 	@Override
 	protected <T> String renderMarkupChecks(FormField<T> field) {
 		return getInnerRenderer().renderMarkupChecks(field);
-	}
-	
-	@Override
-	protected String renderMarkupOption(String value, String title, boolean selected) {
-		return getInnerRenderer().renderMarkupOption(value, title, selected);
 	}
 	
 	@Override
@@ -337,8 +312,8 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 	}
 
 	@Override
-	protected <T> String renderFieldCheckBox(FormField<T> field) {
-		return getInnerRenderer().renderFieldCheckBox(field);
+	protected <T> String renderFieldCheckbox(FormField<T> field) {
+		return getInnerRenderer().renderFieldCheckbox(field);
 	}
 
 	@Override
@@ -359,11 +334,6 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 	@Override
 	protected <T> String renderFieldDropDownChoice(FormField<T> field) {
 		return getInnerRenderer().renderFieldDropDownChoice(field);
-	}
-
-	@Override
-	protected <T> String renderFieldMultipleChoice(FormField<T> field) {
-		return getInnerRenderer().renderFieldMultipleChoice(field);
 	}
 
 	@Override

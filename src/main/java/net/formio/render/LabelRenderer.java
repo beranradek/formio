@@ -44,7 +44,7 @@ class LabelRenderer {
 	protected <T> String renderMappingLabel(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
 		if (mapping.getProperties().isLabelVisible() && !mapping.isRootMapping()) {
-			sb.append("<div class=\"" + styleRenderer.getFormBoxClasses() + "\">" + renderer.newLine());
+			sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + "\">" + renderer.newLine());
 			sb.append("<div class=\"" + styleRenderer.getLabelClasses() + "\">" + renderer.newLine());
 			sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>");
 			sb.append("</div>" + renderer.newLine());

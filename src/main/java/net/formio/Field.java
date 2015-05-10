@@ -31,7 +31,6 @@ public enum Field {
 	MULTIPLE_CHECK_BOX("checkbox-multiple", "checkbox"),
 	RADIO_CHOICE("radio", "radio"),
 	DROP_DOWN_CHOICE("select", ""),
-	MULTIPLE_CHOICE("select-multiple", ""),
 	DATE_PICKER("date-picker", "text"),
 	FILE_UPLOAD("file", "file"),
 	SUBMIT_BUTTON("submit", "submit"),
@@ -77,13 +76,7 @@ public enum Field {
 		return choiceInputs.contains(this);
 	}
 	
-	public boolean isWithMultipleInputs() {
-		return withMultipleInputs.contains(this);
-	}
-	
-	public static final EnumSet<Field> choiceInputs = EnumSet.of(MULTIPLE_CHECK_BOX, RADIO_CHOICE, DROP_DOWN_CHOICE, MULTIPLE_CHOICE);
-	
-	public static final EnumSet<Field> withMultipleInputs = EnumSet.of(MULTIPLE_CHECK_BOX, RADIO_CHOICE);
+	public static final EnumSet<Field> choiceInputs = EnumSet.of(MULTIPLE_CHECK_BOX, RADIO_CHOICE, DROP_DOWN_CHOICE);
 	
 	public static Field findByType(String type) {
 		if (type != null) {

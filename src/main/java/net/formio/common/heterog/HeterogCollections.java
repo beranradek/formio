@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -120,6 +121,11 @@ public final class HeterogCollections {
 		public Set<Entry<TypedKey<K, ?>, Object>> entrySet() {
 			return c.entrySet();
 		}
+		
+		@Override
+		public Map<K, Object> asMap() {
+			return c.asMap();
+		}
     }
     
     /**
@@ -197,6 +203,11 @@ public final class HeterogCollections {
 		@Override
 		public Set<Entry<TypedKey<K, ?>, Object>> entrySet() {
 			synchronized (mutex) { return c.entrySet(); }
+		}
+		
+		@Override
+		public Map<K, Object> asMap() {
+			synchronized (mutex) { return c.asMap(); }
 		}
     }
 	

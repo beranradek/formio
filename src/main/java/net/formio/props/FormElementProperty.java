@@ -54,6 +54,10 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<String> DATA_RELATED_ANCESTOR = register(new FormElementProperty<String>("dataRelatedAncestor", String.class, ""));
 	public static final FormElementProperty<String> DATA_CONFIRM = register(new FormElementProperty<String>("dataConfirm", String.class, ""));
 	
+	// Render hints for which there are no convenience accessors or setters in builders
+	public static final FormElementProperty<Boolean> MULTIPLE = new FormElementProperty<Boolean>("multiple", Boolean.class, Boolean.FALSE);
+	public static final FormElementProperty<Integer> SIZE = new FormElementProperty<Integer>("size", Integer.class, null);
+	
 	protected static <T> FormElementProperty<T> register(FormElementProperty<T> prop) {
 		if (props.contains(prop)) {
 			throw new IllegalArgumentException("Property with name '" + prop.getName() + "' is already registered.");

@@ -17,6 +17,9 @@
 package net.formio.props;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import net.formio.ajax.action.HandledJsEvent;
 import net.formio.common.heterog.HeterogCollections;
@@ -44,7 +47,7 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	<T> FormPropertiesImpl(final FormProperties src, FormElementProperty<T> property, T value) {
-		this(copyProperties(src.getPropertiesMap(), property, value));
+		this(copyProperties(src.getHeterogMap(), property, value));
 	}
 	
 	@Override
@@ -74,7 +77,7 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	
 	@Override
 	public HandledJsEvent[] getDataAjaxActions() {
-		HandledJsEvent[] events = getPropertiesMap().getTyped(FormElementProperty.DATA_AJAX_ACTIONS);
+		HandledJsEvent[] events = getProperty(FormElementProperty.DATA_AJAX_ACTIONS);
 		if (events == null) {
 			events = new HandledJsEvent[0];
 		}
@@ -82,23 +85,46 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
+	public HandledJsEvent getDataAjaxActionWithoutEvent() {
+		HandledJsEvent action = null;
+		List<HandledJsEvent> ajaxEvents = Arrays.asList(getDataAjaxActions());
+		for (HandledJsEvent e : ajaxEvents) {
+			if (e.getEvent() == null) {
+				action = e;
+				break;
+			}
+		}
+		return action;
+	}
+	
+	@Override
 	public String getDataRelatedElement() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_RELATED_ELEMENT);
+		return getProperty(FormElementProperty.DATA_RELATED_ELEMENT);
 	}
 	
 	@Override
 	public String getDataRelatedAncestor() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_RELATED_ANCESTOR);
+		return getProperty(FormElementProperty.DATA_RELATED_ANCESTOR);
 	}
 	
 	@Override
 	public String getDataConfirm() {
-		return getPropertiesMap().getTyped(FormElementProperty.DATA_CONFIRM);
+		return getProperty(FormElementProperty.DATA_CONFIRM);
 	}
 	
 	@Override
-	public HeterogMap<String> getPropertiesMap() {
+	public HeterogMap<String> getHeterogMap() {
 		return this.properties;
+	}
+	
+	@Override
+	public Map<String, Object> getMap() {
+		return this.properties.asMap();
+	}
+	
+	@Override
+	public <T> T getProperty(FormElementProperty<T> property) {
+		return getHeterogMap().getTyped(property);
 	}
 	
 	@Override

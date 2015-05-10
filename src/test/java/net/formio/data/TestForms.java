@@ -43,6 +43,7 @@ import net.formio.domain.inputs.Function;
 import net.formio.domain.inputs.Profile;
 import net.formio.domain.inputs.Salutation;
 import net.formio.domain.inputs.Skill;
+import net.formio.props.FormElementProperty;
 
 /**
  * Form definitions for tests.
@@ -140,7 +141,9 @@ public final class TestForms {
 				}
 			})
 		)	
-		.field(Forms.<Function>field("functions", Field.MULTIPLE_CHOICE)
+		.field(Forms.<Function>field("functions", Field.DROP_DOWN_CHOICE)
+			.property(FormElementProperty.SIZE, Integer.valueOf(5))
+			.property(FormElementProperty.MULTIPLE, Boolean.TRUE)
 			.choices(functionsCodebook())
 			.choiceRenderer(new ChoiceRenderer<Function>() {
 				@Override

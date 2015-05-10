@@ -16,7 +16,7 @@
  */
 package net.formio.render;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.formio.BasicListFormMapping;
@@ -24,12 +24,12 @@ import net.formio.Field;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
-import net.formio.Forms;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.action.HandledJsEvent;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
 import net.formio.internal.FormUtils;
+import net.formio.props.FormElementProperty;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
@@ -70,7 +70,7 @@ public class BasicFormRenderer {
 	 * 	<li>Form mapping or form field if it is visible (element markup).</li>
 	 * </ul>
 	 * <p>Visible mapping consists of mapping box with label and nested elements, 
-	 * visible form field consists of field box with label and field envelope (with nested form input).</p>
+	 * visible form field consists of form group with label and field envelope (with nested form input).</p>
 	 * 
 	 * @param element
 	 * @return
@@ -161,7 +161,7 @@ public class BasicFormRenderer {
 				sb.append(renderFieldPassword(field));
 				break;
 			case CHECK_BOX:
-				sb.append(renderFieldCheckBox(field));
+				sb.append(renderFieldCheckbox(field));
 				break;
 			case DATE_PICKER:
 				sb.append(renderFieldDatePicker(field));
@@ -174,9 +174,6 @@ public class BasicFormRenderer {
 				break;
 			case MULTIPLE_CHECK_BOX:
 				sb.append(renderFieldMultipleCheckbox(field));
-				break;
-			case MULTIPLE_CHOICE:
-				sb.append(renderFieldMultipleChoice(field));
 				break;
 			case RADIO_CHOICE:
 				sb.append(renderFieldRadioChoice(field));
@@ -231,6 +228,10 @@ public class BasicFormRenderer {
 		}
 		return sb.toString();
 	}
+	
+	public <T> String renderMarkupGlobalMessages(FormMapping<T> formMapping) {
+		return messageRenderer.renderGlobalMessages(formMapping);
+	}
 
 	/**
 	 * Creates builder of AJAX response.
@@ -240,29 +241,11 @@ public class BasicFormRenderer {
 		return new TdiResponseBuilder(this);
 	}
 	
-	/**
-	 * Returns id of placeholder element for given form element.
-	 * @param element
-	 * @return
-	 */
-	protected <T> String getElementPlaceholderId(FormElement<T> element) {
-		return getElementPlaceholderId(element.getName());
-	}
-	
-	/**
-	 * Returns id of placeholder element for given name of form field/form mapping.
-	 * @param name
-	 * @return
-	 */
-	protected String getElementPlaceholderId(String name) {
-		return "placeholder" + Forms.PATH_SEP + name;
-	}
-	
 	protected <T> String renderMarkupElementPlaceholder(FormElement<T> element, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
 		// Element placeholder begin - rendered even for invisible element so there is reserved
 		// identified place that can be updated if the element becomes visible.
-		sb.append("<div id=\"" + getElementPlaceholderId(element) + "\">" + newLine());
+		sb.append("<div id=\"" + element.getElementPlaceholderId() + "\">" + newLine());
 		
 		// The element itself
 		sb.append(innerMarkup);
@@ -274,16 +257,17 @@ public class BasicFormRenderer {
 
 	protected <T> String renderMarkupMappingBox(FormMapping<T> mapping, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + styleRenderer.getMaxSeverityClass(mapping) + "\">" + newLine());
+		String maxSevClass = getMaxSeverityClass(mapping);
+		sb.append("<div class=\"" + maxSevClass + "\">" + newLine());
 		sb.append(innerMarkup);
 		sb.append("</div>" + newLine());
 		return sb.toString();
 	}
 	
-	protected <T> String renderMarkupFieldBox(FormField<T> field, String innerMarkup) {
+	protected <T> String renderMarkupFormGroup(FormField<T> field, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + styleRenderer.getFormBoxClasses() + " " + 
-			styleRenderer.getMaxSeverityClass(field) + "\">" + newLine());
+		String maxSevClass = getMaxSeverityClass(field);
+		sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + maxSevClass + "\">" + newLine());
 		boolean checkbox = isCheckBox(field);
 		if (checkbox) {
 			sb.append("<div class=\"" + Field.CHECK_BOX.getInputType() + "\">" + newLine());
@@ -305,17 +289,9 @@ public class BasicFormRenderer {
 		sb.append("</div>" + newLine());
 		return sb.toString();
 	}
-	
-	public <T> String renderMarkupGlobalMessages(FormMapping<T> formMapping) {
-		return messageRenderer.renderGlobalMessages(formMapping);
-	}
 
 	protected <T> String renderMarkupMessageList(FormElement<T> element) {
 		return messageRenderer.renderMessageList(element);
-	}
-
-	protected String renderMarkupMessage(ConstraintViolationMessage msg) {
-		return messageRenderer.renderMessage(msg);
 	}
 
 	protected <T> String renderMarkupMappingLabel(FormMapping<T> mapping) {
@@ -335,7 +311,7 @@ public class BasicFormRenderer {
 		sb.append(">");
 		sb.append(escapeHtml(field.getValue()));
 		sb.append("</textarea>" + newLine());
-		sb.append(renderFieldScript(field, false));
+		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
 
@@ -348,17 +324,15 @@ public class BasicFormRenderer {
 			String value = escapeHtml(field.getValue());
 			sb.append(" value=\"" + value + "\"");
 		}
-		if (!Field.HIDDEN.getType().equals(typeId)) {
-			sb.append(getElementAttributes(field));
-		}
+		sb.append(getElementAttributes(field));
 		sb.append(" class=\"" + getInputClasses(field) + "\"");
 		sb.append(getInputPlaceholderAttribute(field));
 		sb.append("/>" + newLine());
-		sb.append(renderFieldScript(field, false));
+		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
 
-	protected <T> String renderMarkupCheckBox(FormField<T> field) {
+	protected <T> String renderMarkupCheckbox(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<input type=\"" + Field.CHECK_BOX.getInputType() + "\" name=\"" + field.getName()
 			+ "\" id=\"" + field.getElementId() + "\" value=\"1\"");
@@ -368,24 +342,29 @@ public class BasicFormRenderer {
 		sb.append(getElementAttributes(field));
 		sb.append(" class=\"" + getInputClasses(field) + "\"");
 		sb.append("/>" + newLine());
-		sb.append(renderFieldScript(field, false));
+		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
 
-	protected <T> String renderMarkupSelect(FormField<T> field, boolean multiple, Integer size) {
+	protected <T> String renderMarkupSelect(FormField<T> field) {
+		if (field.getChoiceRenderer() == null) {
+			throw new IllegalStateException("Form field should have ChoiceRenderer defined");
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("<select name=\"" + field.getName() + "\" id=\"" + field.getElementId() + "\"");
-		if (multiple) {
+		Boolean multiple = field.getProperties().getProperty(FormElementProperty.MULTIPLE);
+		if (multiple != null && multiple.booleanValue()) {
 			sb.append(" multiple=\"multiple\"");
 		}
+		Integer size = field.getProperties().getProperty(FormElementProperty.SIZE);
 		if (size != null) {
-			sb.append(" size=\"" + size + "\"");
+			sb.append(" size=\"" + size.intValue() + "\"");
 		}
 		sb.append(" class=\"" + getInputClasses(field) + "\"");
 		sb.append(getElementAttributes(field));
 		sb.append(">" + newLine());
-		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
-			List<T> items = (List<T>)field.getChoices().getItems();
+		if (field.getChoices() != null) {
+			List<T> items = toSimplyTypedItems(field.getChoices().getItems());
 			if (items != null) {
 				// First "Choose One" option
 				if (field.getProperties().isChooseOptionDisplayed()) {
@@ -403,14 +382,17 @@ public class BasicFormRenderer {
 			}
 		}
 		sb.append("</select>" + newLine());
-		sb.append(renderFieldScript(field, false));
+		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
 
 	protected <T> String renderMarkupChecks(FormField<T> field) {
+		if (field.getChoiceRenderer() == null) {
+			throw new IllegalStateException("Form field should have ChoiceRenderer defined");
+		}
 		StringBuilder sb = new StringBuilder();
-		if (field.getChoices() != null && field.getChoiceRenderer() != null) {
-			List<T> items = (List<T>)field.getChoices().getItems();
+		if (field.getChoices() != null) {
+			List<T> items = toSimplyTypedItems(field.getChoices().getItems());
 			if (items != null) {
 				ChoiceRenderer<T> choiceRenderer = field.getChoiceRenderer();
 				int itemIndex = 0;
@@ -437,19 +419,9 @@ public class BasicFormRenderer {
 					sb.append("</div>" + newLine());
 					itemIndex++;
 				}
-				sb.append(renderFieldScript(field, true));
+				sb.append(renderFieldScript(field, InputMultiplicity.MULTIPLE));
 			}
 		}
-		return sb.toString();
-	}
-	
-	protected String renderMarkupOption(String value, String title, boolean selected) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<option value=\"" + escapeHtml(value) + "\"");
-		if (selected) {
-			sb.append(" selected=\"selected\"");
-		}
-		sb.append(">" + escapeHtml(title) + "</option>" + newLine());
 		return sb.toString();
 	}
 	
@@ -497,14 +469,11 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
-			List<HandledJsEvent> ajaxEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
-			for (HandledJsEvent e : ajaxEvents) {
-				if (e.getEvent() == null) {
-					String url = FormUtils.urlWithAppendedParameter(e.getUrl(field.getParent().getConfig().getUrlBase(), field), 
-						AjaxParams.SRC_ELEMENT_NAME, element.getName());
-					sb.append(" data-ajax-url=\"" + url + "\"");
-					break;
-				}
+			HandledJsEvent ajaxActionWithoutEvent = field.getProperties().getDataAjaxActionWithoutEvent();
+			if (ajaxActionWithoutEvent != null) {
+				String url = FormUtils.urlWithAppendedParameter(ajaxActionWithoutEvent.getUrl(field.getParent().getConfig().getUrlBase(), field), 
+					AjaxParams.SRC_ELEMENT_NAME, element.getName());
+				sb.append(" data-ajax-url=\"" + url + "\"");
 			}
 			if (field.getProperties().getDataRelatedElement() != null && !field.getProperties().getDataRelatedElement().isEmpty()) {
 				sb.append(" data-related-element=\"" + field.getProperties().getDataRelatedElement() + "\"");
@@ -549,15 +518,15 @@ public class BasicFormRenderer {
 	/**
 	 * Renders client-side script for handling form field AJAX events.
 	 * @param field
-	 * @param multipleInputs true if given form field represents multiple form inputs
+	 * @param inputMultiplicity whether given form field represents multiple form inputs
 	 * @return
 	 */
-	protected <T> String renderFieldScript(FormField<T> field, boolean multipleInputs) {
-		return ajaxEventRenderer.renderFieldScript(field, multipleInputs);
+	protected <T> String renderFieldScript(FormField<T> field, InputMultiplicity inputMultiplicity) {
+		return ajaxEventRenderer.renderFieldScript(field, inputMultiplicity);
 	}
 
 	protected <T> String renderTextFieldInternal(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
@@ -567,7 +536,7 @@ public class BasicFormRenderer {
 	// --- Various field types - begin ---
 
 	protected <T> String renderFieldSubmitButton(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupButton(field)));
 	}
@@ -636,18 +605,18 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderFieldTextArea(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupTextArea(field) + 
 				renderMarkupMessageList(field)));
 	}
 
-	protected <T> String renderFieldCheckBox(FormField<T> field) {
-		return renderMarkupFieldBox(field,
+	protected <T> String renderFieldCheckbox(FormField<T> field) {
+		return renderMarkupFormGroup(field,
 			renderMarkupInputEnvelope(field,
 				"<label>" +
-				renderMarkupCheckBox(field) + 
+				renderMarkupCheckbox(field) + 
 				getLabelText(field) +
 				"</label>" +
 				renderMarkupMessageList(field))
@@ -655,7 +624,7 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderFieldPassword(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) +
@@ -663,7 +632,7 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderFieldFileUpload(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
@@ -671,7 +640,7 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderFieldDatePicker(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
@@ -680,23 +649,15 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderFieldDropDownChoice(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
-				renderMarkupSelect(field, false, null) + 
-				renderMarkupMessageList(field)));
-	}
-
-	protected <T> String renderFieldMultipleChoice(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
-			renderMarkupFieldLabel(field) + 
-			renderMarkupInputEnvelope(field, 
-				renderMarkupSelect(field, true, null) + 
+				renderMarkupSelect(field) + 
 				renderMarkupMessageList(field)));
 	}
 
 	protected <T> String renderFieldMultipleCheckbox(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupChecks(field) + 
@@ -704,7 +665,7 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderFieldRadioChoice(FormField<T> field) {
-		return renderMarkupFieldBox(field, 
+		return renderMarkupFormGroup(field, 
 			renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupChecks(field) + 
@@ -733,6 +694,10 @@ public class BasicFormRenderer {
 		return System.getProperty("line.separator");
 	}
 	
+	String renderMarkupMessage(ConstraintViolationMessage msg) {
+		return messageRenderer.renderMessage(msg);
+	}
+	
 	private <T> boolean isCheckBox(FormField<T> field) {
 		return Field.CHECK_BOX.getType().equals(field.getType());
 	}
@@ -743,5 +708,33 @@ public class BasicFormRenderer {
 
 	private <T> String getChoiceValue(ChoiceRenderer<T> choiceRenderer, T item, int itemIndex) {
 		return escapeHtml(choiceRenderer.getItem(item, itemIndex).getId());
+	}
+	
+	private <T> String getMaxSeverityClass(FormElement<T> mapping) {
+		String maxSevClass = mapping.getMaxSeverityClass();
+		if (maxSevClass != null && !maxSevClass.isEmpty()) {
+			maxSevClass = "has-" + maxSevClass;
+		}
+		return maxSevClass;
+	}
+	
+	private String renderMarkupOption(String value, String title, boolean selected) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<option value=\"" + escapeHtml(value) + "\"");
+		if (selected) {
+			sb.append(" selected=\"selected\"");
+		}
+		sb.append(">" + escapeHtml(title) + "</option>" + newLine());
+		return sb.toString();
+	}
+	
+	private <T> List<T> toSimplyTypedItems(List<? extends T> items) {
+		List<T> retItems = new ArrayList<T>();
+		if (items != null) {
+			for (T item : items) {
+				retItems.add(item);
+			}
+		}
+		return retItems;
 	}
 }

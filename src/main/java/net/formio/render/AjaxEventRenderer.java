@@ -45,12 +45,12 @@ class AjaxEventRenderer {
 	 * @param multipleInputs
 	 * @return
 	 */
-	protected <T> String renderFieldScript(FormField<T> field, boolean multipleInputs) {
+	protected <T> String renderFieldScript(FormField<T> field, InputMultiplicity inputMultiplicity) {
 		StringBuilder sb = new StringBuilder();
 		List<HandledJsEvent> urlEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
 		if (urlEvents.size() > 0) {
 			sb.append("<script>" + renderer.newLine());
-			if (multipleInputs) {
+			if (inputMultiplicity == InputMultiplicity.MULTIPLE) {
 				if (field.getChoices() != null && field.getChoiceRenderer() != null) {
 					List<?> items = field.getChoices().getItems();
 					if (items != null) {

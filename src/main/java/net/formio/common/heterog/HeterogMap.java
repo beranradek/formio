@@ -160,4 +160,10 @@ public interface HeterogMap<K> {
      */
     @Override
 	int hashCode();
+    
+    /**
+     * Returns the heterogeneous map in a form of common {@link Map}.
+     * @return
+     */
+    Map<K, Object> asMap();
 }
