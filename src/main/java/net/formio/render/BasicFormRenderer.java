@@ -446,6 +446,7 @@ public class BasicFormRenderer {
 		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
 		sb.append(text);
 		sb.append("</a>" + newLine());
+		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
 

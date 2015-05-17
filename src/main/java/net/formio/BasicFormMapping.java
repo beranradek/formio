@@ -452,13 +452,15 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			inputMappings.put(e.getKey(), e.getValue());
 		}
 		for (Map.Entry<String, FormMapping<?>> e : inputMappings.entrySet()) {
-			Object nestedInstance = null;
-			if (instance != null) {
-				nestedInstance = nestedData(e.getKey(), instance); 
-			}
 			FormMapping<Object> mapping = (FormMapping<Object>)e.getValue();
-			FormData<Object> formData = mapping.bind(paramsProvider, locale, nestedInstance, ctx, validationGroups);
-			dataMap.put(e.getKey(), formData);
+			if (!mapping.getProperties().isDetached()) {
+				Object nestedInstance = null;
+				if (instance != null) {
+					nestedInstance = nestedData(e.getKey(), instance); 
+				}
+				FormData<Object> formData = mapping.bind(paramsProvider, locale, nestedInstance, ctx, validationGroups);
+				dataMap.put(e.getKey(), formData);
+			}
 		}
 		// Transformation from Object to ? (to satisfy generics)
 		final Map<String, FormData<?>> outputData = new LinkedHashMap<String, FormData<?>>();
@@ -532,13 +534,19 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			}
 			
 			final FormField<?> field = fieldDefEntry.getValue();
-			Object value = propValues.get(propertyName);
-			List<ConstraintViolationMessage> fieldMessages = fieldMsgs.get(field.getName());
-			String preferedStringValue = null;
-			if (fieldMessages != null && !fieldMessages.isEmpty()) {
-				preferedStringValue = getOriginalStringValueFromParseError(fieldMessages);
+			FormField<?> filledField = null;
+			
+			if (field.getProperties().isDetached()) {
+				filledField = field; // field is not filled
+			} else {
+				Object value = propValues.get(propertyName);
+				List<ConstraintViolationMessage> fieldMessages = fieldMsgs.get(field.getName());
+				String preferedStringValue = null;
+				if (fieldMessages != null && !fieldMessages.isEmpty()) {
+					preferedStringValue = getOriginalStringValueFromParseError(fieldMessages);
+				}
+				filledField = createFilledFormField((FormField<Object>)field, value, locale, preferedStringValue);
 			}
-			final FormField<?> filledField = createFilledFormField((FormField<Object>)field, value, locale, preferedStringValue);
 			filledFields.put(propertyName, filledField);
 		}
 		filledFields = Collections.unmodifiableMap(filledFields);
@@ -549,12 +557,19 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		// For each definition of nested mapping, fill this mapping with edited data -> filled mapping
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
-			// nested data - nested object or list of nested objects in case of mapping to list
-			Object data = nestedData(e.getKey(), editedObj.getData());
-			// the outer report is propagated to nested
-			FormData<Object> formData = new FormData<Object>(data, editedObj.getValidationResult());
-			FormMapping<Object> mapping = (FormMapping<Object>)e.getValue();
-			newNestedMappings.put(e.getKey(), mapping.fill(formData, locale, ctx));
+			FormMapping<?> filledMapping = null;
+			if (e.getValue().getProperties().isDetached()) {
+				// mapping will not be filled
+				filledMapping = e.getValue(); 
+			} else {
+				// nested data - nested object or list of nested objects in case of mapping to list
+				Object data = nestedData(e.getKey(), editedObj.getData());
+				// the outer report is propagated to nested
+				FormData<Object> formData = new FormData<Object>(data, editedObj.getValidationResult());
+				FormMapping<Object> mapping = (FormMapping<Object>)e.getValue();
+				filledMapping = mapping.fill(formData, locale, ctx);
+			}
+			newNestedMappings.put(e.getKey(), filledMapping);
 		}
 		return newNestedMappings;
 	}
@@ -583,30 +598,32 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		// Get values for each defined field
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
 			FormField<?> field = e.getValue();
-			String formPrefixedName = field.getName(); // already prefixed with form name
-			Object[] paramValues = null;
-			UploadedFile[] files = paramsProvider.getUploadedFiles(formPrefixedName);
-			if (files == null || files.length == 0) { 
-				files = paramsProvider.getUploadedFiles(formPrefixedName + "[]");
-			}
-			if (files != null && files.length > 0) {
-				// non-empty files array returned
-				paramValues = files;
-			} else {
-				String[] strValues = paramsProvider.getParamValues(formPrefixedName);
-				if (strValues == null) strValues = paramsProvider.getParamValues(formPrefixedName + "[]");
-				if (getConfig().isInputTrimmed()) {
-					strValues = FormUtils.trimValues(strValues);
+			if (!field.getProperties().isDetached()) {
+				String formPrefixedName = field.getName(); // already prefixed with form name
+				Object[] paramValues = null;
+				UploadedFile[] files = paramsProvider.getUploadedFiles(formPrefixedName);
+				if (files == null || files.length == 0) { 
+					files = paramsProvider.getUploadedFiles(formPrefixedName + "[]");
 				}
-				paramValues = strValues;
-				if (strValues != null && field.getChoices() != null && field.getChoiceRenderer() != null) {
-					// There is a codebook with choices to select from
-					paramValues = ChoiceItems.convertParamsToChoiceItems(field, strValues);
+				if (files != null && files.length > 0) {
+					// non-empty files array returned
+					paramValues = files;
+				} else {
+					String[] strValues = paramsProvider.getParamValues(formPrefixedName);
+					if (strValues == null) strValues = paramsProvider.getParamValues(formPrefixedName + "[]");
+					if (getConfig().isInputTrimmed()) {
+						strValues = FormUtils.trimValues(strValues);
+					}
+					paramValues = strValues;
+					if (strValues != null && field.getChoices() != null && field.getChoiceRenderer() != null) {
+						// There is a codebook with choices to select from
+						paramValues = ChoiceItems.convertParamsToChoiceItems(field, strValues);
+					}
 				}
+				String propertyName = e.getKey();
+				values.put(propertyName, BoundValuesInfo.getInstance(
+					paramValues, field.getPattern(), field.getFormatter(), locale));
 			}
-			String propertyName = e.getKey();
-			values.put(propertyName, BoundValuesInfo.getInstance(
-				paramValues, field.getPattern(), field.getFormatter(), locale));
 		}
 		return values;
 	}

@@ -95,6 +95,13 @@ public interface FormProperties {
 	String getDataConfirm();
 	
 	/**
+	 * Returns true if this form field of mapping is not attached to underlying property of form data object
+	 * (it is not filled nor bound).
+	 * @return
+	 */
+	boolean isDetached();
+	
+	/**
 	 * Returns properties of this form field/mapping in a heterogeneous map.
 	 * @return
 	 */

@@ -221,6 +221,16 @@ public class FieldProps<T> implements Serializable {
 		return property(FormElementProperty.LABEL_VISIBLE, Boolean.valueOf(visible));
 	}
 	
+	/**
+	 * True if this form field is not attached to underlying property of form data object
+	 * (it is not filled nor bound).
+	 * @param detached
+	 * @return
+	 */
+	public FieldProps<T> detached(boolean detached) {
+		return property(FormElementProperty.DETACHED, Boolean.valueOf(detached));
+	}
+	
 	// only for internal usage
 	FieldProps<T> parent(FormMapping<?> parent) {
 		this.parent = parent;

@@ -352,6 +352,10 @@ public class BasicFormMappingBuilder<T> {
 	public BasicFormMappingBuilder<T> dataAjaxActions(List<? extends HandledJsEvent> actions) {
 		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions.toArray(new HandledJsEvent[0]));
 	}
+	
+	public BasicFormMappingBuilder<T> detached(boolean detached) {
+		return property(FormElementProperty.DETACHED, Boolean.valueOf(detached));
+	}
 
 	public FormMapping<T> build() {
 		boolean plainCopy = false;
@@ -528,9 +532,13 @@ public class BasicFormMappingBuilder<T> {
 				throw new IllegalStateException("Field name '" + field.getName() + "' does not start with mapping name '" + mapping.getName() + "'");
 			}
 			
-			checkRequired(field);
+			if (!field.getProperties().isDetached()) {
+				checkRequired(field);
+			}
 		}
-		checkRequired(mapping);
+		if (!mapping.getProperties().isDetached()) {
+			checkRequired(mapping);
+		}
 	}
 
 	private <U> void checkRequired(FormElement<U> element) {
