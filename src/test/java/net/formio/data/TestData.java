@@ -109,6 +109,7 @@ public final class TestData {
 	public static Profile newAllFields() {
 		Profile profile = new Profile();
 		profile.setAgreement(true);
+		profile.setOtherInfoUrl("http://other-info/how-to/?param1=1&param2=info&param3=sd289dsfssf#anchor");
 		Calendar birthCal = Calendar.getInstance();
 		birthCal.set(1980, 11, 6);
 		profile.setBirthDate(birthCal.getTime());

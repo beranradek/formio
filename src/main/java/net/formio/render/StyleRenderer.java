@@ -77,6 +77,7 @@ class StyleRenderer {
 	private <T> boolean isWithoutLeadingLabel(FormField<T> field) {
 		return Field.SUBMIT_BUTTON.getType().equals(field.getType()) || 
 			Field.CHECK_BOX.getType().equals(field.getType()) ||
+			Field.LINK.getType().equals(field.getType()) ||
 			!field.getProperties().isLabelVisible();
 	}
 	
@@ -87,7 +88,8 @@ class StyleRenderer {
 			&& !Field.CHECK_BOX.getType().equals(type)
 			&& !Field.SUBMIT_BUTTON.getType().equals(type)
 			&& !Field.MULTIPLE_CHECK_BOX.getType().equals(type)
-			&& !Field.RADIO_CHOICE.getType().equals(type);
+			&& !Field.RADIO_CHOICE.getType().equals(type)
+			&& !Field.LINK.getType().equals(type);
 	}
 	
 	private String getFullWidthInputClasses() {

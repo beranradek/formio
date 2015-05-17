@@ -107,6 +107,8 @@ public class Profile implements Serializable {
 	// checkbox
 	private boolean agreement;
 	
+	private String otherInfoUrl;
+	
 	private String submitValue;
 
 	public String getHeader() {
@@ -299,6 +301,14 @@ public class Profile implements Serializable {
 
 	public void setHomepage(String homepage) {
 		this.homepage = homepage;
+	}
+
+	public String getOtherInfoUrl() {
+		return otherInfoUrl;
+	}
+
+	public void setOtherInfoUrl(String otherInfoUrl) {
+		this.otherInfoUrl = otherInfoUrl;
 	}
 
 	public String getSubmitValue() {

@@ -167,6 +167,7 @@ public final class TestForms {
 		.field("search", Field.SEARCH)
 		.field("homepage", Field.URL)
 		.field("agreement", Field.CHECK_BOX)
+		.field("otherInfoUrl", Field.LINK)
 		.field("submitValue", Field.SUBMIT_BUTTON)
 		.build();
 	

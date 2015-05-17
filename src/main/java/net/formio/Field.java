@@ -34,6 +34,13 @@ public enum Field {
 	DATE_PICKER("date-picker", "text"),
 	FILE_UPLOAD("file", "file"),
 	SUBMIT_BUTTON("submit", "submit"),
+	LINK("link", ""),
+	
+	// LABEL("label"),
+	// TODO: Add action link (for e.g. moving from one list to another, interaction between different form fields, adding/removing etc.,
+	// allow JavaScript confirmation for links)
+	// LINK("link"),
+	// TODO: Multiple date and file?
 	
 	// HTML 5:
 	COLOR("color", "color"),
@@ -49,12 +56,6 @@ public enum Field {
 	TEL("tel", "tel"),
 	URL("url", "url"),
 	WEEK("week", "week");
-	
-	// LABEL("label"),
-	// TODO: Add action link (for e.g. moving from one list to another, interaction between different form fields, adding/removing etc.,
-	// allow JavaScript confirmation for links)
-	// LINK("link"),
-	// TODO: Multiple date and file?
 	
 	private final String type;
 	private final String inputType;

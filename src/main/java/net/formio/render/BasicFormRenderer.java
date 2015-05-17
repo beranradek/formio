@@ -220,6 +220,9 @@ public class BasicFormRenderer {
 			case SUBMIT_BUTTON:
 				sb.append(renderFieldSubmitButton(field));
 				break;
+			case LINK:
+				sb.append(renderFieldLink(field));
+				break;
 			default:
 				throw new UnsupportedOperationException("Cannot render component with type " + type);
 			}
@@ -435,6 +438,16 @@ public class BasicFormRenderer {
 		sb.append("</button>" + newLine());
 		return sb.toString();
 	}
+	
+	protected <T> String renderMarkupLink(FormField<T> field) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<a href=\"" + escapeHtml(field.getValue()) + "\" class=\"" + getInputClasses(field) + "\">");
+		MessageTranslator tr = getMessageTranslator(field);
+		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
+		sb.append(text);
+		sb.append("</a>" + newLine());
+		return sb.toString();
+	}
 
 	protected <T> MessageTranslator getMessageTranslator(FormElement<T> element) {
 		return RenderUtils.getMessageTranslator(element, getRenderContext().getLocale());
@@ -539,6 +552,12 @@ public class BasicFormRenderer {
 		return renderMarkupFormGroup(field, 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupButton(field)));
+	}
+	
+	protected <T> String renderFieldLink(FormField<T> field) {
+		return renderMarkupFormGroup(field, 
+			renderMarkupInputEnvelope(field, 
+				renderMarkupLink(field)));
 	}
 
 	protected <T> String renderFieldHidden(FormField<T> field) {

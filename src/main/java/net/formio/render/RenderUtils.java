@@ -41,6 +41,7 @@ public class RenderUtils {
 	
 	/**
 	 * Escapes HTML (converts HTML text to XML entities).
+	 * Escape using XSS recommendations from https://www.owasp.org/index.php/Cross_Site_Scripting
 	 * @param s
 	 * @return
 	 */
@@ -52,22 +53,45 @@ public class RenderUtils {
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
 			switch (c) {
-			case '&':
-				// TODO: Also &? 
-				sb.append("&amp;");
-				break;
-			case '<':
-				sb.append("&lt;");
-				break;
-			case '>':
-				sb.append("&gt;");
-				break;
-			case '"':
-				sb.append("&quot;");
-				break;
-			default:
-				sb.append(c);
-				break;
+				case '<':
+					sb.append("&lt;");
+					break;
+				case '>':
+					sb.append("&gt;");
+					break;
+				case '&':
+					sb.append("&amp;");
+					break;
+				case '"':
+					sb.append("&#034;");
+					break;
+				case '\'':
+					sb.append("&#039;");
+					break;
+				case '(':
+					sb.append("&#040;");
+					break;
+				case ')':
+					sb.append("&#041;");
+					break;
+				case '#':
+					sb.append("&#035;");
+					break;
+				case '%':
+					sb.append("&#037;");
+					break;
+				case ';':
+					sb.append("&#059;");
+					break;
+				case '+':
+					sb.append("&#043;");
+					break;
+				case '-':
+					sb.append("&#045;");
+					break;
+				default:
+					sb.append(c);
+					break;
 			}
 		}
 		return sb.toString();
