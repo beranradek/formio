@@ -30,15 +30,15 @@ import net.formio.ajax.action.JsEventToAction;
  */
 class AjaxForms {
 
-	static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> formDefinition) {
+	static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> mapping) {
 		// try to find action in given form mapping according to presence of request parameter
-		AjaxAction<T> action = findAjaxActionByRequestParam(requestParams, formDefinition);
+		AjaxAction<T> action = findAjaxActionByRequestParam(requestParams, mapping);
 		if (action == null) {
 			// find action according to name of source form element and name of
 			// JavaScript event
 			String srcElement = requestParams.getParamValue(AjaxParams.SRC_ELEMENT_NAME);
 			if (srcElement != null && !srcElement.isEmpty()) {
-				FormElement<Object> el = formDefinition.findElement(srcElement);
+				FormElement<Object> el = mapping.findElement(srcElement);
 				if (el != null) {
 					String eventType = requestParams.getParamValue(AjaxParams.EVENT);
 					for (HandledJsEvent ev : el.getProperties().getDataAjaxActions()) {

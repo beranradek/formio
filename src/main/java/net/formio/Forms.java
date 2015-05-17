@@ -325,13 +325,14 @@ public final class Forms {
 	/**
 	 * Finds an action capable of handling given AJAX request that was initiated by some source form element.
 	 * If no such source element with its handling action
-	 * is found or no AJAX action matching the request parameters is registered for this element, 
-	 * {@code null} is returned.
+	 * is found or no AJAX action matching the request parameters is registered for this element,
+	 * {@code null} is returned. Given searched mapping must be filled with form data so the list mappings
+	 * are expanded and contain nested indexed mappings.
 	 * @param requestParams request parameters
-	 * @param formDefinition form definition for finding the form element that invoked the AJAX event
+	 * @param filledMapping filled form mapping for finding the form element that invoked the AJAX event
 	 */
-	public static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> formDefinition) {
-		return AjaxForms.findAjaxAction(requestParams, formDefinition);
+	public static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> filledMapping) {
+		return AjaxForms.findAjaxAction(requestParams, filledMapping);
 	}
 	
 	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String propertyName, Instantiator<T> instantiator, boolean automatic, MappingType mappingType, boolean secured) {

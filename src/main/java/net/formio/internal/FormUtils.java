@@ -209,10 +209,20 @@ public class FormUtils {
 		if (startElem.getName().equals(name)) {
 			foundEl = (FormElement<U>)startElem;
 		} else if (startElem instanceof FormMapping<?>) {
-			for (FormElement<?> element : ((FormMapping<?>)startElem).getElements()) {
-				foundEl = findElementRecursive(cls, name, element);
-				if (foundEl != null) {
-					break;
+			FormMapping<?> fm = (FormMapping<?>)startElem;
+			if (fm.getList() != null && !fm.getList().isEmpty()) {
+				for (FormElement<?> element : fm.getList()) {
+					foundEl = findElementRecursive(cls, name, element);
+					if (foundEl != null) {
+						break;
+					}
+				}
+			} else {
+				for (FormElement<?> element : fm.getElements()) {
+					foundEl = findElementRecursive(cls, name, element);
+					if (foundEl != null) {
+						break;
+					}
 				}
 			}
 		}

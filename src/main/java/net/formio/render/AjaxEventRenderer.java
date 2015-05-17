@@ -19,6 +19,7 @@ package net.formio.render;
 import java.util.Arrays;
 import java.util.List;
 
+import net.formio.Field;
 import net.formio.FormField;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.JsEvent;
@@ -40,6 +41,23 @@ class AjaxEventRenderer {
 	}
 	
 	/**
+	 * Returns AJAX URL for given link field.
+	 * @param field
+	 * @return
+	 */
+	protected <T> String getActionLinkUrl(FormField<T> field) {
+		String url = null;
+		if (Field.LINK.getType().equals(field.getType())) {
+			List<HandledJsEvent> urlEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
+			for (HandledJsEvent eventToUrl : urlEvents) {
+				url = getActionUrl(field, eventToUrl);
+				break;
+			}
+		}
+		return url;
+	}
+	
+	/**
 	 * Renders script for handling form field.
 	 * @param field
 	 * @param multipleInputs
@@ -49,21 +67,23 @@ class AjaxEventRenderer {
 		StringBuilder sb = new StringBuilder();
 		List<HandledJsEvent> urlEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
 		if (urlEvents.size() > 0) {
-			sb.append("<script>" + renderer.newLine());
+			StringBuilder tdiSend = new StringBuilder();
 			if (inputMultiplicity == InputMultiplicity.MULTIPLE) {
 				if (field.getChoices() != null && field.getChoiceRenderer() != null) {
 					List<?> items = field.getChoices().getItems();
 					if (items != null) {
 						for (int i = 0; i < items.size(); i++) {
 							String itemId = field.getElementIdWithIndex(i);
-							sb.append(renderTdiSend(field, itemId, urlEvents));
+							tdiSend.append(renderTdiSend(field, itemId, urlEvents));
 						}
 					}
 				}
 			} else {
-				sb.append(renderTdiSend(field, field.getElementId(), urlEvents));
+				tdiSend.append(renderTdiSend(field, field.getElementId(), urlEvents));
 			}
-			sb.append("</script>" + renderer.newLine());
+			if (tdiSend.length() > 0) {
+				sb.append("<script>" + renderer.newLine() + tdiSend + "</script>" + renderer.newLine());
+			}
 		}
 		return sb.toString();
 	}
@@ -79,36 +99,45 @@ class AjaxEventRenderer {
 	 * @return
 	 */
 	private <T> String renderTdiSend(FormField<T> formField, String inputId, List<HandledJsEvent> events) {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder("");
 		if (events != null && events.size() > 0) {
-			String elm = "$(\"#" + inputId + "\")";
-			sb.append(elm + ".on({" + renderer.newLine());
-			for (int i = 0; i < events.size(); i++) {
-				HandledJsEvent eventToUrl = events.get(i);
-				JsEvent eventType = eventToUrl.getEvent();
-				if (eventType != null) {
-					String url = eventToUrl.getUrl(formField.getParent().getConfig().getUrlBase(), formField);
-					if (url == null || url.isEmpty()) {
-						throw new IllegalArgumentException("No URL for AJAX request is specified");
+			if (Field.LINK.getType().equals(formField.getType()) && (formField.getValue() == null || formField.getValue().isEmpty())) {
+				// nothing, AJAX URL is rendered directly in href attribute  
+			} else {
+				String elm = "$(\"#" + inputId + "\")";
+				sb.append(elm + ".on({" + renderer.newLine());
+				for (int i = 0; i < events.size(); i++) {
+					HandledJsEvent eventToUrl = events.get(i);
+					JsEvent eventType = eventToUrl.getEvent();
+					if (eventType != null) {
+						String url = getActionUrl(formField, eventToUrl);
+						sb.append(eventType.getEventName() + ": function(evt) {"  + renderer.newLine());
+						// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
+						sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + renderer.newLine());
+						sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + renderer.newLine());
+						sb.append("TDI.Ajax.send(" + elm + ");" + renderer.newLine());
+						sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + renderer.newLine());
+						sb.append("var prevUrl = null;" + renderer.newLine());
+						sb.append("}");
+						if (i < events.size() - 1) {
+							// not the last event handler
+							sb.append(",");
+						}
+						sb.append(renderer.newLine());
 					}
-					url = FormUtils.urlWithAppendedParameter(url, AjaxParams.SRC_ELEMENT_NAME, formField.getName());
-					sb.append(eventType.getEventName() + ": function(evt) {"  + renderer.newLine());
-					// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
-					sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + renderer.newLine());
-					sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + renderer.newLine());
-					sb.append("TDI.Ajax.send(" + elm + ");" + renderer.newLine());
-					sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + renderer.newLine());
-					sb.append("var prevUrl = null;" + renderer.newLine());
-					sb.append("}");
-					if (i < events.size() - 1) {
-						// not the last event handler
-						sb.append(",");
-					}
-					sb.append(renderer.newLine());
 				}
+				sb.append("});" + renderer.newLine());
 			}
-			sb.append("});" + renderer.newLine());
 		}
 		return sb.toString();
+	}
+
+	private <T> String getActionUrl(FormField<T> formField, HandledJsEvent eventToUrl) {
+		String url = eventToUrl.getUrl(formField.getParent().getConfig().getUrlBase(), formField);
+		if (url == null || url.isEmpty()) {
+			throw new IllegalArgumentException("No URL for AJAX request is specified");
+		}
+		url = FormUtils.urlWithAppendedParameter(url, AjaxParams.SRC_ELEMENT_NAME, formField.getName());
+		return url;
 	}
 }

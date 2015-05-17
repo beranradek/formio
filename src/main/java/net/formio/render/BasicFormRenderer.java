@@ -430,7 +430,7 @@ public class BasicFormRenderer {
 	
 	protected <T> String renderMarkupButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<button type=\"" + Field.SUBMIT_BUTTON.getInputType() + "\" value=\"" + escapeHtml(field.getValue()) + 
+		sb.append("<button type=\"" + Field.SUBMIT_BUTTON.getInputType() + "\" name=\"" + field.getName() + "\" value=\"" + escapeHtml(field.getValue()) + 
 			"\" class=\"" + getInputClasses(field) + "\">");
 		MessageTranslator tr = getMessageTranslator(field);
 		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
@@ -441,7 +441,13 @@ public class BasicFormRenderer {
 	
 	protected <T> String renderMarkupLink(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<a href=\"" + escapeHtml(field.getValue()) + "\" class=\"" + getInputClasses(field) + "\">");
+		String url = field.getValue();
+		if (url == null || url.isEmpty()) {
+			url = ajaxEventRenderer.getActionLinkUrl(field);
+		}
+		sb.append("<a href=\"" + escapeHtml(url) + "\"");
+		sb.append(getElementAttributes(field));
+		sb.append(" class=\"" + getInputClasses(field) + "\">");
 		MessageTranslator tr = getMessageTranslator(field);
 		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
 		sb.append(text);
