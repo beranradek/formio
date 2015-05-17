@@ -165,7 +165,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		List<FormMapping<T>> newMappings = new ArrayList<FormMapping<T>>();
 		Set<String> propNames = FormUtils.getPropertiesFromFields(this.fields);
-		if (editedObj != null) {
+		if (editedObj != null && editedObj.getData() instanceof List<?>) {
 			int index = 0;
 			for (T dataAtIndex : (List<T>)editedObj.getData()) {
 				FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
