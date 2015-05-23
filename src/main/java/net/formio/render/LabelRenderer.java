@@ -44,11 +44,14 @@ class LabelRenderer {
 	protected <T> String renderMappingLabel(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
 		if (mapping.getProperties().isLabelVisible() && !mapping.isRootMapping()) {
+			int colLabelWidth = mapping.getConfig().getColLabelWidth();
 			int colFormWidth = mapping.getConfig().getColFormWidth();
 			sb.append("<div class=\"row\">" + renderer.newLine());
 			sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + 
-				styleRenderer.getColWidthClassPrefix() + colFormWidth + "\">" + renderer.newLine());
-			sb.append("<div class=\"" + styleRenderer.getLabelClasses() + "\">" + renderer.newLine());
+				styleRenderer.getColWidthClassPrefix() + colFormWidth +
+				"\">" + renderer.newLine());
+			sb.append("<div class=\"" + styleRenderer.getLabelClasses() + " " +
+				styleRenderer.getColWidthClassPrefix() + colLabelWidth + " mapping-label\">" + renderer.newLine());
 			sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>");
 			sb.append("</div>" + renderer.newLine());
 			sb.append("</div>" + renderer.newLine());
@@ -61,7 +64,7 @@ class LabelRenderer {
 		StringBuilder sb = new StringBuilder("");
 		int colLabelWidth = element.getParent().getConfig().getColLabelWidth();
 		if (element.getProperties().isLabelVisible()) {
-			sb.append("<div class=\"" + styleRenderer.getColWidthClassPrefix() + colLabelWidth + "\">" + renderer.newLine());
+			sb.append("<div class=\"" + styleRenderer.getColWidthClassPrefix() + colLabelWidth + " field-label\">" + renderer.newLine());
 			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + styleRenderer.getLabelClasses() + "\">");
 			sb.append(renderer.getLabelText(element));
 			sb.append(":");
