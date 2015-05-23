@@ -48,6 +48,8 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<String> PLACEHOLDER = register(new FormElementProperty<String>("placeholder", String.class, null));
 	public static final FormElementProperty<Boolean> LABEL_VISIBLE = register(new FormElementProperty<Boolean>("labelVisible", Boolean.class, Boolean.TRUE));
 	public static final FormElementProperty<Boolean> DETACHED = register(new FormElementProperty<Boolean>("detached", Boolean.class, Boolean.FALSE));
+	public static final FormElementProperty<InlinePosition> INLINE = register(new FormElementProperty<InlinePosition>("inline", InlinePosition.class, null));
+	public static final FormElementProperty<Integer> COL_INPUT_WIDTH = register(new FormElementProperty<Integer>("colInputWidth", Integer.class, null));
 	
 	// TDI properties
 	public static final FormElementProperty<HandledJsEvent[]> DATA_AJAX_ACTIONS = register(new FormElementProperty<HandledJsEvent[]>("dataAjaxActions", HandledJsEvent[].class, EMPTY_EVENT_TO_ACTIONS));	

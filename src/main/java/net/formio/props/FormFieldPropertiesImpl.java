@@ -57,4 +57,14 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	public String getPlaceholder() {
 		return getProperty(FormElementProperty.PLACEHOLDER);
 	}
+	
+	@Override
+	public InlinePosition getInline() {
+		return getProperty(FormElementProperty.INLINE);
+	}
+	
+	@Override
+	public Integer getColInputWidth() {
+		return getProperty(FormElementProperty.COL_INPUT_WIDTH);
+	}
 }

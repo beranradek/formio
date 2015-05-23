@@ -44,9 +44,13 @@ class LabelRenderer {
 	protected <T> String renderMappingLabel(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder("");
 		if (mapping.getProperties().isLabelVisible() && !mapping.isRootMapping()) {
-			sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + "\">" + renderer.newLine());
+			int colFormWidth = mapping.getConfig().getColFormWidth();
+			sb.append("<div class=\"row\">" + renderer.newLine());
+			sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + 
+				styleRenderer.getColWidthClassPrefix() + colFormWidth + "\">" + renderer.newLine());
 			sb.append("<div class=\"" + styleRenderer.getLabelClasses() + "\">" + renderer.newLine());
 			sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>");
+			sb.append("</div>" + renderer.newLine());
 			sb.append("</div>" + renderer.newLine());
 			sb.append("</div>" + renderer.newLine());
 		}
@@ -55,11 +59,14 @@ class LabelRenderer {
 
 	protected <T> String renderFieldLabel(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder("");
+		int colLabelWidth = element.getParent().getConfig().getColLabelWidth();
 		if (element.getProperties().isLabelVisible()) {
+			sb.append("<div class=\"" + styleRenderer.getColWidthClassPrefix() + colLabelWidth + "\">" + renderer.newLine());
 			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + styleRenderer.getLabelClasses() + "\">");
 			sb.append(renderer.getLabelText(element));
 			sb.append(":");
-			sb.append("</label>");
+			sb.append("</label>" + renderer.newLine());
+			sb.append("</div>" + renderer.newLine());
 		}
 		return sb.toString();
 	}

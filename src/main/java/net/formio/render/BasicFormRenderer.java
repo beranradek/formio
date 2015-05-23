@@ -30,6 +30,7 @@ import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
 import net.formio.internal.FormUtils;
 import net.formio.props.FormElementProperty;
+import net.formio.props.InlinePosition;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
@@ -76,7 +77,14 @@ public class BasicFormRenderer {
 	 * @return
 	 */
 	public <T> String renderElement(FormElement<T> element) {
-		return renderMarkupElementPlaceholder(element, renderElementMarkup(element));
+		String markup = renderMarkupElementPlaceholder(element, renderElementMarkup(element));
+		if (element instanceof FormField<?>) {
+			FormField<?> field = (FormField<?>)element;
+			if (!Field.HIDDEN.getType().equals(field.getType())) {
+				markup = renderMarkupFormGroup(field, markup);
+			}
+		}
+		return markup;
 	}
 
 	/**
@@ -270,18 +278,21 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupFormGroup(FormField<T> field, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
 		String maxSevClass = getMaxSeverityClass(field);
-		sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + maxSevClass + "\">" + newLine());
-		boolean checkbox = isCheckBox(field);
-		if (checkbox) {
-			sb.append("<div class=\"" + Field.CHECK_BOX.getInputType() + "\">" + newLine());
+		int colFormWidth = field.getParent().getConfig().getColFormWidth();
+		InlinePosition inlinePos = field.getProperties().getInline();
+		if (inlinePos == null || InlinePosition.FIRST.equals(inlinePos)) {
+			sb.append("<div class=\"row\">" + newLine());
+			sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + 
+				styleRenderer.getColWidthClassPrefix() + colFormWidth + " " + 
+				maxSevClass + "\">" + newLine());
 		}
 		
 		sb.append(innerMarkup);
 		
-		if (checkbox) {
+		if (inlinePos == null || InlinePosition.LAST.equals(inlinePos)) {
 			sb.append("</div>" + newLine());
+			sb.append("</div>" + newLine() + newLine());
 		}
-		sb.append("</div>" + newLine() + newLine());
 		return sb.toString();
 	}
 
@@ -546,25 +557,22 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderTextFieldInternal(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupFieldLabel(field) + 
+		return renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
-				renderMarkupMessageList(field)));
+				renderMarkupMessageList(field));
 	}
 
 	// --- Various field types - begin ---
 
 	protected <T> String renderFieldSubmitButton(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupInputEnvelope(field, 
-				renderMarkupButton(field)));
+		return renderMarkupInputEnvelope(field, 
+			renderMarkupButton(field));
 	}
 	
 	protected <T> String renderFieldLink(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupInputEnvelope(field, 
-				renderMarkupLink(field)));
+		return renderMarkupInputEnvelope(field, 
+				renderMarkupLink(field));
 	}
 
 	protected <T> String renderFieldHidden(FormField<T> field) {
@@ -631,71 +639,64 @@ public class BasicFormRenderer {
 	}
 
 	protected <T> String renderFieldTextArea(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupFieldLabel(field) + 
+		return renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupTextArea(field) + 
-				renderMarkupMessageList(field)));
+				renderMarkupMessageList(field));
 	}
 
 	protected <T> String renderFieldCheckbox(FormField<T> field) {
-		return renderMarkupFormGroup(field,
+		return "<div class=\"" + Field.CHECK_BOX.getInputType() + "\">" + newLine() +
 			renderMarkupInputEnvelope(field,
 				"<label>" +
 				renderMarkupCheckbox(field) + 
 				getLabelText(field) +
 				"</label>" +
-				renderMarkupMessageList(field))
-		);
+				renderMarkupMessageList(field)
+		) + "</div>" + newLine();
 	}
 
 	protected <T> String renderFieldPassword(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupFieldLabel(field) + 
+		return renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) +
-				renderMarkupMessageList(field)));
+				renderMarkupMessageList(field));
 	}
 
 	protected <T> String renderFieldFileUpload(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupFieldLabel(field) + 
+		return renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
-				renderMarkupMessageList(field)));
+				renderMarkupMessageList(field));
 	}
 
 	protected <T> String renderFieldDatePicker(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupFieldLabel(field) + 
+		return renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupInput(field) + 
 				renderDatePickerScript(field) + 
-				renderMarkupMessageList(field)));
+				renderMarkupMessageList(field));
 	}
 
 	protected <T> String renderFieldDropDownChoice(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupFieldLabel(field) + 
+		return renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupSelect(field) + 
-				renderMarkupMessageList(field)));
+				renderMarkupMessageList(field));
 	}
 
 	protected <T> String renderFieldMultipleCheckbox(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupFieldLabel(field) + 
+		return renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupChecks(field) + 
-				renderMarkupMessageList(field)));
+				renderMarkupMessageList(field));
 	}
 
 	protected <T> String renderFieldRadioChoice(FormField<T> field) {
-		return renderMarkupFormGroup(field, 
-			renderMarkupFieldLabel(field) + 
+		return renderMarkupFieldLabel(field) + 
 			renderMarkupInputEnvelope(field, 
 				renderMarkupChecks(field) + 
-				renderMarkupMessageList(field)));
+				renderMarkupMessageList(field));
 	}
 
 	// --- /Various field types - end ---

@@ -55,6 +55,9 @@ public class Config {
 	private final PropertyMethodRegex accessorRegex;
 	private final PropertyMethodRegex setterRegex;
 	private final String urlBase;
+	private final int colFormWidth;
+	private final int colLabelWidth;
+	private final int colInputWidth;
 	
 	Config(Builder builder) {
 		this.locale = builder.locale;
@@ -70,6 +73,9 @@ public class Config {
 		this.accessorRegex = builder.accessorRegex;
 		this.setterRegex = builder.setterRegex;
 		this.urlBase = builder.urlBase;
+		this.colFormWidth = builder.colFormWidth;
+		this.colLabelWidth = builder.colLabelWidth;
+		this.colInputWidth = builder.colInputWidth;
 	}
 	
 	public static class Builder {
@@ -89,6 +95,9 @@ public class Config {
 		boolean binderSpecified;
 		boolean validatorSpecified;
 		boolean inputTrimmed = true;
+		int colFormWidth = 12;
+		int colLabelWidth = 2;
+		int colInputWidth = 4;
 		String urlBase;
 
 		Builder() {
@@ -171,6 +180,36 @@ public class Config {
 			return this;
 		}
 		
+		/**
+		 * Maximum width of form in number of columns.
+		 * @param max
+		 * @return
+		 */
+		public Builder colFormWidth(int max) {
+			this.colFormWidth = max;
+			return this;
+		}
+		
+		/**
+		 * Default width of label in number of columns.
+		 * @param width
+		 * @return
+		 */
+		public Builder colLabelWidth(int width) {
+			this.colLabelWidth = width;
+			return this;
+		}
+		
+		/**
+		 * Default width of input in number of columns.
+		 * @param width
+		 * @return
+		 */
+		public Builder colInputWidth(int width) {
+			this.colInputWidth = width;
+			return this;
+		}
+		
 		public Config build() {
 			if (this.locale == null) this.locale = DEFAULT_LOCALE;
 			if (this.messageBundleName == null) this.messageBundleName = DEFAULT_MESSAGE_BUNDLE_NAME;
@@ -195,6 +234,12 @@ public class Config {
 			if (cfg.getBeanValidator() == null) throw new IllegalStateException("beanValidator cannot be null");
 			if (cfg.getTokenAuthorizer() == null) throw new IllegalStateException("tokenAuthorizer cannot be null");
 			if (cfg.getAccessorRegex() == null) throw new IllegalStateException("accessorRegex cannot be null");
+			if (cfg.getColLabelWidth() > cfg.getColFormWidth()) {
+				throw new IllegalStateException("width of label cannot be bigger than width of form");
+			}
+			if (cfg.getColInputWidth() > cfg.getColFormWidth()) {
+				throw new IllegalStateException("width of input cannot be bigger than width of form");
+			}
 			return cfg;
 		}
 		
@@ -267,6 +312,30 @@ public class Config {
 	 */
 	public String getUrlBase() {
 		return urlBase;
+	}
+	
+	/**
+	 * Maximum width of form in number of columns.
+	 * @return
+	 */
+	public int getColFormWidth() {
+		return colFormWidth;
+	}
+	
+	/**
+	 * Default width of label in number of columns.
+	 * @return
+	 */
+	public int getColLabelWidth() {
+		return colLabelWidth;
+	}
+	
+	/**
+	 * Default width of input in number of columns.
+	 * @return
+	 */
+	public int getColInputWidth() {
+		return colInputWidth;
 	}
 	
 }

@@ -41,4 +41,16 @@ public interface FormFieldProperties extends FormProperties {
 	 * @return
 	 */
 	String getPlaceholder();
+	
+	/**
+	 * Returns position of inline form field, {@code null} if this is not the inline form field.
+	 * @return
+	 */
+	InlinePosition getInline();
+	
+	/**
+	 * Returns width of input in count of columns.
+	 * @return
+	 */
+	Integer getColInputWidth();
 }

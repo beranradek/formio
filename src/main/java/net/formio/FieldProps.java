@@ -32,6 +32,7 @@ import net.formio.format.Formatters;
 import net.formio.props.FormElementProperty;
 import net.formio.props.FormFieldProperties;
 import net.formio.props.FormFieldPropertiesImpl;
+import net.formio.props.InlinePosition;
 import net.formio.props.JsEventToUrl;
 import net.formio.validation.Validator;
 import net.formio.validation.validators.RequiredValidator;
@@ -229,6 +230,33 @@ public class FieldProps<T> implements Serializable {
 	 */
 	public FieldProps<T> detached(boolean detached) {
 		return property(FormElementProperty.DETACHED, Boolean.valueOf(detached));
+	}
+	
+	/**
+	 * Sets the inline position to non-{@code null} value if this is the inline field.
+	 * @param inlinePos
+	 * @return
+	 */
+	public FieldProps<T> inline(InlinePosition inlinePos) {
+		return property(FormElementProperty.INLINE, inlinePos);
+	}
+	
+	/**
+	 * Sets width of input in count of columns.
+	 * @param width
+	 * @return
+	 */
+	public FieldProps<T> colInputWidth(Integer width) {
+		return property(FormElementProperty.COL_INPUT_WIDTH, width);
+	}
+	
+	/**
+	 * Sets width of input in count of columns.
+	 * @param width
+	 * @return
+	 */
+	public FieldProps<T> colInputWidth(int width) {
+		return property(FormElementProperty.COL_INPUT_WIDTH, Integer.valueOf(width));
 	}
 	
 	// only for internal usage

@@ -104,29 +104,37 @@ class AjaxEventRenderer {
 			if (Field.LINK.getType().equals(formField.getType()) && (formField.getValue() == null || formField.getValue().isEmpty())) {
 				// nothing, AJAX URL is rendered directly in href attribute  
 			} else {
-				String elm = "$(\"#" + inputId + "\")";
-				sb.append(elm + ".on({" + renderer.newLine());
-				for (int i = 0; i < events.size(); i++) {
-					HandledJsEvent eventToUrl = events.get(i);
-					JsEvent eventType = eventToUrl.getEvent();
-					if (eventType != null) {
-						String url = getActionUrl(formField, eventToUrl);
-						sb.append(eventType.getEventName() + ": function(evt) {"  + renderer.newLine());
-						// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
-						sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + renderer.newLine());
-						sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + renderer.newLine());
-						sb.append("TDI.Ajax.send(" + elm + ");" + renderer.newLine());
-						sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + renderer.newLine());
-						sb.append("var prevUrl = null;" + renderer.newLine());
-						sb.append("}");
-						if (i < events.size() - 1) {
-							// not the last event handler
-							sb.append(",");
-						}
-						sb.append(renderer.newLine());
+				boolean actionWithJsType = false;
+				for (HandledJsEvent event : events) {
+					if (event.getEvent() != null) {
+						actionWithJsType = true;
 					}
 				}
-				sb.append("});" + renderer.newLine());
+				if (actionWithJsType) {
+					String elm = "$(\"#" + inputId + "\")";
+					sb.append(elm + ".on({" + renderer.newLine());
+					for (int i = 0; i < events.size(); i++) {
+						HandledJsEvent eventToUrl = events.get(i);
+						JsEvent eventType = eventToUrl.getEvent();
+						if (eventType != null) {
+							String url = getActionUrl(formField, eventToUrl);
+							sb.append(eventType.getEventName() + ": function(evt) {"  + renderer.newLine());
+							// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
+							sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + renderer.newLine());
+							sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + renderer.newLine());
+							sb.append("TDI.Ajax.send(" + elm + ");" + renderer.newLine());
+							sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + renderer.newLine());
+							sb.append("var prevUrl = null;" + renderer.newLine());
+							sb.append("}");
+							if (i < events.size() - 1) {
+								// not the last event handler
+								sb.append(",");
+							}
+							sb.append(renderer.newLine());
+						}
+					}
+					sb.append("});" + renderer.newLine());
+				}
 			}
 		}
 		return sb.toString();

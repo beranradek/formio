@@ -18,6 +18,7 @@ package net.formio.render;
 
 import net.formio.Field;
 import net.formio.FormField;
+import net.formio.props.InlinePosition;
 
 /**
  * Renders CSS styles of forms.
@@ -38,17 +39,31 @@ class StyleRenderer {
 	}
 	
 	protected <T> String getInputEnvelopeClasses(FormField<T> field) {
+		Integer colInputWidth = field.getProperties().getColInputWidth();
+		if (colInputWidth == null) {
+			colInputWidth = Integer.valueOf(field.getParent().getConfig().getColInputWidth());
+		}
+		int colLabelWidth = field.getParent().getConfig().getColLabelWidth();
+		InlinePosition inlinePos = field.getProperties().getInline();
 		StringBuilder sb = new StringBuilder();
 		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);
-		if (withoutLeadingLabel) {
-			sb.append("col-sm-offset-" + getLabelWidth() + " ");
+		if (withoutLeadingLabel && (inlinePos == null || inlinePos == InlinePosition.FIRST)) {
+			sb.append(getColOffsetClassPrefix() + colLabelWidth + " ");
 		}
-		sb.append("col-sm-4");
+		sb.append(getColWidthClassPrefix() + colInputWidth);
 		return sb.toString();
 	}
 	
 	protected String getLabelClasses() {
-		return "control-label col-sm-" + getLabelWidth();
+		return "control-label";
+	}
+	
+	protected String getColOffsetClassPrefix() {
+		return "col-sm-offset-";
+	}
+	
+	protected String getColWidthClassPrefix() {
+		return "col-sm-";
 	}
 	
 	/**
@@ -68,10 +83,6 @@ class StyleRenderer {
 			sb.append(" " + getButtonClasses(field));
 		}
 		return sb.toString();
-	}
-	
-	private int getLabelWidth() {
-		return 2;
 	}
 
 	private <T> boolean isWithoutLeadingLabel(FormField<T> field) {
