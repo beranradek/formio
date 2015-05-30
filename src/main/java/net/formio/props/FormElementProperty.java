@@ -60,6 +60,8 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	// Render hints for which there are no convenience accessors or setters in builders
 	public static final FormElementProperty<Boolean> MULTIPLE = new FormElementProperty<Boolean>("multiple", Boolean.class, Boolean.FALSE);
 	public static final FormElementProperty<Integer> SIZE = new FormElementProperty<Integer>("size", Integer.class, null);
+	public static final FormElementProperty<Integer> COLS = new FormElementProperty<Integer>("cols", Integer.class, null);
+	public static final FormElementProperty<Integer> ROWS = new FormElementProperty<Integer>("rows", Integer.class, null);
 	
 	protected static <T> FormElementProperty<T> register(FormElementProperty<T> prop) {
 		if (props.contains(prop)) {

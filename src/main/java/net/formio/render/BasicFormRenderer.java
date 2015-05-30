@@ -320,6 +320,14 @@ public class BasicFormRenderer {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<textarea name=\"" + field.getName() + "\" id=\"" + field.getElementId() + 
 			"\" class=\"" + getInputClasses(field) + "\"");
+		Integer cols = field.getProperties().getProperty(FormElementProperty.COLS);
+		if (cols != null) {
+			sb.append(" cols=\"" + cols.intValue() + "\"");
+		}
+		Integer rows = field.getProperties().getProperty(FormElementProperty.ROWS);
+		if (rows != null) {
+			sb.append(" rows=\"" + rows.intValue() + "\"");
+		}
 		sb.append(getElementAttributes(field));
 		sb.append(getInputPlaceholderAttribute(field));
 		sb.append(">");
