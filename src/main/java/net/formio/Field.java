@@ -33,7 +33,7 @@ public enum Field {
 	DROP_DOWN_CHOICE("select", ""),
 	DATE_PICKER("date-picker", "text"),
 	FILE_UPLOAD("file", "file"),
-	SUBMIT_BUTTON("submit", "submit"),
+	BUTTON("button", "button"),
 	LINK("link", ""),
 	
 	// LABEL("label"),

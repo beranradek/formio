@@ -227,8 +227,8 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 	// --- Various field types - begin ---
 
 	@Override
-	protected <T> String renderFieldSubmitButton(FormField<T> field) {
-		return getInnerRenderer().renderFieldSubmitButton(field);
+	protected <T> String renderFieldButton(FormField<T> field) {
+		return getInnerRenderer().renderFieldButton(field);
 	}
 
 	@Override

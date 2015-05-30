@@ -20,6 +20,7 @@ import net.formio.Field;
 import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.Forms;
+import net.formio.props.FormElementProperty;
 
 /**
  * {@link BasicFormRenderer} that renders also the whole HTML page or whole form tag
@@ -96,17 +97,20 @@ public class WholeFormRenderer extends BasicFormRendererWrapper {
 	protected <T> boolean containsSubmitButton(FormMapping<T> mapping) {
 		// searching only on top level
 		for (FormField<?> field : mapping.getFields().values()) {
-			if (Field.SUBMIT_BUTTON.getType().equals(field.getType())) {
-				return true;
+			if (Field.BUTTON.getType().equals(field.getType())) {
+				String buttonType = field.getProperties().getProperty(FormElementProperty.BUTTON_TYPE);
+				if (buttonType == null || buttonType.equals("submit")) {
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 	
 	protected String renderDefaultSubmitButton() {
-		return renderFieldSubmitButton(Forms.<String> field(
+		return renderFieldButton(Forms.<String> field(
 			PROPERTY_DEFAULT_SUBMIT,
-			Field.SUBMIT_BUTTON.getType()).build());
+			Field.BUTTON.getType()).build());
 	}
 	
 	private final String PROPERTY_DEFAULT_SUBMIT = "_defaultSubmitButton";

@@ -79,14 +79,14 @@ class StyleRenderer {
 		if (isFullWidthInput(field)) {
 			sb.append(" " + getFullWidthInputClasses());
 		}
-		if (Field.SUBMIT_BUTTON.getType().equals(field.getType())) {
+		if (Field.BUTTON.getType().equals(field.getType())) {
 			sb.append(" " + getButtonClasses(field));
 		}
 		return sb.toString();
 	}
 
 	private <T> boolean isWithoutLeadingLabel(FormField<T> field) {
-		return Field.SUBMIT_BUTTON.getType().equals(field.getType()) || 
+		return Field.BUTTON.getType().equals(field.getType()) || 
 			Field.CHECK_BOX.getType().equals(field.getType()) ||
 			Field.LINK.getType().equals(field.getType()) ||
 			!field.getProperties().isLabelVisible();
@@ -97,7 +97,7 @@ class StyleRenderer {
 		return !Field.FILE_UPLOAD.getType().equals(type) // otherwise border around field with "Browse" text is drawn
 			&& !Field.HIDDEN.getType().equals(type)
 			&& !Field.CHECK_BOX.getType().equals(type)
-			&& !Field.SUBMIT_BUTTON.getType().equals(type)
+			&& !Field.BUTTON.getType().equals(type)
 			&& !Field.MULTIPLE_CHECK_BOX.getType().equals(type)
 			&& !Field.RADIO_CHOICE.getType().equals(type)
 			&& !Field.LINK.getType().equals(type);

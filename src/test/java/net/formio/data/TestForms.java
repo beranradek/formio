@@ -171,7 +171,7 @@ public final class TestForms {
 		.field("homepage", Field.URL)
 		.field("agreement", Field.CHECK_BOX)
 		.field("otherInfoUrl", Field.LINK)
-		.field("submitValue", Field.SUBMIT_BUTTON)
+		.field("submitValue", Field.BUTTON)
 		.build();
 	
 	private static List<Skill> skillsCodebook() {

@@ -225,8 +225,8 @@ public class BasicFormRenderer {
 			case WEEK:
 				sb.append(renderFieldWeek(field));
 				break;
-			case SUBMIT_BUTTON:
-				sb.append(renderFieldSubmitButton(field));
+			case BUTTON:
+				sb.append(renderFieldButton(field));
 				break;
 			case LINK:
 				sb.append(renderFieldLink(field));
@@ -462,7 +462,12 @@ public class BasicFormRenderer {
 	
 	protected <T> String renderMarkupButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<button type=\"" + Field.SUBMIT_BUTTON.getInputType() + "\" name=\"" + field.getName() + "\" value=\"" + escapeHtml(field.getValue()) + 
+		String type = "submit";
+		String buttonType = field.getProperties().getProperty(FormElementProperty.BUTTON_TYPE);
+		if (buttonType != null) {
+			type = buttonType;
+		}
+		sb.append("<button type=\"" + type + "\" name=\"" + field.getName() + "\" value=\"" + escapeHtml(field.getValue()) + 
 			"\" class=\"" + getInputClasses(field) + "\">");
 		MessageTranslator tr = getMessageTranslator(field);
 		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
@@ -586,7 +591,7 @@ public class BasicFormRenderer {
 
 	// --- Various field types - begin ---
 
-	protected <T> String renderFieldSubmitButton(FormField<T> field) {
+	protected <T> String renderFieldButton(FormField<T> field) {
 		return renderMarkupInputEnvelope(field, 
 			renderMarkupButton(field));
 	}
@@ -744,10 +749,6 @@ public class BasicFormRenderer {
 	
 	String renderMarkupMessage(ConstraintViolationMessage msg) {
 		return messageRenderer.renderMessage(msg);
-	}
-	
-	private <T> boolean isCheckBox(FormField<T> field) {
-		return Field.CHECK_BOX.getType().equals(field.getType());
 	}
 	
 	private <T> String getChoiceTitle(ChoiceRenderer<T> choiceRenderer, T item, int itemIndex) {
