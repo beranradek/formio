@@ -62,6 +62,8 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<Integer> SIZE = new FormElementProperty<Integer>("size", Integer.class, null);
 	public static final FormElementProperty<Integer> COLS = new FormElementProperty<Integer>("cols", Integer.class, null);
 	public static final FormElementProperty<Integer> ROWS = new FormElementProperty<Integer>("rows", Integer.class, null);
+	public static final FormElementProperty<Integer> MAX_LENGTH = new FormElementProperty<Integer>("maxlength", Integer.class, null);
+	public static final FormElementProperty<String> ACCEPT = new FormElementProperty<String>("accept", String.class, null);
 	
 	protected static <T> FormElementProperty<T> register(FormElementProperty<T> prop) {
 		if (props.contains(prop)) {

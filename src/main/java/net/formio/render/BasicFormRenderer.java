@@ -342,9 +342,22 @@ public class BasicFormRenderer {
 		String typeId = field.getType();
 		sb.append("<input type=\"" + field.getInputType() + "\" name=\"" + field.getName()
 				+ "\" id=\"" + field.getElementId() + "\"");
-		if (!Field.FILE_UPLOAD.getType().equals(typeId)) {
+		if (Field.FILE_UPLOAD.getType().equals(typeId)) {
+			String accept = field.getProperties().getProperty(FormElementProperty.ACCEPT);
+			if (accept != null) {
+				sb.append(" accept=\"" + accept + "\"");
+			}
+		} else {
 			String value = escapeHtml(field.getValue());
 			sb.append(" value=\"" + value + "\"");
+			Integer size = field.getProperties().getProperty(FormElementProperty.SIZE);
+			if (size != null) {
+				sb.append(" size=\"" + size.intValue() + "\"");
+			}
+			Integer maxlength = field.getProperties().getProperty(FormElementProperty.MAX_LENGTH);
+			if (maxlength != null) {
+				sb.append(" maxlength=\"" + maxlength.intValue() + "\"");
+			}
 		}
 		sb.append(getElementAttributes(field));
 		sb.append(" class=\"" + getInputClasses(field) + "\"");
