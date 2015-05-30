@@ -19,12 +19,12 @@ package net.formio.data;
 import net.formio.RequestParams;
 
 /**
- * Manipulates (loads/saves) form state.
+ * Loads and saves form state.
  * @author Radek Beran
  *
  * @param <T>
  */
-public interface FormStateHandler<T> {
+public interface FormStateStorage<T> {
 	T findFormState(RequestParams requestParams);
 	
 	void saveFormState(RequestParams requestParams, T formState);

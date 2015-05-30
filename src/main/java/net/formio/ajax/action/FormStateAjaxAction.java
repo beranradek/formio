@@ -18,7 +18,7 @@ package net.formio.ajax.action;
 
 import net.formio.AbstractRequestParams;
 import net.formio.ajax.AjaxResponse;
-import net.formio.data.FormStateHandler;
+import net.formio.data.FormStateStorage;
 
 /**
  * Action that handles AJAX request and generates AJAX response.
@@ -30,13 +30,17 @@ import net.formio.data.FormStateHandler;
  */
 public abstract class FormStateAjaxAction<T> implements AjaxAction<T> {
 	
-	private final FormStateHandler<T> formStateHandler;
+	private final FormStateStorage<T> formStateStorage;
 	
-	public FormStateAjaxAction(FormStateHandler<T> formStateHandler) {
-		if (formStateHandler == null) {
-			throw new IllegalArgumentException("formStateHandler cannot be null");
+	public FormStateAjaxAction(FormStateStorage<T> formStateStorage) {
+		if (formStateStorage == null) {
+			throw new IllegalArgumentException("formStateStorage cannot be null");
 		}
-		this.formStateHandler = formStateHandler;
+		this.formStateStorage = formStateStorage;
+	}
+	
+	public FormStateStorage<T> getFormStateStorage() {
+		return formStateStorage;
 	}
 	
 	/**
@@ -47,9 +51,9 @@ public abstract class FormStateAjaxAction<T> implements AjaxAction<T> {
 	 */
 	@Override
 	public AjaxResponse<T> apply(AbstractRequestParams requestParams) {
-		T formState = formStateHandler.findFormState(requestParams);
+		T formState = formStateStorage.findFormState(requestParams);
 		AjaxResponse<T> res = applyToState(requestParams, formState);
-		formStateHandler.saveFormState(requestParams, res.getUpdatedFormState());
+		formStateStorage.saveFormState(requestParams, res.getUpdatedFormState());
 		return res;
 	}
 	
