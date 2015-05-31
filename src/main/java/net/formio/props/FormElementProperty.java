@@ -95,10 +95,12 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	 * Returns new heterogeneous map with default formProperties for form field.
 	 * @return
 	 */
-	public static HeterogMap<String> createDefaultFieldProperties() {
+	public static HeterogMap<String> createDefaultProperties() {
 		HeterogMap<String> propMap = HeterogCollections.<String>newLinkedMap();
 		for (FormElementProperty<Object> p : props) {
-			propMap.putTyped(p, p.getDefaultValue());
+			if (p.getDefaultValue() != null) {
+				propMap.putTyped(p, p.getDefaultValue());
+			}
 		}
 		return propMap;
 	}

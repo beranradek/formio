@@ -87,7 +87,7 @@ public class BasicFormMappingBuilder<T> {
 		this.instantiator = instantiator;
 		this.mappingType = mappingType;
 		this.automatic = automatic;
-		this.properties = FormElementProperty.createDefaultFieldProperties();
+		this.properties = FormElementProperty.createDefaultProperties();
 		this.validators = new ArrayList<Validator<T>>();
 	}
 	

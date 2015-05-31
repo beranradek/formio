@@ -67,6 +67,10 @@ public class WholeFormRenderer extends BasicFormRendererWrapper {
 		sb.append(");" + newLine());
 		sb.append("});" + newLine());
 		sb.append("</script>" + newLine());
+		
+		sb.append("<style>" + newLine());
+		sb.append(".field-label, .mapping-label { text-align: right; }" + newLine());
+		sb.append("</style>" + newLine());
 
 		sb.append("</head>" + newLine());
 		sb.append("<body style=\"margin:1em\">" + newLine());
@@ -82,7 +86,7 @@ public class WholeFormRenderer extends BasicFormRendererWrapper {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<form action=\"" + getRenderContext().getActionUrl() + 
 			"\" method=\"" + getRenderContext().getMethod().name() + 
-			"\" class=\"form-horizontal\" role=\"form\">" + newLine());
+			"\" role=\"form\">" + newLine());
 		if (formMapping.isVisible()) {
 			sb.append(renderMarkupGlobalMessages(formMapping));
 			sb.append(renderElement(formMapping));

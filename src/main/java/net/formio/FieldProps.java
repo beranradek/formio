@@ -53,7 +53,7 @@ public class FieldProps<T> implements Serializable {
 	private Formatter<T> formatter;
 	private ChoiceProvider<T> choiceProvider;
 	private ChoiceRenderer<T> choiceRenderer;
-	private FormFieldProperties formProperties = new FormFieldPropertiesImpl(FormElementProperty.createDefaultFieldProperties());
+	private FormFieldProperties formProperties = new FormFieldPropertiesImpl(FormElementProperty.createDefaultProperties());
 	List<T> filledObjects = new ArrayList<T>();
 	String strValue;
 	int order;
