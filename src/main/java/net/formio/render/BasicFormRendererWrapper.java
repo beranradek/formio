@@ -16,9 +16,11 @@
  */
 package net.formio.render;
 
+import net.formio.BasicListFormMapping;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
+import net.formio.render.tdi.TdiResponseBuilder;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
@@ -100,6 +102,11 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 	@Override
 	public TdiResponseBuilder ajaxResponse() {
 		return getInnerRenderer().ajaxResponse();
+	}
+	
+	@Override
+	protected <T> String renderMarkupListMapping(BasicListFormMapping<T> listMapping) {
+		return getInnerRenderer().renderMarkupListMapping(listMapping);
 	}
 	
 	@Override

@@ -98,7 +98,9 @@ class LabelRenderer {
 			sb.append(renderer.escapeHtml(tr.getMessage(msgKey, renderer.getRenderContext().getLocale())));
 			if (formElement instanceof BasicListFormMapping) {
 				FormMapping<?> listMapping = (FormMapping<?>) formElement;
-				sb.append(" (" + listMapping.getList().size() + ")");
+				sb.append(" (<span id=\"" + formElement.getName() + Forms.PATH_SEP + "size\">" + 
+					listMapping.getList().size() + 
+				"</span>)");
 			}
 			if (formElement.isRequired()) {
 				sb.append(renderer.getRequiredMark(formElement));

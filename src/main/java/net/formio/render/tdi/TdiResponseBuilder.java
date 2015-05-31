@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.render;
+package net.formio.render.tdi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +22,8 @@ import java.util.List;
 
 import net.formio.AbstractFormElement;
 import net.formio.FormElement;
+import net.formio.render.BasicFormRenderer;
+import net.formio.render.RenderUtils;
 
 /**
  * Builder of TDI response.
@@ -32,7 +34,7 @@ public class TdiResponseBuilder {
 	private final BasicFormRenderer renderer;
 	private final List<String> instructions;
 	
-	protected TdiResponseBuilder(BasicFormRenderer renderer) {
+	public TdiResponseBuilder(BasicFormRenderer renderer) {
 		this.renderer = renderer;
 		this.instructions = new ArrayList<String>();
 	}
@@ -99,27 +101,66 @@ public class TdiResponseBuilder {
 		return script("$(\"#" + elementId + "\").focus();");
 	}
 	
-	// TODO: Insert instruction
+	/**
+	 * Adds instruction to AJAX response: Insertion of form element in given position (before/after)
+	 * given target element id.
+	 * @param position
+	 * @param targetElementId
+	 * @param element
+	 * @return
+	 */
+	public <T> TdiResponseBuilder insert(InsertionPosition position, String targetElementId, FormElement<T> element) {
+		if (element == null) {
+			throw new IllegalArgumentException("inserted element cannot be null");
+		}
+		// Render all element, including element placeholder tag
+		return insert(position, targetElementId, renderElement(element));
+	}
+	
+	/**
+	 * Adds instruction to AJAX response: Insertion of content markup in given position (before/after)
+	 * given target element id.
+	 * @param position
+	 * @param targetElementId
+	 * @param contentMarkup
+	 * @return
+	 */
+	public TdiResponseBuilder insert(InsertionPosition position, String targetElementId, String contentMarkup) {
+		if (position == null) {
+			throw new IllegalArgumentException("insertion position cannot be null");
+		}
+		if (targetElementId == null || targetElementId.isEmpty()) {
+			throw new IllegalArgumentException("targetElementId must be specified");
+		}
+		String str = renderInsertBeginTag(position, targetElementId) +
+			renderCDataBegin() +
+			contentMarkup +
+			renderCDataEnd() +
+			renderInsertEndTag();
+		instructions.add(str);
+		return this;
+	}
 	
 	/**
 	 * Adds instruction to AJAX response: Update of form element.
-	 * @param filledElement
+	 * @param element
 	 * @return
 	 */
 	public <T> TdiResponseBuilder update(FormElement<T> element) {
 		if (element == null) {
 			throw new IllegalArgumentException("updated element cannot be null");
 		}
-		return update(element.getName(), renderElementMarkup(element));
+		return update(AbstractFormElement.getElementPlaceholderId(element.getName()), renderElementMarkup(element));
 	}
 	
 	/**
 	 * Adds instruction to AJAX response: Update of form element.
-	 * @param filledElement
+	 * @param elementId
+	 * @param elementMarkup
 	 * @return
 	 */
-	public TdiResponseBuilder update(String elementName, String elementMarkup) {
-		String str = renderUpdateBeginTag(AbstractFormElement.getElementPlaceholderId(elementName)) +
+	public TdiResponseBuilder update(String elementId, String elementMarkup) {
+		String str = renderUpdateBeginTag(elementId) +
 			renderCDataBegin() +
 			elementMarkup +
 			renderCDataEnd() +
@@ -204,6 +245,17 @@ public class TdiResponseBuilder {
 		return "<update target=\"" + id + "\" class-remove=\"hidden\">" + newLine();
 	}
 	
+	protected String renderInsertBeginTag(InsertionPosition position, String targetElementId) {
+		if (position == null) {
+			throw new IllegalArgumentException("position cannot be null");
+		}
+		return "<insert target=\"" + targetElementId + "\" position=\"" + position.getPositionValue() + "\">" + newLine();
+	}
+	
+	protected String renderInsertEndTag() {
+		return "</insert>" + newLine();
+	}
+	
 	protected String renderUpdateEndTag() {
 		return "</update>" + newLine();
 	}
@@ -226,6 +278,10 @@ public class TdiResponseBuilder {
 	
 	protected <T> String renderElementMarkup(FormElement<T> element) {
 		return getRenderer().renderElementMarkup(element);
+	}
+	
+	protected <T> String renderElement(FormElement<T> element) {
+		return getRenderer().renderElement(element);
 	}
 	
 	private String newLine() {

@@ -24,6 +24,7 @@ import net.formio.Field;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
+import net.formio.Forms;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.action.HandledJsEvent;
 import net.formio.choice.ChoiceRenderer;
@@ -32,6 +33,7 @@ import net.formio.internal.FormUtils;
 import net.formio.props.FormElementProperty;
 import net.formio.props.types.ButtonType;
 import net.formio.props.types.InlinePosition;
+import net.formio.render.tdi.TdiResponseBuilder;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
@@ -143,9 +145,8 @@ public class BasicFormRenderer {
 		
 		// Nested mappings and fields
 		if (mapping instanceof BasicListFormMapping) {
-			for (FormMapping<?> m : ((BasicListFormMapping<?>) mapping).getList()) {
-				sb.append(renderElement(m));
-			}
+			BasicListFormMapping<?> listMapping = (BasicListFormMapping<?>)mapping; 
+			sb.append(renderMarkupListMapping(listMapping));
 		} else {
 			for (FormElement<?> el : mapping.getElements()) {
 				sb.append(renderElement(el));
@@ -157,6 +158,21 @@ public class BasicFormRenderer {
 		}
 		
 		return newLine() + renderMarkupMappingBox(mapping, sb.toString());
+	}
+
+	/**
+	 * Renders visible list mapping.
+	 * @param listMapping
+	 * @return
+	 */
+	protected <T> String renderMarkupListMapping(BasicListFormMapping<T> listMapping) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div id=\"" + listMapping.getName() + Forms.PATH_SEP + "begin\"></div>" + newLine());
+		for (FormMapping<?> m : listMapping.getList()) {
+			sb.append(renderElement(m));
+		}
+		sb.append("<div id=\"" + listMapping.getName() + Forms.PATH_SEP + "end\"></div>" + newLine());
+		return sb.toString();
 	}
 
 	/**
@@ -283,9 +299,13 @@ public class BasicFormRenderer {
 	protected <T> String renderMarkupMappingBox(FormMapping<T> mapping, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
 		String maxSevClass = getMaxSeverityClass(mapping);
-		sb.append("<div class=\"" + maxSevClass + "\">" + newLine());
+		if (maxSevClass != null && !maxSevClass.isEmpty()) {
+			sb.append("<div class=\"" + maxSevClass + "\">" + newLine());
+		}
 		sb.append(innerMarkup);
-		sb.append("</div>" + newLine());
+		if (maxSevClass != null && !maxSevClass.isEmpty()) {
+			sb.append("</div>" + newLine());
+		}
 		return sb.toString();
 	}
 	
