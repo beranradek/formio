@@ -25,8 +25,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.BoundData;
+import net.formio.binding.BoundValuesInfo;
 import net.formio.binding.InstanceHoldingInstantiator;
 import net.formio.binding.Instantiator;
 import net.formio.binding.ParseError;
@@ -34,8 +34,8 @@ import net.formio.choice.ChoiceProvider;
 import net.formio.data.RequestContext;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
-import net.formio.props.FormProperties;
-import net.formio.props.FormPropertiesImpl;
+import net.formio.props.FormMappingProperties;
+import net.formio.props.FormMappingPropertiesImpl;
 import net.formio.upload.MaxSizeExceededError;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
@@ -63,7 +63,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	/** Mapping simple property names to nested mappings. Property name is a part of full path of nested mapping. */
 	final Map<String, FormMapping<?>> nested;
 	final ValidationResult validationResult;
-	final FormProperties formProperties;
+	final FormMappingProperties formProperties;
 	final boolean secured;
 	final int order;
 	final Integer index;
@@ -82,7 +82,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		this.filledObject = builder.filledObject;
 		this.secured = builder.secured;
 		this.validationResult = builder.validationResult;
-		this.formProperties = new FormPropertiesImpl(builder.properties);
+		this.formProperties = new FormMappingPropertiesImpl(builder.properties);
 		this.order = builder.order;
 		this.index = builder.index;
 		this.fields = simpleCopy ? Collections.unmodifiableMap(builder.fields) : 
@@ -393,7 +393,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	}
 	
 	@Override
-	public FormProperties getProperties() {
+	public FormMappingProperties getProperties() {
 		return this.formProperties;
 	}
 	

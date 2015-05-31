@@ -102,6 +102,12 @@ public interface FormProperties {
 	boolean isDetached();
 	
 	/**
+	 * Returns width of label in number of responsive grid columns.
+	 * @return
+	 */
+	Integer getColLabelWidth();
+	
+	/**
 	 * Returns properties of this form field/mapping in a heterogeneous map.
 	 * @return
 	 */

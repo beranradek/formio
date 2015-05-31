@@ -24,6 +24,8 @@ import net.formio.ajax.action.HandledJsEvent;
 import net.formio.common.heterog.AbstractTypedKey;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
+import net.formio.props.types.ButtonType;
+import net.formio.props.types.InlinePosition;
 
 /**
  * Common form element properties.
@@ -39,17 +41,41 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 		props = new ArrayList<FormElementProperty<Object>>();
 	}
 	
+	/** Whether the form element should be visible - rendered at all. */
 	public static final FormElementProperty<Boolean> VISIBLE = register(new FormElementProperty<Boolean>("visible", Boolean.class, Boolean.TRUE));
+	
+	/** Whether the form element should be rendered in enabled state. */
 	public static final FormElementProperty<Boolean> ENABLED = register(new FormElementProperty<Boolean>("enabled", Boolean.class, Boolean.TRUE));
+	
+	/** Whether the form element should be rendered as read-only. */
 	public static final FormElementProperty<Boolean> READ_ONLY = register(new FormElementProperty<Boolean>("readonly", Boolean.class, Boolean.FALSE));
+	
+	/** Help/info for the form element. */
 	public static final FormElementProperty<String> HELP = register(new FormElementProperty<String>("help", String.class, ""));
+	
+	/** Whether the first "Choose one" option should be rendered in select. */
 	public static final FormElementProperty<Boolean> CHOOSE_OPTION_DISPLAYED = register(new FormElementProperty<Boolean>("chooseOptionDisplayed", Boolean.class, Boolean.FALSE));
+	
+	/** Title for the first "Choose one" option of select. */
 	public static final FormElementProperty<String> CHOOSE_OPTION_TITLE = register(new FormElementProperty<String>("chooseOptionTitle", String.class, "Choose One"));
+	
+	/** Placeholder text that will appear (as a hint/label) inside the text field. */
 	public static final FormElementProperty<String> PLACEHOLDER = register(new FormElementProperty<String>("placeholder", String.class, null));
+	
+	/** Whether the label of form element is visible. */
 	public static final FormElementProperty<Boolean> LABEL_VISIBLE = register(new FormElementProperty<Boolean>("labelVisible", Boolean.class, Boolean.TRUE));
+	
+	/** Whether the form field or mapping is independent on the form object, is not filled, nor bound from request. */
 	public static final FormElementProperty<Boolean> DETACHED = register(new FormElementProperty<Boolean>("detached", Boolean.class, Boolean.FALSE));
+	
+	/** Type of inlined form field. */
 	public static final FormElementProperty<InlinePosition> INLINE = register(new FormElementProperty<InlinePosition>("inline", InlinePosition.class, null));
+	
+	/** Width of input in number of responsive grid columns. */
 	public static final FormElementProperty<Integer> COL_INPUT_WIDTH = register(new FormElementProperty<Integer>("colInputWidth", Integer.class, null));
+	
+	/** Width of label in number of responsive grid columns. */
+	public static final FormElementProperty<Integer> COL_LABEL_WIDTH = register(new FormElementProperty<Integer>("colLabelWidth", Integer.class, null));
 	
 	// TDI properties
 	public static final FormElementProperty<HandledJsEvent[]> DATA_AJAX_ACTIONS = register(new FormElementProperty<HandledJsEvent[]>("dataAjaxActions", HandledJsEvent[].class, EMPTY_EVENT_TO_ACTIONS));	
@@ -58,13 +84,29 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<String> DATA_CONFIRM = register(new FormElementProperty<String>("dataConfirm", String.class, ""));
 	
 	// Render hints for which there are no convenience accessors or setters in builders
+	/** HTML multiple attribute. */
 	public static final FormElementProperty<Boolean> MULTIPLE = new FormElementProperty<Boolean>("multiple", Boolean.class, Boolean.FALSE);
+	
+	/** HTML size attribute. */
 	public static final FormElementProperty<Integer> SIZE = new FormElementProperty<Integer>("size", Integer.class, null);
+	
+	/** HTML cols attribute for textareas. */
 	public static final FormElementProperty<Integer> COLS = new FormElementProperty<Integer>("cols", Integer.class, null);
+	
+	/** HTML rows attribute for textareas. */
 	public static final FormElementProperty<Integer> ROWS = new FormElementProperty<Integer>("rows", Integer.class, null);
+	
+	/** HTML maxlength attribute for inputs. */
 	public static final FormElementProperty<Integer> MAX_LENGTH = new FormElementProperty<Integer>("maxlength", Integer.class, null);
+	
+	/** MIME types accepted by file upload input. */
 	public static final FormElementProperty<String> ACCEPT = new FormElementProperty<String>("accept", String.class, null);
-	public static final FormElementProperty<String> BUTTON_TYPE = new FormElementProperty<String>("buttonType", String.class, null);
+	
+	/** Type of button: submit, reset or button. */
+	public static final FormElementProperty<ButtonType> BUTTON_TYPE = new FormElementProperty<ButtonType>("buttonType", ButtonType.class, null);
+	
+	/** Render surrounding fieldset HTML element. */
+	public static final FormElementProperty<Boolean> FIELDSET_DISPLAYED = new FormElementProperty<Boolean>("fieldsetDisplayed", Boolean.class, null);
 	
 	protected static <T> FormElementProperty<T> register(FormElementProperty<T> prop) {
 		if (props.contains(prop)) {

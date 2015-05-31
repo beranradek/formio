@@ -32,8 +32,8 @@ import net.formio.format.Formatters;
 import net.formio.props.FormElementProperty;
 import net.formio.props.FormFieldProperties;
 import net.formio.props.FormFieldPropertiesImpl;
-import net.formio.props.InlinePosition;
-import net.formio.props.JsEventToUrl;
+import net.formio.props.types.InlinePosition;
+import net.formio.props.types.JsEventToUrl;
 import net.formio.validation.Validator;
 import net.formio.validation.validators.RequiredValidator;
 
@@ -257,6 +257,15 @@ public class FieldProps<T> implements Serializable {
 	 */
 	public FieldProps<T> colInputWidth(int width) {
 		return property(FormElementProperty.COL_INPUT_WIDTH, Integer.valueOf(width));
+	}
+	
+	/**
+	 * Sets width of label in count of columns.
+	 * @param width
+	 * @return
+	 */
+	public FieldProps<T> colLabelWidth(int width) {
+		return property(FormElementProperty.COL_LABEL_WIDTH, Integer.valueOf(width));
 	}
 	
 	// only for internal usage

@@ -24,6 +24,7 @@ import javax.validation.groups.Default;
 
 import net.formio.binding.Instantiator;
 import net.formio.data.RequestContext;
+import net.formio.props.FormMappingProperties;
 
 /**
  * A form for editing object (form data) of type T.
@@ -258,4 +259,7 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * @return
 	 */
 	Integer getIndex();
+	
+	@Override
+	FormMappingProperties getProperties();
 }

@@ -21,6 +21,7 @@ import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.props.FormElementProperty;
+import net.formio.props.types.ButtonType;
 
 /**
  * {@link BasicFormRenderer} that renders also the whole HTML page or whole form tag
@@ -102,8 +103,8 @@ public class WholeFormRenderer extends BasicFormRendererWrapper {
 		// searching only on top level
 		for (FormField<?> field : mapping.getFields().values()) {
 			if (Field.BUTTON.getType().equals(field.getType())) {
-				String buttonType = field.getProperties().getProperty(FormElementProperty.BUTTON_TYPE);
-				if (buttonType == null || buttonType.equals("submit")) {
+				ButtonType buttonType = field.getProperties().getProperty(FormElementProperty.BUTTON_TYPE);
+				if (buttonType == null || buttonType == ButtonType.SUBMIT) {
 					return true;
 				}
 			}

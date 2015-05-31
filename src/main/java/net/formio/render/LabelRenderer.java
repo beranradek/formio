@@ -45,17 +45,24 @@ class LabelRenderer {
 		StringBuilder sb = new StringBuilder("");
 		if (mapping.getProperties().isLabelVisible() && !mapping.isRootMapping()) {
 			int colLabelWidth = mapping.getConfig().getColLabelWidth();
+			if (mapping.getProperties().getColLabelWidth() != null) {
+				colLabelWidth = mapping.getProperties().getColLabelWidth().intValue(); 
+			}
 			int colFormWidth = mapping.getConfig().getColFormWidth();
-			sb.append("<div class=\"row\">" + renderer.newLine());
-			sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + 
-				styleRenderer.getColWidthClassPrefix() + colFormWidth +
-				"\">" + renderer.newLine());
-			sb.append("<div class=\"" + styleRenderer.getLabelClasses() + " " +
-				styleRenderer.getColWidthClassPrefix() + colLabelWidth + " mapping-label\">" + renderer.newLine());
-			sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>");
-			sb.append("</div>" + renderer.newLine());
-			sb.append("</div>" + renderer.newLine());
-			sb.append("</div>" + renderer.newLine());
+			if (mapping.getProperties().isFieldsetDisplayed()) {
+				sb.append("<legend class=\"mapping-legend\">" + renderer.getLabelText(mapping) + ":</legend>" + renderer.newLine());
+			} else {
+				sb.append("<div class=\"row\">" + renderer.newLine());
+				sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + 
+					styleRenderer.getColWidthClassPrefix() + colFormWidth +
+					"\">" + renderer.newLine());
+				sb.append("<div class=\"" + styleRenderer.getLabelClasses() + " " +
+					styleRenderer.getColWidthClassPrefix() + colLabelWidth + " mapping-label\">" + renderer.newLine());
+				sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>" + renderer.newLine());
+				sb.append("</div>" + renderer.newLine());
+				sb.append("</div>" + renderer.newLine());
+				sb.append("</div>" + renderer.newLine());
+			}
 		}
 		return sb.toString();
 	}
@@ -63,6 +70,9 @@ class LabelRenderer {
 	protected <T> String renderFieldLabel(FormElement<T> element) {
 		StringBuilder sb = new StringBuilder("");
 		int colLabelWidth = element.getParent().getConfig().getColLabelWidth();
+		if (element.getProperties().getColLabelWidth() != null) {
+			colLabelWidth = element.getProperties().getColLabelWidth().intValue(); 
+		}
 		if (element.getProperties().isLabelVisible()) {
 			sb.append("<div class=\"" + styleRenderer.getColWidthClassPrefix() + colLabelWidth + " field-label\">" + renderer.newLine());
 			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + styleRenderer.getLabelClasses() + "\">");

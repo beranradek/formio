@@ -37,7 +37,7 @@ import net.formio.binding.collection.ItemsOrder;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.props.FormElementProperty;
-import net.formio.props.JsEventToUrl;
+import net.formio.props.types.JsEventToUrl;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 import net.formio.validation.Validator;
@@ -355,6 +355,10 @@ public class BasicFormMappingBuilder<T> {
 	
 	public BasicFormMappingBuilder<T> detached(boolean detached) {
 		return property(FormElementProperty.DETACHED, Boolean.valueOf(detached));
+	}
+	
+	public BasicFormMappingBuilder<T> fieldsetDisplayed(boolean displayed) {
+		return property(FormElementProperty.FIELDSET_DISPLAYED, Boolean.valueOf(displayed));
 	}
 
 	public FormMapping<T> build() {

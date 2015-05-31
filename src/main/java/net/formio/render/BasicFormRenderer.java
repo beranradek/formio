@@ -30,7 +30,8 @@ import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
 import net.formio.internal.FormUtils;
 import net.formio.props.FormElementProperty;
-import net.formio.props.InlinePosition;
+import net.formio.props.types.ButtonType;
+import net.formio.props.types.InlinePosition;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
@@ -126,6 +127,14 @@ public class BasicFormRenderer {
 	public <T> String renderVisibleMapping(FormMapping<T> mapping) {
 		StringBuilder sb = new StringBuilder();
 		
+		if (mapping.getProperties().isFieldsetDisplayed()) {
+			sb.append("<fieldset");
+			if (!mapping.isEnabled()) {
+				sb.append(" disabled=\"disabled\"");
+			}
+			sb.append(">");
+		}
+		
 		// Label
 		sb.append(renderMarkupMappingLabel(mapping));
 
@@ -142,6 +151,11 @@ public class BasicFormRenderer {
 				sb.append(renderElement(el));
 			}
 		}
+		
+		if (mapping.getProperties().isFieldsetDisplayed()) {
+			sb.append("</fieldset>" + newLine());
+		}
+		
 		return newLine() + renderMarkupMappingBox(mapping, sb.toString());
 	}
 
@@ -462,10 +476,10 @@ public class BasicFormRenderer {
 	
 	protected <T> String renderMarkupButton(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		String type = "submit";
-		String buttonType = field.getProperties().getProperty(FormElementProperty.BUTTON_TYPE);
+		String type = ButtonType.SUBMIT.getTypeName();
+		ButtonType buttonType = field.getProperties().getProperty(FormElementProperty.BUTTON_TYPE);
 		if (buttonType != null) {
-			type = buttonType;
+			type = buttonType.getTypeName();
 		}
 		sb.append("<button type=\"" + type + "\" name=\"" + field.getName() + "\" value=\"" + escapeHtml(field.getValue()) + 
 			"\" class=\"" + getInputClasses(field) + "\">");

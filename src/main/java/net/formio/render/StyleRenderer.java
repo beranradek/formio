@@ -18,7 +18,7 @@ package net.formio.render;
 
 import net.formio.Field;
 import net.formio.FormField;
-import net.formio.props.InlinePosition;
+import net.formio.props.types.InlinePosition;
 
 /**
  * Renders CSS styles of forms.
@@ -44,6 +44,9 @@ class StyleRenderer {
 			colInputWidth = Integer.valueOf(field.getParent().getConfig().getColInputWidth());
 		}
 		int colLabelWidth = field.getParent().getConfig().getColLabelWidth();
+		if (field.getProperties().getColLabelWidth() != null) {
+			colLabelWidth = field.getProperties().getColLabelWidth().intValue(); 
+		}
 		InlinePosition inlinePos = field.getProperties().getInline();
 		StringBuilder sb = new StringBuilder();
 		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);

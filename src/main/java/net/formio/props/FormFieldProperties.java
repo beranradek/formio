@@ -16,6 +16,8 @@
  */
 package net.formio.props;
 
+import net.formio.props.types.InlinePosition;
+
 /**
  * Definable properties of form field.
  * These properties contain typical accessibility flags like required, enabled, readonly, visible

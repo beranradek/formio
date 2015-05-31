@@ -119,6 +119,11 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
+	public Integer getColLabelWidth() {
+		return getProperty(FormElementProperty.COL_LABEL_WIDTH);
+	}
+	
+	@Override
 	public HeterogMap<String> getHeterogMap() {
 		return this.properties;
 	}
