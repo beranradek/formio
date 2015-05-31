@@ -193,7 +193,18 @@ public class TdiResponseBuilder {
 	}
 	
 	/**
-	 * Adds redirect instruction to AJAX response. 
+	 * Adds reload page instruction to AJAX response.
+	 * This instruction should be the last in the response. No further instruction will be performed. 
+	 * @return
+	 */
+	public TdiResponseBuilder reload() {
+		instructions.add("<reload></reload>" + newLine());
+		return this;
+	}
+	
+	/**
+	 * Adds redirect instruction to AJAX response.
+	 * This instruction should be the last in the response. No further instruction will be performed. 
 	 * @param url
 	 * @return
 	 */
