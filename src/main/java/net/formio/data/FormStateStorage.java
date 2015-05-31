@@ -28,4 +28,6 @@ public interface FormStateStorage<T> {
 	T findFormState(RequestParams requestParams);
 	
 	void saveFormState(RequestParams requestParams, T formState);
+	
+	void deleteFormState(RequestParams requestParams);
 }
