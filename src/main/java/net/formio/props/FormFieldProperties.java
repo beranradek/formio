@@ -55,4 +55,10 @@ public interface FormFieldProperties extends FormProperties {
 	 * @return
 	 */
 	Integer getColInputWidth();
+	
+	/**
+	 * Returns message for confirmation of form field activation (e.g. a button confirm message).
+	 * @return
+	 */
+	String getConfirmMessage();
 }

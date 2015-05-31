@@ -210,10 +210,6 @@ public class FieldProps<T> implements Serializable {
 		return property(FormElementProperty.DATA_RELATED_ANCESTOR, dataRelatedAncestor);
 	}
 	
-	public FieldProps<T> dataConfirm(String dataConfirm) {
-		return property(FormElementProperty.DATA_CONFIRM, dataConfirm);
-	}
-	
 	public FieldProps<T> placeholder(String placeholderText) {
 		return property(FormElementProperty.PLACEHOLDER, placeholderText);
 	}
@@ -266,6 +262,15 @@ public class FieldProps<T> implements Serializable {
 	 */
 	public FieldProps<T> colLabelWidth(int width) {
 		return property(FormElementProperty.COL_LABEL_WIDTH, Integer.valueOf(width));
+	}
+	
+	/**
+	 * Sets the confirmation message.
+	 * @param msg
+	 * @return
+	 */
+	public FieldProps<T> confirmMessage(String msg) {
+		return property(FormElementProperty.CONFIRM_MESSAGE, msg);
 	}
 	
 	// only for internal usage

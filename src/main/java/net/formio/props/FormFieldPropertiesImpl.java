@@ -68,4 +68,9 @@ public class FormFieldPropertiesImpl extends FormPropertiesImpl implements FormF
 	public Integer getColInputWidth() {
 		return getProperty(FormElementProperty.COL_INPUT_WIDTH);
 	}
+	
+	@Override
+	public String getConfirmMessage() {
+		return getProperty(FormElementProperty.CONFIRM_MESSAGE);
+	}
 }

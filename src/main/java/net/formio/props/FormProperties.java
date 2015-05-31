@@ -88,13 +88,6 @@ public interface FormProperties {
 	String getDataRelatedAncestor();
 	
 	/**
-	 * Confirm message. It allows confirming or rejecting of a TDI action. In case of rejection 
-	 * no TDI request will be sent to the server.
-	 * @return
-	 */
-	String getDataConfirm();
-	
-	/**
 	 * Returns true if this form field of mapping is not attached to underlying property of form data object
 	 * (it is not filled nor bound).
 	 * @return

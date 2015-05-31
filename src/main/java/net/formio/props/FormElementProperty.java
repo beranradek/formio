@@ -81,7 +81,6 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<HandledJsEvent[]> DATA_AJAX_ACTIONS = register(new FormElementProperty<HandledJsEvent[]>("dataAjaxActions", HandledJsEvent[].class, EMPTY_EVENT_TO_ACTIONS));	
 	public static final FormElementProperty<String> DATA_RELATED_ELEMENT = register(new FormElementProperty<String>("dataRelatedElement", String.class, ""));
 	public static final FormElementProperty<String> DATA_RELATED_ANCESTOR = register(new FormElementProperty<String>("dataRelatedAncestor", String.class, ""));
-	public static final FormElementProperty<String> DATA_CONFIRM = register(new FormElementProperty<String>("dataConfirm", String.class, ""));
 	
 	// Render hints for which there are no convenience accessors or setters in builders
 	/** HTML multiple attribute. */
@@ -107,6 +106,10 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	
 	/** Render surrounding fieldset HTML element. */
 	public static final FormElementProperty<Boolean> FIELDSET_DISPLAYED = new FormElementProperty<Boolean>("fieldsetDisplayed", Boolean.class, null);
+	
+	/** Confirmation message that should be confirmed before the form field is activated (e.g. before an AJAX action should be performed).
+	 * Serves for both AJAX and non-AJAX actions. */
+	public static final FormElementProperty<String> CONFIRM_MESSAGE = new FormElementProperty<String>("confirmMessage", String.class, null);
 	
 	protected static <T> FormElementProperty<T> register(FormElementProperty<T> prop) {
 		if (props.contains(prop)) {

@@ -517,7 +517,22 @@ public class BasicFormRenderer {
 	 * @return
 	 */
 	protected <T> String getElementAttributes(FormElement<T> element) {
-		return getAccessibilityAttributes(element) + getAjaxAttributes(element);
+		return getAccessibilityAttributes(element) + getAjaxAttributes(element) + getJsAttributes(element);
+	}
+	
+	protected <T> String getJsAttributes(FormElement<T> element) {
+		StringBuilder sb = new StringBuilder();
+		if (element.isEnabled()) {
+			if (element instanceof FormField<?>) {
+				FormField<?> field = (FormField<?>)element;
+				if (field.getProperties().getConfirmMessage() != null && !field.getProperties().getConfirmMessage().isEmpty()) {
+					if (field.getProperties().getDataAjaxActions() == null || field.getProperties().getDataAjaxActions().length == 0) {
+						sb.append(" onclick=\"return confirm('" + escapeHtml(field.getProperties().getConfirmMessage()) + "');\"");
+					}
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 	protected <T> String getAccessibilityAttributes(FormElement<T> element) {
@@ -546,14 +561,14 @@ public class BasicFormRenderer {
 					AjaxParams.SRC_ELEMENT_NAME, element.getName());
 				sb.append(" data-ajax-url=\"" + url + "\"");
 			}
+			if (field.getProperties().getDataAjaxActions() != null && field.getProperties().getDataAjaxActions().length > 0) {
+				sb.append(" data-confirm=\"" + field.getProperties().getConfirmMessage() + "\"");
+			}
 			if (field.getProperties().getDataRelatedElement() != null && !field.getProperties().getDataRelatedElement().isEmpty()) {
 				sb.append(" data-related-element=\"" + field.getProperties().getDataRelatedElement() + "\"");
 			}
 			if (field.getProperties().getDataRelatedAncestor() != null && !field.getProperties().getDataRelatedAncestor().isEmpty()) {
 				sb.append(" data-related-ancestor=\"" + field.getProperties().getDataRelatedAncestor() + "\"");
-			}
-			if (field.getProperties().getDataConfirm() != null && !field.getProperties().getDataConfirm().isEmpty()) {
-				sb.append(" data-confirm=\"" + field.getProperties().getDataConfirm() + "\"");
 			}
 		}
 		return sb.toString();

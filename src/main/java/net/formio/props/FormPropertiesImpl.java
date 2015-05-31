@@ -108,11 +108,6 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
-	public String getDataConfirm() {
-		return getProperty(FormElementProperty.DATA_CONFIRM);
-	}
-	
-	@Override
 	public boolean isDetached() {
 		Boolean b = getProperty(FormElementProperty.DETACHED);
 		return b != null && b.booleanValue();
