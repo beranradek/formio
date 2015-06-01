@@ -40,8 +40,8 @@ public final class DefaultTypedKey<K, V> extends AbstractTypedKey<K, V> {
 	
 	/**
 	 * Returns instance of identifier.
-	 * @param name
-	 * @param valueClass
+	 * @param key
+	 * @param cls
 	 * @return
 	 */
 	@SuppressWarnings("unchecked") // we know that inserted element contains Class<T>, so this cast is type-safe.
