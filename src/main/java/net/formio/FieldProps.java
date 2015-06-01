@@ -56,6 +56,7 @@ public class FieldProps<T> implements Serializable {
 	private FormFieldProperties formProperties = new FormFieldPropertiesImpl(FormElementProperty.createDefaultProperties());
 	List<T> filledObjects = new ArrayList<T>();
 	String strValue;
+	String labelKey;
 	int order;
 	List<Validator<T>> validators;
 	
@@ -271,6 +272,16 @@ public class FieldProps<T> implements Serializable {
 	 */
 	public FieldProps<T> confirmMessage(String msg) {
 		return property(FormElementProperty.CONFIRM_MESSAGE, msg);
+	}
+	
+	/**
+	 * Key for translation of the label.
+	 * @param labelKey
+	 * @return
+	 */
+	public FieldProps<T> labelKey(String labelKey) {
+		this.labelKey = labelKey;
+		return this;
 	}
 	
 	// only for internal usage

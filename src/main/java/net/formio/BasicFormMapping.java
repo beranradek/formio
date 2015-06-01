@@ -65,6 +65,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	final ValidationResult validationResult;
 	final FormMappingProperties formProperties;
 	final boolean secured;
+	final String labelKey;
 	final int order;
 	final Integer index;
 	
@@ -81,6 +82,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		this.instantiator = builder.instantiator;
 		this.filledObject = builder.filledObject;
 		this.secured = builder.secured;
+		this.labelKey = builder.labelKey;
 		this.validationResult = builder.validationResult;
 		this.formProperties = new FormMappingPropertiesImpl(builder.properties);
 		this.order = builder.order;
@@ -341,7 +343,11 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 
 	@Override
 	public String getLabelKey() {
-		return FormUtils.labelKeyForName(getName());
+		String key = labelKey;
+		if (key == null) {
+			key = FormUtils.labelKeyForName(getName());
+		}
+		return key;
 	}
 	
 	/**

@@ -22,6 +22,7 @@ import net.formio.FormElement;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.common.BundleMessageTranslator;
+import net.formio.common.IdentityMessageTranslator;
 import net.formio.common.MessageTranslator;
 
 /**
@@ -104,8 +105,14 @@ public class RenderUtils {
 	 * @return
 	 */
 	public static <T> MessageTranslator getMessageTranslator(FormElement<T> element, Locale locale) {
+		MessageTranslator tr = null;
 		FormMapping<?> rootMapping = element.getRoot();
-		return new BundleMessageTranslator(element.getParent().getDataClass(), locale, rootMapping.getDataClass());
+		if (rootMapping == null) {
+			tr = new IdentityMessageTranslator();
+		} else {
+			tr = new BundleMessageTranslator(element.getParent().getDataClass(), locale, rootMapping.getDataClass());
+		}
+		return tr;
 	}
 	
 	private RenderUtils() {

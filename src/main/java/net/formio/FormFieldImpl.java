@@ -43,6 +43,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	private final ChoiceProvider<T> choiceProvider;
 	private final ChoiceRenderer<T> choiceRenderer;
 	private final String strValue;
+	private final String labelKey;
 	private final FormFieldProperties properties;
 	private final int order;
 
@@ -81,6 +82,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 		this.properties = new FormFieldPropertiesImpl(fieldProps.getFormProperties());
 		this.filledObjects = new ArrayList<T>(fieldProps.filledObjects);
 		this.strValue = fieldProps.strValue;
+		this.labelKey = fieldProps.labelKey;
 		this.order = order;
 	}
 	
@@ -131,7 +133,11 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	
 	@Override
 	public String getLabelKey() {
-		return FormUtils.labelKeyForName(getName());
+		String key = labelKey;
+		if (key == null) {
+			key = FormUtils.labelKeyForName(getName());
+		}
+		return key;
 	}
 	
 	@Override

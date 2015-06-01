@@ -65,6 +65,7 @@ public class BasicFormMappingBuilder<T> {
 	T filledObject;
 	boolean automatic;
 	boolean secured;
+	String labelKey;
 	HeterogMap<String> properties;
 	int order;
 	private int nextNestedElementOrder;
@@ -124,6 +125,16 @@ public class BasicFormMappingBuilder<T> {
 		if (secured) {
 			fieldForAuthToken();
 		}
+		return this;
+	}
+	
+	/**
+	 * Key for translation of the label.
+	 * @param labelKey
+	 * @return
+	 */
+	public BasicFormMappingBuilder<T> labelKey(String labelKey) {
+		this.labelKey = labelKey;
 		return this;
 	}
 	
