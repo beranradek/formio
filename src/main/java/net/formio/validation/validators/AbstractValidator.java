@@ -16,6 +16,14 @@
  */
 package net.formio.validation.validators;
 
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import net.formio.validation.Arg;
+import net.formio.validation.DefaultInterpolatedMessage;
+import net.formio.validation.InterpolatedMessage;
+import net.formio.validation.Severity;
 import net.formio.validation.Validator;
 
 /**
@@ -25,6 +33,29 @@ import net.formio.validation.Validator;
  * @param <T>
  */
 public abstract class AbstractValidator<T> implements Validator<T> {
+	
+	public InterpolatedMessage error(String elementName, String messageKey, Arg ... args) {
+		return message(elementName, Severity.ERROR, messageKey, args);
+	}
+	
+	public InterpolatedMessage warning(String elementName, String messageKey, Arg ... args) {
+		return message(elementName, Severity.WARNING, messageKey, args);
+	}
+	
+	public InterpolatedMessage info(String elementName, String messageKey, Arg ... args) {
+		return message(elementName, Severity.INFO, messageKey, args);
+	}
+
+	private InterpolatedMessage message(String elementName, Severity severity, String messageKey, Arg... args) {
+		Map<String, Serializable> argsMap = new LinkedHashMap<String, Serializable>();
+		if (args != null) {
+			for (Arg arg : args) {
+				argsMap.put(arg.getName(), arg.getValue());
+			}
+		}
+		return new DefaultInterpolatedMessage(elementName, severity, messageKey, argsMap);
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -16,33 +16,15 @@
  */
 package net.formio.validation.validators;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
 
 /**
- * Required (not null) validator.
  * @author Radek Beran
+ * @param <T>
  */
-public class RequiredValidator<T> extends AbstractValidator<T> {
-	
-	private static final RequiredValidator<?> INSTANCE = new RequiredValidator<Object>();
-	
-	public static <U> RequiredValidator<U> getInstance() {
-		return (RequiredValidator<U>)INSTANCE;
-	}
+public class TestValidationContext<T> extends ValidationContext<T> {
 
-	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<T> ctx) {
-		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
-		boolean valid = ctx.getValidatedValue() != null;
-		if (!valid) {
-			msgs.add(error(ctx.getElementName(), "{" + NotNull.class.getName() + ".message}"));
-		}
-		return msgs;
+	public TestValidationContext(String elementName, T validatedValue) {
+		super(elementName, validatedValue);
 	}
 }

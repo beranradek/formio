@@ -16,32 +16,26 @@
  */
 package net.formio.validation;
 
+import java.io.Serializable;
 
 /**
- * Validation context with validated value.
+ * Argument.
  * @author Radek Beran
  */
-public class ValidationContext<T> {
-	private final String elementName;
-	private final T validatedValue;
-
-	protected ValidationContext(String elementName, T validatedValue) {
-		if (elementName == null) {
-			throw new IllegalArgumentException("elementName must be not null");
-		}
-		this.elementName = elementName;
-		this.validatedValue = validatedValue;
+public class Arg {
+	private final String name;
+	private final Serializable value;
+	
+	public Arg(String name, Serializable value) {
+		this.name = name;
+		this.value = value;
 	}
-
-	public String getElementName() {
-		return elementName;
+	
+	public String getName() {
+		return name;
 	}
-
-	/**
-	 * Value to validate (value bound to validated field/mapping).
-	 * @return
-	 */
-	public T getValidatedValue() {
-		return validatedValue;
+	
+	public Serializable getValue() {
+		return value;
 	}
 }

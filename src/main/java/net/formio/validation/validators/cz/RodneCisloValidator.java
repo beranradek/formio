@@ -14,34 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.validators;
+package net.formio.validation.validators.cz;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
+import net.formio.validation.constraints.cz.RodneCisloValidation;
+import net.formio.validation.validators.AbstractValidator;
 
 /**
- * Required (not null) validator.
+ * Czech national number ("Rodne cislo") validator.
  * @author Radek Beran
  */
-public class RequiredValidator<T> extends AbstractValidator<T> {
+public class RodneCisloValidator extends AbstractValidator<String> {
 	
-	private static final RequiredValidator<?> INSTANCE = new RequiredValidator<Object>();
+	private static final RodneCisloValidator INSTANCE = new RodneCisloValidator();
 	
-	public static <U> RequiredValidator<U> getInstance() {
-		return (RequiredValidator<U>)INSTANCE;
+	public static RodneCisloValidator getInstance() {
+		return INSTANCE;
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<T> ctx) {
+	public List<InterpolatedMessage> validate(ValidationContext<String> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
-		boolean valid = ctx.getValidatedValue() != null;
-		if (!valid) {
-			msgs.add(error(ctx.getElementName(), "{" + NotNull.class.getName() + ".message}"));
+		if (ctx.getValidatedValue() != null && !ctx.getValidatedValue().isEmpty()) {
+			if (!RodneCisloValidation.isRodneCislo(ctx.getValidatedValue())) {
+				msgs.add(error(ctx.getElementName(), "{constraints.RodneCislo.message}"));
+			}
 		}
 		return msgs;
 	}

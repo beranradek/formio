@@ -115,7 +115,7 @@ public class DefaultBeanValidator implements BeanValidator {
 				// validate also the root mapping (run global validators added to the root mapping itself) 
 				for (net.formio.validation.Validator<T> validator : mapping.getValidators()) {
 					allCustomMessages.addAll(validator.validate(
-						new ValidationContext<T>(mapping.getName(), mappingBoundValue)).getMessages());
+						new ValidationContext<T>(mapping.getName(), mappingBoundValue)));
 				}
 			}
 		}
@@ -208,7 +208,7 @@ public class DefaultBeanValidator implements BeanValidator {
 	private <T, U> List<InterpolatedMessage> validateFormElement(FormElement<T> element, T elementValue) {
 		List<InterpolatedMessage> messages = new ArrayList<InterpolatedMessage>();
 		for (net.formio.validation.Validator<T> validator : element.getValidators()) {
-			messages.addAll(validator.validate(new ValidationContext<T>(element.getName(), elementValue)).getMessages());
+			messages.addAll(validator.validate(new ValidationContext<T>(element.getName(), elementValue)));
 		}
 		return messages;
 	}

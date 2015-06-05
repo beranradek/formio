@@ -16,6 +16,8 @@
  */
 package net.formio.validation;
 
+import java.util.List;
+
 /**
  * Validator of form element.
  * @author Radek Beran
@@ -26,7 +28,7 @@ public interface Validator<T> {
 	/**
 	 * Validates value of form element and returns the result with validation messages.
 	 * @param ctx
-	 * @return
+	 * @return list of validation messages
 	 */
-	Validated<T> validate(ValidationContext<T> ctx);
+	List<InterpolatedMessage> validate(ValidationContext<T> ctx);
 }

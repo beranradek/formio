@@ -16,33 +16,32 @@
  */
 package net.formio.validation.validators;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
 
 /**
- * Required (not null) validator.
  * @author Radek Beran
  */
-public class RequiredValidator<T> extends AbstractValidator<T> {
-	
-	private static final RequiredValidator<?> INSTANCE = new RequiredValidator<Object>();
-	
-	public static <U> RequiredValidator<U> getInstance() {
-		return (RequiredValidator<U>)INSTANCE;
+public class ValidatorTest {
+	protected String getDefaultElementName() {
+		return "element-name";
 	}
-
-	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<T> ctx) {
-		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
-		boolean valid = ctx.getValidatedValue() != null;
-		if (!valid) {
-			msgs.add(error(ctx.getElementName(), "{" + NotNull.class.getName() + ".message}"));
-		}
-		return msgs;
+	
+	protected <T> ValidationContext<T> value(T value) {
+		return new TestValidationContext<T>(getDefaultElementName(), value);
+	}
+	
+	protected void assertValid(List<InterpolatedMessage> msgs) {
+		assertTrue("Messages should be empty", msgs.isEmpty());
+	}
+	
+	protected InterpolatedMessage assertInvalid(List<InterpolatedMessage> msgs) {
+		assertFalse("There should be validation message present", msgs.isEmpty());
+		return msgs.get(0);
 	}
 }

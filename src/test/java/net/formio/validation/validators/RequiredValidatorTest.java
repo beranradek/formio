@@ -16,33 +16,37 @@
  */
 package net.formio.validation.validators;
 
-import java.util.ArrayList;
+import static org.junit.Assert.*;
+
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
 import net.formio.validation.InterpolatedMessage;
-import net.formio.validation.ValidationContext;
+import net.formio.validation.Severity;
+
+import org.junit.Test;
 
 /**
- * Required (not null) validator.
  * @author Radek Beran
  */
-public class RequiredValidator<T> extends AbstractValidator<T> {
+public class RequiredValidatorTest extends ValidatorTest {
 	
-	private static final RequiredValidator<?> INSTANCE = new RequiredValidator<Object>();
+	private static final RequiredValidator<String> validator = RequiredValidator.getInstance();
+
+	@Test
+	public void testValid() {
+		assertValid(validator.validate(value("Peugeot")));
+	}
 	
-	public static <U> RequiredValidator<U> getInstance() {
-		return (RequiredValidator<U>)INSTANCE;
+	@Test
+	public void testInvalid() {
+		List<InterpolatedMessage> msgs = validator.validate(value((String)null));
+		InterpolatedMessage msg = assertInvalid(msgs);
+		assertEquals(value((String)null).getElementName(), msg.getElementName());
+		assertEquals(Severity.ERROR, msg.getSeverity());
+		assertTrue("Message arguments should be empty", msg.getMessageParameters().isEmpty());
+		assertEquals("{" + NotNull.class.getName() + ".message}", msg.getMessageKey());
 	}
 
-	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<T> ctx) {
-		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
-		boolean valid = ctx.getValidatedValue() != null;
-		if (!valid) {
-			msgs.add(error(ctx.getElementName(), "{" + NotNull.class.getName() + ".message}"));
-		}
-		return msgs;
-	}
 }
