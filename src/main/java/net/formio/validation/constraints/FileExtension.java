@@ -23,11 +23,13 @@ import net.formio.upload.UploadedFile;
 @Documented
 @Constraint(validatedBy = FileExtensionConstraintValidator.class)
 public @interface FileExtension {
+	
+	public static final String MESSAGE = "{constraints.FileExtension.message}";
 
 	/**
 	 * @return The error message template.
 	 */
-	String message() default "{constraints.FileExtension.message}";
+	String message() default MESSAGE;
 
 	/**
 	 * @return The groups the constraint belongs to.
