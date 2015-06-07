@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.validators.cz;
+package net.formio.validation.validators;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,34 +22,29 @@ import java.util.List;
 
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.Severity;
-import net.formio.validation.constraints.cz.RodneCislo;
-import net.formio.validation.validators.ValidatorTest;
+import net.formio.validation.constraints.Phone;
 
 import org.junit.Test;
 
-/** 
- * @author Radek Beran
- */
-public class RodneCisloValidatorTest extends ValidatorTest {
+public class PhoneValidatorTest extends ValidatorTest {
 	
-	private static final RodneCisloValidator validator = RodneCisloValidator.getInstance();
-
+	private static final PhoneValidator validator = PhoneValidator.getInstance();
+	
 	@Test
 	public void testValid() {
 		assertValid(validator.validate(value((String)null)));
 		assertValid(validator.validate(value("")));
-		assertValid(validator.validate(value("780123/3540"))); // valid even if not divisible by 11
-		assertValid(validator.validate(value("0531135099")));
-		assertValid(validator.validate(value("0681186066")));
+		assertValid(validator.validate(value("(305) 613 09 58 ext 101")));
+		assertValid(validator.validate(value("+420 728 90 80 70")));
 	}
 	
 	@Test
 	public void testInvalid() {
-		String invalidValue = "4w4w4qw";
+		String invalidValue = "12,34,56789";
 		List<InterpolatedMessage> msgs = validator.validate(value(invalidValue));
 		InterpolatedMessage msg = assertInvalid(msgs);
 		assertEquals(Severity.ERROR, msg.getSeverity());
-		assertEquals(RodneCislo.MESSAGE, msg.getMessageKey());
+		assertEquals(Phone.MESSAGE, msg.getMessageKey());
 		assertEquals(invalidValue, msg.getMessageParameters().get("value"));
 	}
 

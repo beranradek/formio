@@ -22,18 +22,18 @@ import java.util.List;
 import net.formio.validation.Arg;
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
-import net.formio.validation.constraints.Email;
-import net.formio.validation.constraints.EmailValidation;
+import net.formio.validation.constraints.Phone;
+import net.formio.validation.constraints.PhoneValidation;
 
 /**
- * E-mail address validator.
+ * General phone number validator.
  * @author Radek Beran
  */
-public class EmailValidator extends AbstractValidator<String> {
+public class PhoneValidator extends AbstractValidator<String> {
 	
-	private static final EmailValidator INSTANCE = new EmailValidator();
+	private static final PhoneValidator INSTANCE = new PhoneValidator();
 	
-	public static EmailValidator getInstance() {
+	public static PhoneValidator getInstance() {
 		return INSTANCE;
 	}
 
@@ -41,8 +41,8 @@ public class EmailValidator extends AbstractValidator<String> {
 	public List<InterpolatedMessage> validate(ValidationContext<String> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null && !ctx.getValidatedValue().isEmpty()) {
-			if (!EmailValidation.isEmail(ctx.getValidatedValue())) {
-				msgs.add(error(ctx.getElementName(), Email.MESSAGE, 
+			if (!PhoneValidation.isPhone(ctx.getValidatedValue())) {
+				msgs.add(error(ctx.getElementName(), Phone.MESSAGE, 
 					new Arg(VALUE_ARG, ctx.getValidatedValue())));
 			}
 		}

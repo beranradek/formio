@@ -22,6 +22,7 @@ import java.util.List;
 
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.Severity;
+import net.formio.validation.constraints.Email;
 
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class EmailValidatorTest extends ValidatorTest {
 		List<InterpolatedMessage> msgs = validator.validate(value(invalidValue));
 		InterpolatedMessage msg = assertInvalid(msgs);
 		assertEquals(Severity.ERROR, msg.getSeverity());
-		assertEquals("{constraints.Email.message}", msg.getMessageKey());
+		assertEquals(Email.MESSAGE, msg.getMessageKey());
 		assertEquals(invalidValue, msg.getMessageParameters().get("value"));
 	}
 

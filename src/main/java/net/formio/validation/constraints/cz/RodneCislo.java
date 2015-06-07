@@ -38,10 +38,12 @@ import javax.validation.Payload;
 @Constraint(validatedBy = RodneCisloConstraintValidator.class)
 public @interface RodneCislo {
 	
+	public static final String MESSAGE = "{constraints.RodneCislo.message}";
+	
 	/**
 	 * @return The error message template.
 	 */
-	String message() default "{constraints.RodneCislo.message}";
+	String message() default MESSAGE;
 
 	/**
 	 * @return The groups the constraint belongs to.
