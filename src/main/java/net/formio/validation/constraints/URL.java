@@ -41,10 +41,12 @@ import javax.validation.Payload;
 @Constraint(validatedBy = UrlConstraintValidator.class)
 public @interface URL {
 	
+	public static final String MESSAGE = "{constraints.URL.message}";
+	
 	/**
 	 * @return The error message template.
 	 */
-	String message() default "{constraints.URL.message}";
+	String message() default MESSAGE;
 
 	/**
 	 * @return The groups the constraint belongs to.
