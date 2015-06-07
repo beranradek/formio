@@ -41,6 +41,9 @@ public class RequiredValidatorTest extends ValidatorTest {
 	
 	@Test
 	public void testInvalid() {
+		assertInvalid(validator.validate(value("")));
+		assertInvalid(validator.validate(value(" ")));
+		
 		List<InterpolatedMessage> msgs = validator.validate(value((String)null));
 		InterpolatedMessage msg = assertInvalid(msgs);
 		assertEquals(value((String)null).getElementName(), msg.getElementName());

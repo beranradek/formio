@@ -14,41 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.validators.cz;
+package net.formio.validation.validators;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.Severity;
-import net.formio.validation.validators.ValidatorTest;
 
 import org.junit.Test;
 
-/** 
- * @author Radek Beran
- */
-public class RodneCisloValidatorTest extends ValidatorTest {
-	
-	private static final RodneCisloValidator validator = RodneCisloValidator.getInstance();
+public class EmailValidatorTest extends ValidatorTest {
+			
+	private static final EmailValidator validator = EmailValidator.getInstance();
 
 	@Test
 	public void testValid() {
 		assertValid(validator.validate(value((String)null)));
 		assertValid(validator.validate(value("")));
-		assertValid(validator.validate(value("780123/3540"))); // valid even if not divisible by 11
-		assertValid(validator.validate(value("0531135099")));
-		assertValid(validator.validate(value("0681186066")));
+		assertValid(validator.validate(value("jonh.smith@email.com")));
 	}
 	
 	@Test
 	public void testInvalid() {
-		String invalidValue = "4w4w4qw";
+		String invalidValue = "some-email.cz";
 		List<InterpolatedMessage> msgs = validator.validate(value(invalidValue));
 		InterpolatedMessage msg = assertInvalid(msgs);
 		assertEquals(Severity.ERROR, msg.getSeverity());
-		assertEquals("{constraints.RodneCislo.message}", msg.getMessageKey());
+		assertEquals("{constraints.Email.message}", msg.getMessageKey());
 		assertEquals(invalidValue, msg.getMessageParameters().get("value"));
 	}
 

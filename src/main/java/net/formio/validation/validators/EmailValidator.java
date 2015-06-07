@@ -19,33 +19,31 @@ package net.formio.validation.validators;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
+import net.formio.validation.Arg;
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
+import net.formio.validation.constraints.EmailValidation;
 
 /**
- * Required (not null) validator. If the validated value is a string,
- * string must be non empty.
+ * E-mail address validator.
  * @author Radek Beran
  */
-public class RequiredValidator<T> extends AbstractValidator<T> {
+public class EmailValidator extends AbstractValidator<String> {
 	
-	private static final RequiredValidator<?> INSTANCE = new RequiredValidator<Object>();
+	private static final EmailValidator INSTANCE = new EmailValidator();
 	
-	public static <U> RequiredValidator<U> getInstance() {
-		return (RequiredValidator<U>)INSTANCE;
+	public static EmailValidator getInstance() {
+		return INSTANCE;
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<T> ctx) {
+	public List<InterpolatedMessage> validate(ValidationContext<String> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
-		boolean valid = ctx.getValidatedValue() != null;
-		if (ctx.getValidatedValue() instanceof String) {
-			valid = !((String)ctx.getValidatedValue()).trim().isEmpty();
-		}
-		if (!valid) {
-			msgs.add(error(ctx.getElementName(), "{" + NotNull.class.getName() + ".message}"));
+		if (ctx.getValidatedValue() != null && !ctx.getValidatedValue().isEmpty()) {
+			if (!EmailValidation.isEmail(ctx.getValidatedValue())) {
+				msgs.add(error(ctx.getElementName(), "{constraints.Email.message}", 
+					new Arg(VALUE_ARG, ctx.getValidatedValue())));
+			}
 		}
 		return msgs;
 	}

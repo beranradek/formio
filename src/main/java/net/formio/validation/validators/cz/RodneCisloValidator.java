@@ -19,6 +19,7 @@ package net.formio.validation.validators.cz;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.formio.validation.Arg;
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
 import net.formio.validation.constraints.cz.RodneCisloValidation;
@@ -41,7 +42,8 @@ public class RodneCisloValidator extends AbstractValidator<String> {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null && !ctx.getValidatedValue().isEmpty()) {
 			if (!RodneCisloValidation.isRodneCislo(ctx.getValidatedValue())) {
-				msgs.add(error(ctx.getElementName(), "{constraints.RodneCislo.message}"));
+				msgs.add(error(ctx.getElementName(), "{constraints.RodneCislo.message}",
+					new Arg(VALUE_ARG, ctx.getValidatedValue())));
 			}
 		}
 		return msgs;
