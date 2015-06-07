@@ -19,9 +19,6 @@ package net.formio.validation.validators;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import net.formio.validation.Arg;
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
@@ -32,18 +29,12 @@ import net.formio.validation.ValidationContext;
  *
  * @param <T>
  */
-public class WholeNumberValidator<T extends Number> extends AbstractValidator<T> {
+public class WholeNumberValidator<T extends Number> extends AbstractNumberValidator<T> {
 	private final long min;
 	private final long max;
 	
 	static final long DEFAULT_MIN = Long.MIN_VALUE;
 	static final long DEFAULT_MAX = Long.MAX_VALUE;
-	static final String MIN_MSG = "{" + Min.class.getName() + ".message}";
-	static final String MAX_MSG = "{" + Max.class.getName() + ".message}";
-	static final String RANGE_MSG = "{constraints.Range.message}";
-	static final String VALUE_ARG = "value";
-	static final String MIN_ARG = "min";
-	static final String MAX_ARG = "max";
 	
 	public static <T extends Number> WholeNumberValidator<T> range(long min, long max) {
 		return new WholeNumberValidator<T>(min, max);

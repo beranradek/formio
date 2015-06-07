@@ -16,7 +16,7 @@
  */
 package net.formio.validation.validators;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.Severity;
 
@@ -25,55 +25,60 @@ import org.junit.Test;
 /**
  * @author Radek Beran
  */
-public class WholeNumberValidatorTest extends ValidatorTest {
+public class DoubleValidatorTest extends ValidatorTest {
 
 	@Test
 	public void testValidateRange() {
-		WholeNumberValidator<Integer> v = WholeNumberValidator.<Integer>range(2, 6);
-		assertValid(v.validate(value((Integer)null)));
-		assertValid(v.validate(value(Integer.valueOf(4))));
-		assertValid(v.validate(value(Integer.valueOf(2))));
-		assertValid(v.validate(value(Integer.valueOf(6))));
+		DoubleValidator v = DoubleValidator.range(2.5, 120.8);
+		assertValid(v.validate(value((Double)null)));
+		assertValid(v.validate(value(Double.valueOf(2.6))));
+		assertValid(v.validate(value(Double.valueOf(120.7))));
+		assertValid(v.validate(value(Double.valueOf(2.5))));
+		assertValid(v.validate(value(Double.valueOf(120.8))));
 		
-		InterpolatedMessage msg = assertInvalid(v.validate(value(Integer.valueOf(12))));
+		InterpolatedMessage msg = assertInvalid(v.validate(value(Double.valueOf(2.0))));
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(getDefaultElementName(), msg.getElementName());
 		assertEquals(AbstractNumberValidator.RANGE_MSG, msg.getMessageKey());
 		assertEquals(2, msg.getMessageParameters().size());
-		assertEquals(Long.valueOf(2), msg.getMessageParameters().get(AbstractNumberValidator.MIN_ARG));
-		assertEquals(Long.valueOf(6), msg.getMessageParameters().get(AbstractNumberValidator.MAX_ARG));
-		assertEquals(2L, v.getMin());
-		assertEquals(6L, v.getMax());
+		assertEquals(Double.valueOf(2.5), msg.getMessageParameters().get(AbstractNumberValidator.MIN_ARG));
+		assertEquals(Double.valueOf(120.8), msg.getMessageParameters().get(AbstractNumberValidator.MAX_ARG));
+		assertEquals(2.5, v.getMin(), 0.001);
+		assertEquals(120.8, v.getMax(), 0.001);
 	}
 	
 	@Test
 	public void testValidateMin() {
-		WholeNumberValidator<Long> v = WholeNumberValidator.<Long>min(1);
-		assertValid(v.validate(value((Long)null)));
-		assertValid(v.validate(value(Long.valueOf(3))));
-		assertValid(v.validate(value(Long.valueOf(1))));
+		DoubleValidator v = DoubleValidator.min(2.5);
+		assertValid(v.validate(value((Double)null)));
+		assertValid(v.validate(value(Double.valueOf(3))));
+		assertValid(v.validate(value(Double.valueOf(2.5))));
 		
-		InterpolatedMessage msg = assertInvalid(v.validate(value(Long.valueOf(0))));
+		assertInvalid(v.validate(value(Double.valueOf(2.499))));
+		InterpolatedMessage msg = assertInvalid(v.validate(value(Double.valueOf(2.4))));
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(getDefaultElementName(), msg.getElementName());
 		assertEquals(AbstractNumberValidator.MIN_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
-		assertEquals(Long.valueOf(1), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
+		assertEquals(Double.valueOf(2.5), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
 	}
 	
 	@Test
 	public void testValidateMax() {
-		WholeNumberValidator<Short> v = WholeNumberValidator.<Short>max(10);
-		assertValid(v.validate(value((Short)null)));
-		assertValid(v.validate(value(Short.valueOf("" + 3))));
-		assertValid(v.validate(value(Short.valueOf("" + 10))));
+		DoubleValidator v = DoubleValidator.max(50.33);
+		assertValid(v.validate(value((Double)null)));
+		assertValid(v.validate(value(Double.valueOf(3.4))));
+		assertValid(v.validate(value(Double.valueOf(10.1))));
+		assertValid(v.validate(value(Double.valueOf(50.32))));
+		assertValid(v.validate(value(Double.valueOf(50.33))));
 		
-		InterpolatedMessage msg = assertInvalid(v.validate(value(Short.valueOf("20"))));
+		assertInvalid(v.validate(value(Double.valueOf(50.333))));
+		InterpolatedMessage msg = assertInvalid(v.validate(value(Double.valueOf(50.34))));
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(getDefaultElementName(), msg.getElementName());
 		assertEquals(AbstractNumberValidator.MAX_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
-		assertEquals(Long.valueOf(10), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
+		assertEquals(Double.valueOf(50.33), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
 	}
 
 }

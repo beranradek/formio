@@ -49,6 +49,20 @@ public enum JsEvent {
 		this.eventName = eventName;
 	}
 	
+	public static JsEvent fromEventName(String eventName) {
+		JsEvent ev = null;
+		if (eventName != null) {
+			String evNameLc = eventName.toLowerCase();
+			for (JsEvent e : JsEvent.values()) {
+				if (e.getEventName().toLowerCase().equals(evNameLc)) {
+					ev = e;
+					break;
+				}
+			}
+		}
+		return ev;
+	}
+	
 	public String getEventName() {
 		return eventName;
 	}
