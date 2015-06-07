@@ -58,7 +58,7 @@ public class DoubleValidatorTest extends ValidatorTest {
 		InterpolatedMessage msg = assertInvalid(v.validate(value(Double.valueOf(2.4))));
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(getDefaultElementName(), msg.getElementName());
-		assertEquals(AbstractNumberValidator.MIN_MSG, msg.getMessageKey());
+		assertEquals(AbstractNumberValidator.DECIMAL_MIN_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
 		assertEquals(Double.valueOf(2.5), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
 	}
@@ -76,7 +76,7 @@ public class DoubleValidatorTest extends ValidatorTest {
 		InterpolatedMessage msg = assertInvalid(v.validate(value(Double.valueOf(50.34))));
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(getDefaultElementName(), msg.getElementName());
-		assertEquals(AbstractNumberValidator.MAX_MSG, msg.getMessageKey());
+		assertEquals(AbstractNumberValidator.DECIMAL_MAX_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
 		assertEquals(Double.valueOf(50.33), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
 	}

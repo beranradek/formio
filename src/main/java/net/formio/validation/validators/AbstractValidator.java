@@ -34,6 +34,8 @@ import net.formio.validation.Validator;
  */
 public abstract class AbstractValidator<T> implements Validator<T> {
 	
+	protected static final String VALUE_ARG = "value";
+	
 	public InterpolatedMessage error(String elementName, String messageKey, Arg ... args) {
 		return message(elementName, Severity.ERROR, messageKey, args);
 	}
@@ -54,27 +56,5 @@ public abstract class AbstractValidator<T> implements Validator<T> {
 			}
 		}
 		return new DefaultInterpolatedMessage(elementName, severity, messageKey, argsMap);
-	}
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + getClass().getName().hashCode();
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof Validator))
-			return false;
-		AbstractValidator<?> other = (AbstractValidator<?>) obj;
-		if (!getClass().getName().equals(other.getClass().getName()))
-			return false;
-		return true;
 	}
 }

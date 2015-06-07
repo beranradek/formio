@@ -70,10 +70,10 @@ public class DoubleValidator extends AbstractNumberValidator<Double> {
 				}
 			} else { 
 				if (v < min) {
-					msgs.add(error(ctx.getElementName(), MIN_MSG, new Arg(VALUE_ARG, Double.valueOf(min))));
+					msgs.add(error(ctx.getElementName(), DECIMAL_MIN_MSG, new Arg(VALUE_ARG, Double.valueOf(min))));
 				}
 				if (v > max) {
-					msgs.add(error(ctx.getElementName(), MAX_MSG, new Arg(VALUE_ARG, Double.valueOf(max))));
+					msgs.add(error(ctx.getElementName(), DECIMAL_MAX_MSG, new Arg(VALUE_ARG, Double.valueOf(max))));
 				}
 			}
 		}

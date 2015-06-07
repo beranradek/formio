@@ -66,7 +66,7 @@ public class BigDecimalValidatorTest extends ValidatorTest {
 		InterpolatedMessage msg = assertInvalid(v.validate(value(BigDecimal.valueOf(520, 2))));
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(getDefaultElementName(), msg.getElementName());
-		assertEquals(AbstractNumberValidator.MIN_MSG, msg.getMessageKey());
+		assertEquals(AbstractNumberValidator.DECIMAL_MIN_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
 		assertEquals(min, msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
 	}
@@ -85,7 +85,7 @@ public class BigDecimalValidatorTest extends ValidatorTest {
 		InterpolatedMessage msg = assertInvalid(v.validate(value(BigDecimal.valueOf(50.34))));
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(getDefaultElementName(), msg.getElementName());
-		assertEquals(AbstractNumberValidator.MAX_MSG, msg.getMessageKey());
+		assertEquals(AbstractNumberValidator.DECIMAL_MAX_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
 		assertEquals(max, msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
 	}

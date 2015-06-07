@@ -16,8 +16,11 @@
  */
 package net.formio.validation.validators;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 
 /**
  * Validates whether the number belongs to given range.
@@ -27,8 +30,9 @@ import javax.validation.constraints.Min;
 public abstract class AbstractNumberValidator<T extends Number> extends AbstractValidator<T> {
 	protected static final String MIN_MSG = "{" + Min.class.getName() + ".message}";
 	protected static final String MAX_MSG = "{" + Max.class.getName() + ".message}";
-	protected static final String RANGE_MSG = "{constraints.Range.message}";
-	protected static final String VALUE_ARG = "value";
+	protected static final String RANGE_MSG = "{" + Size.class.getName() + ".message}";
+	protected static final String DECIMAL_MIN_MSG = "{" + DecimalMin.class.getName() + ".message}";
+	protected static final String DECIMAL_MAX_MSG = "{" + DecimalMax.class.getName() + ".message}";
 	protected static final String MIN_ARG = "min";
 	protected static final String MAX_ARG = "max";
 }

@@ -68,10 +68,10 @@ public class BigDecimalValidator extends AbstractNumberValidator<BigDecimal> {
 				}
 			} else { 
 				if (min != null && v.compareTo(min) < 0) {
-					msgs.add(error(ctx.getElementName(), MIN_MSG, new Arg(VALUE_ARG, min)));
+					msgs.add(error(ctx.getElementName(), DECIMAL_MIN_MSG, new Arg(VALUE_ARG, min)));
 				}
 				if (max != null && v.compareTo(max) > 0) {
-					msgs.add(error(ctx.getElementName(), MAX_MSG, new Arg(VALUE_ARG, max)));
+					msgs.add(error(ctx.getElementName(), DECIMAL_MAX_MSG, new Arg(VALUE_ARG, max)));
 				}
 			}
 		}
