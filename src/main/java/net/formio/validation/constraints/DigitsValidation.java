@@ -25,9 +25,8 @@ import java.math.BigDecimal;
 public class DigitsValidation {
 
 	public static boolean isValid(Number num, int maxIntegerLength, int maxFractionLength) {
-		//null values are valid
 		if ( num == null ) {
-			return true;
+			return false;
 		}
 
 		BigDecimal bigNum = null;

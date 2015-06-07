@@ -18,24 +18,20 @@ package net.formio.validation.constraints;
 
 import static org.junit.Assert.*;
 
-import java.math.BigDecimal;
+import javax.validation.constraints.Pattern;
 
 import org.junit.Test;
 
-public class DigitsValidationTest {
+public class RegexValidationTest {
 
 	@Test
 	public void testIsValid() {
-		assertTrue(DigitsValidation.isValid(BigDecimal.valueOf(12345, 3), 2, 3));
-		assertTrue(DigitsValidation.isValid(BigDecimal.valueOf(12345, 2), 3, 3));
-		assertTrue(DigitsValidation.isValid(Double.valueOf(25.345), 2, 3));
-		assertTrue(DigitsValidation.isValid(Long.valueOf(34), 2, 3));
-		
-		assertFalse(DigitsValidation.isValid(null, 2, 3));
-		assertFalse(DigitsValidation.isValid(BigDecimal.valueOf(12345, 2), 2, 3));
-		assertFalse(DigitsValidation.isValid(BigDecimal.valueOf(12345, 4), 2, 3));
-		assertFalse(DigitsValidation.isValid(Double.valueOf(25.3456), 2, 3));
-		assertFalse(DigitsValidation.isValid(Long.valueOf(348), 2, 3));
+		String email = "JOHN.smith@email.com";
+		String myEmailPattern = "[a-z]+\\.[a-z]+@[a-z]+\\.[a-z]+";
+		assertTrue("Value is not valid", RegexValidation.isValid(email, myEmailPattern, Pattern.Flag.CASE_INSENSITIVE));
+		assertFalse("Value is valid", RegexValidation.isValid(null, myEmailPattern));
+		assertFalse("Value is valid", RegexValidation.isValid(email, myEmailPattern));
+		assertFalse("Value is valid", RegexValidation.isValid("some@mail", myEmailPattern));
 	}
 
 }
