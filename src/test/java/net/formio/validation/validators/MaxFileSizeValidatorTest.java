@@ -14,44 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.validators.cz;
+package net.formio.validation.validators;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-
+import net.formio.upload.RequestUploadedFile;
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.Severity;
-import net.formio.validation.constraints.cz.RodneCislo;
-import net.formio.validation.validators.AbstractValidator;
-import net.formio.validation.validators.ValidatorTest;
+import net.formio.validation.constraints.MaxFileSize;
 
 import org.junit.Test;
 
-/** 
+/**
  * @author Radek Beran
  */
-public class RodneCisloValidatorTest extends ValidatorTest {
-	
-	private static final RodneCisloValidator validator = RodneCisloValidator.getInstance();
+public class MaxFileSizeValidatorTest extends ValidatorTest {
 
 	@Test
 	public void testValid() {
-		assertValid(validator.validate(value((String)null)));
-		assertValid(validator.validate(value("")));
-		assertValid(validator.validate(value("780123/3540"))); // valid even if not divisible by 11
-		assertValid(validator.validate(value("0531135099")));
-		assertValid(validator.validate(value("0681186066")));
+		MaxFileSizeValidator validator = MaxFileSizeValidator.getInstance("50MB");
+		assertValid(validator.validate(value(new RequestUploadedFile("document.xml", "application/xml", 52428800, null))));
+		assertValid(validator.validate(value(new RequestUploadedFile("document.json", "application/json", 45, null))));
 	}
 	
 	@Test
 	public void testInvalid() {
-		String invalidValue = "4w4w4qw";
-		List<InterpolatedMessage> msgs = validator.validate(value(invalidValue));
-		InterpolatedMessage msg = assertInvalid(msgs);
+		MaxFileSizeValidator validator = MaxFileSizeValidator.getInstance("50MB");
+		assertInvalid(validator.validate(value(new RequestUploadedFile("document.xml", "application/xml", 52428801, null))));
+		InterpolatedMessage msg = assertInvalid(validator.validate(value(new RequestUploadedFile("document.json", "application/json", 62428802, null))));
 		assertEquals(Severity.ERROR, msg.getSeverity());
-		assertEquals(RodneCislo.MESSAGE, msg.getMessageKey());
-		assertEquals(invalidValue, msg.getMessageParameters().get(AbstractValidator.CURRENT_VALUE_ARG));
+		assertEquals(MaxFileSize.MESSAGE, msg.getMessageKey());
+		assertEquals("50MB", msg.getMessageParameters().get(MaxFileSizeValidator.MAX_ARG));
 	}
 
 }

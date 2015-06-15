@@ -38,9 +38,10 @@ public class RegexValidatorTest extends ValidatorTest {
 		InterpolatedMessage msg = assertInvalid(validator.validate(value(invalidValue)));
 		assertEquals(value((String)null).getElementName(), msg.getElementName());
 		assertEquals(Severity.ERROR, msg.getSeverity());
-		assertEquals(2, msg.getMessageParameters().size());
-		assertEquals(invalidValue, msg.getMessageParameters().get(AbstractValidator.VALUE_ARG));
+		assertEquals(3, msg.getMessageParameters().size());
+		assertEquals(invalidValue, msg.getMessageParameters().get(AbstractValidator.CURRENT_VALUE_ARG));
 		assertEquals(myEmailPattern, msg.getMessageParameters().get(RegexValidator.REGEXP_ARG));
+		assertEquals(Pattern.Flag.CASE_INSENSITIVE, ((Pattern.Flag[])msg.getMessageParameters().get(RegexValidator.FLAGS_ARG))[0]);
 		assertEquals("{" + Pattern.class.getName() + ".message}", msg.getMessageKey());
 		assertEquals(myEmailPattern, validator.getRegexp());
 		assertEquals(1, validator.getPatternFlags().length);

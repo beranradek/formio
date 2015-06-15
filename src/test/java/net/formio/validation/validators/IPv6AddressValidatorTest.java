@@ -14,44 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.validators.cz;
+package net.formio.validation.validators;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.Severity;
-import net.formio.validation.constraints.cz.RodneCislo;
-import net.formio.validation.validators.AbstractValidator;
-import net.formio.validation.validators.ValidatorTest;
+import net.formio.validation.constraints.IPv6Address;
 
 import org.junit.Test;
 
-/** 
- * @author Radek Beran
- */
-public class RodneCisloValidatorTest extends ValidatorTest {
-	
-	private static final RodneCisloValidator validator = RodneCisloValidator.getInstance();
+public class IPv6AddressValidatorTest extends ValidatorTest {
 
 	@Test
 	public void testValid() {
+		IPv6AddressValidator validator = IPv6AddressValidator.getInstance();
 		assertValid(validator.validate(value((String)null)));
 		assertValid(validator.validate(value("")));
-		assertValid(validator.validate(value("780123/3540"))); // valid even if not divisible by 11
-		assertValid(validator.validate(value("0531135099")));
-		assertValid(validator.validate(value("0681186066")));
+		assertValid(validator.validate(value("fe80::84e7:d5ca:3a25:428e%3")));
+		assertValid(validator.validate(value("2001:0:9d38:90d7:3492:1a70:a698:f57f")));
 	}
 	
 	@Test
 	public void testInvalid() {
-		String invalidValue = "4w4w4qw";
-		List<InterpolatedMessage> msgs = validator.validate(value(invalidValue));
-		InterpolatedMessage msg = assertInvalid(msgs);
+		IPv6AddressValidator validator = IPv6AddressValidator.getInstance();
+		assertInvalid(validator.validate(value("255.255.255.255")));
+		InterpolatedMessage msg = assertInvalid(validator.validate(value("1a:2b:3c:4d")));
 		assertEquals(Severity.ERROR, msg.getSeverity());
-		assertEquals(RodneCislo.MESSAGE, msg.getMessageKey());
-		assertEquals(invalidValue, msg.getMessageParameters().get(AbstractValidator.CURRENT_VALUE_ARG));
+		assertEquals(IPv6Address.MESSAGE, msg.getMessageKey());
 	}
-
+	
 }

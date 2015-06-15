@@ -24,10 +24,13 @@ import javax.validation.Payload;
 @Documented
 @Constraint(validatedBy = MaxFileSizeConstraintValidator.class)
 public @interface MaxFileSize {
+	
+	public static final String MESSAGE = "{constraints.MaxFileSize.message}"; 
+	
 	/**
 	 * @return The error message template.
 	 */
-	String message() default "{constraints.MaxFileSize.message}";
+	String message() default MESSAGE;
 
 	/**
 	 * @return The groups the constraint belongs to.

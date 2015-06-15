@@ -58,7 +58,7 @@ public class BigDecimalValidator extends AbstractNumberValidator<BigDecimal> {
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<BigDecimal> ctx) {
+	public <U extends BigDecimal> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null) {
 			BigDecimal v = ctx.getValidatedValue();

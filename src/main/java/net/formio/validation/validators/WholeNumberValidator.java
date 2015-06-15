@@ -62,7 +62,7 @@ public class WholeNumberValidator<T extends Number> extends AbstractNumberValida
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<T> ctx) {
+	public <U extends T> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null) {
 			double d = ctx.getValidatedValue().doubleValue();

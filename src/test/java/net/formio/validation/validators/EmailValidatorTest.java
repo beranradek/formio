@@ -44,7 +44,7 @@ public class EmailValidatorTest extends ValidatorTest {
 		InterpolatedMessage msg = assertInvalid(msgs);
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(Email.MESSAGE, msg.getMessageKey());
-		assertEquals(invalidValue, msg.getMessageParameters().get("value"));
+		assertEquals(invalidValue, msg.getMessageParameters().get(AbstractValidator.CURRENT_VALUE_ARG));
 	}
 
 }

@@ -39,7 +39,7 @@ public class DigitsValidatorTest extends ValidatorTest {
 		assertEquals(value((String)null).getElementName(), msg.getElementName());
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(3, msg.getMessageParameters().size());
-		assertEquals(v, msg.getMessageParameters().get(AbstractValidator.VALUE_ARG));
+		assertEquals(v, msg.getMessageParameters().get(AbstractValidator.CURRENT_VALUE_ARG));
 		assertEquals(Integer.valueOf(3), msg.getMessageParameters().get(DigitsValidator.INTEGER_ARG));
 		assertEquals(Integer.valueOf(2), msg.getMessageParameters().get(DigitsValidator.FRACTION_ARG));
 		assertEquals("{" + Digits.class.getName() + ".message}", msg.getMessageKey());

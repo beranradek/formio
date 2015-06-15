@@ -14,44 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.validators.cz;
+package net.formio.validation.validators;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.Severity;
-import net.formio.validation.constraints.cz.RodneCislo;
-import net.formio.validation.validators.AbstractValidator;
-import net.formio.validation.validators.ValidatorTest;
+import net.formio.validation.constraints.IPv4Address;
 
 import org.junit.Test;
 
-/** 
- * @author Radek Beran
- */
-public class RodneCisloValidatorTest extends ValidatorTest {
-	
-	private static final RodneCisloValidator validator = RodneCisloValidator.getInstance();
+public class IPv4AddressValidatorTest extends ValidatorTest {
 
 	@Test
 	public void testValid() {
-		assertValid(validator.validate(value((String)null)));
-		assertValid(validator.validate(value("")));
-		assertValid(validator.validate(value("780123/3540"))); // valid even if not divisible by 11
-		assertValid(validator.validate(value("0531135099")));
-		assertValid(validator.validate(value("0681186066")));
+		IPv4AddressValidator validator = IPv4AddressValidator.getInstance();
+		assertValid(validator.validate(value("127.0.0.1")));
+		assertValid(validator.validate(value("255.255.255.255")));
 	}
 	
 	@Test
 	public void testInvalid() {
-		String invalidValue = "4w4w4qw";
-		List<InterpolatedMessage> msgs = validator.validate(value(invalidValue));
-		InterpolatedMessage msg = assertInvalid(msgs);
+		IPv4AddressValidator validator = IPv4AddressValidator.getInstance();
+		InterpolatedMessage msg = assertInvalid(validator.validate(value("123.123.123")));
 		assertEquals(Severity.ERROR, msg.getSeverity());
-		assertEquals(RodneCislo.MESSAGE, msg.getMessageKey());
-		assertEquals(invalidValue, msg.getMessageParameters().get(AbstractValidator.CURRENT_VALUE_ARG));
+		assertEquals(IPv4Address.MESSAGE, msg.getMessageKey());
 	}
 
 }

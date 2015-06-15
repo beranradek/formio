@@ -48,12 +48,12 @@ public class DigitsValidator<T extends Number> extends AbstractValidator<T> {
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<T> ctx) {
+	public <U extends T> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null) {
 			if (!DigitsValidation.isValid(ctx.getValidatedValue(), maxIntegerLength, maxFractionLength)) {
 				msgs.add(error(ctx.getElementName(), "{" + Digits.class.getName() + ".message}",
-					new Arg(VALUE_ARG, ctx.getValidatedValue()), 
+					new Arg(CURRENT_VALUE_ARG, ctx.getValidatedValue()), 
 					new Arg(INTEGER_ARG, Integer.valueOf(maxIntegerLength)), 
 					new Arg(FRACTION_ARG, Integer.valueOf(maxFractionLength))));
 			}

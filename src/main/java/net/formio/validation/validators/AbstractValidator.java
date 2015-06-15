@@ -34,7 +34,8 @@ import net.formio.validation.Validator;
  */
 public abstract class AbstractValidator<T> implements Validator<T> {
 	
-	protected static final String VALUE_ARG = "value";
+	public static final String VALUE_ARG = "value";
+	public static final String CURRENT_VALUE_ARG = "currentValue";
 	
 	public InterpolatedMessage error(String elementName, String messageKey, Arg ... args) {
 		return message(elementName, Severity.ERROR, messageKey, args);

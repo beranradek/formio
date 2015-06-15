@@ -33,6 +33,7 @@ import net.formio.validation.constraints.RegexValidation;
 public class RegexValidator extends AbstractValidator<String> {
 	
 	protected static final String REGEXP_ARG = "regexp";
+	protected static final String FLAGS_ARG = "flags";
 	
 	private final String regexp;
 	private final Pattern.Flag[] patternFlags;
@@ -47,13 +48,14 @@ public class RegexValidator extends AbstractValidator<String> {
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<String> ctx) {
+	public <U extends String> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null) {
 			if (!RegexValidation.isValid(ctx.getValidatedValue(), regexp, patternFlags)) {
 				msgs.add(error(ctx.getElementName(), "{" + Pattern.class.getName() + ".message}",
-					new Arg(VALUE_ARG, ctx.getValidatedValue()), 
-					new Arg(REGEXP_ARG, regexp)));
+					new Arg(CURRENT_VALUE_ARG, ctx.getValidatedValue()), 
+					new Arg(REGEXP_ARG, regexp),
+					new Arg(FLAGS_ARG, patternFlags)));
 			}
 		}
 		return msgs;

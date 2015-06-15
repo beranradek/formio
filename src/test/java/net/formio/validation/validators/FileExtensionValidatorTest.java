@@ -44,7 +44,7 @@ public class FileExtensionValidatorTest extends ValidatorTest {
 		InterpolatedMessage msg = assertInvalid(msgs);
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(FileExtension.MESSAGE, msg.getMessageKey());
-		assertEquals(invalidValue, msg.getMessageParameters().get("value"));
+		assertEquals(invalidValue, msg.getMessageParameters().get(AbstractValidator.CURRENT_VALUE_ARG));
 		assertEquals("doc, xls", msg.getMessageParameters().get(FileExtensionValidator.ALLOWED_EXTENSIONS_ARG));
 	}
 

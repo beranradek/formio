@@ -38,12 +38,12 @@ public class PhoneValidator extends AbstractValidator<String> {
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<String> ctx) {
+	public <U extends String> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null && !ctx.getValidatedValue().isEmpty()) {
 			if (!PhoneValidation.isPhone(ctx.getValidatedValue())) {
 				msgs.add(error(ctx.getElementName(), Phone.MESSAGE, 
-					new Arg(VALUE_ARG, ctx.getValidatedValue())));
+					new Arg(CURRENT_VALUE_ARG, ctx.getValidatedValue())));
 			}
 		}
 		return msgs;

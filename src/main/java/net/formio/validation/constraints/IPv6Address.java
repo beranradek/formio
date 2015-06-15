@@ -39,10 +39,12 @@ import javax.validation.Payload;
 @Constraint(validatedBy = IPv6AddressConstraintValidator.class)
 public @interface IPv6Address {
 	
+	public static final String MESSAGE = "{constraints.IPv6Address.message}";
+	
 	/**
 	 * @return The error message template.
 	 */
-	String message() default "{constraints.IPv6Address.message}";
+	String message() default MESSAGE;
 
 	/**
 	 * @return The groups the constraint belongs to.

@@ -47,12 +47,12 @@ public class FileExtensionValidator extends AbstractValidator<String> {
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<String> ctx) {
+	public <U extends String> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null && !ctx.getValidatedValue().isEmpty()) {
 			if (!FileExtensionValidation.hasFileExtension(ctx.getValidatedValue(), allowedExtensions, ignoreCase)) {
 				msgs.add(error(ctx.getElementName(), FileExtension.MESSAGE, 
-					new Arg(VALUE_ARG, ctx.getValidatedValue()),
+					new Arg(CURRENT_VALUE_ARG, ctx.getValidatedValue()),
 					new Arg(ALLOWED_EXTENSIONS_ARG, extensionsToString(allowedExtensions))));
 			}
 		}

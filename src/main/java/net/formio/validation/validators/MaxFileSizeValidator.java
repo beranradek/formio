@@ -14,39 +14,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.validators.cz;
+package net.formio.validation.validators;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.formio.upload.UploadedFile;
 import net.formio.validation.Arg;
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
-import net.formio.validation.constraints.cz.RodneCislo;
-import net.formio.validation.constraints.cz.RodneCisloValidation;
-import net.formio.validation.validators.AbstractValidator;
+import net.formio.validation.constraints.MaxFileSize;
+import net.formio.validation.constraints.MaxFileSizeValidation;
 
 /**
- * Czech national number ("Rodne cislo") validator.
+ * Maximum file size validator.
  * @author Radek Beran
  */
-public class RodneCisloValidator extends AbstractValidator<String> {
+public class MaxFileSizeValidator extends AbstractValidator<UploadedFile> {
 	
-	private static final RodneCisloValidator INSTANCE = new RodneCisloValidator();
+	protected static final String MAX_ARG = "max";
+	private final String maxFileSizeStr;
 	
-	public static RodneCisloValidator getInstance() {
-		return INSTANCE;
+	/**
+	 * @param maxFileSizeStr Max file size e.g. "2MB", "1.2GB"
+	 * @return
+	 */
+	public static MaxFileSizeValidator getInstance(String maxFileSizeStr) {
+		return new MaxFileSizeValidator(maxFileSizeStr); 
+	}
+	
+	private MaxFileSizeValidator(String maxFileSizeStr) {
+		this.maxFileSizeStr = maxFileSizeStr;
 	}
 
 	@Override
-	public <U extends String> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
+	public <U extends UploadedFile> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
-		if (ctx.getValidatedValue() != null && !ctx.getValidatedValue().isEmpty()) {
-			if (!RodneCisloValidation.isRodneCislo(ctx.getValidatedValue())) {
-				msgs.add(error(ctx.getElementName(), RodneCislo.MESSAGE,
-					new Arg(CURRENT_VALUE_ARG, ctx.getValidatedValue())));
+		if (ctx.getValidatedValue() != null) {
+			if (!MaxFileSizeValidation.isValid(ctx.getValidatedValue().getSize(), maxFileSizeStr)) {
+				msgs.add(error(ctx.getElementName(), MaxFileSize.MESSAGE, 
+					new Arg(MAX_ARG, maxFileSizeStr)));
 			}
 		}
 		return msgs;
+	}
+	
+	public String getMaxFileSizeStr() {
+		return maxFileSizeStr;
 	}
 }

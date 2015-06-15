@@ -38,7 +38,7 @@ public class RequiredValidator<T> extends AbstractValidator<T> {
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<T> ctx) {
+	public <U extends T> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		boolean valid = ctx.getValidatedValue() != null;
 		if (ctx.getValidatedValue() instanceof String) {

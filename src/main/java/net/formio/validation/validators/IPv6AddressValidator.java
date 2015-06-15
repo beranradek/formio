@@ -14,27 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.validation.validators.cz;
+package net.formio.validation.validators;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.formio.validation.Arg;
 import net.formio.validation.InterpolatedMessage;
 import net.formio.validation.ValidationContext;
-import net.formio.validation.constraints.cz.RodneCislo;
-import net.formio.validation.constraints.cz.RodneCisloValidation;
-import net.formio.validation.validators.AbstractValidator;
+import net.formio.validation.constraints.IPv6Address;
+import net.formio.validation.constraints.IPv6AddressValidation;
 
 /**
- * Czech national number ("Rodne cislo") validator.
+ * IPv6 address validator.
  * @author Radek Beran
  */
-public class RodneCisloValidator extends AbstractValidator<String> {
+public class IPv6AddressValidator extends AbstractValidator<String> {
 	
-	private static final RodneCisloValidator INSTANCE = new RodneCisloValidator();
+	private static final IPv6AddressValidator INSTANCE = new IPv6AddressValidator(); 
 	
-	public static RodneCisloValidator getInstance() {
+	public static IPv6AddressValidator getInstance() {
 		return INSTANCE;
 	}
 
@@ -42,9 +40,8 @@ public class RodneCisloValidator extends AbstractValidator<String> {
 	public <U extends String> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null && !ctx.getValidatedValue().isEmpty()) {
-			if (!RodneCisloValidation.isRodneCislo(ctx.getValidatedValue())) {
-				msgs.add(error(ctx.getElementName(), RodneCislo.MESSAGE,
-					new Arg(CURRENT_VALUE_ARG, ctx.getValidatedValue())));
+			if (!IPv6AddressValidation.isIPv6Address(ctx.getValidatedValue())) {
+				msgs.add(error(ctx.getElementName(), IPv6Address.MESSAGE));
 			}
 		}
 		return msgs;

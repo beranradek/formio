@@ -45,7 +45,7 @@ public class PhoneValidatorTest extends ValidatorTest {
 		InterpolatedMessage msg = assertInvalid(msgs);
 		assertEquals(Severity.ERROR, msg.getSeverity());
 		assertEquals(Phone.MESSAGE, msg.getMessageKey());
-		assertEquals(invalidValue, msg.getMessageParameters().get("value"));
+		assertEquals(invalidValue, msg.getMessageParameters().get(AbstractValidator.CURRENT_VALUE_ARG));
 	}
 
 }

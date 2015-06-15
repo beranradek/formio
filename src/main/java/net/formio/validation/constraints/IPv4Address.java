@@ -39,10 +39,12 @@ import javax.validation.Payload;
 @Constraint(validatedBy = IPv4AddressConstraintValidator.class)
 public @interface IPv4Address {
 	
+	public static final String MESSAGE = "{constraints.IPv4Address.message}";
+	
 	/**
 	 * @return The error message template.
 	 */
-	String message() default "{constraints.IPv4Address.message}";
+	String message() default MESSAGE;
 
 	/**
 	 * @return The groups the constraint belongs to.

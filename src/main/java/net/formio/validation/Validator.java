@@ -30,5 +30,5 @@ public interface Validator<T> {
 	 * @param ctx
 	 * @return list of validation messages
 	 */
-	List<InterpolatedMessage> validate(ValidationContext<T> ctx);
+	<U extends T> List<InterpolatedMessage> validate(ValidationContext<U> ctx);
 }

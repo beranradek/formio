@@ -60,7 +60,7 @@ public class DoubleValidator extends AbstractNumberValidator<Double> {
 	}
 
 	@Override
-	public List<InterpolatedMessage> validate(ValidationContext<Double> ctx) {
+	public <U extends Double> List<InterpolatedMessage> validate(ValidationContext<U> ctx) {
 		List<InterpolatedMessage> msgs = new ArrayList<InterpolatedMessage>();
 		if (ctx.getValidatedValue() != null) {
 			double v = ctx.getValidatedValue().doubleValue();
