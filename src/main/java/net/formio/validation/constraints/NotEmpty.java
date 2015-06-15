@@ -42,7 +42,9 @@ import javax.validation.Payload;
 @Documented
 @Constraint(validatedBy = NotEmptyConstraintValidator.class)
 public @interface NotEmpty {
-	String message() default "{constraints.NotEmpty.message}";
+	public static final String MESSAGE = "{constraints.NotEmpty.message}";
+	
+	String message() default MESSAGE;
 
 	Class<?>[] groups() default { };
 
