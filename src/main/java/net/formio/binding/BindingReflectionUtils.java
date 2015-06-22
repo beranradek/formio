@@ -21,6 +21,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Reflection utilities for binding purposes.
@@ -49,14 +52,14 @@ public final class BindingReflectionUtils {
 			if (c instanceof RuntimeException) throw (RuntimeException) c;
 			if (c instanceof Error) throw (Error) c;
 			if (c != null)
-				throw new BindingException("Instantiating failed when binding using constructor " + constructor + ": " + c.getMessage(), c);
-			throw new BindingException("Instantiating failed when binding using constructor " + constructor + ": " + ex.getMessage(), ex);
+				throw new BindingException("Instantiating failed when binding using constructor " + constructor + " and arguments for constructor " + asList(args) + ": " + c.getMessage(), c);
+			throw new BindingException("Instantiating failed when binding using constructor " + constructor + " and arguments for constructor " + asList(args) + ": " + ex.getMessage(), ex);
 		} catch (InstantiationException ex) {
-			throw new BindingException("Instantiating failed when binding using constructor " + constructor + ": " + ex.getMessage(), ex);
+			throw new BindingException("Instantiating failed when binding using constructor " + constructor + " and arguments for constructor " + asList(args) + ": " + ex.getMessage(), ex);
 		} catch (IllegalAccessException ex) {
-			throw new BindingException("Illegal access when binding using constructor " + constructor + ": " + ex.getMessage(), ex);
+			throw new BindingException("Illegal access when binding using constructor " + constructor + " and arguments for constructor " + asList(args) + ": " + ex.getMessage(), ex);
 		} catch (IllegalArgumentException ex) {
-			throw new BindingException("Illegal argument when binding using constructor " + constructor + ": " + ex.getMessage(), ex);
+			throw new BindingException("Illegal argument when binding using constructor " + constructor + " and arguments for constructor " + asList(args) + ": " + ex.getMessage(), ex);
 		}
 	}
 	
@@ -129,6 +132,16 @@ public final class BindingReflectionUtils {
 			else if (collectionType.equals(char[].class)) ret = char.class;
 		}
 		return (Class<I>)ret;
+	}
+	
+	private static <T> List<T> asList(T[] arr) {
+		List<T> list = new ArrayList<T>();
+		if (arr != null && arr.length > 0) {
+			for (int i = 0; i < arr.length; i++) {
+				list.add(arr[i]);
+			}
+		}
+		return list;
 	}
 	
 	private BindingReflectionUtils() {
