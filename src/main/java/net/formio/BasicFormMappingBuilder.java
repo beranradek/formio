@@ -466,7 +466,10 @@ public class BasicFormMappingBuilder<T> {
 		if (config == null) throw new IllegalArgumentException("config cannot be null");
 		Map<String, Method> propertiesByNames = getClassProperties(this.dataClass, config.getBeanExtractor(), config.getAccessorRegex());
 		
-		final Instantiator inst = this.instantiator;
+		Instantiator inst = this.instantiator;
+		if (inst == null) {
+			inst = config.getDefaultInstantiator();
+		}
 		ConstructionDescription constrDesc = inst.getDescription(this.dataClass, config.getArgumentNameResolver());
 		
 		Method[] methods = this.dataClass.getMethods();

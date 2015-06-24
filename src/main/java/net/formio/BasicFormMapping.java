@@ -79,7 +79,11 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		super(builder.parent, builder.propertyName, builder.validators);
 		this.config = builder.config;
 		this.dataClass = assertNotNullArg(builder.dataClass, "data class must be filled before configuring fields");
-		this.instantiator = builder.instantiator;
+		if (builder.instantiator != null) {
+			this.instantiator = builder.instantiator; 
+		} else {
+			this.instantiator = getConfig().getDefaultInstantiator();
+		}
 		this.filledObject = builder.filledObject;
 		this.secured = builder.secured;
 		this.labelKey = builder.labelKey;
