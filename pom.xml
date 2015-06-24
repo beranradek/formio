@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.formio</groupId>
 	<artifactId>formio</artifactId>
-	<version>1.3.1-SNAPSHOT</version>
+	<version>1.4.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Formio</name>
 	<description>Form definition and binding framework for Java platform</description>
@@ -163,6 +163,9 @@
 						<goals>
 							<goal>jar</goal>
 						</goals>
+						<configuration>
+                			<additionalparam>-Xdoclint:none</additionalparam>
+            			</configuration>
 					</execution>
 				</executions>
 			</plugin>
