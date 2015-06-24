@@ -36,7 +36,7 @@ import javax.validation.MessageInterpolator;
  * @author Emmanuel Bernard
  * @author Hardy Ferentschik
  * @author Gunnar Morling
- * @author Kevin Pollet <kevin.pollet@serli.com> (C) 2011 SERLI
+ * @author Kevin Pollet kevin.pollet@serli.com (C) 2011
  * @author Radek Beran (explicit passing of default locale, independent on hibernate classes)
  */
 public class ResBundleMessageInterpolator implements MessageInterpolator {
@@ -107,9 +107,9 @@ public class ResBundleMessageInterpolator implements MessageInterpolator {
 
 	/**
 	 * Runs the message interpolation according to algorithm specified in JSR 303.
-	 * <br/>
+	 * <br>
 	 * Note:
-	 * <br/>
+	 * <br>
 	 * Look-ups in user bundles is recursive whereas look-ups in default bundle are not!
 	 *
 	 * @param message the message to interpolate

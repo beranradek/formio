@@ -48,7 +48,7 @@ public final class PasswordGenerator {
 	 * password is controlled by method parameter.
 	 * <p>
 	 * Note <b>never</b> use this method to generate more that one password in sequence. Sequential
-	 * initialization of random generator dos not guarantee enough "randomness". Use {@link #generatePasswords(int, String, int, String, int)}
+	 * initialization of random generator dos not guarantee enough "randomness". Use {@link #generatePassword(int, String, int, String)}
 	 * method instead.
 	 * 
 	 * @param length length of password to be generated

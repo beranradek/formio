@@ -77,7 +77,7 @@ public abstract class AbstractMultipartRequestParser implements MultipartRequest
 	
 	/**
 	 * Convenience method for common configuration of {@link FileUpload}.
-	 * Can be called from {@link #parseRequest(DiskFileItemFactory, long, long, String)} method
+	 * Can be called from {@link #parseRequest(FileItemFactory, long, long, String)} method
 	 * that must be implemented by subclasses.
 	 * @param upload
 	 * @param singleFileSizeMax
