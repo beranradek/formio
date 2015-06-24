@@ -54,7 +54,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	// public because of introspection required by some template frameworks, constructors are not public
 
 	final Class<T> dataClass;
-	final Instantiator<T> instantiator;
+	final Instantiator instantiator;
 	final Config config;
 	final T filledObject;
 	
@@ -158,7 +158,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	}
 	
 	@Override
-	public Instantiator<T> getInstantiator() {
+	public Instantiator getInstantiator() {
 		return instantiator;
 	}
 
@@ -317,7 +317,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		}
 		
 		// binding data from "values" to resulting object for this mapping
-		Instantiator<T> instantiator = this.instantiator;
+		Instantiator instantiator = this.instantiator;
 		if (instance != null) {
 			// use instance already prepared by client which the client wish to fill
 			instantiator = new InstanceHoldingInstantiator<T>(instance);

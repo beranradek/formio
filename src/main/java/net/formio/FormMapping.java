@@ -48,10 +48,10 @@ public interface FormMapping<T> extends FormElement<T> {
 	Class<T> getDataClass();
 	
 	/**
-	 * Instantiator of class of type T.
+	 * Instantiator of classes.
 	 * @return
 	 */
-	Instantiator<T> getInstantiator();
+	Instantiator getInstantiator();
 	
 	/**
 	 * Fills form with values from given object and returns new filled form

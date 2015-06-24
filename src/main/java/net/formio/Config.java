@@ -24,8 +24,10 @@ import net.formio.binding.AnnotationArgumentNameResolver;
 import net.formio.binding.ArgumentNameResolver;
 import net.formio.binding.BeanExtractor;
 import net.formio.binding.Binder;
+import net.formio.binding.ConstructorInstantiator;
 import net.formio.binding.DefaultBeanExtractor;
 import net.formio.binding.DefaultBinder;
+import net.formio.binding.Instantiator;
 import net.formio.binding.PropertyMethodRegex;
 import net.formio.binding.collection.BasicCollectionBuilders;
 import net.formio.binding.collection.CollectionBuilders;
@@ -58,6 +60,7 @@ public class Config {
 	private final int colFormWidth;
 	private final int colLabelWidth;
 	private final int colInputWidth;
+	private final Instantiator defaultInstantiator;
 	
 	Config(Builder builder) {
 		this.locale = builder.locale;
@@ -76,6 +79,7 @@ public class Config {
 		this.colFormWidth = builder.colFormWidth;
 		this.colLabelWidth = builder.colLabelWidth;
 		this.colInputWidth = builder.colInputWidth;
+		this.defaultInstantiator = builder.defaultInstantiator;
 	}
 	
 	public static class Builder {
@@ -99,6 +103,7 @@ public class Config {
 		int colLabelWidth = 2;
 		int colInputWidth = 4;
 		String urlBase;
+		Instantiator defaultInstantiator = new ConstructorInstantiator();
 
 		Builder() {
 			// package-default access so only Forms (and classes in current package) can create the builder
@@ -210,6 +215,16 @@ public class Config {
 			return this;
 		}
 		
+		/**
+		 * Default instantiator of classes.
+		 * @param inst
+		 * @return
+		 */
+		public Builder defaultInstantiator(Instantiator inst) {
+			this.defaultInstantiator = inst;
+			return this;
+		}
+		
 		public Config build() {
 			if (this.locale == null) this.locale = DEFAULT_LOCALE;
 			if (this.messageBundleName == null) this.messageBundleName = DEFAULT_MESSAGE_BUNDLE_NAME;
@@ -240,6 +255,7 @@ public class Config {
 			if (cfg.getColInputWidth() > cfg.getColFormWidth()) {
 				throw new IllegalStateException("width of input cannot be bigger than width of form");
 			}
+			if (cfg.getDefaultInstantiator() == null) throw new IllegalStateException("Default instantiator cannot be null");
 			return cfg;
 		}
 		
@@ -336,6 +352,14 @@ public class Config {
 	 */
 	public int getColInputWidth() {
 		return colInputWidth;
+	}
+	
+	/**
+	 * Default instantiator of classes.
+	 * @return
+	 */
+	public Instantiator getDefaultInstantiator() {
+		return defaultInstantiator;
 	}
 	
 }

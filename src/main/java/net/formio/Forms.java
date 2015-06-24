@@ -47,7 +47,7 @@ public final class Forms {
 	 * @return form mapping builder
 	 */
 	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String propertyName) {
-		return basic(editedObjectClass, propertyName, Forms.<T>getDefaultInstantiator(), DEFAULT_MAPPING_TYPE);
+		return basic(editedObjectClass, propertyName, Forms.getDefaultInstantiator(), DEFAULT_MAPPING_TYPE);
 	}
 	
 	/**
@@ -58,7 +58,7 @@ public final class Forms {
 	 * @param instantiator instantiator of form data
 	 * @return form mapping builder
 	 */
-	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String propertyName, Instantiator<T> instantiator) {
+	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String propertyName, Instantiator instantiator) {
 		return basic(editedObjectClass, propertyName, instantiator, DEFAULT_MAPPING_TYPE);
 	}
 	
@@ -71,7 +71,7 @@ public final class Forms {
 	 * @return form mapping builder
 	 */
 	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String propertyName, MappingType mappingType) {
-		return basic(editedObjectClass, propertyName, Forms.<T>getDefaultInstantiator(), mappingType);
+		return basic(editedObjectClass, propertyName, Forms.getDefaultInstantiator(), mappingType);
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public final class Forms {
 	 * @param mappingType type of nested mapping
 	 * @return form mapping builder
 	 */
-	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String propertyName, Instantiator<T> instantiator, MappingType mappingType) {
+	public static <T> BasicFormMappingBuilder<T> basic(Class<T> editedObjectClass, String propertyName, Instantiator instantiator, MappingType mappingType) {
 		return mappingInternal(editedObjectClass, propertyName, instantiator, false, mappingType, false);
 	}
 	
@@ -94,7 +94,7 @@ public final class Forms {
 	 * @return
 	 */
 	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String propertyName) {
-		return basicSecured(editedObjectClass, propertyName, Forms.<T>getDefaultInstantiator(), DEFAULT_MAPPING_TYPE);
+		return basicSecured(editedObjectClass, propertyName, Forms.getDefaultInstantiator(), DEFAULT_MAPPING_TYPE);
 	}
 	
 	/**
@@ -104,7 +104,7 @@ public final class Forms {
 	 * @param instantiator
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String propertyName, Instantiator<T> instantiator) {
+	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String propertyName, Instantiator instantiator) {
 		return basicSecured(editedObjectClass, propertyName, instantiator, DEFAULT_MAPPING_TYPE);
 	}
 	
@@ -116,7 +116,7 @@ public final class Forms {
 	 * @return
 	 */
 	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String propertyName, MappingType mappingType) {
-		return basicSecured(editedObjectClass, propertyName, Forms.<T>getDefaultInstantiator(), mappingType);
+		return basicSecured(editedObjectClass, propertyName, Forms.getDefaultInstantiator(), mappingType);
 	}
 	
 	/**
@@ -127,7 +127,7 @@ public final class Forms {
 	 * @param mappingType
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String propertyName, Instantiator<T> instantiator, MappingType mappingType) {
+	public static <T> BasicFormMappingBuilder<T> basicSecured(Class<T> editedObjectClass, String propertyName, Instantiator instantiator, MappingType mappingType) {
 		return mappingInternal(editedObjectClass, propertyName, instantiator, false, mappingType, true);
 	}
 	
@@ -137,7 +137,7 @@ public final class Forms {
 	 * @return
 	 */
 	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String propertyName) {
-		return automatic(editedObjectClass, propertyName, Forms.<T>getDefaultInstantiator(), DEFAULT_MAPPING_TYPE);
+		return automatic(editedObjectClass, propertyName, Forms.getDefaultInstantiator(), DEFAULT_MAPPING_TYPE);
 	}
 	
 	/**
@@ -148,7 +148,7 @@ public final class Forms {
 	 * @param instantiator
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String propertyName, Instantiator<T> instantiator) {
+	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String propertyName, Instantiator instantiator) {
 		return automatic(editedObjectClass, propertyName, instantiator, DEFAULT_MAPPING_TYPE);
 	}
 	
@@ -161,7 +161,7 @@ public final class Forms {
 	 * @return
 	 */
 	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String propertyName, MappingType mappingType) {
-		return automatic(editedObjectClass, propertyName, Forms.<T>getDefaultInstantiator(), mappingType);
+		return automatic(editedObjectClass, propertyName, Forms.getDefaultInstantiator(), mappingType);
 	}
 	
 	/**
@@ -173,7 +173,7 @@ public final class Forms {
 	 * @param mappingType
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String propertyName, Instantiator<T> instantiator, MappingType mappingType) {
+	public static <T> BasicFormMappingBuilder<T> automatic(Class<T> editedObjectClass, String propertyName, Instantiator instantiator, MappingType mappingType) {
 		return mappingInternal(editedObjectClass, propertyName, instantiator, true, mappingType, false);
 	}
 	
@@ -184,7 +184,7 @@ public final class Forms {
 	 * @return
 	 */
 	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String propertyName) {
-		return automaticSecured(editedObjectClass, propertyName, Forms.<T>getDefaultInstantiator(), DEFAULT_MAPPING_TYPE);
+		return automaticSecured(editedObjectClass, propertyName, Forms.getDefaultInstantiator(), DEFAULT_MAPPING_TYPE);
 	}
 	
 	/**
@@ -194,7 +194,7 @@ public final class Forms {
 	 * @param instantiator
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String propertyName, Instantiator<T> instantiator) {
+	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String propertyName, Instantiator instantiator) {
 		return automaticSecured(editedObjectClass, propertyName, instantiator, DEFAULT_MAPPING_TYPE);
 	}
 	
@@ -206,7 +206,7 @@ public final class Forms {
 	 * @return
 	 */
 	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String propertyName, MappingType mappingType) {
-		return automaticSecured(editedObjectClass, propertyName, Forms.<T>getDefaultInstantiator(), mappingType);
+		return automaticSecured(editedObjectClass, propertyName, Forms.getDefaultInstantiator(), mappingType);
 	}
 	
 	/**
@@ -217,7 +217,7 @@ public final class Forms {
 	 * @param mappingType
 	 * @return
 	 */
-	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String propertyName, Instantiator<T> instantiator, MappingType mappingType) {
+	public static <T> BasicFormMappingBuilder<T> automaticSecured(Class<T> editedObjectClass, String propertyName, Instantiator instantiator, MappingType mappingType) {
 		return mappingInternal(editedObjectClass, propertyName, instantiator, true, mappingType, true);
 	}
 	
@@ -228,8 +228,8 @@ public final class Forms {
 	 * @param factoryClass
 	 * @return
 	 */
-	public static <T, U> Instantiator<T> factoryMethod(Class<T> constructedClass, String methodName, Class<U> factoryClass) {
-		return new StaticFactoryMethod<T>(factoryClass, methodName);
+	public static <T, U> Instantiator factoryMethod(Class<T> constructedClass, String methodName, Class<U> factoryClass) {
+		return new StaticFactoryMethod(factoryClass, methodName);
 	}
 	
 	/**
@@ -238,7 +238,7 @@ public final class Forms {
 	 * @param methodName
 	 * @return
 	 */
-	public static <T, U> Instantiator<T> factoryMethod(Class<T> constructedClass, String methodName) {
+	public static <T, U> Instantiator factoryMethod(Class<T> constructedClass, String methodName) {
 		return factoryMethod(constructedClass, methodName, constructedClass);
 	}
 	
@@ -335,7 +335,7 @@ public final class Forms {
 		return AjaxForms.findAjaxAction(requestParams, filledMapping);
 	}
 	
-	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String propertyName, Instantiator<T> instantiator, boolean automatic, MappingType mappingType, boolean secured) {
+	private static <T> BasicFormMappingBuilder<T> mappingInternal(Class<T> dataClass, String propertyName, Instantiator instantiator, boolean automatic, MappingType mappingType, boolean secured) {
 		return new BasicFormMappingBuilder<T>(dataClass, propertyName, instantiator, automatic, mappingType).secured(secured);
 	}
 	
@@ -344,7 +344,7 @@ public final class Forms {
 	}
 	
 	private static final MappingType DEFAULT_MAPPING_TYPE = MappingType.SINGLE;
-	private static <T> Instantiator<T> getDefaultInstantiator() {
+	private static Instantiator getDefaultInstantiator() {
 		return null;
 	}
 }

@@ -30,36 +30,32 @@ import net.formio.upload.UploadedFileWrapper;
  * @author Radek Beran
  * @param <T>
  */
-public class ConstructorInstantiator<T> extends AbstractInstantiator<T> {
-	private final Class<T> constructedClass;
+public class ConstructorInstantiator extends AbstractInstantiator {
 	
-	public ConstructorInstantiator(Class<T> constructedClass) {
-		if (constructedClass == null)
-			throw new IllegalArgumentException("constructedClass cannot be null");
-		this.constructedClass = constructedClass;
+	public ConstructorInstantiator() {
 	}
 	
 	@Override
-	public T instantiate(ConstructionDescription cd, Object ... args) {
+	public <T> T instantiate(Class<T> objClass, ConstructionDescription cd, Object ... args) {
 		if (cd.getArgTypes().length != args.length) {
 			throw new IllegalStateException("Number of argument types " + Arrays.toString(cd.getArgTypes()) + 
 				" is not equal to number of arguments " + args.length + 
-				" for constructor " + cd.getConstructionMethod());
+				" for constructor " + ((DefaultConstructionDescription)cd).getConstructionMethod());
 		}
 		return BindingReflectionUtils.requireNewInstance(
-			(Constructor<T>)cd.getConstructionMethod(),
+			(Constructor<T>)((DefaultConstructionDescription)cd).getConstructionMethod(),
 			prepareArgs(cd.getArgTypes(), args));
 	}
 	
 	@Override
-	public ConstructionDescription getDescription(ArgumentNameResolver argNameResolver) {
-		ConstructionDescription desc = null;
+	public <T> ConstructionDescription getDescription(Class<T> objClass, ArgumentNameResolver argNameResolver) {
+		DefaultConstructionDescription desc = null;
 		int maxArgCnt = -1; // we will choose the constructor with the max. count of usable named arguments
-		for (Constructor<?> c : this.constructedClass.getConstructors()) { // all public constructors
+		for (Constructor<?> c : objClass.getConstructors()) { // all public constructors
 			Class<?>[] argTypes = c.getParameterTypes();
 			if (argTypes.length == 0 && 0 > maxArgCnt) {
 				maxArgCnt = 0;
-				desc = new ConstructionDescription(c, Collections.<String>emptyList());
+				desc = new DefaultConstructionDescription(c, Collections.<String>emptyList());
 			} else {
 				// For each constructor parameter
 				List<String> argNames = new ArrayList<String>();
@@ -76,16 +72,16 @@ public class ConstructorInstantiator<T> extends AbstractInstantiator<T> {
 				if (argNames.size() > 0 && argNames.size() > maxArgCnt) {
 					// more than 0 arguments
 					maxArgCnt = argNames.size();
-					desc = new ConstructionDescription(c, argNames);
+					desc = new DefaultConstructionDescription(c, argNames);
 				}
 			}
 		}
 		if (desc == null) {
-			String msgBase = "No usable public constructor of " + this.constructedClass.getName() + " was found. Did you forget to specify custom type of instantiator?";
-			if (UploadedFile.class.isAssignableFrom(this.constructedClass)) {
+			String msgBase = "No usable public constructor of " + objClass.getName() + " was found. Did you forget to specify custom type of instantiator?";
+			if (UploadedFile.class.isAssignableFrom(objClass)) {
 				throw new IllegalStateException(msgBase + " If you want to use " + UploadedFile.class.getName() + " in nested mapping as an complex object, use " + UploadedFileWrapper.class.getName() + " instead.");
 			}
-			throw new IllegalStateException("No usable public constructor of " + this.constructedClass.getName() + " was found. Did you forget to specify custom type of instantiator?");
+			throw new IllegalStateException("No usable public constructor of " + objClass.getName() + " was found. Did you forget to specify custom type of instantiator?");
 		}
 		return desc;
 	}

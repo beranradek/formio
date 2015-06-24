@@ -19,27 +19,26 @@ package net.formio.binding;
 import java.util.Collections;
 
 /**
- * Instantiator that already holds ready instance of type T.
+ * Instantiator that already holds ready instance.
  * @author Radek Beran
- * @param <T>
  */
-public class InstanceHoldingInstantiator<T> implements Instantiator<T> {
+public class InstanceHoldingInstantiator<U> implements Instantiator {
 	
-	private final T instance;
+	private final U instance;
 	
-	public InstanceHoldingInstantiator(T instance) {
+	public InstanceHoldingInstantiator(U instance) {
 		if (instance == null) throw new IllegalArgumentException("Instance cannot be null");
 		this.instance = instance;
 	}
 
 	@Override
-	public T instantiate(ConstructionDescription cd, Object... args) {
-		return instance;
+	public <T> T instantiate(Class<T> objClass, ConstructionDescription cd, Object... args) {
+		return objClass.cast(instance);
 	}
 
 	@Override
-	public ConstructionDescription getDescription(ArgumentNameResolver argNameResolver) {
-		return new ConstructionDescription(null, Collections.<String>emptyList());
+	public <T> ConstructionDescription getDescription(Class<T> objClass, ArgumentNameResolver argNameResolver) {
+		return new DefaultConstructionDescription(null, Collections.<String>emptyList());
 	}
 
 }

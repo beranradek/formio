@@ -17,26 +17,27 @@
 package net.formio.binding;
 
 /**
- * Instantiates a class of type T.
+ * Instantiates the objects.
  * @author Radek Beran
- * @param <T>
  */
-public interface Instantiator<T> {
+public interface Instantiator {
 	
 	/**
 	 * Instantiates object using given description and arguments.
+	 * @param objClass
 	 * @param cd
 	 * @param args
 	 * @return
 	 */
-	T instantiate(ConstructionDescription cd, Object ... args);
+	<T> T instantiate(Class<T> objClass, ConstructionDescription cd, Object ... args);
 	
 	/**
 	 * Returns description of construction method with max. usable arguments according to given argument name resolver
 	 * (also construction method with zero arguments can be returned). If no suitable method can be found,
 	 * {@link IllegalStateException} should be thrown.
+	 * @param objClass
 	 * @param argNameResolver
 	 * @return
 	 */
-	ConstructionDescription getDescription(ArgumentNameResolver argNameResolver);
+	<T> ConstructionDescription getDescription(Class<T> objClass, ArgumentNameResolver argNameResolver);
 }

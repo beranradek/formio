@@ -19,10 +19,8 @@ package net.formio.binding;
 /**
  * Abstract Instantiator.
  * @author Radek Beran
- *
- * @param <T>
  */
-abstract class AbstractInstantiator<T> implements Instantiator<T> {
+abstract class AbstractInstantiator implements Instantiator {
 
 	protected Object[] prepareArgs(Class<?>[] argTypes, Object[] args) {
 		Object[] arguments = new Object[args.length];

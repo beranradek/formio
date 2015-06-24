@@ -26,7 +26,7 @@ import java.util.List;
  * @author Radek Beran
  * @param <T>
  */
-public class StaticFactoryMethod<T> extends AbstractInstantiator<T> {
+public class StaticFactoryMethod extends AbstractInstantiator {
 
 	private final Class<?> factoryClass;
 	private final String methodName;
@@ -51,21 +51,21 @@ public class StaticFactoryMethod<T> extends AbstractInstantiator<T> {
 	}
 	
 	@Override
-	public T instantiate(ConstructionDescription cd, Object ... args) {
+	public <T> T instantiate(Class<T> objClass, ConstructionDescription cd, Object ... args) {
 		return BindingReflectionUtils.invokeStaticMethod(
-			(Method)cd.getConstructionMethod(), 
+			(Method)((DefaultConstructionDescription)cd).getConstructionMethod(), 
 			prepareArgs(cd.getArgTypes(), args));
 	}
 
 	@Override
-	public ConstructionDescription getDescription(ArgumentNameResolver argNameResolver) {
-		ConstructionDescription desc = null;
+	public <T> ConstructionDescription getDescription(Class<T> objClass, ArgumentNameResolver argNameResolver) {
+		DefaultConstructionDescription desc = null;
 		int maxArgCnt = -1; // we will choose the construction method with the max. count of usable named arguments
 		for (Method c : this.instMethods) { // all public constructors
 			Class<?>[] argTypes = c.getParameterTypes();
 			if (argTypes.length == 0 && 0 > maxArgCnt) {
 				maxArgCnt = 0;
-				desc = new ConstructionDescription(c, Collections.<String>emptyList());
+				desc = new DefaultConstructionDescription(c, Collections.<String>emptyList());
 			} else {
 				// For each parameter of construction method
 				List<String> argNames = new ArrayList<String>();
@@ -82,7 +82,7 @@ public class StaticFactoryMethod<T> extends AbstractInstantiator<T> {
 				if (argNames.size() > 0 && argNames.size() > maxArgCnt) {
 					// more than 0 arguments
 					maxArgCnt = argNames.size();
-					desc = new ConstructionDescription(c, argNames);
+					desc = new DefaultConstructionDescription(c, argNames);
 				}
 			}
 		}

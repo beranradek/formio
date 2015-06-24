@@ -156,7 +156,7 @@ public class BundleMessageTranslator implements MessageTranslator {
 	
 	public static String classToBundleName(Class<?> cls) {
 		if (cls == null) return null;
-		return cls.getName().replace(".", "/");
+		return cls.getName();
 	}
 	
 	private String createMissingMessage(String msgKey) {

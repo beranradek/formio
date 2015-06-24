@@ -28,7 +28,6 @@ import net.formio.ajax.action.JsEventToAction;
 import net.formio.binding.BeanExtractor;
 import net.formio.binding.BindingReflectionUtils;
 import net.formio.binding.ConstructionDescription;
-import net.formio.binding.ConstructorInstantiator;
 import net.formio.binding.Instantiator;
 import net.formio.binding.PrimitiveType;
 import net.formio.binding.PropertyMethodRegex;
@@ -52,7 +51,7 @@ public class BasicFormMappingBuilder<T> {
 	FormMapping<?> parent;
 	String propertyName;
 	Class<T> dataClass;
-	Instantiator<T> instantiator;
+	Instantiator instantiator;
 	/** Mapping simple property names to fields. */
 	Map<String, FormField<?>> fields = new LinkedHashMap<String, FormField<?>>();
 	/** Mapping simple property names to nested mappings. Property name is a part of full path of nested mapping. */
@@ -74,17 +73,12 @@ public class BasicFormMappingBuilder<T> {
 	/**
 	 * Should be constructed only via {@link Forms} entry point of API.
 	 */
-	BasicFormMappingBuilder(Class<T> dataClass, String propertyName, Instantiator<T> inst, boolean automatic, MappingType mappingType) {
+	BasicFormMappingBuilder(Class<T> dataClass, String propertyName, Instantiator instantiator, boolean automatic, MappingType mappingType) {
 		if (dataClass == null) throw new IllegalArgumentException("dataClass must be filled");
 		if (propertyName == null || propertyName.isEmpty()) throw new IllegalArgumentException("propertyName must be filled");
 		if (mappingType == null) throw new IllegalArgumentException("mappingType must be filled");
 		this.dataClass = dataClass;
 		this.propertyName = propertyName;
-		Instantiator<T> instantiator = inst;
-		if (instantiator == null) {
-			// using some public constructor as default instantiation strategy
-			instantiator = new ConstructorInstantiator<T>(dataClass);
-		}
 		this.instantiator = instantiator;
 		this.mappingType = mappingType;
 		this.automatic = automatic;
@@ -92,7 +86,7 @@ public class BasicFormMappingBuilder<T> {
 		this.validators = new ArrayList<Validator<T>>();
 	}
 	
-	BasicFormMappingBuilder(Class<T> objectClass, String propertyName, Instantiator<T> inst, boolean automatic) {
+	BasicFormMappingBuilder(Class<T> objectClass, String propertyName, Instantiator inst, boolean automatic) {
 		this(objectClass, propertyName, inst, automatic, MappingType.SINGLE);
 	}
 	
@@ -163,7 +157,7 @@ public class BasicFormMappingBuilder<T> {
 	}
 	
 	/** Only for internal usage. */
-	BasicFormMappingBuilder<T> instantiator(Instantiator<T> instantiator) {
+	BasicFormMappingBuilder<T> instantiator(Instantiator instantiator) {
 		this.instantiator = instantiator;
 		return this;
 	}
@@ -472,8 +466,8 @@ public class BasicFormMappingBuilder<T> {
 		if (config == null) throw new IllegalArgumentException("config cannot be null");
 		Map<String, Method> propertiesByNames = getClassProperties(this.dataClass, config.getBeanExtractor(), config.getAccessorRegex());
 		
-		final Instantiator<T> inst = this.instantiator;
-		ConstructionDescription constrDesc = inst.getDescription(config.getArgumentNameResolver());
+		final Instantiator inst = this.instantiator;
+		ConstructionDescription constrDesc = inst.getDescription(this.dataClass, config.getArgumentNameResolver());
 		
 		Method[] methods = this.dataClass.getMethods();
 		for (Map.Entry<String, Method> e : propertiesByNames.entrySet()) {

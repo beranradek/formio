@@ -98,25 +98,18 @@ public class DefaultBinder implements Binder {
 	 * there is no way to bind it to the instance) - better to have reliable strict binding!
 	 */
 	@Override
-	public <T> BoundData<T> bindToNewInstance(Class<T> objClass, Instantiator<T> instantiator, Map<String, BoundValuesInfo> values) {
+	public <T> BoundData<T> bindToNewInstance(Class<T> objClass, Instantiator instantiator, Map<String, BoundValuesInfo> values) {
 		Map<String, List<ParseError>> propertyBindErrors = new LinkedHashMap<String, List<ParseError>>();
+		if (instantiator == null) throw new IllegalArgumentException("instantiator cannot be null");
 		if (values == null) throw new IllegalArgumentException("values cannot be null");
 		Set<String> notBoundYetParamNames = values.keySet();
 		
-		Instantiator<T> inst = null;
-		if (instantiator == null) {
-			// using public constructor as default instantiator
-			inst = new ConstructorInstantiator<T>(objClass);
-		} else {
-			// using specified non-default instantiator
-			inst = instantiator;
-		}
-		ConstructionDescription cd = inst.getDescription(this.argNameResolver);
+		ConstructionDescription cd = instantiator.getDescription(objClass, this.argNameResolver);
 		if (cd == null) throw new IllegalStateException("No usable construction method of " + objClass.getName() + " was found."); 
 		// Preparing arguments of construction method
 		Object[] args = buildConstructionArguments(cd, values, propertyBindErrors);
 		notBoundYetParamNames.removeAll(cd.getArgNames());
-		T obj = inst.instantiate(cd, args);
+		T obj = instantiator.instantiate(objClass, cd, args);
 		
 		// Using setters for the rest of values
 		for (String paramName : notBoundYetParamNames) {
@@ -124,7 +117,7 @@ public class DefaultBinder implements Binder {
 			if (valueInfo == null) throw new BindingException("Property '" + paramName + 
 				" could not be bound. Value to bind was not found. " + 
 				"The appropriate field was probably not declared.");
-			updatePropertyValue(obj, paramName, valueInfo, propertyBindErrors, inst instanceof InstanceHoldingInstantiator);
+			updatePropertyValue(obj, paramName, valueInfo, propertyBindErrors, instantiator instanceof InstanceHoldingInstantiator);
 			// notBoundYetParamNames cannot be reduced here in cycle (ConcurrentModificationException)
 		}
 		return new BoundData<T>(obj, propertyBindErrors);
@@ -219,7 +212,7 @@ public class DefaultBinder implements Binder {
 	 * @param genericParamType
 	 * @return
 	 */
-	private ParsedValue convertToValue(String propertyName, BoundValuesInfo valueInfo, Class<?> targetClass, Type genericParamType) {
+	protected ParsedValue convertToValue(String propertyName, BoundValuesInfo valueInfo, Class<?> targetClass, Type genericParamType) {
 		List<ParseError> parseErrors = new ArrayList<ParseError>();
 		ParsedValue parsedValue = null;
 		// TODO: Configurable prefered items order (collection type), linear as default

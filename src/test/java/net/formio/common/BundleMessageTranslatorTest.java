@@ -28,7 +28,7 @@ import org.junit.Test;
  */
 public class BundleMessageTranslatorTest {
 
-	private static final String WEEK_DAYS_BUNDLE = "net/formio/common/WeekDays";
+	private static final String WEEK_DAYS_BUNDLE = "net.formio.common.WeekDays";
 
 	@Test
 	public void testGetMessage() {
