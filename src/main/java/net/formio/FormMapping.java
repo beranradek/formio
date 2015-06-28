@@ -125,7 +125,34 @@ public interface FormMapping<T> extends FormElement<T> {
 	
 	FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups);
 	FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups);
+	
+	/**
+	 * Binds data from request to provided instance and validates data of the form.
+	 * This variant of bind method is not recommended because the provided instance is filled from request even when the form 
+	 * is not valid (first it is filled and then validated). You are encouraged to use the default "functional" variant od bind method 
+	 * without providing your instance and copy/store resulting data only 
+	 * when the form is in valid state (use FormData.isValid to check this).
+	 * @param paramsProvider
+	 * @param instance
+	 * @param ctx
+	 * @param validationGroups
+	 * @return
+	 */
 	FormData<T> bind(RequestParams paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups);
+	
+	/**
+	 * Binds data from request to provided instance and validates data of the form.
+	 * This variant of bind method is not recommended because the provided instance is filled from request even when the form 
+	 * is not valid (first it is filled and then validated). You are encouraged to use the default "functional" variant od bind method 
+	 * without providing your instance and copy/store resulting data only 
+	 * when the form is in valid state (use FormData.isValid to check this).
+	 * @param paramsProvider
+	 * @param locale
+	 * @param instance
+	 * @param ctx
+	 * @param validationGroups
+	 * @return
+	 */
 	FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups);
 	
 	/**
@@ -150,7 +177,11 @@ public interface FormMapping<T> extends FormElement<T> {
 	FormData<T> bind(RequestParams paramsProvider, Class<?>... validationGroups);
 	
 	/**
-	 * Binds and validates data from the form.
+	 * Binds data from request to provided instance and validates data of the form.
+	 * This variant of bind method is not recommended because the provided instance is filled from request even when the form 
+	 * is not valid (first it is filled and then validated). You are encouraged to use the default "functional" variant od bind method 
+	 * without providing your instance and copy/store resulting data only 
+	 * when the form is in valid state (use FormData.isValid to check this).
 	 * @param paramsProvider provider of request parameters
 	 * @param locale locale for converting strings to values
 	 * @param instance instance to which data from the request parameter provider should be bound
