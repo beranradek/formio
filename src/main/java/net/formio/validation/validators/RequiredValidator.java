@@ -43,6 +43,8 @@ public class RequiredValidator<T> extends AbstractValidator<T> {
 		boolean valid = ctx.getValidatedValue() != null;
 		if (ctx.getValidatedValue() instanceof String) {
 			valid = !((String)ctx.getValidatedValue()).trim().isEmpty();
+		} else if (ctx.getValidatedValue() != null && ctx.getValidatedValue().getClass().getName().contains("scala.None")) {
+			valid = false;
 		}
 		if (!valid) {
 			msgs.add(error(ctx.getElementName(), "{" + NotNull.class.getName() + ".message}"));
