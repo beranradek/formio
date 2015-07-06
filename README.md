@@ -6,9 +6,10 @@
 * Automatic binding, even to immutable objects, collections and arrays, nested objects and lists of them.
 * Support for (non)default constructors, static factory methods.
 * Primitives can be used everywhere.
-* Validation of form data (using bean validation API).
+* Validation of form data (both bean validation API annotations and net.formio.validation.Validator can be used).
 * Seamless support for file uploads and configurable max. request/file size.
 * Form definitions are immutable, composable, self-contained, can be easily shared and cached.
+* Automatic generating of form markup (or its parts) can be optionally used.
 * One simple entry point to API: Forms class.
 * Non-invasive, easy integration with frameworks, minimum dependencies.
 * Usable with various template frameworks, in environments with or without servlets, portlets, also in desktop applications.
@@ -40,7 +41,8 @@ private static final FormMapping<Person> personForm =
 ```java
 FormData<Person> formData = new FormData<Person>(person, ValidationResult.empty);
 FormMapping<Person> filledForm = personForm.fill(formData);
-// Push the filled form into a template, use its properties...
+// Push the filled form into a template, use its properties to render it; 
+// or use BasicFormRenderer to generate form markup automatically
 ```
 
 **3) Bind data edited by user back into an object:**
@@ -54,7 +56,9 @@ if (formData.isValid()) {
 }
  ```
 
-## Maven Build
+## Gradle Build
 
-* Build JAR: mvn clean package
-* Import into Eclipse: mvn eclipse:clean eclipse:eclipse
+* Build artifacts (jar, sources, javadoc): gradle clean assemble
+* Import into Eclipse: gradle cleanEclipse eclipse
+* Run tests: gradle test
+* Perform release: gradle clean release
