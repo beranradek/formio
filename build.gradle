@@ -78,7 +78,8 @@ artifacts {
 
 // See: http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
 signing {
-  required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+  // Conditions under which the signing is executed
+  required { isReleaseVersion }
   sign configurations.archives
 }
 
