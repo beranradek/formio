@@ -76,10 +76,12 @@ artifacts {
 }
 
 // See: http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
-signing {
-  // Conditions under which the signing is executed
-  required { isReleaseVersion }
-  sign configurations.archives
+if (isReleaseVersion) {
+  signing {
+    // Conditions under which the signing is executed
+    required { isReleaseVersion }
+    sign configurations.archives
+  }
 }
 
 // Deployment to Maven Central repository can be started using: gradle uploadArchives
