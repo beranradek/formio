@@ -62,3 +62,11 @@ if (formData.isValid()) {
 * Import into Eclipse: gradle cleanEclipse eclipse
 * Run tests: gradle test
 * Perform release: gradle clean release
+
+## Release
+
+* Just run: gradle clean assemble to see all is ok and ready for release.
+* Run: gradle clean release
+  * This automatically executes also uploadArchives (upload to Maven central) after the release version is created
+* Push commits from Gradle release plugin to GitHub
+* Login to https://oss.sonatype.org/, "Close" the Staging repository for library, "Refresh" it and Release" it.  
