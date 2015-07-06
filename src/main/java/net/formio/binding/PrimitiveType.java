@@ -64,8 +64,7 @@ public class PrimitiveType {
 		return typesByWrapperClass.get(cls);
 	}
 
-	public static PrimitiveType byClasses(Class<?> primitiveClass,
-			Class<?> wrapperClass) {
+	public static PrimitiveType byClasses(Class<?> primitiveClass, Class<?> wrapperClass) {
 		PrimitiveType type = byPrimitiveClass(primitiveClass);
 		if (type != null && !type.getWrapperClass().equals(wrapperClass)) {
 			type = null;

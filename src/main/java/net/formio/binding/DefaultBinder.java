@@ -45,7 +45,7 @@ public class DefaultBinder implements Binder {
 	
 	private final Formatters formatters;
 	private final ArgumentNameResolver argNameResolver;
-	private final CollectionBuilders collBuilders;
+	private final CollectionBuilders collectionBuilders;
 	private final PropertyMethodRegex setterRegex;
 	
 	/**
@@ -55,16 +55,16 @@ public class DefaultBinder implements Binder {
 	
 	public DefaultBinder(
 		Formatters formatters, 
-		CollectionBuilders collBuilders, 
+		CollectionBuilders collectionBuilders, 
 		ArgumentNameResolver argNameResolver, 
 		PropertyMethodRegex setterRegex) {
 		if (formatters == null) throw new IllegalArgumentException("formatters cannot be null");
 		if (argNameResolver == null) throw new IllegalArgumentException("argNameResolver cannot be null");
-		if (collBuilders == null) throw new IllegalArgumentException("collBuilders cannot be null");
+		if (collectionBuilders == null) throw new IllegalArgumentException("collectionBuilders cannot be null");
 		if (setterRegex == null) throw new IllegalArgumentException("setterRegex cannot be null");
 		this.formatters = formatters;
 		this.argNameResolver = argNameResolver;
-		this.collBuilders = collBuilders;
+		this.collectionBuilders = collectionBuilders;
 		this.setterRegex = setterRegex;
 	}
 	
@@ -117,32 +117,48 @@ public class DefaultBinder implements Binder {
 			if (valueInfo == null) throw new BindingException("Property '" + paramName + 
 				" could not be bound. Value to bind was not found. " + 
 				"The appropriate field was probably not declared.");
-			updatePropertyValue(obj, paramName, valueInfo, propertyBindErrors, instantiator instanceof InstanceHoldingInstantiator);
+			boolean clientProvidedInstance = instantiator instanceof InstanceHoldingInstantiator;
+			propertyBindErrors.putAll(updatePropertyValue(obj, paramName, valueInfo, clientProvidedInstance));
 			// notBoundYetParamNames cannot be reduced here in cycle (ConcurrentModificationException)
 		}
 		return new BoundData<T>(obj, propertyBindErrors);
+	}
+	
+	protected CollectionBuilders getCollectionBuilders() {
+		return collectionBuilders;
+	}
+	
+	protected Formatters getFormatters() {
+		return formatters;
+	}
+	
+	protected PropertyMethodRegex getSetterRegex() {
+		return setterRegex;
+	}
+	
+	protected ArgumentNameResolver getArgNameResolver() {
+		return argNameResolver;
 	}
 	
 	protected boolean isPropertySetter(Method method, String propertyName) {
 		return setterRegex.matchesPropertyMethod(method.getName(), propertyName) && method.getParameterTypes().length == 1;
 	}
 	
-	private Object[] buildConstructionArguments(ConstructionDescription c,
+	protected Object[] buildConstructionArguments(ConstructionDescription c,
 		Map<String, BoundValuesInfo> values,
 		Map<String, List<ParseError>> propertyBindErrors) {
 		List<String> argNames = c.getArgNames();
-		Class<?>[] argTypes = c.getArgTypes();
-		Type[] genericParamTypes = c.getGenericParamTypes();
 		Object[] args = new Object[argNames.size()];
 		for (int i = 0; i < argNames.size(); i++) {
-			BoundValuesInfo valueInfo = values.get(argNames.get(i));
-			if (valueInfo == null) throw new BindingException("Property '" + argNames.get(i) + 
+			String argName = argNames.get(i);
+			BoundValuesInfo valueInfo = values.get(argName);
+			if (valueInfo == null) throw new BindingException("Property '" + argName + 
 				"' required by the constructor of form data object could not be bound. Value to bind was not found. " + 
 				"The appropriate field was probably not declared.");
-			ParsedValue parsedValue = convertToValue(argNames.get(i), valueInfo, argTypes[i], genericParamTypes[i]);
+			ParsedValue parsedValue = convertToValue(argName, valueInfo, c.getArgTypes()[i], c.getGenericParamTypes()[i]);
 			args[i] = parsedValue.getValue();
 			if (!parsedValue.isSuccessfullyParsed()) {
-				addParseError(propertyBindErrors, argNames.get(i), parsedValue.getParseErrors());
+				addParseError(propertyBindErrors, argName, parsedValue.getParseErrors());
 			}
 		}
 		return args;
@@ -152,17 +168,20 @@ public class DefaultBinder implements Binder {
 	 * Updates given property of given object to given value.
 	 * @param obj object with property
 	 * @param propertyName name of property (without set, get or is - according to JavaBeans convention)
-	 * @param propertyValue value to set for the property
-	 * @param propertyBindErrors bind errors that can be filled
+	 * @param propertyValueInfo value to set for the property
 	 * @param clientProvidedInstance flag that client provided own instance that should be filled
+	 * @return binding errors
 	 * @throws BindingException if setter was not found or some other error occurred
 	 */
-	private void updatePropertyValue(Object obj, String propertyName,
-		BoundValuesInfo propertyValueInfo, Map<String, List<ParseError>> propertyBindErrors,
+	protected Map<String, List<ParseError>> updatePropertyValue(
+		Object obj, 
+		String propertyName,
+		BoundValuesInfo propertyValueInfo, 
 		boolean clientProvidedInstance) {
 		if (propertyName == null || propertyName.isEmpty()) {
 			throw new IllegalArgumentException("Name of property is missing.");
 		}
+		final Map<String, List<ParseError>> propertyBindErrors = new LinkedHashMap<String, List<ParseError>>();
 		boolean propertySet = false;
 		String setterName = null;
 		try {
@@ -179,8 +198,7 @@ public class DefaultBinder implements Binder {
 				if (!parsedValue.isSuccessfullyParsed()) {
 					addParseError(propertyBindErrors, propertyName, parsedValue.getParseErrors());
 				}
-				if (propertyValue == null || methodParamClass.isAssignableFrom(propertyValue.getClass()) 
-					|| canBeImplicitlyConverted(propertyValue.getClass(), methodParamClass)) {
+				if (propertyValue == null || canBeImplicitlyConverted(propertyValue, methodParamClass)) {
 					if (PrimitiveType.isPrimitiveType(methodParamClass) && propertyValue == null) {
 						// Using initial value for primitive type
 						propertyValue = PrimitiveType.byPrimitiveClass(methodParamClass).getInitialValue(); 
@@ -192,8 +210,8 @@ public class DefaultBinder implements Binder {
 			}
 		} catch (Exception ex) {
 			throw new BindingException("Invoking setter " + setterName
-					+ " of class " + obj.getClass().getSimpleName()
-					+ " failed: " + ex.getMessage(), ex);
+				+ " of class " + obj.getClass().getSimpleName()
+				+ " failed: " + ex.getMessage(), ex);
 		}
 		// client-provided instance need not to use all the values from the form,
 		// because it can have constructor arguments already set to some different values
@@ -201,6 +219,7 @@ public class DefaultBinder implements Binder {
 			throw new BindingException("Setter for property " + propertyName
 					+ " was not found in " + obj.getClass().getSimpleName());
 		}
+		return propertyBindErrors;
 	}
 
 	/**
@@ -212,19 +231,28 @@ public class DefaultBinder implements Binder {
 	 * @param genericParamType
 	 * @return
 	 */
-	protected ParsedValue convertToValue(String propertyName, BoundValuesInfo valueInfo, Class<?> targetClass, Type genericParamType) {
+	protected ParsedValue convertToValue(
+		String propertyName, 
+		BoundValuesInfo valueInfo, 
+		Class<?> targetClass, 
+		Type genericParamType) {
 		List<ParseError> parseErrors = new ArrayList<ParseError>();
 		ParsedValue parsedValue = null;
 		// TODO: Configurable prefered items order (collection type), linear as default
 		CollectionSpec<?> collSpec = CollectionSpec.getInstance(targetClass, ItemsOrder.LINEAR);
-		if (collBuilders.canHandle(collSpec)) {
+		if (getCollectionBuilders().canHandle(collSpec)) {
 			// binding to collection
 			Object resultValue = null;
 			if (valueInfo.getValues() != null && valueInfo.getValues().length == 1 && valueInfo.getValues()[0] instanceof List) {
 				// already one list value (from list mapping)
 				resultValue = valueInfo.getValues()[0];
 			} else {
-				resultValue = convertFormValueToCollection(propertyName, valueInfo, collSpec, genericParamType, parseErrors);
+				resultValue = convertFormValueToCollection(
+					propertyName, 
+					valueInfo, 
+					collSpec, 
+					BindingReflectionUtils.itemTypeFromGenericCollType(genericParamType),
+					parseErrors);
 			}
 			parsedValue = new ParsedValue(resultValue, parseErrors);
 		} else {
@@ -232,42 +260,101 @@ public class DefaultBinder implements Binder {
 				parsedValue = new ParsedValue(null, new ArrayList<ParseError>());
 			} else {
 				Object formValue = valueInfo.getValues()[0];
-				Object resultValue = convertOneFormValue(propertyName, formValue, parseErrors, 
-					targetClass, valueInfo.getFormatter(), valueInfo.getPattern(), valueInfo.getLocale());
+				Object resultValue = convertOneFormValue(propertyName, formValue, 
+					targetClass, valueInfo.getFormatter(), valueInfo.getPattern(), valueInfo.getLocale(), parseErrors);
 				parsedValue = new ParsedValue(resultValue, parseErrors);
 			}
 		}
 		return parsedValue;
 	}
+	
+	/**
+	 * Parses the value from string with given user-defined formatter of with other suitable formatter
+	 * found in inner formatters.
+	 * @param strValue
+	 * @param targetClass
+	 * @param formatter
+	 * @param pattern
+	 * @param locale
+	 * @return
+	 */
+	protected Object parseFromString(String strValue, Class<?> targetClass,
+		Formatter<Object> formatter, String pattern, Locale locale) {
+		Object resultValue;
+		if (formatter != null) {
+			// user defined formatter
+			resultValue = formatter.parseFromString(strValue, (Class<Object>)targetClass, pattern, locale);
+		} else {
+			resultValue = getFormatters().parseFromString(strValue, targetClass, pattern, locale);
+		}
+		return resultValue;
+	}
+	
+	protected boolean canBeImplicitlyConverted(Object fromValue, Class<?> toClass) {
+		// Convertible from wrapper class (fromClass) to primitive class (toClass)
+		return PrimitiveType.byClasses(toClass, fromValue.getClass()) != null
+			|| toClass.isAssignableFrom(fromValue.getClass())
+			|| toClass.isInstance(fromValue);
+	}
+	
+	protected void checkInvalidStringValueForUploadedFile(String propertyName, Class<?> targetClass) {
+		if (UploadedFile.class.isAssignableFrom(targetClass)) {
+			throw new IllegalStateException("Invalid String value for property '" + propertyName + "' of type " + 
+				UploadedFile.class.getSimpleName() + ". Did you forget to use POST method for the form with an uploaded file?");
+		}
+	}
 
-	private <C, I> C convertFormValueToCollection(String propertyName,
+	/**
+	 * Converts the value from request parameters to target collection type.
+	 * @param propertyName
+	 * @param valueInfo
+	 * @param collSpec
+	 * @param itemClass
+	 * @param parseErrors
+	 * @return
+	 */
+	protected <C, I> C convertFormValueToCollection(
+		String propertyName,
 		BoundValuesInfo valueInfo, 
 		CollectionSpec<C> collSpec,
-		Type collectionType, 
+		Class<I> itemClass,
 		List<ParseError> parseErrors) {
-		C resultValue = null;
-		Class<I> itemClass = BindingReflectionUtils.itemTypeFromGenericCollType(collectionType);
 		// we will return empty collection if values are empty
 		List<I> resultItems = new ArrayList<I>();
 		if (valueInfo != null && valueInfo.getValues() != null) {
 			for (Object formValue : valueInfo.getValues()) {
-				Object value = convertOneFormValue(propertyName, formValue, parseErrors, 
-					itemClass, valueInfo.getFormatter(), valueInfo.getPattern(), valueInfo.getLocale());
+				Object value = convertOneFormValue(propertyName, formValue, 
+					itemClass, valueInfo.getFormatter(), valueInfo.getPattern(), valueInfo.getLocale(), parseErrors);
 				resultItems.add((I)value);
 			}
 		}
-		resultValue = collBuilders.buildCollection(collSpec, itemClass, resultItems);
-		return resultValue;
+		return getCollectionBuilders().buildCollection(collSpec, itemClass, resultItems);
 	}
 
-	private Object convertOneFormValue(String propertyName, Object formValue, List<ParseError> parseErrors, Class<?> targetClass, Formatter<Object> formatter, String pattern, Locale locale) {
+	/**
+	 * Converts the value from request parameters (form value) to value of given target type. 
+	 * @param propertyName
+	 * @param formValue
+	 * @param parseErrors
+	 * @param targetClass
+	 * @param formatter
+	 * @param pattern
+	 * @param locale
+	 * @return
+	 */
+	protected Object convertOneFormValue(
+		String propertyName, 
+		Object formValue, 
+		Class<?> targetClass, 
+		Formatter<Object> formatter, 
+		String pattern, 
+		Locale locale,
+		List<ParseError> parseErrors) {
+		
 		Object resultValue = null;
-		if (formValue != null && !canBeImplicitlyConverted(formValue.getClass(), targetClass) 
-			&& formValue instanceof String && !targetClass.isInstance(formValue)) {
-			if (UploadedFile.class.isAssignableFrom(targetClass)) {
-				throw new IllegalStateException("Invalid String value for property '" + propertyName + "' of type " + 
-					UploadedFile.class.getSimpleName() + ". Did you forget to use POST method for the form with an uploaded file?");
-			}
+		if (formValue instanceof String && !canBeImplicitlyConverted(formValue, targetClass)) {
+			// We must parse the value from string (using formatters)
+			checkInvalidStringValueForUploadedFile(propertyName, targetClass);
 			
 			// Convert from the String to targetClass
 			String strValue = (String)formValue;
@@ -277,12 +364,7 @@ public class DefaultBinder implements Binder {
 					// resultValue remains null
 					// for e.g. transformation of "" to Date will return null
 				} else {
-					if (formatter != null) {
-						// user defined formatter
-						resultValue = formatter.parseFromString(strValue, (Class<Object>)targetClass, pattern, locale);
-					} else {
-						resultValue = formatters.parseFromString(strValue, targetClass, pattern, locale);
-					}
+					resultValue = parseFromString(strValue, targetClass, formatter, pattern, locale);
 				}
 			} catch (StringParseException ex) {
 				resultValue = null;
@@ -295,12 +377,6 @@ public class DefaultBinder implements Binder {
 			resultValue = formValue;
 		}
 		return resultValue;
-	}
-
-	private boolean canBeImplicitlyConverted(
-			Class<? extends Object> fromClass, Class<?> toClass) {
-		// Convertible from wrapper class (fromClass) to primitive class (toClass)
-		return PrimitiveType.byClasses(toClass, fromClass) != null;
 	}
 	
 	private void addParseError(Map<String, List<ParseError>> parseErrors, String propName, List<ParseError> errsToAdd) {
