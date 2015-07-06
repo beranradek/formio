@@ -2,7 +2,8 @@
 
 1.4.1 (6.7.2015)
 * Build and upload to Maven central migrated to Gradle.
-* 
+* More protected methods in DefaultBinder for easier customizations.
+* RequiredValidator identifying also scala.None
 
 1.4.0 (24.6.2015)
 * Fixed formatting of BigDecimal values.
