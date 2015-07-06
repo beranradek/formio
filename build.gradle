@@ -14,7 +14,6 @@ apply plugin: 'eclipse'
 
 archivesBaseName = "formio"
 group = "net.formio"
-version = "1.4.1-SNAPSHOT"
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = 1.6
