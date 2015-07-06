@@ -1,5 +1,9 @@
 # Changelog
 
+1.4.1 (6.7.2015)
+* Build and upload to Maven central migrated to Gradle.
+* 
+
 1.4.0 (24.6.2015)
 * Fixed formatting of BigDecimal values.
 * Serving AJAX actions in server side code. Invoking AJAX requests and rendering AJAX responses using TDI JS library.

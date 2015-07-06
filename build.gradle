@@ -1,0 +1,142 @@
+// See authoritative guide for publishing to public Maven central repo 
+// with Gradle: http://central.sonatype.org/pages/gradle.html
+// and also http://jedicoder.blogspot.cz/2011/11/automated-gradle-project-deployment-to.html
+
+// release plugin adding release task, see: https://github.com/researchgate/gradle-release
+plugins {
+  id 'net.researchgate.release' version '2.1.2'
+}
+
+apply plugin: 'java'
+apply plugin: 'maven' // takes care of the metadata, generates the pom.xml when publishing to repo, deploys build output to repo
+apply plugin: 'signing' // signs generated artifacts
+apply plugin: 'eclipse'
+
+archivesBaseName = "formio"
+group = "net.formio"
+version = "1.4.1-SNAPSHOT"
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+ 
+configurations {
+  // Introducing custom provided configuration also for java plugin (it is available out-of-box
+  // only in gradle 'war' plugin)
+  // See: http://stackoverflow.com/questions/10405970/how-do-i-define-a-compile-time-only-classpath-in-gradle/25809968#25809968
+  provided
+  compile.extendsFrom provided
+}
+
+jar {
+  // This excludes dependencies marked as "provided" from output jars: 
+  dependsOn configurations.runtime
+  from {
+    (configurations.runtime - configurations.provided).collect {
+      it.isDirectory() ? it : zipTree(it)
+    }
+  } 
+}
+ 
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile "javax.validation:validation-api:1.1.0.Final"
+  compile "commons-fileupload:commons-fileupload:1.3.1"
+  
+  provided "javax.servlet:servlet-api:2.5"
+  provided "javax.portlet:portlet-api:2.0"
+  
+  testCompile "junit:junit:4.8.2"
+  testCompile "org.hibernate:hibernate-validator:4.3.1.Final"
+  testCompile "org.springframework:spring-mock:2.0.8"
+  testCompile "commons-httpclient:commons-httpclient:3.1"
+  testCompile "org.springframework:spring-core:3.2.12.RELEASE"
+  testCompile "org.springframework:spring-portlet:2.0.8"
+}
+
+// Task for generating javadoc artifact
+task javadocJar(type: Jar) {
+  classifier = 'javadoc'
+  from javadoc
+}
+
+// Task for generating sources artifact
+task sourcesJar(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+// Gather all output artifacts together
+artifacts {
+  archives jar  
+  archives javadocJar
+  archives sourcesJar
+}
+
+// See: http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
+signing {
+  sign configurations.archives
+}
+
+// Deployment to Maven Central repository can be started using: gradle uploadArchives
+// The credentials for signing and upload are stored in <user-home>/.gradle/gradle.properties file
+// Signing key is stored in <user-home>/AppData/Roaming/gnupg/secring.gpg
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      // Sonatype Nexus Staging
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      // Sonatype Nexus Snapshost
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'Formio'
+        packaging 'jar'
+        // optionally artifactId can be defined here
+        artifactId 'formio' 
+        description 'Form definition and binding framework for Java platform'
+        url 'http://www.formio.net'
+
+        scm {
+          connection 'scm:git:git@github.com:beranradek/formio.git'
+          developerConnection 'scm:git:git@github.com:beranradek/formio.git'
+          url 'git@github.com:beranradek/formio.git'
+        }
+
+        licenses {
+          license {
+            name 'The Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          }
+        }
+
+        developers {
+          developer {
+            id 'beranradek'
+            name 'Radek Beran'
+            email 'beran.radek@seznam.cz'
+          }
+        }
+      }
+    }
+  }
+}
+
+// Turning off doclint javadoc style checker that produces strict errors.
+// See: http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
+if (JavaVersion.current().isJava8Compatible()) {
+  allprojects {
+    tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+    }
+  }
+}
