@@ -1,5 +1,9 @@
 # Changelog
 
+1.4.2 (6.7.2015)
+* Using Netflix gradle-extra-configurations-plugin for optional dependencies in pom.xml generated from Maven Gradle plugin
+* Fixed Gradle build - no fat jar including dependencies as in previous version 1.4.1
+
 1.4.1 (6.7.2015)
 * Build and upload to Maven central migrated to Gradle.
 * More protected methods in DefaultBinder for easier customizations.
