@@ -9,12 +9,13 @@ plugins {
 
 apply plugin: 'java'
 apply plugin: 'maven' // takes care of the metadata, generates the pom.xml when publishing to repo, deploys build output to repo
-apply plugin: 'signing' // signs generated artifacts
+apply plugin: 'signing' // signs generated artifacts: https://docs.gradle.org/current/userguide/signing_plugin.html
 apply plugin: 'eclipse'
 
 archivesBaseName = "formio"
 group = "net.formio"
 version = "1.4.1-SNAPSHOT"
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -77,6 +78,7 @@ artifacts {
 
 // See: http://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/
 signing {
+  required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
   sign configurations.archives
 }
 
