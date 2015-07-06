@@ -56,17 +56,29 @@ if (formData.isValid()) {
 }
  ```
 
-## Gradle Build
+## Maintenance of library
+
+### Gradle Build
 
 * Build artifacts (jar, sources, javadoc): gradle clean assemble
 * Import into Eclipse: gradle cleanEclipse eclipse
 * Run tests: gradle test
 * Perform release: gradle clean release
 
-## Release
+### Release
 
-* Just run: gradle clean assemble to see all is ok and ready for release.
+* Just run: gradle clean test assemble to see all is ok and ready for release.
 * Run: gradle clean release
   * This automatically executes also uploadArchives (upload to Maven central) after the release version is created
 * Push commits from Gradle release plugin to GitHub
-* Login to https://oss.sonatype.org/, "Close" the Staging repository for library, "Refresh" it and Release" it.  
+* Login to https://oss.sonatype.org/, "Close" the Staging repository for library, "Refresh" it and "Release" it.
+
+See http://central.sonatype.org/pages/ossrh-guide.html#releasing-to-central and http://central.sonatype.org/pages/gradle.html for details.  
+
+### Troubleshooting
+
+* Deleting tag in remote repository:
+ ```
+git tag -d formio-x.y.z
+git push master :refs/tags/formio-x.y.z
+ ```
