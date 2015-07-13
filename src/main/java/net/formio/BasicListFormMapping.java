@@ -19,6 +19,7 @@ package net.formio;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -126,17 +127,23 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		}
 		
 		// Loading data for constructed mappings for individual indexes
-		// Tie these nested objects together to a list
+		// Tie these nested objects together to a list, this will be later converted to configured type of a collection for list mappings
 		List<T> data = new ArrayList<T>();
 		Map<String, List<ConstraintViolationMessage>> fieldMsgs = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
 		List<ConstraintViolationMessage> globalMsgs = new ArrayList<ConstraintViolationMessage>();
 		for (int index = 0; index < listMappings.size(); index++) {
 			FormMapping<T> m = listMappings.get(index);
 			T instanceForIndex = null;
-			if (instance instanceof List) {
-				List<T> listInstance = (List<T>)instance;
-				if (index < listInstance.size()) {
-					instanceForIndex = listInstance.get(index);
+			if (instance != null) {
+				Iterable<T> itColl = checkIterable(instance);
+				int j = 0;
+				for (Iterator<T> it = itColl.iterator(); it.hasNext(); ) {
+					T itValue = it.next();
+					if (j == index) {
+						instanceForIndex = itValue;
+						break;
+					}
+					j++;
 				}
 			}
 			FormData<T> formData = m.bind(paramsProvider, locale, instanceForIndex, context, validationGroups);
@@ -157,17 +164,27 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		}
 		
 		ValidationResult validationRes = new ValidationResult(fieldMsgs, globalMsgs);
-		FormData<List<T>> formData = new FormData<List<T>>(data, validationRes);
+		Object boundObjects = getConfig().getCollectionBuilders().buildCollection(getConfig().getListMappingCollection(), getDataClass(), data);
+		FormData<Object> formData = new FormData<Object>(boundObjects, validationRes);
 		return (FormData<T>)formData;
+	}
+
+	private <U> Iterable<U> checkIterable(Object instance) {
+		if (!(instance instanceof Iterable)) {
+			throw new IllegalStateException("Collection for property " + propertyName + " is not iterable.");
+		}
+		return (Iterable<U>)instance;
 	}
 	
 	@Override
 	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
 		List<FormMapping<T>> newMappings = new ArrayList<FormMapping<T>>();
 		Set<String> propNames = FormUtils.getPropertiesFromFields(this.fields);
-		if (editedObj != null && editedObj.getData() instanceof List<?>) {
+		if (editedObj != null && editedObj.getData() != null) {
+			Iterable<T> itColl = checkIterable(editedObj.getData());
 			int index = 0;
-			for (T dataAtIndex : (List<T>)editedObj.getData()) {
+			for (Iterator<T> it = itColl.iterator(); it.hasNext(); ) {
+				T dataAtIndex = it.next();
 				FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
 				
 				// Create filled nested mappings for current list index (data at current index)

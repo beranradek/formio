@@ -27,14 +27,14 @@ public abstract class AbstractRequestParams implements RequestParams {
 	
 	/**
 	 * Returns true if given request is TDI AJAX request.
-	 * @return
+	 * @return true if this is TDI AJAX request
 	 */
 	public abstract boolean isTdiAjaxRequest();
 	
 	/**
 	 * Returns name of the form element that initiated the TDI AJAX request,
 	 * {@code null} if this is not an TDI AJAX request. 
-	 * @return
+	 * @return name of the form element that initiated the TDI AJAX request
 	 */
 	public abstract String getTdiAjaxSrcElementName();
 

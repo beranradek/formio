@@ -24,11 +24,14 @@ import java.util.List;
 
 public class DefaultConstructionDescription implements ConstructionDescription {
 
+	private final Class<?> constructedClass;
 	private final AccessibleObject constructionMethod;
 	private final List<String> argNames;
 
-	protected DefaultConstructionDescription(final AccessibleObject constructionMethod, final List<String> argNames) {
+	protected DefaultConstructionDescription(Class<?> constructedClass, final AccessibleObject constructionMethod, final List<String> argNames) {
 		if (argNames == null) throw new IllegalArgumentException("argNames cannot be null");
+		if (constructedClass == null) throw new IllegalArgumentException("constructedClass cannot be null");
+		this.constructedClass = constructedClass;
 		this.constructionMethod = constructionMethod; // can be null if instantiator for e.g. already holds pre-prepared instance
 		this.argNames = argNames;
 	}
@@ -66,6 +69,11 @@ public class DefaultConstructionDescription implements ConstructionDescription {
 			} else throw new IllegalStateException("Unsupported construction method '" + constructionMethod + "'");
 		}
 		return argTypes;
+	}
+	
+	@Override
+	public Class<?> getConstructedClass() {
+		return constructedClass;
 	}
 	
 	/**

@@ -64,6 +64,7 @@ if (formData.isValid()) {
 * Import into Eclipse: gradle cleanEclipse eclipse
 * Run tests: gradle test
 * Perform release: gradle clean release
+* Installation to local Maven repository (e.g. for testing snapshots): gradle install
 
 ### Release
 

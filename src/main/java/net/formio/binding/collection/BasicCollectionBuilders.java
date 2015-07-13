@@ -17,6 +17,7 @@
 package net.formio.binding.collection;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+
+import net.formio.binding.BindingReflectionUtils;
 
 /**
  * Builds various common collections and arrays from given specification 
@@ -64,6 +67,11 @@ public class BasicCollectionBuilders implements CollectionBuilders {
 	public boolean canHandle(CollectionSpec<?> collSpec) {
 		ensureBuildersRegistered();
 		return collSpec.getCollClass().isArray() || BUILDERS_CACHE.get(collSpec) != null;
+	}
+	
+	@Override
+	public Class<?> getItemClass(Class<?> parentClass, String propertyName, Type genericCollectionType) {
+		return BindingReflectionUtils.itemTypeFromGenericCollType(genericCollectionType);
 	}
 	
 	protected Map<CollectionSpec<?>, CollectionBuilder<?>> registerBuilders() {

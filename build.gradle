@@ -24,8 +24,6 @@ apply plugin: 'maven' // takes care of the metadata, generates the pom.xml when 
 apply plugin: 'signing' // signs generated artifacts: https://docs.gradle.org/current/userguide/signing_plugin.html
 apply plugin: 'eclipse'
 
-archivesBaseName = "formio"
-group = "net.formio"
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = 1.6

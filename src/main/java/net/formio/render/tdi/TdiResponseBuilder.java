@@ -39,6 +39,10 @@ public class TdiResponseBuilder {
 		this.instructions = new ArrayList<String>();
 	}
 	
+	public TdiResponseBuilder() {
+		this(null);
+	}
+	
 	/**
 	 * Adds instruction to AJAX response: Status.
 	 * The default value is OK. At this time, this is the only value recognised as success by TDI.
@@ -288,10 +292,12 @@ public class TdiResponseBuilder {
 	}
 	
 	protected <T> String renderElementMarkup(FormElement<T> element) {
+		if (getRenderer() == null) return "";
 		return getRenderer().renderElementMarkup(element);
 	}
 	
 	protected <T> String renderElement(FormElement<T> element) {
+		if (getRenderer() == null) return "";
 		return getRenderer().renderElement(element);
 	}
 	

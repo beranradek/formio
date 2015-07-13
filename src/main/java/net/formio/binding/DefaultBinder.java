@@ -118,7 +118,7 @@ public class DefaultBinder implements Binder {
 				" could not be bound. Value to bind was not found. " + 
 				"The appropriate field was probably not declared.");
 			boolean clientProvidedInstance = instantiator instanceof InstanceHoldingInstantiator;
-			propertyBindErrors.putAll(updatePropertyValue(obj, paramName, valueInfo, clientProvidedInstance));
+			propertyBindErrors.putAll(updatePropertyValue(objClass, obj, paramName, valueInfo, clientProvidedInstance));
 			// notBoundYetParamNames cannot be reduced here in cycle (ConcurrentModificationException)
 		}
 		return new BoundData<T>(obj, propertyBindErrors);
@@ -144,10 +144,10 @@ public class DefaultBinder implements Binder {
 		return setterRegex.matchesPropertyMethod(method.getName(), propertyName) && method.getParameterTypes().length == 1;
 	}
 	
-	protected Object[] buildConstructionArguments(ConstructionDescription c,
+	protected Object[] buildConstructionArguments(ConstructionDescription cd,
 		Map<String, BoundValuesInfo> values,
 		Map<String, List<ParseError>> propertyBindErrors) {
-		List<String> argNames = c.getArgNames();
+		List<String> argNames = cd.getArgNames();
 		Object[] args = new Object[argNames.size()];
 		for (int i = 0; i < argNames.size(); i++) {
 			String argName = argNames.get(i);
@@ -155,7 +155,7 @@ public class DefaultBinder implements Binder {
 			if (valueInfo == null) throw new BindingException("Property '" + argName + 
 				"' required by the constructor of form data object could not be bound. Value to bind was not found. " + 
 				"The appropriate field was probably not declared.");
-			ParsedValue parsedValue = convertToValue(argName, valueInfo, c.getArgTypes()[i], c.getGenericParamTypes()[i]);
+			ParsedValue parsedValue = convertToValue(cd.getConstructedClass(), argName, valueInfo, cd.getArgTypes()[i], cd.getGenericParamTypes()[i]);
 			args[i] = parsedValue.getValue();
 			if (!parsedValue.isSuccessfullyParsed()) {
 				addParseError(propertyBindErrors, argName, parsedValue.getParseErrors());
@@ -166,6 +166,7 @@ public class DefaultBinder implements Binder {
 	
 	/**
 	 * Updates given property of given object to given value.
+	 * @param parentClass name of class for which the value of its property is converted
 	 * @param obj object with property
 	 * @param propertyName name of property (without set, get or is - according to JavaBeans convention)
 	 * @param propertyValueInfo value to set for the property
@@ -174,6 +175,7 @@ public class DefaultBinder implements Binder {
 	 * @throws BindingException if setter was not found or some other error occurred
 	 */
 	protected Map<String, List<ParseError>> updatePropertyValue(
+		Class<?> parentClass,
 		Object obj, 
 		String propertyName,
 		BoundValuesInfo propertyValueInfo, 
@@ -193,7 +195,7 @@ public class DefaultBinder implements Binder {
 				setterName = objMethod.getName();
 				Class<?> methodParamClass = objMethod.getParameterTypes()[0];
 				Type genericParamType = objMethod.getGenericParameterTypes()[0];
-				ParsedValue parsedValue = convertToValue(propertyName, propertyValueInfo, methodParamClass, genericParamType);
+				ParsedValue parsedValue = convertToValue(parentClass, propertyName, propertyValueInfo, methodParamClass, genericParamType);
 				Object propertyValue = parsedValue.getValue();
 				if (!parsedValue.isSuccessfullyParsed()) {
 					addParseError(propertyBindErrors, propertyName, parsedValue.getParseErrors());
@@ -223,8 +225,9 @@ public class DefaultBinder implements Binder {
 	}
 
 	/**
-	 * Converts form field values to one value (single value of collection/array of values)
+	 * Converts form field string value(s) to one typed value (single value or collection/array of values)
 	 * with possible parse errors (when a string value cannot be converted properly).
+	 * @param parentClass name of class for which the value of its property is converted
 	 * @param propertyName
 	 * @param valueInfo
 	 * @param targetClass
@@ -232,6 +235,7 @@ public class DefaultBinder implements Binder {
 	 * @return
 	 */
 	protected ParsedValue convertToValue(
+		Class<?> parentClass,
 		String propertyName, 
 		BoundValuesInfo valueInfo, 
 		Class<?> targetClass, 
@@ -250,8 +254,8 @@ public class DefaultBinder implements Binder {
 				resultValue = convertFormValueToCollection(
 					propertyName, 
 					valueInfo, 
-					collSpec, 
-					BindingReflectionUtils.itemTypeFromGenericCollType(genericParamType),
+					collSpec,
+					getCollectionBuilders().getItemClass(parentClass, propertyName, genericParamType),
 					parseErrors);
 			}
 			parsedValue = new ParsedValue(resultValue, parseErrors);

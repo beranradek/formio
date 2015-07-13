@@ -116,8 +116,12 @@ public final class ServletResponses {
 		ajaxResponse(requestParams, res, action, new AjaxAlertErrorHandler<T>());
 	}
 	
-	private static void notFound(HttpServletResponse res, String msg) throws IOException {
+	public static void notFound(HttpServletResponse res, String msg) throws IOException {
 		res.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
+	}
+	
+	public static void notFound(HttpServletResponse res) throws IOException {
+		notFound(res, "Not Found");
 	}
 	
 	private ServletResponses() {

@@ -24,6 +24,8 @@ import java.util.List;
  * @author Radek Beran
  */
 public interface ConstructionDescription {
+	public Class<?> getConstructedClass();
+	
 	public Type[] getGenericParamTypes();
 
 	public List<String> getArgNames();

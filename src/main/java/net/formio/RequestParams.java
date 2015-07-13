@@ -27,7 +27,7 @@ public interface RequestParams {
 	
 	/**
 	 * Returns names of all params available in the request (also params with uploaded files).
-	 * @return
+	 * @return names of request parameters
 	 */
 	Iterable<String> getParamNames();
 	
@@ -36,7 +36,7 @@ public interface RequestParams {
 	 * empty array, if the parameter is known but no values are specified;
 	 * array of values otherwise.
 	 * @param paramName
-	 * @return
+	 * @return values for request parameter
 	 */
 	String[] getParamValues(String paramName);
 	
@@ -44,7 +44,7 @@ public interface RequestParams {
 	 * Returns first/the only one value of parameter with given name, 
 	 * {@code null} if parameter with given name does not exist.
 	 * @param paramName
-	 * @return
+	 * @return first/the only one value of request parameter
 	 */
 	String getParamValue(String paramName);
 	
@@ -52,7 +52,7 @@ public interface RequestParams {
 	 * Returns {@code null} if parameter with given name does not exist or no file was uploaded;
 	 * uploaded file otherwise.
 	 * @param paramName
-	 * @return
+	 * @return uploaded files for given request parameter
 	 */
 	UploadedFile[] getUploadedFiles(String paramName);
 	
@@ -60,13 +60,13 @@ public interface RequestParams {
 	 * Returns first/the only one uploaded file for parameter with given name, 
 	 * {@code null} if parameter with given name does not exist.
 	 * @param paramName
-	 * @return
+	 * @return first/the only one uploaded file for request parameter
 	 */
 	UploadedFile getUploadedFile(String paramName);
 	
 	/**
 	 * Returns serious error that was cought when processing the request, or {@code null} if there was no error.
-	 * @return
+	 * @return request processing error
 	 */
 	RequestProcessingError getRequestError();
 }

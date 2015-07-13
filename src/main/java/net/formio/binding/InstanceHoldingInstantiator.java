@@ -38,7 +38,7 @@ public class InstanceHoldingInstantiator<U> implements Instantiator {
 
 	@Override
 	public <T> ConstructionDescription getDescription(Class<T> objClass, ArgumentNameResolver argNameResolver) {
-		return new DefaultConstructionDescription(null, Collections.<String>emptyList());
+		return new DefaultConstructionDescription(objClass, null, Collections.<String>emptyList());
 	}
 
 }

@@ -27,7 +27,7 @@ import net.formio.validation.ValidationContext;
 import net.formio.validation.constraints.DigitsValidation;
 
 /**
- * Validates the number of integer and fraction digits of given <code>Number</code>.
+ * Validates count of integer and fraction digits of given <code>Number</code>.
  * @author Radek Beran
  */
 public class DigitsValidator<T extends Number> extends AbstractValidator<T> {

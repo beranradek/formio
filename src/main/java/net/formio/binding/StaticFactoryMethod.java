@@ -65,7 +65,7 @@ public class StaticFactoryMethod extends AbstractInstantiator {
 			Class<?>[] argTypes = c.getParameterTypes();
 			if (argTypes.length == 0 && 0 > maxArgCnt) {
 				maxArgCnt = 0;
-				desc = new DefaultConstructionDescription(c, Collections.<String>emptyList());
+				desc = new DefaultConstructionDescription(objClass, c, Collections.<String>emptyList());
 			} else {
 				// For each parameter of construction method
 				List<String> argNames = new ArrayList<String>();
@@ -82,7 +82,7 @@ public class StaticFactoryMethod extends AbstractInstantiator {
 				if (argNames.size() > 0 && argNames.size() > maxArgCnt) {
 					// more than 0 arguments
 					maxArgCnt = argNames.size();
-					desc = new DefaultConstructionDescription(c, argNames);
+					desc = new DefaultConstructionDescription(objClass, c, argNames);
 				}
 			}
 		}

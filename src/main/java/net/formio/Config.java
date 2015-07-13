@@ -16,6 +16,7 @@
  */
 package net.formio;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.validation.Validation;
@@ -31,6 +32,8 @@ import net.formio.binding.Instantiator;
 import net.formio.binding.PropertyMethodRegex;
 import net.formio.binding.collection.BasicCollectionBuilders;
 import net.formio.binding.collection.CollectionBuilders;
+import net.formio.binding.collection.CollectionSpec;
+import net.formio.binding.collection.ItemsOrder;
 import net.formio.format.BasicFormatters;
 import net.formio.format.Formatters;
 import net.formio.security.HashTokenAuthorizer;
@@ -61,6 +64,7 @@ public class Config {
 	private final int colLabelWidth;
 	private final int colInputWidth;
 	private final Instantiator defaultInstantiator;
+	private final CollectionSpec<?> listMappingCollection;
 	
 	Config(Builder builder) {
 		this.locale = builder.locale;
@@ -80,6 +84,7 @@ public class Config {
 		this.colLabelWidth = builder.colLabelWidth;
 		this.colInputWidth = builder.colInputWidth;
 		this.defaultInstantiator = builder.defaultInstantiator;
+		this.listMappingCollection = builder.listMappingCollection;
 	}
 	
 	public static class Builder {
@@ -104,6 +109,7 @@ public class Config {
 		int colInputWidth = 4;
 		String urlBase;
 		Instantiator defaultInstantiator = new ConstructorInstantiator();
+		CollectionSpec<?> listMappingCollection = CollectionSpec.getInstance(List.class, ItemsOrder.LINEAR);
 
 		Builder() {
 			// package-default access so only Forms (and classes in current package) can create the builder
@@ -225,6 +231,19 @@ public class Config {
 			return this;
 		}
 		
+		/**
+		 * Specification of collection which should be constructed for nested collections
+		 * of complex types used in {@link MappingType#LIST} mappings. By providing this configuration,
+		 * default {@link List} collection can be changed to some different type of collection for list mappings.
+		 * Given specification should be supported by used {@link CollectionBuilders}.
+		 * @param collSpec
+		 * @return collection specification
+		 */
+		public Builder listMappingCollection(CollectionSpec<?> collSpec) {
+			this.listMappingCollection = collSpec;
+			return this;
+		}
+		
 		public Config build() {
 			if (this.locale == null) this.locale = DEFAULT_LOCALE;
 			if (this.messageBundleName == null) this.messageBundleName = DEFAULT_MESSAGE_BUNDLE_NAME;
@@ -256,6 +275,10 @@ public class Config {
 				throw new IllegalStateException("width of input cannot be bigger than width of form");
 			}
 			if (cfg.getDefaultInstantiator() == null) throw new IllegalStateException("Default instantiator cannot be null");
+			if (cfg.getListMappingCollection() == null) throw new IllegalStateException("List Mapping collection specification cannot be null");
+			if (!cfg.getCollectionBuilders().canHandle(cfg.getListMappingCollection())) {
+				throw new IllegalStateException("List Mapping collection specification should be supported by used collection builders.");
+			}
 			return cfg;
 		}
 		
@@ -361,5 +384,13 @@ public class Config {
 	public Instantiator getDefaultInstantiator() {
 		return defaultInstantiator;
 	}
-	
+
+	/**
+	 * Specification of collection which should be constructed for nested collections
+	 * of complex types used in {@link MappingType#LIST} mappings.
+	 * @return
+	 */
+	public CollectionSpec<?> getListMappingCollection() {
+		return listMappingCollection;
+	}
 }
