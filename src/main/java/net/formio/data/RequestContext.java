@@ -27,7 +27,7 @@ public interface RequestContext {
 	 * This storage can be used to preserve data among the requests.
 	 * @return
 	 */
-	UserDataStorage getUserRelatedStorage();
+	UserSessionStorage getUserRelatedStorage();
 	
 	/**
 	 * Returns secret string that identifies current request plus contains given secret.

@@ -21,7 +21,7 @@ package net.formio.data;
  * Implementations must be immutable.
  * @author Radek Beran
  */
-public interface UserDataStorage {
+public interface UserSessionStorage {
 
 	/**
 	 * Sets the value and returns the value set.

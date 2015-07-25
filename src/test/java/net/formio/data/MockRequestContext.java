@@ -24,7 +24,7 @@ public class MockRequestContext implements RequestContext {
 	private MockUserRelatedStorage storage = new MockUserRelatedStorage();
 
 	@Override
-	public UserDataStorage getUserRelatedStorage() {
+	public UserSessionStorage getUserRelatedStorage() {
 		return storage;
 	}
 

@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * @author Radek Beran
  */
-public class MockUserRelatedStorage implements UserDataStorage {
+public class MockUserRelatedStorage implements UserSessionStorage {
 
 	private final Map<String, String> storage = new HashMap<String, String>();
 	

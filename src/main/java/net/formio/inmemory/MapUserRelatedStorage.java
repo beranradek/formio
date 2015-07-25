@@ -19,13 +19,13 @@ package net.formio.inmemory;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.formio.data.UserDataStorage;
+import net.formio.data.UserSessionStorage;
 
 /**
- * Implementation of {@link UserDataStorage} using a {@link Map}.
+ * Implementation of {@link UserSessionStorage} using a {@link Map}.
  * @author Radek Beran
  */
-public class MapUserRelatedStorage implements UserDataStorage {
+public class MapUserRelatedStorage implements UserSessionStorage {
 
 	private final Map<String, String> map;
 	
