@@ -3,6 +3,7 @@
 1.4.3 (?)
 * Configurable type of resulting collection for list mappings (nested collections of complex objects). See Config.listMappingCollection.
 * New CollectionBuilders.getItemClass method to allow customization of reflection logic for finding type of collection item.
+* Renamed BasicFormRenderer -> FormRenderer
 
 1.4.2 (6.7.2015)
 * Using Netflix gradle-extra-configurations-plugin for optional dependencies in pom.xml generated from Maven Gradle plugin

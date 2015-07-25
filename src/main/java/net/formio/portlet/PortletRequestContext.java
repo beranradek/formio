@@ -20,7 +20,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 
 import net.formio.data.RequestContext;
-import net.formio.data.UserRelatedStorage;
+import net.formio.data.UserDataStorage;
 import net.formio.portlet.common.PortletSessionUserRelatedStorage;
 
 /**
@@ -43,7 +43,7 @@ public class PortletRequestContext implements RequestContext {
 	}
 
 	@Override
-	public UserRelatedStorage getUserRelatedStorage() {
+	public UserDataStorage getUserRelatedStorage() {
 		return new PortletSessionUserRelatedStorage(this.request.getPortletSession(), this.sessionScope);
 	}
 	

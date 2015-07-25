@@ -27,14 +27,13 @@ public interface RequestContext {
 	 * This storage can be used to preserve data among the requests.
 	 * @return
 	 */
-	UserRelatedStorage getUserRelatedStorage();
+	UserDataStorage getUserRelatedStorage();
 	
 	/**
-	 * Returns secret string that identifies the request and contains
-	 * given generatedSecret.
-	 * @param generatedSecret
+	 * Returns secret string that identifies current request plus contains given secret.
+	 * @param secret
 	 * @return
 	 */
-	String convertToRequestSecret(String generatedSecret);
+	String convertToRequestSecret(String secret);
 	
 }

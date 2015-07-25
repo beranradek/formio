@@ -19,7 +19,7 @@ package net.formio.servlet;
 import javax.servlet.http.HttpServletRequest;
 
 import net.formio.data.RequestContext;
-import net.formio.data.UserRelatedStorage;
+import net.formio.data.UserDataStorage;
 
 /**
  * Implementation of {@link RequestContext} for servlet API.
@@ -36,13 +36,13 @@ public class ServletRequestContext implements RequestContext {
 	}
 
 	@Override
-	public UserRelatedStorage getUserRelatedStorage() {
+	public UserDataStorage getUserRelatedStorage() {
 		return new HttpSessionUserRelatedStorage(this.request.getSession());
 	}
 	
 	@Override
-	public String convertToRequestSecret(String generatedSecret) {
-		return generatedSecret + SEPARATOR + getUserRequestIdentification();
+	public String convertToRequestSecret(String secret) {
+		return secret + SEPARATOR + getUserRequestIdentification();
 	}
 	
 	protected String getUserRequestIdentification() {

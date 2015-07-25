@@ -45,6 +45,9 @@ final class AuthTokens {
 				"defined as secured. Please specify not null context in fill method.");
 		}
 		String genSecret = generateSecret();
+		if (ctx.getUserRelatedStorage() == null) {
+			throw new IllegalStateException("User related storage must exist to store CSRF token.");
+		}
 		ctx.getUserRelatedStorage().set(getRootMappingSecretKey(rootMappingPath), genSecret);
 		String reqSecret = ctx.convertToRequestSecret(genSecret);
 		return tokenAuthorizer.generateToken(reqSecret);
@@ -71,6 +74,9 @@ final class AuthTokens {
 			if ("".equals(token)) {
 				throw new TokenMissingException("Unauthorized attempt. Authorization token is missing! It should be posted as " + Forms.AUTH_TOKEN_FIELD_NAME + 
 					" field. Maybe this is blocked CSRF attempt or the required field with token is not rendered in the form correctly.");
+			}
+			if (ctx.getUserRelatedStorage() == null) {
+				throw new IllegalStateException("User related storage must exist to verify CSRF token.");
 			}
 			String genSecret = ctx.getUserRelatedStorage().get(secretKey);
 			String reqSecret = ctx.convertToRequestSecret(genSecret);

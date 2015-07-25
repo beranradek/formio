@@ -18,13 +18,13 @@ package net.formio.portlet.common;
 
 import javax.portlet.PortletSession;
 
-import net.formio.data.UserRelatedStorage;
+import net.formio.data.UserDataStorage;
 
 /**
- * Implementation of {@link UserRelatedStorage} using Portlet session.
+ * Implementation of {@link UserDataStorage} using Portlet session.
  * @author Radek Beran
  */
-public class PortletSessionUserRelatedStorage implements UserRelatedStorage {
+public class PortletSessionUserRelatedStorage implements UserDataStorage {
 	private final PortletSession session;
 	private final int scope;
 	
