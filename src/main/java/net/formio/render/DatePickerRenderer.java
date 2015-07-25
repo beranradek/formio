@@ -24,9 +24,9 @@ import net.formio.FormField;
  * @author Radek Beran
  */
 class DatePickerRenderer {
-	private final BasicFormRenderer renderer;
+	private final FormRenderer renderer;
 
-	DatePickerRenderer(BasicFormRenderer renderer) {
+	DatePickerRenderer(FormRenderer renderer) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
 		}

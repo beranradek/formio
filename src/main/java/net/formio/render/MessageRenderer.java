@@ -28,9 +28,9 @@ import net.formio.validation.ValidationResult;
  * @author Radek Beran
  */
 class MessageRenderer {
-	private final BasicFormRenderer renderer;
+	private final FormRenderer renderer;
 
-	MessageRenderer(BasicFormRenderer renderer) {
+	MessageRenderer(FormRenderer renderer) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
 		}

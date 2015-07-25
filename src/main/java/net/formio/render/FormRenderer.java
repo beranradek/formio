@@ -45,7 +45,7 @@ import net.formio.validation.ConstraintViolationMessage;
  * 
  * @author Radek Beran
  */
-public class BasicFormRenderer {
+public class FormRenderer {
 
 	private final RenderContext ctx;
 	// Auxiliary renderers
@@ -55,7 +55,7 @@ public class BasicFormRenderer {
 	private final DatePickerRenderer datePickerRenderer;
 	private final AjaxEventRenderer ajaxEventRenderer;
 
-	public BasicFormRenderer(RenderContext ctx) {
+	public FormRenderer(RenderContext ctx) {
 		if (ctx == null) {
 			throw new IllegalArgumentException("ctx cannot be null");
 		}

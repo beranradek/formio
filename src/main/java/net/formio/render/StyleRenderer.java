@@ -25,9 +25,9 @@ import net.formio.props.types.InlinePosition;
  * @author Radek Beran
  */
 class StyleRenderer {
-	private final BasicFormRenderer renderer;
+	private final FormRenderer renderer;
 
-	StyleRenderer(BasicFormRenderer renderer) {
+	StyleRenderer(FormRenderer renderer) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
 		}

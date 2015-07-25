@@ -24,14 +24,14 @@ import net.formio.props.FormElementProperty;
 import net.formio.props.types.ButtonType;
 
 /**
- * {@link BasicFormRenderer} that renders also the whole HTML page or whole form tag
+ * {@link FormRenderer} that renders also the whole HTML page or whole form tag
  * for debug purposes.
  * 
  * @author Radek Beran
  */
-public class WholeFormRenderer extends BasicFormRendererWrapper {
+public class WholeFormRenderer extends FormRendererWrapper {
 	
-	public WholeFormRenderer(BasicFormRenderer wrapped) {
+	public WholeFormRenderer(FormRenderer wrapped) {
 		super(wrapped);
 	}
 	

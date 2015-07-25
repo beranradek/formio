@@ -27,10 +27,10 @@ import net.formio.common.MessageTranslator;
  * @author Radek Beran
  */
 class LabelRenderer {
-	private final BasicFormRenderer renderer;
+	private final FormRenderer renderer;
 	private final StyleRenderer styleRenderer;
 
-	LabelRenderer(BasicFormRenderer renderer, StyleRenderer styleRenderer) {
+	LabelRenderer(FormRenderer renderer, StyleRenderer styleRenderer) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
 		}

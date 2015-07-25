@@ -24,15 +24,15 @@ import net.formio.render.tdi.TdiResponseBuilder;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
- * Wrapper of {@link BasicFormRenderer} that allows convenient implementations that are extending
- * {@link BasicFormRenderer}'s functionality. 
+ * Wrapper of {@link FormRenderer} that allows convenient implementations that are extending
+ * {@link FormRenderer}'s functionality. 
  * 
  * @author Radek Beran
  */
-public class BasicFormRendererWrapper extends BasicFormRenderer {
-	private final BasicFormRenderer inner;
+public class FormRendererWrapper extends FormRenderer {
+	private final FormRenderer inner;
 	
-	public BasicFormRendererWrapper(BasicFormRenderer wrapped) {
+	public FormRendererWrapper(FormRenderer wrapped) {
 		super(wrapped.getRenderContext());
 		this.inner = wrapped;
 	}
@@ -365,7 +365,7 @@ public class BasicFormRendererWrapper extends BasicFormRenderer {
 		return getInnerRenderer().getRequiredMark(element);
 	}
 	
-	protected BasicFormRenderer getInnerRenderer() {
+	protected FormRenderer getInnerRenderer() {
 		return inner;
 	}
 }

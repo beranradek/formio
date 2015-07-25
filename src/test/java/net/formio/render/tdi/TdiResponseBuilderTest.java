@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 
 import java.util.Locale;
 
-import net.formio.render.BasicFormRenderer;
+import net.formio.render.FormRenderer;
 import net.formio.render.RenderContext;
 
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class TdiResponseBuilderTest {
 			"<response>" + newLine() + 
 			"<status>OK</status>" + newLine() +
 			"</response>" + newLine(),
-			new TdiResponseBuilder(new BasicFormRenderer(new RenderContext(Locale.ENGLISH)))
+			new TdiResponseBuilder(new FormRenderer(new RenderContext(Locale.ENGLISH)))
 				.status("OK").asString());
 	}
 	

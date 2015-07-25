@@ -31,9 +31,9 @@ import net.formio.internal.FormUtils;
  * @author Radek Beran
  */
 class AjaxEventRenderer {
-	private final BasicFormRenderer renderer;
+	private final FormRenderer renderer;
 
-	AjaxEventRenderer(BasicFormRenderer renderer) {
+	AjaxEventRenderer(FormRenderer renderer) {
 		if (renderer == null) {
 			throw new IllegalArgumentException("renderer cannot be null");
 		}

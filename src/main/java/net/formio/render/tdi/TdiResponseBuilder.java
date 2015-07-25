@@ -22,7 +22,7 @@ import java.util.List;
 
 import net.formio.AbstractFormElement;
 import net.formio.FormElement;
-import net.formio.render.BasicFormRenderer;
+import net.formio.render.FormRenderer;
 import net.formio.render.RenderUtils;
 
 /**
@@ -31,10 +31,10 @@ import net.formio.render.RenderUtils;
  */
 public class TdiResponseBuilder {
 	
-	private final BasicFormRenderer renderer;
+	private final FormRenderer renderer;
 	private final List<String> instructions;
 	
-	public TdiResponseBuilder(BasicFormRenderer renderer) {
+	public TdiResponseBuilder(FormRenderer renderer) {
 		this.renderer = renderer;
 		this.instructions = new ArrayList<String>();
 	}
@@ -283,7 +283,7 @@ public class TdiResponseBuilder {
 		return "]]>" + newLine();
 	}
 	
-	protected BasicFormRenderer getRenderer() {
+	protected FormRenderer getRenderer() {
 		return renderer;
 	}
 	

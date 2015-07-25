@@ -20,7 +20,7 @@ import java.util.Locale;
 
 import net.formio.AbstractRequestParams;
 import net.formio.ajax.AjaxResponse;
-import net.formio.render.BasicFormRenderer;
+import net.formio.render.FormRenderer;
 import net.formio.render.RenderContext;
 
 /**
@@ -36,7 +36,7 @@ public class AjaxAlertErrorHandler<T> implements AjaxErrorHandler<T> {
 	 */
 	@Override
 	public AjaxResponse<T> errorResponse(AbstractRequestParams requestParams, Throwable cause) {
-		return new AjaxResponse<T>(new BasicFormRenderer(new RenderContext(Locale.ENGLISH)).ajaxResponse()
+		return new AjaxResponse<T>(new FormRenderer(new RenderContext(Locale.ENGLISH)).ajaxResponse()
 			.status("ERROR")
 			.script("alert(\"AJAX Error\")")
 			.asString());

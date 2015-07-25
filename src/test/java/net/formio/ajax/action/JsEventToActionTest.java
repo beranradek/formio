@@ -24,7 +24,7 @@ import net.formio.AbstractRequestParams;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.AjaxResponse;
 import net.formio.ajax.JsEvent;
-import net.formio.render.BasicFormRenderer;
+import net.formio.render.FormRenderer;
 import net.formio.render.RenderContext;
 import net.formio.render.tdi.TdiResponseBuilder;
 
@@ -39,7 +39,7 @@ public class JsEventToActionTest {
 
 			@Override
 			public AjaxResponse<Long> apply(AbstractRequestParams requestParams) {
-				TdiResponseBuilder rb = new TdiResponseBuilder(new BasicFormRenderer(new RenderContext(Locale.ENGLISH)));
+				TdiResponseBuilder rb = new TdiResponseBuilder(new FormRenderer(new RenderContext(Locale.ENGLISH)));
 				return new AjaxResponse<Long>(rb.status("OK").asString());
 			}
 		});

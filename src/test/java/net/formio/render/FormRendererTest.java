@@ -31,10 +31,10 @@ import net.formio.validation.ValidationResult;
 import org.junit.Test;
 
 /**
- * Tests for {@link BasicFormRenderer}.
+ * Tests for {@link FormRenderer}.
  * @author Radek Beran
  */
-public class BasicFormRendererTest {
+public class FormRendererTest {
 
 	@Test
 	public void testRenderForm() {
