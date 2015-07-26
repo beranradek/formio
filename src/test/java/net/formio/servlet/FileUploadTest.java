@@ -23,13 +23,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 import net.formio.FormData;
 import net.formio.Forms;
 import net.formio.RequestParams;
 import net.formio.data.TestForms;
 import net.formio.domain.Registration;
+import net.formio.format.Location;
 import net.formio.upload.MaxFileSizeExceededError;
 import net.formio.upload.MaxRequestSizeExceededError;
 import net.formio.upload.UploadedFile;
@@ -38,13 +38,12 @@ import net.formio.validation.ConstraintViolationMessage;
 public class FileUploadTest {
 	protected static final String PDF_MIME_TYPE = "application/pdf";
 	protected static final String PDF_FILE_NAME = "test.pdf";
-	protected static final Locale LOCALE = new Locale("cs");
 	protected static final String CV_PARAM_NAME = "registration" + Forms.PATH_SEP + "cv";
 	
 	protected void testFileUpload(RequestParams requestParams) throws IOException {
 		assertNull(requestParams.getRequestError());
 		assertNotNull(requestParams.getUploadedFile(CV_PARAM_NAME));
-		FormData<Registration> regData = TestForms.REG_FORM.bind(requestParams, LOCALE);
+		FormData<Registration> regData = TestForms.REG_FORM.bind(requestParams, Location.CZECH);
 		final Registration registration = regData.getData();
 				
 		assertNotNull(registration);
@@ -59,7 +58,7 @@ public class FileUploadTest {
 	
 	protected void testMaxFileSizeExceededUpload(RequestParams requestParams) {
 		assertTrue("Params should contain request error", requestParams.getRequestError() instanceof MaxFileSizeExceededError);
-		FormData<Registration> regData = TestForms.REG_FORM.bind(requestParams, LOCALE);
+		FormData<Registration> regData = TestForms.REG_FORM.bind(requestParams, Location.CZECH);
 		
 		assertTrue(!regData.isValid());
 		List<ConstraintViolationMessage> cvErrors = regData.getValidationResult().getFieldMessages().get(CV_PARAM_NAME);
@@ -75,7 +74,7 @@ public class FileUploadTest {
 	
 	protected void testMaxRequestSizeExceededUpload(RequestParams requestParams) {
 		assertTrue("Params should contain request error", requestParams.getRequestError() instanceof MaxRequestSizeExceededError);
-		FormData<Registration> regData = TestForms.REG_FORM.bind(requestParams, LOCALE);
+		FormData<Registration> regData = TestForms.REG_FORM.bind(requestParams, Location.CZECH);
 		
 		assertTrue(!regData.isValid());
 		List<ConstraintViolationMessage> globalErrors = regData.getValidationResult().getGlobalMessages();

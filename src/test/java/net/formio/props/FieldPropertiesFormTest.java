@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import net.formio.FormData;
@@ -30,6 +29,7 @@ import net.formio.FormMapping;
 import net.formio.data.TestForms;
 import net.formio.domain.Car;
 import net.formio.domain.Engine;
+import net.formio.format.Location;
 import net.formio.validation.ValidationResult;
 
 import org.junit.Test;
@@ -44,12 +44,12 @@ public class FieldPropertiesFormTest {
 	@Test
 	public void testFormProcessing() {
 		try {
-			final Locale locale = new Locale("en");
+			final Location loc = Location.ENGLISH;
 			
 			// Filling form with initial data
 			FormData<Car> formData = new FormData<Car>(getInitData(), ValidationResult.empty);
 			FormMapping<Car> carForm = TestForms.CAR_FORM;
-			FormMapping<Car> filledForm = carForm.fill(formData, locale);
+			FormMapping<Car> filledForm = carForm.fill(formData, loc);
 			
 			LOG.info("Filled form: \n" + filledForm);
 			

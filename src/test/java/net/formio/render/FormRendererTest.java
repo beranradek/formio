@@ -17,15 +17,13 @@
 package net.formio.render;
 
 import static org.junit.Assert.assertNotNull;
-
-import java.util.Locale;
-
 import net.formio.FormData;
 import net.formio.FormMapping;
 import net.formio.Forms;
 import net.formio.data.TestData;
 import net.formio.data.TestForms;
 import net.formio.domain.inputs.Profile;
+import net.formio.format.Location;
 import net.formio.validation.ValidationResult;
 
 import org.junit.Test;
@@ -38,16 +36,16 @@ public class FormRendererTest {
 
 	@Test
 	public void testRenderForm() {
-		final Locale locale = Locale.ENGLISH;
+		final Location loc = Location.ENGLISH;
 		Profile inputs = TestData.newAllFields();
 		String pathSep = Forms.PATH_SEP;
 		
 		// Validation errors will be displayed when the form is shown for the first time
 		// (due to fillAndValidate call)
-		FormMapping<Profile> filledForm = TestForms.ALL_FIELDS_FORM.fillAndValidate(new FormData<Profile>(inputs, ValidationResult.empty), locale);
+		FormMapping<Profile> filledForm = TestForms.ALL_FIELDS_FORM.fillAndValidate(new FormData<Profile>(inputs, ValidationResult.empty), loc);
 		assertNotNull(filledForm.getValidationResult().getFieldMessages().get("profile" + pathSep + "employers[0]" + pathSep + "fromYear"));
 		
-		Forms.previewForm(filledForm, locale);
+		Forms.previewForm(filledForm, loc);
 	}
 
 }

@@ -18,8 +18,8 @@ package net.formio.data;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
+import net.formio.format.Location;
 import net.formio.format.Formatter;
 import net.formio.format.StringParseException;
 
@@ -32,8 +32,7 @@ public final class TestFormatters {
 		private static final String FIXED_FORMAT = "d-M-yyyy HH-mm";
 		
 		@Override
-		public Date parseFromString(String str, Class<Date> destClass,
-				String formatPattern, Locale locale) {
+		public Date parseFromString(String str, Class<Date> destClass, String formatPattern, Location loc) {
 			try {
 				return new SimpleDateFormat(FIXED_FORMAT).parse(str);
 			} catch (Exception ex) {
@@ -42,7 +41,7 @@ public final class TestFormatters {
 		}
 		
 		@Override
-		public String makeString(Date value, String formatPattern, Locale locale) {
+		public String makeString(Date value, String formatPattern, Location loc) {
 			return new SimpleDateFormat(FIXED_FORMAT).format(value);
 		}
 	};

@@ -32,6 +32,7 @@ import net.formio.binding.Instantiator;
 import net.formio.binding.ParseError;
 import net.formio.choice.ChoiceProvider;
 import net.formio.data.RequestContext;
+import net.formio.format.Location;
 import net.formio.format.Formatter;
 import net.formio.internal.FormUtils;
 import net.formio.props.FormMappingProperties;
@@ -222,55 +223,55 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	}
 	
 	@Override
-	public BasicFormMapping<T> fill(FormData<T> editedObj, Locale locale, RequestContext ctx) {
-		return fillInternal(editedObj, locale, ctx).build(getConfig());
+	public BasicFormMapping<T> fill(FormData<T> editedObj, Location loc, RequestContext ctx) {
+		return fillInternal(editedObj, loc, ctx).build(getConfig());
 	}
 	
 	@Override
-	public BasicFormMapping<T> fill(FormData<T> editedObj, Locale locale) {
-		return fill(editedObj, locale, (RequestContext)null);
+	public BasicFormMapping<T> fill(FormData<T> editedObj, Location loc) {
+		return fill(editedObj, loc, (RequestContext)null);
 	}
 	
 	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj, RequestContext ctx) {
-		return fill(editedObj, getConfigLocale(), ctx);
+		return fill(editedObj, getLocation(null), ctx);
 	}
 	
 	@Override
 	public BasicFormMapping<T> fill(FormData<T> editedObj) {
-		return fill(editedObj, getConfigLocale());
+		return fill(editedObj, getLocation(null));
 	}
 	
 	@Override
-	public BasicFormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, RequestContext ctx, Class<?> ... validationGroups) {
-		BasicFormMapping<T> mapping = fill(formData, locale, ctx);
-		FormData<T> validatedFormData = new FormData<T>(formData.getData(), mapping.validate(locale, validationGroups));
-		return fill(validatedFormData, locale, ctx);
+	public BasicFormMapping<T> fillAndValidate(FormData<T> formData, Location loc, RequestContext ctx, Class<?> ... validationGroups) {
+		BasicFormMapping<T> mapping = fill(formData, loc, ctx);
+		FormData<T> validatedFormData = new FormData<T>(formData.getData(), mapping.validate(loc.getLocale(), validationGroups));
+		return fill(validatedFormData, loc, ctx);
 	}
 	
 	@Override
-	public FormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, Class<?>... validationGroups) {
-		return fillAndValidate(formData, locale, (RequestContext)null, validationGroups);
+	public FormMapping<T> fillAndValidate(FormData<T> formData, Location loc, Class<?>... validationGroups) {
+		return fillAndValidate(formData, loc, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Locale locale, Class<?>... validationGroups) {
+	public FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Location loc, Class<?>... validationGroups) {
 		FormElement<?> el = null;
 		if (requestParams.isTdiAjaxRequest()) {
-			FormMapping<?> filledMapping = fill(bind(requestParams, locale, validationGroups), locale);
+			FormMapping<?> filledMapping = fill(bind(requestParams, loc, validationGroups), loc);
 			el = filledMapping.findElement(requestParams.getTdiAjaxSrcElementName());
 		}
 		return el;
 	}
 	
 	@Override
-	public FormData<T> bind(RequestParams paramsProvider, Locale locale, Class<?>... validationGroups) {
-		return bind(paramsProvider, locale, (RequestContext)null, validationGroups);
+	public FormData<T> bind(RequestParams paramsProvider, Location loc, Class<?>... validationGroups) {
+		return bind(paramsProvider, loc, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups) {
-		return bind(paramsProvider, locale, (T)null, ctx, validationGroups);
+	public FormData<T> bind(RequestParams paramsProvider, Location loc, RequestContext ctx, Class<?>... validationGroups) {
+		return bind(paramsProvider, loc, (T)null, ctx, validationGroups);
 	}
 	
 	@Override
@@ -280,7 +281,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	
 	@Override
 	public FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups) {
-		return bind(paramsProvider, getConfigLocale(), ctx, validationGroups);
+		return bind(paramsProvider, getLocation(null), ctx, validationGroups);
 	}
 	
 	@Override
@@ -290,29 +291,30 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	
 	@Override
 	public FormData<T> bind(RequestParams paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups) {
-		return bind(paramsProvider, getConfigLocale(), instance, ctx, validationGroups);
+		return bind(paramsProvider, getLocation(null), instance, ctx, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
-		return bind(paramsProvider, locale, instance, (RequestContext)null, validationGroups);
+	public FormData<T> bind(RequestParams paramsProvider, Location loc, T instance, Class<?>... validationGroups) {
+		return bind(paramsProvider, loc, instance, (RequestContext)null, validationGroups);
 	}
 
 	@Override
-	public FormData<T> bind(final RequestParams paramsProvider, final Locale locale, final T instance, final RequestContext context, final Class<?>... validationGroups) {
+	public FormData<T> bind(final RequestParams paramsProvider, final Location loc, final T instance, final RequestContext context, final Class<?>... validationGroups) {
 		if (paramsProvider == null) throw new IllegalArgumentException("paramsProvider cannot be null");
+		final Location givenOrCfgLoc = getLocation(loc);
 		final RequestProcessingError error = paramsProvider.getRequestError();
-		Map<String, BoundValuesInfo> valuesToBind = prepareValuesToBindForFields(paramsProvider, locale);
+		Map<String, BoundValuesInfo> valuesToBind = prepareValuesToBindForFields(paramsProvider, givenOrCfgLoc);
 		
 		// binding (and validating) data from paramsProvider to objects for nested mappings
 		// and adding it to available values to bind
-		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, locale, instance, context, validationGroups);
+		Map<String, FormData<?>> nestedFormData = loadDataForMappings(nested, paramsProvider, givenOrCfgLoc, instance, context, validationGroups);
 		for (Map.Entry<String, FormData<?>> e : nestedFormData.entrySet()) {
 			valuesToBind.put(e.getKey(), BoundValuesInfo.getInstance(
 				new Object[] { e.getValue().getData() }, 
 				(String)null, 
 				(Formatter<Object>)null,
-				locale));
+				givenOrCfgLoc));
 		}
 		
 		if (!(error instanceof MaxSizeExceededError) && this.secured) {
@@ -333,7 +335,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			boundData.getData(),
 			error, 
 			FormUtils.flatten(boundData.getPropertyBindErrors().values()), 
-			locale, 
+			givenOrCfgLoc.getLocale(), 
 			validationGroups); 
 		
 		Collection<ValidationResult> validationResults = new ArrayList<ValidationResult>();
@@ -451,7 +453,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	Map<String, FormData<?>> loadDataForMappings(
 		Map<String, FormMapping<?>> mappings, 
 		RequestParams paramsProvider,
-		Locale locale,
+		Location loc,
 		T instance,
 		RequestContext ctx,
 		Class<?> ... validationGroups) {
@@ -468,7 +470,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 				if (instance != null) {
 					nestedInstance = nestedData(e.getKey(), instance); 
 				}
-				FormData<Object> formData = mapping.bind(paramsProvider, locale, nestedInstance, ctx, validationGroups);
+				FormData<Object> formData = mapping.bind(paramsProvider, loc, nestedInstance, ctx, validationGroups);
 				dataMap.put(e.getKey(), formData);
 			}
 		}
@@ -480,8 +482,9 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		return outputData;
 	}
 	
-	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
-		Map<String, FormMapping<?>> filledNestedMappings = fillNestedMappings(editedObj, locale, ctx);
+	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Location loc, RequestContext ctx) {
+		final Location givenOrCfgLoc = getLocation(loc);
+		Map<String, FormMapping<?>> filledNestedMappings = fillNestedMappings(editedObj, givenOrCfgLoc, ctx);
 		
 		// Preparing values for this mapping
 		Map<String, Object> propValues = gatherPropertyValues(editedObj.getData(), FormUtils.getPropertiesFromFields(fields), ctx);
@@ -491,7 +494,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			propValues, 
 			editedObj.getValidationResult().getFieldMessages(),
 			-1, 
-			locale);
+			givenOrCfgLoc);
 
 		// Returning copy of this form that is filled with form data
 		BasicFormMappingBuilder<T> builder = new BasicFormMappingBuilder<T>(this, 
@@ -531,7 +534,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		Map<String, Object> propValues, 
 		Map<String, List<ConstraintViolationMessage>> fieldMsgs, 
 		int indexInList, 
-		Locale locale) {
+		Location loc) {
 		Map<String, FormField<?>> filledFields = new LinkedHashMap<String, FormField<?>>();
 		// For each field from form definition, let's fill this field with value -> filled form field
 		for (Map.Entry<String, FormField<?>> fieldDefEntry : this.fields.entrySet()) {
@@ -555,7 +558,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 				if (fieldMessages != null && !fieldMessages.isEmpty()) {
 					preferedStringValue = getOriginalStringValueFromParseError(fieldMessages);
 				}
-				filledField = createFilledFormField((FormField<Object>)field, value, locale, preferedStringValue);
+				filledField = createFilledFormField((FormField<Object>)field, value, loc, preferedStringValue);
 			}
 			filledFields.put(propertyName, filledField);
 		}
@@ -563,7 +566,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		return filledFields;
 	}
 
-	Map<String, FormMapping<?>> fillNestedMappings(FormData<T> editedObj, Locale locale, RequestContext ctx) {
+	Map<String, FormMapping<?>> fillNestedMappings(FormData<T> editedObj, Location loc, RequestContext ctx) {
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		// For each definition of nested mapping, fill this mapping with edited data -> filled mapping
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
@@ -577,7 +580,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 				// the outer report is propagated to nested
 				FormData<Object> formData = new FormData<Object>(data, editedObj.getValidationResult());
 				FormMapping<Object> mapping = (FormMapping<Object>)e.getValue();
-				filledMapping = mapping.fill(formData, locale, ctx);
+				filledMapping = mapping.fill(formData, loc, ctx);
 			}
 			newNestedMappings.put(e.getKey(), filledMapping);
 		}
@@ -600,10 +603,10 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	 * to descriptions of values for individual properties, ready to bind to form data object
 	 * via binder.
 	 * @param paramsProvider
-	 * @param locale
+	 * @param loc
 	 * @return
 	 */
-	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(RequestParams paramsProvider, Locale locale) {
+	private Map<String, BoundValuesInfo> prepareValuesToBindForFields(RequestParams paramsProvider, Location loc) {
 		Map<String, BoundValuesInfo> values = new LinkedHashMap<String, BoundValuesInfo>();
 		// Get values for each defined field
 		for (Map.Entry<String, FormField<?>> e : fields.entrySet()) {
@@ -632,13 +635,13 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 				}
 				String propertyName = e.getKey();
 				values.put(propertyName, BoundValuesInfo.getInstance(
-					paramValues, field.getPattern(), field.getFormatter(), locale));
+					paramValues, field.getPattern(), field.getFormatter(), loc));
 			}
 		}
 		return values;
 	}
 
-	private <U> FormField<U> createFilledFormField(final FormField<U> field, U value, Locale locale, String preferedStringValue) {
+	private <U> FormField<U> createFilledFormField(final FormField<U> field, U value, Location loc, String preferedStringValue) {
 		ChoiceProvider<U> choiceProvider = field.getChoices();
 		if (choiceProvider == null && field.getType() != null && !field.getType().isEmpty()) {
 			Field formComponent = Field.findByType(field.getType());
@@ -649,13 +652,9 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		}
 		return new FieldProps<U>(field, 
 			FormUtils.<U>convertObjectToList(value), 
-			locale, 
+			loc, 
 			getConfig().getFormatters(),
 			preferedStringValue).choices(choiceProvider).build();
-	}
-	
-	private Locale getConfigLocale() {
-		return getConfig().getLocale();
 	}
 	
 	private String getOriginalStringValueFromParseError(List<ConstraintViolationMessage> fieldMessages) {
@@ -668,6 +667,16 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			}
 		}
 		return value;
+	}
+	
+	protected Location getLocation(Location loc) {
+		Location a = null;
+		if (loc != null) {
+			a = loc;
+		} else {
+			a = getConfig().getLocation();
+		}
+		return a;
 	}
 	
 	private static <U> U assertNotNullArg(U arg, String message) {

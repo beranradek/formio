@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import net.formio.data.TestData;
@@ -31,6 +30,7 @@ import net.formio.data.TestForms;
 import net.formio.domain.MarriedPerson;
 import net.formio.domain.Nation;
 import net.formio.domain.Person;
+import net.formio.format.Location;
 import net.formio.inmemory.MapParams;
 import net.formio.validation.ValidationResult;
 
@@ -46,12 +46,12 @@ public class SimpleFormTest {
 	@Test
 	public void testFormProcessing() {
 		try {
-			final Locale locale = new Locale("en");
+			final Location loc = Location.ENGLISH;
 			
 			// Filling form with initial data
 			FormData<Person> formData = new FormData<Person>(getInitData(), ValidationResult.empty);
 			FormMapping<Person> personForm = TestForms.PERSON_FORM;
-			FormMapping<Person> filledForm = personForm.fill(formData, locale);
+			FormMapping<Person> filledForm = personForm.fill(formData, loc);
 			
 			LOG.info("Filled form: \n" + filledForm);
 			
@@ -66,7 +66,7 @@ public class SimpleFormTest {
 			MapParams reqParams = getRequestParams();
 					
 			// Binding data from request to model (Person)
-			FormData<Person> boundFormData = personForm.bind(reqParams, locale);
+			FormData<Person> boundFormData = personForm.bind(reqParams, loc);
 			Person person = boundFormData.getData();
 			
 			assertEquals(1, person.getPersonId());
@@ -88,13 +88,13 @@ public class SimpleFormTest {
 	
 	@Test
 	public void testBindToProvidedInstance() {
-		final Locale locale = new Locale("en");
+		final Location loc = Location.ENGLISH;
 		
 		MarriedPerson personToFillFromForm = new MarriedPerson("Charlotte", "Stripes");
 		personToFillFromForm.setMarriageDate(new Date());
 		personToFillFromForm.setNation(Nation.SLOVAK);
 		FormMapping<Person> personForm = TestForms.PERSON_FORM;
-		FormData<Person> boundFormData = personForm.bind(getRequestParams(), locale, personToFillFromForm);
+		FormData<Person> boundFormData = personForm.bind(getRequestParams(), loc, personToFillFromForm);
 		MarriedPerson person = (MarriedPerson)boundFormData.getData();
 		
 		// Constructor-settable formProperties are not overriden

@@ -16,7 +16,6 @@
  */
 package net.formio.format;
 
-import java.util.Locale;
 
 /**
  * Formatter that formats object to String and vice versa.
@@ -30,17 +29,17 @@ public interface Formatter<T> {
 	 * @param str string to parse
 	 * @param destClass desired class of parsed object (useful for specifying concrete enumeration class)
 	 * @param formatPattern specified format of string; or {@code null}
-	 * @param locale specified locale of string; or {@code null}
+	 * @param loc specified region and/or time zone of string; or {@code null}
 	 * @return parsed object
 	 */
-	T parseFromString(String str, Class<T> destClass, String formatPattern, Locale locale);
+	T parseFromString(String str, Class<T> destClass, String formatPattern, Location loc);
 	
 	/**
 	 * Creates string from given value.
 	 * @param value value to convert to string
 	 * @param formatPattern specified format of string; or {@code null}
-	 * @param locale specified locale of string; or {@code null}
+	 * @param loc specified region and/or time zone of string; or {@code null}
 	 * @return result string
 	 */
-	String makeString(T value, String formatPattern, Locale locale);
+	String makeString(T value, String formatPattern, Location loc);
 }

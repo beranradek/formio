@@ -20,7 +20,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,15 +33,16 @@ class FormatsCache {
 	private static final Map<FormatKey, DecimalFormat> DECIMAL_FORMATS_CACHE = new ConcurrentHashMap<FormatKey, DecimalFormat>();
 	static final String DEFAULT_DATE_FORMAT = "d.M.yyyy";
 	
-	static DateFormat getOrCreateDateFormat(String pattern, Locale locale) {
-		final FormatKey formatterKey = FormatKey.getInstance(pattern, locale);
+	static DateFormat getOrCreateDateFormat(String pattern, Location loc) {
+		// TODO: Use also time zone for formatting dates
+		final FormatKey formatterKey = FormatKey.getInstance(pattern, loc);
 		DateFormat format = DATE_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
-				format = new SimpleDateFormat(pattern, locale);
+				format = new SimpleDateFormat(pattern, loc.getLocale());
 			} else {
 				// Note: full precision could be expressed using pattern "yyyy-MM-dd'T'HH:mm:ss,S z"
-				format = new SimpleDateFormat(DEFAULT_DATE_FORMAT, locale);
+				format = new SimpleDateFormat(DEFAULT_DATE_FORMAT, loc.getLocale());
 			}
 			format.setLenient(false); // without heuristics - allowing only strict pattern 
 			DATE_FORMATS_CACHE.put(formatterKey, format);
@@ -50,19 +50,19 @@ class FormatsCache {
 		return format;
 	}
 
-	static DecimalFormat getOrCreateDecimalFormat(String pattern, Locale locale) {
-		final FormatKey formatterKey = FormatKey.getInstance(pattern, locale);
+	static DecimalFormat getOrCreateDecimalFormat(String pattern, Location loc) {
+		final FormatKey formatterKey = FormatKey.getInstance(pattern, loc);
 		DecimalFormat format = DECIMAL_FORMATS_CACHE.get(formatterKey);
 		if (format == null) {
 			if (pattern != null && !pattern.isEmpty()) {
 				// Set grouping separator and decimal separator specific for given locale
-				DecimalFormat df = (DecimalFormat)NumberFormat.getInstance(locale);
+				DecimalFormat df = (DecimalFormat)NumberFormat.getInstance(loc.getLocale());
 				format = new DecimalFormat(pattern, df.getDecimalFormatSymbols());
 				format.setMaximumIntegerDigits(Short.MAX_VALUE);
 				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			} else { 
 				// Formatter for locale bears grouping separator and decimal separator specific for given locale
-				format = (DecimalFormat)NumberFormat.getInstance(locale);
+				format = (DecimalFormat)NumberFormat.getInstance(loc.getLocale());
 				format.setMaximumIntegerDigits(Short.MAX_VALUE);
 				format.setMaximumFractionDigits(Short.MAX_VALUE);
 			}
@@ -74,16 +74,16 @@ class FormatsCache {
 	
 	protected static final class FormatKey {
 		private final String pattern;
-		private final Locale locale;
+		private final Location location;
 
-		protected static FormatKey getInstance(String pattern, Locale locale) {
+		protected static FormatKey getInstance(String pattern, Location loc) {
 			// Caching of FormatKey instances can be implemented here
-			return new FormatKey(pattern, locale);
+			return new FormatKey(pattern, loc);
 		}
 
-		private FormatKey(String pattern, Locale locale) {
+		private FormatKey(String pattern, Location loc) {
 			this.pattern = pattern;
-			this.locale = locale;
+			this.location = loc;
 		}
 
 		@Override
@@ -91,7 +91,7 @@ class FormatsCache {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result
-					+ ((locale == null) ? 0 : locale.hashCode());
+					+ ((location == null) ? 0 : location.hashCode());
 			result = prime * result
 					+ ((pattern == null) ? 0 : pattern.hashCode());
 			return result;
@@ -106,10 +106,10 @@ class FormatsCache {
 			if (!(obj instanceof FormatKey))
 				return false;
 			FormatKey other = (FormatKey) obj;
-			if (locale == null) {
-				if (other.locale != null)
+			if (location == null) {
+				if (other.location != null)
 					return false;
-			} else if (!locale.equals(other.locale))
+			} else if (!location.equals(other.location))
 				return false;
 			if (pattern == null) {
 				if (other.pattern != null)

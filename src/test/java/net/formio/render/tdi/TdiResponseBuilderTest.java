@@ -16,12 +16,12 @@
  */
 package net.formio.render.tdi;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Locale;
 
+import net.formio.format.Location;
 import net.formio.render.FormRenderer;
-import net.formio.render.RenderContext;
 
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class TdiResponseBuilderTest {
 			"<response>" + newLine() + 
 			"<status>OK</status>" + newLine() +
 			"</response>" + newLine(),
-			new TdiResponseBuilder(new FormRenderer(new RenderContext(Locale.ENGLISH)))
+			new TdiResponseBuilder(new FormRenderer(new Location(Locale.ENGLISH)))
 				.status("OK").asString());
 	}
 	

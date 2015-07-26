@@ -21,7 +21,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +29,7 @@ import net.formio.binding.collection.BasicCollectionBuilders;
 import net.formio.binding.collection.CollectionBuilders;
 import net.formio.binding.collection.CollectionSpec;
 import net.formio.binding.collection.ItemsOrder;
+import net.formio.format.Location;
 import net.formio.format.BasicFormatters;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
@@ -265,7 +265,7 @@ public class DefaultBinder implements Binder {
 			} else {
 				Object formValue = valueInfo.getValues()[0];
 				Object resultValue = convertOneFormValue(propertyName, formValue, 
-					targetClass, valueInfo.getFormatter(), valueInfo.getPattern(), valueInfo.getLocale(), parseErrors);
+					targetClass, valueInfo.getFormatter(), valueInfo.getPattern(), valueInfo.getLocation(), parseErrors);
 				parsedValue = new ParsedValue(resultValue, parseErrors);
 			}
 		}
@@ -279,17 +279,17 @@ public class DefaultBinder implements Binder {
 	 * @param targetClass
 	 * @param formatter
 	 * @param pattern
-	 * @param locale
+	 * @param loc
 	 * @return
 	 */
 	protected Object parseFromString(String strValue, Class<?> targetClass,
-		Formatter<Object> formatter, String pattern, Locale locale) {
+		Formatter<Object> formatter, String pattern, Location loc) {
 		Object resultValue;
 		if (formatter != null) {
 			// user defined formatter
-			resultValue = formatter.parseFromString(strValue, (Class<Object>)targetClass, pattern, locale);
+			resultValue = formatter.parseFromString(strValue, (Class<Object>)targetClass, pattern, loc);
 		} else {
-			resultValue = getFormatters().parseFromString(strValue, targetClass, pattern, locale);
+			resultValue = getFormatters().parseFromString(strValue, targetClass, pattern, loc);
 		}
 		return resultValue;
 	}
@@ -328,7 +328,7 @@ public class DefaultBinder implements Binder {
 		if (valueInfo != null && valueInfo.getValues() != null) {
 			for (Object formValue : valueInfo.getValues()) {
 				Object value = convertOneFormValue(propertyName, formValue, 
-					itemClass, valueInfo.getFormatter(), valueInfo.getPattern(), valueInfo.getLocale(), parseErrors);
+					itemClass, valueInfo.getFormatter(), valueInfo.getPattern(), valueInfo.getLocation(), parseErrors);
 				resultItems.add((I)value);
 			}
 		}
@@ -343,7 +343,7 @@ public class DefaultBinder implements Binder {
 	 * @param targetClass
 	 * @param formatter
 	 * @param pattern
-	 * @param locale
+	 * @param loc
 	 * @return
 	 */
 	protected Object convertOneFormValue(
@@ -352,7 +352,7 @@ public class DefaultBinder implements Binder {
 		Class<?> targetClass, 
 		Formatter<Object> formatter, 
 		String pattern, 
-		Locale locale,
+		Location loc,
 		List<ParseError> parseErrors) {
 		
 		Object resultValue = null;
@@ -368,7 +368,7 @@ public class DefaultBinder implements Binder {
 					// resultValue remains null
 					// for e.g. transformation of "" to Date will return null
 				} else {
-					resultValue = parseFromString(strValue, targetClass, formatter, pattern, locale);
+					resultValue = parseFromString(strValue, targetClass, formatter, pattern, loc);
 				}
 			} catch (StringParseException ex) {
 				resultValue = null;

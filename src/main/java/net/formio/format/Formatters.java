@@ -16,7 +16,6 @@
  */
 package net.formio.format;
 
-import java.util.Locale;
 
 /**
  * Object capable to convert value to a String
@@ -32,19 +31,19 @@ public interface Formatters {
 	 * @param str string to parse
 	 * @param destClass class of resulting parsed value
 	 * @param formatPattern format of value in the string
-	 * @param locale locale of value in the string
+	 * @param loc region and/or time zone of formatted value
 	 * @return
 	 */
-	<T> T parseFromString(String str, Class<T> destClass, String formatPattern, Locale locale);
+	<T> T parseFromString(String str, Class<T> destClass, String formatPattern, Location loc);
 	
 	/**
 	 * Creates String from the given value.
 	 * @param value value to convert
 	 * @param formatPattern format of value in the string
-	 * @param locale locale of value in the string
+	 * @param loc region and/or time zone of formatted value
 	 * @return
 	 */
-	<T> String makeString(T value, String formatPattern, Locale locale);
+	<T> String makeString(T value, String formatPattern, Location loc);
 	
 	/**
 	 * Returns true if formatter for given class is supported.

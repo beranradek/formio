@@ -141,6 +141,15 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	}
 	
 	@Override
+	public Config getConfig() {
+		Config cfg = null;
+		if (this.parent != null) {
+			cfg = this.parent.getConfig();
+		}
+		return cfg;
+	}
+	
+	@Override
 	public List<T> getFilledObjects() {
 		return filledObjects;
 	}
@@ -165,7 +174,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 		if (getValue() != null && !getValue().isEmpty()) {
 			String lc = getValue().toLowerCase();
 			checked = getParent().getConfig().getFormatters().parseFromString(
-				lc, Boolean.class, (String)null, getParent().getConfig().getLocale());
+				lc, Boolean.class, (String)null, getParent().getConfig().getLocation());
 		}
 		return checked != null && checked.booleanValue();
 	}

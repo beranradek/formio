@@ -76,17 +76,17 @@ public class WholeFormRenderer extends FormRendererWrapper {
 		sb.append("</head>" + newLine());
 		sb.append("<body style=\"margin:1em\">" + newLine());
 
-		sb.append(renderHtmlForm(formMapping));
+		sb.append(renderHtmlForm(formMapping, "#", FormMethod.POST));
 
 		sb.append("</body>" + newLine());
 		sb.append("</html>" + newLine());
 		return sb.toString();
 	}
 
-	public <T> String renderHtmlForm(FormMapping<T> formMapping) {
+	public <T> String renderHtmlForm(FormMapping<T> formMapping, String actionUrl, FormMethod method) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<form action=\"" + getRenderContext().getActionUrl() + 
-			"\" method=\"" + getRenderContext().getMethod().name() + 
+		sb.append("<form action=\"" + actionUrl + 
+			"\" method=\"" + method.name() + 
 			"\" role=\"form\">" + newLine());
 		if (formMapping.isVisible()) {
 			sb.append(renderMarkupGlobalMessages(formMapping));

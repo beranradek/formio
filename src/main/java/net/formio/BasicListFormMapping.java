@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.formio.data.RequestContext;
+import net.formio.format.Location;
 import net.formio.internal.FormUtils;
 import net.formio.upload.MaxSizeExceededError;
 import net.formio.upload.RequestProcessingError;
@@ -83,22 +84,23 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	public FormData<T> bind(RequestParams paramsProvider, Locale locale, Class<?> ... validationGroups) {
-		return bind(paramsProvider, locale, (RequestContext)null, validationGroups);
+	public FormData<T> bind(RequestParams paramsProvider, Location loc, Class<?> ... validationGroups) {
+		return bind(paramsProvider, loc, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?> ... validationGroups) {
-		return bind(paramsProvider, locale, (T)null, ctx, validationGroups);
+	public FormData<T> bind(RequestParams paramsProvider, Location loc, RequestContext ctx, Class<?> ... validationGroups) {
+		return bind(paramsProvider, loc, (T)null, ctx, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, Class<?>... validationGroups) {
-		return bind(paramsProvider, locale, instance, (RequestContext)null, validationGroups);
+	public FormData<T> bind(RequestParams paramsProvider, Location loc, T instance, Class<?>... validationGroups) {
+		return bind(paramsProvider, loc, instance, (RequestContext)null, validationGroups);
 	}
 	
 	@Override
-	public FormData<T> bind(final RequestParams paramsProvider, final Locale locale, final T instance, final RequestContext context, final Class<?>... validationGroups) {
+	public FormData<T> bind(final RequestParams paramsProvider, final Location loc, final T instance, final RequestContext context, final Class<?>... validationGroups) {
+		final Location givenOrCfgLoc = getLocation(loc);
 		final RequestProcessingError error = paramsProvider.getRequestError();
 		
 		// Finding how many parameters are in the request - check for max. index available in request params name, 
@@ -146,7 +148,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 					j++;
 				}
 			}
-			FormData<T> formData = m.bind(paramsProvider, locale, instanceForIndex, context, validationGroups);
+			FormData<T> formData = m.bind(paramsProvider, givenOrCfgLoc, instanceForIndex, context, validationGroups);
 			data.add(formData.getData());
 			fieldMsgs.putAll(formData.getValidationResult().getFieldMessages());
 			globalMsgs.addAll(formData.getValidationResult().getGlobalMessages());
@@ -177,7 +179,8 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 	}
 	
 	@Override
-	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Locale locale, RequestContext ctx) {
+	BasicFormMappingBuilder<T> fillInternal(FormData<T> editedObj, Location loc, RequestContext ctx) {
+		final Location givenOrCfgLoc = getLocation(loc);
 		List<FormMapping<T>> newMappings = new ArrayList<FormMapping<T>>();
 		Set<String> propNames = FormUtils.getPropertiesFromFields(this.fields);
 		if (editedObj != null && editedObj.getData() != null) {
@@ -188,7 +191,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 				FormData<T> formDataAtIndex = new FormData<T>(dataAtIndex, editedObj.getValidationResult());
 				
 				// Create filled nested mappings for current list index (data at current index)
-				Map<String, FormMapping<?>> filledIndexedNestedMappings = indexAndFillNestedMappings(formDataAtIndex, locale, ctx);
+				Map<String, FormMapping<?>> filledIndexedNestedMappings = indexAndFillNestedMappings(formDataAtIndex, givenOrCfgLoc, ctx);
 				
 				// Prepare values for mapping that is constructed for current list index.
 				// Previously created filled nested mappings will be assigned to mapping for current list index.
@@ -200,7 +203,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 					editedObj.getValidationResult() != null ?
 						editedObj.getValidationResult().getFieldMessages() : new LinkedHashMap<String, List<ConstraintViolationMessage>>(),
 					index, 
-					locale);
+					givenOrCfgLoc);
 				
 				// Returning copy of this mapping (for current index) that is filled with form data,
 				// but with single mapping type (for an index) and now without list mappings
@@ -250,14 +253,14 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 		return Clones.mergedValidationResults(validationResults);
 	}
 	
-	Map<String, FormMapping<?>> indexAndFillNestedMappings(FormData<T> editedObj, Locale locale, RequestContext ctx) {
+	Map<String, FormMapping<?>> indexAndFillNestedMappings(FormData<T> editedObj, Location loc, RequestContext ctx) {
 		Map<String, FormMapping<?>> newNestedMappings = new LinkedHashMap<String, FormMapping<?>>();
 		for (Map.Entry<String, FormMapping<?>> e : this.nested.entrySet()) {
 			// nested data - nested object or list of nested objects in case of mapping to list
 			Object data = nestedData(e.getKey(), editedObj.getData());
 			// the outer report is propagated to nested
 			FormData formData = new FormData<Object>(data, editedObj.getValidationResult());
-			newNestedMappings.put(e.getKey(), e.getValue().fill(formData, locale, ctx));
+			newNestedMappings.put(e.getKey(), e.getValue().fill(formData, loc, ctx));
 		}
 		return newNestedMappings;
 	}

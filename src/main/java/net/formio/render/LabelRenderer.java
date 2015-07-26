@@ -95,7 +95,7 @@ class LabelRenderer {
 					msgKey = msgKey + Forms.PATH_SEP + "single";
 				}
 			}
-			sb.append(renderer.escapeHtml(tr.getMessage(msgKey, renderer.getRenderContext().getLocale())));
+			sb.append(renderer.escapeHtml(tr.getMessage(msgKey, renderer.getLocation(formElement).getLocale())));
 			if (formElement instanceof BasicListFormMapping) {
 				FormMapping<?> listMapping = (FormMapping<?>) formElement;
 				sb.append(" (<span id=\"" + formElement.getName() + Forms.PATH_SEP + "size\">" + 

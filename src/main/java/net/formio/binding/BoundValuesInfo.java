@@ -16,8 +16,7 @@
  */
 package net.formio.binding;
 
-import java.util.Locale;
-
+import net.formio.format.Location;
 import net.formio.format.Formatter;
 
 /**
@@ -28,25 +27,25 @@ public final class BoundValuesInfo {
 	private final Object[] values;
 	private final String pattern;
 	private final Formatter<Object> formatter;
-	private final Locale locale;
+	private final Location location;
 
-	public static BoundValuesInfo getInstance(Object[] values, String pattern, Formatter<?> formatter, Locale locale) {
-		return new BoundValuesInfo(values, pattern, formatter, locale);
+	public static BoundValuesInfo getInstance(Object[] values, String pattern, Formatter<?> formatter, Location loc) {
+		return new BoundValuesInfo(values, pattern, formatter, loc);
 	}
 	
-	static BoundValuesInfo getInstance(Object[] values, String pattern) {
-		return getInstance(values, pattern, null, Locale.getDefault());
+	public static BoundValuesInfo getInstance(Object[] values, String pattern) {
+		return getInstance(values, pattern, null, Location.getDefault());
 	}
 	
-	static BoundValuesInfo getInstance(Object[] values) {
+	public static BoundValuesInfo getInstance(Object[] values) {
 		return getInstance(values, null);
 	}
 	
-	private BoundValuesInfo(Object[] values, String pattern, Formatter<?> formatter, Locale locale) {
+	private BoundValuesInfo(Object[] values, String pattern, Formatter<?> formatter, Location loc) {
 		this.values = values;
 		this.pattern = pattern;
 		this.formatter = (Formatter<Object>)formatter;
-		this.locale = locale;
+		this.location = loc;
 	}
 
 	public Object[] getValues() {
@@ -77,8 +76,8 @@ public final class BoundValuesInfo {
 		return formatter;
 	}
 
-	public Locale getLocale() {
-		return locale;
+	public Location getLocation() {
+		return location;
 	}
 	
 	@Override

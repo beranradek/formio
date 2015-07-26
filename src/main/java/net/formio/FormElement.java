@@ -85,6 +85,12 @@ public interface FormElement<T> {
 	String getLabelKey();
 	
 	/**
+	 * Configuration of this form element.
+	 * @return
+	 */
+	Config getConfig();
+	
+	/**
 	 * Returns properties of this form element.
 	 * @return additional properties of this form element 
 	 */

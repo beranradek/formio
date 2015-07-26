@@ -29,6 +29,7 @@ import net.formio.ajax.AjaxParams;
 import net.formio.ajax.action.HandledJsEvent;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
+import net.formio.format.Location;
 import net.formio.internal.FormUtils;
 import net.formio.props.FormElementProperty;
 import net.formio.props.types.ButtonType;
@@ -37,17 +38,17 @@ import net.formio.render.tdi.TdiResponseBuilder;
 import net.formio.validation.ConstraintViolationMessage;
 
 /**
- * <p>Form renderer that is using Bootstrap markup and styles.
+ * <p>Form renderer that is using Bootstrap markup and styles.</p>
  * <p>You probably want to override the rendered markup to meet your needs - you
  * can create custom subclass that uses your favorite templating system and
- * overrides some or all methods with "renderMarkup" prefix.
- * <p>Thread-safe: Immutable.
+ * overrides some or all methods with "renderMarkup" prefix.</p>
+ * <p>Thread-safe: Immutable.</p>
  * 
  * @author Radek Beran
  */
 public class FormRenderer {
 
-	private final RenderContext ctx;
+	private final Location location;
 	// Auxiliary renderers
 	private final StyleRenderer styleRenderer;
 	private final MessageRenderer messageRenderer;
@@ -55,16 +56,17 @@ public class FormRenderer {
 	private final DatePickerRenderer datePickerRenderer;
 	private final AjaxEventRenderer ajaxEventRenderer;
 
-	public FormRenderer(RenderContext ctx) {
-		if (ctx == null) {
-			throw new IllegalArgumentException("ctx cannot be null");
-		}
-		this.ctx = ctx;
+	public FormRenderer(Location location) {
+		this.location = location;
 		this.styleRenderer = new StyleRenderer(this);
 		this.messageRenderer = new MessageRenderer(this);
 		this.labelRenderer = new LabelRenderer(this, this.styleRenderer);
 		this.datePickerRenderer = new DatePickerRenderer(this);
 		this.ajaxEventRenderer = new AjaxEventRenderer(this);
+	}
+	
+	public FormRenderer() {
+		this(null); // location is null, locale and time zone will be fetched from config of rendered form elements
 	}
 
 	/**
@@ -528,7 +530,7 @@ public class FormRenderer {
 	}
 
 	protected <T> MessageTranslator getMessageTranslator(FormElement<T> element) {
-		return RenderUtils.getMessageTranslator(element, getRenderContext().getLocale());
+		return RenderUtils.getMessageTranslator(element, getLocation(element).getLocale());
 	}
 	
 	/**
@@ -783,9 +785,32 @@ public class FormRenderer {
 	protected <T> String getRequiredMark(FormElement<T> element) {
 		return labelRenderer.getRequiredMark(element);
 	}
-
-	protected RenderContext getRenderContext() {
-		return ctx;
+	
+	/**
+	 * Returns region and time zone from location in this renderer; or else from configuration
+	 * bound to given form element.
+	 * @param element
+	 * @return
+	 */
+	protected <T> Location getLocation(FormElement<T> element) {
+		Location a = null;
+		if (location != null) {
+			a = location;
+		} else {
+			a = element.getConfig().getLocation();
+		}
+		return a;
+	}
+	
+	/**
+	 * Region and time zone specified explicitly for this form renderer.
+	 * If {@code null} is returned, region and time zone should be fetched from config
+	 * of rendered form elements. Use {@link #getLocation(FormElement)} whenever
+	 * you have reference to rendered form element.
+	 * @return
+	 */
+	protected Location getLocation() {
+		return location;
 	}
 	
 	String escapeHtml(String html) {

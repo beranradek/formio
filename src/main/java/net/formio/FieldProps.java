@@ -27,6 +27,7 @@ import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.choice.DefaultChoiceProvider;
 import net.formio.choice.DefaultChoiceRenderer;
+import net.formio.format.Location;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
 import net.formio.props.FormElementProperty;
@@ -91,22 +92,22 @@ public class FieldProps<T> implements Serializable {
 	
 	FieldProps(FormField<T> field, 
 		List<T> values, 
-		Locale locale, 
+		Location loc, 
 		Formatters formatters, 
 		String preferedStringValue) {
 		String strValue = null;
 		if (preferedStringValue != null) {
 			strValue = preferedStringValue; 
 		} else if (values.size() > 0) {
-			strValue = valueAsString(values.get(0), field.getPattern(), field.getFormatter(), locale, formatters);
+			strValue = valueAsString(values.get(0), field.getPattern(), field.getFormatter(), loc, formatters);
 		}
 		// "this" cannot be used before this initialization of fields:
 		initFromField(field).value(strValue).filledObjects(values);
 		if (field.getChoiceRenderer() instanceof DefaultChoiceRenderer) {
-			choiceRenderer(new DefaultChoiceRenderer<T>(locale));
+			choiceRenderer(new DefaultChoiceRenderer<T>(loc.getLocale()));
 		}
 	}
-		
+	
 	public FieldProps<T> type(String type) {
 		this.type = type;
 		return this;
@@ -431,15 +432,15 @@ public class FieldProps<T> implements Serializable {
 		return new FormFieldImpl<T>(this, order);
 	}
 	
-	private static <T> String valueAsString(T value, String pattern, Formatter<T> formatter, Locale locale, Formatters formatters) {
+	private static <T> String valueAsString(T value, String pattern, Formatter<T> formatter, Location loc, Formatters formatters) {
 		if (value == null) return null;
 		String str = null;
 		if (formatter != null) {
 			// formatter is specified explicitly by user
-			str = formatter.makeString(value, pattern, locale);
+			str = formatter.makeString(value, pattern, loc);
 		} else {
 			// choose a suitable formatter from available formatters
-			str = formatters.makeString(value, pattern, locale);
+			str = formatters.makeString(value, pattern, loc);
 		}
 		return str;
 	}

@@ -17,13 +17,13 @@
 package net.formio;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.validation.groups.Default;
 
 import net.formio.binding.Instantiator;
 import net.formio.data.RequestContext;
+import net.formio.format.Location;
 import net.formio.props.FormMappingProperties;
 
 /**
@@ -57,20 +57,20 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * Fills form with values from given object and returns new filled form
 	 * that can be populated to the template. 
 	 * @param formData object that holds data for the form and initial validation messages/report
-	 * @param locale locale for converting values to strings
+	 * @param loc local settings for formatting values from/to strings
 	 * @param ctx context of the request required for security features
 	 * @return
 	 */
-	FormMapping<T> fill(FormData<T> formData, Locale locale, RequestContext ctx);
+	FormMapping<T> fill(FormData<T> formData, Location loc, RequestContext ctx);
 	
 	/**
 	 * Fills form with values from given object and returns new filled form
 	 * that can be populated to the template. 
 	 * @param formData object that holds data for the form and initial validation messages/report
-	 * @param locale locale for converting values to strings 
+	 * @param loc local settings for formatting values from/to strings 
 	 * @return
 	 */
-	FormMapping<T> fill(FormData<T> formData, Locale locale);
+	FormMapping<T> fill(FormData<T> formData, Location loc);
 	
 	/**
 	 * Fills form with values from given object and returns new filled form
@@ -83,7 +83,7 @@ public interface FormMapping<T> extends FormElement<T> {
 	
 	/**
 	 * Fills form with values from given object and returns new filled form
-	 * that can be populated to the template. Default locale is used.
+	 * that can be populated to the template. Default locale and time zone is used.
 	 * @param formData object that holds data for the form and initial validation messages/report
 	 * @return
 	 */
@@ -94,36 +94,36 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * that can be populated to the template. Actual validation messages are present for rendering.
 	 * @param formData object that holds data for the form and initial validation messages - these messages can
 	 * be empty because the data is revalidated automatically
-	 * @param locale
+	 * @param loc local settings for formatting values from/to strings
 	 * @param ctx
 	 * @param validationGroups
 	 * @return
 	 */
-	FormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, RequestContext ctx, Class<?> ... validationGroups);
+	FormMapping<T> fillAndValidate(FormData<T> formData, Location loc, RequestContext ctx, Class<?> ... validationGroups);
 	
 	/**
 	 * Fills form with values from given object, validates the object and returns new filled form
 	 * that can be populated to the template. Actual validation messages are present for rendering.
 	 * @param formData object that holds data for the form and initial validation messages - these messages can
 	 * be empty because the data is revalidated automatically
-	 * @param locale
+	 * @param loc local settings for formatting values from/to strings
 	 * @param ctx
 	 * @param validationGroups
 	 * @return
 	 */
-	FormMapping<T> fillAndValidate(FormData<T> formData, Locale locale, Class<?> ... validationGroups);
+	FormMapping<T> fillAndValidate(FormData<T> formData, Location loc, Class<?> ... validationGroups);
 	
 	/**
 	 * Returns form element that invoked the TDI AJAX request, filled with request data (and validation messages);
 	 * or {@code null} of no such element exists (e.g. given request is not an TDI AJAX request).
 	 * @param requestParams
-	 * @param locale
+	 * @param loc local settings for formatting values from/to strings
 	 * @param validationGroups
 	 * @return
 	 */
-	FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Locale locale, Class<?>... validationGroups);
+	FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Location loc, Class<?>... validationGroups);
 	
-	FormData<T> bind(RequestParams paramsProvider, Locale locale, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Location loc, RequestContext ctx, Class<?>... validationGroups);
 	FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups);
 	
 	/**
@@ -141,33 +141,33 @@ public interface FormMapping<T> extends FormElement<T> {
 	FormData<T> bind(RequestParams paramsProvider, T instance, RequestContext ctx, Class<?>... validationGroups);
 	
 	/**
-	 * Binds data from request to provided instance and validates data of the form.
-	 * This variant of bind method is not recommended because the provided instance is filled from request even when the form 
+	 * <p>Binds data from request to provided instance and validates data of the form.</p>
+	 * <p>This variant of bind method is not recommended because the provided instance is filled from request even when the form 
 	 * is not valid (first it is filled and then validated). You are encouraged to use the default "functional" variant od bind method 
 	 * without providing your instance and copy/store resulting data only 
-	 * when the form is in valid state (use FormData.isValid to check this).
+	 * when the form is in valid state (use FormData.isValid to check this).</p>
 	 * @param paramsProvider
-	 * @param locale
+	 * @param loc local settings for formatting values from/to strings
 	 * @param instance
 	 * @param ctx
 	 * @param validationGroups
 	 * @return
 	 */
-	FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, RequestContext ctx, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Location loc, T instance, RequestContext ctx, Class<?>... validationGroups);
 	
 	/**
 	 * Binds and validates data from the form.
 	 * @param paramsProvider provider of request parameters
-	 * @param locale locale for converting strings to values
+	 * @param loc local settings for formatting values from/to strings
 	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 
 	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
 	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
 	 * @return
 	 */
-	FormData<T> bind(RequestParams paramsProvider, Locale locale, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Location loc, Class<?>... validationGroups);
 	
 	/**
-	 * Binds and validates data from the form. Default locale is used.
+	 * Binds and validates data from the form. Default locale and time zone is used.
 	 * @param paramsProvider provider of request parameters
 	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 
 	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
@@ -183,17 +183,17 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * without providing your instance and copy/store resulting data only 
 	 * when the form is in valid state (use FormData.isValid to check this).
 	 * @param paramsProvider provider of request parameters
-	 * @param locale locale for converting strings to values
+	 * @param loc local settings for formatting values from/to strings
 	 * @param instance instance to which data from the request parameter provider should be bound
 	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 
 	 * {@link Default} group, but other groups (interfaces) can be created - extended or not extended
 	 * from {@link Default} - and their classes used in attribute "groups" of validation annotations)
 	 * @return
 	 */
-	FormData<T> bind(RequestParams paramsProvider, Locale locale, T instance, Class<?>... validationGroups);
+	FormData<T> bind(RequestParams paramsProvider, Location loc, T instance, Class<?>... validationGroups);
 	
 	/**
-	 * Binds and validates data from the form. Default locale is used.
+	 * Binds and validates data from the form. Default locale and time zone is used.
 	 * @param paramsProvider provider of request parameters
 	 * @param instance instance to which data from the request parameter provider should be bound
 	 * @param validationGroups the group or list of groups targeted for validation (defaults to implicit 
@@ -249,13 +249,6 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * @return
 	 */
 	List<FormMapping<T>> getList();
-	
-	
-	/**
-	 * Configuration of this mapping.
-	 * @return
-	 */
-	Config getConfig();
 	
 	/**
 	 * Returns copy of this mapping with given order.

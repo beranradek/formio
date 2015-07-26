@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import net.formio.FormData;
@@ -44,12 +43,12 @@ public class BigDecimalFormTest {
 	@Test
 	public void testFillingBindingOfBigDecimal() {
 		try {
-			final Locale csLocale = new Locale("cs");
+			final Location loc = Location.CZECH;
 
 			// Filling form with initial data
 			FormData<BigDecimalValue> formData = new FormData<BigDecimalValue>(getInitData(), ValidationResult.empty);
 			FormMapping<BigDecimalValue> valueForm = TestForms.VALUE_FORM;
-			FormMapping<BigDecimalValue> filledForm = valueForm.fill(formData, csLocale);
+			FormMapping<BigDecimalValue> filledForm = valueForm.fill(formData, loc);
 
 			LOG.info("Filled form: \n" + filledForm);
 
@@ -63,7 +62,7 @@ public class BigDecimalFormTest {
 			reqParams.put(valueForm.getName() + Forms.PATH_SEP + "value", "30,98");
 
 			// Binding data from request to model
-			FormData<BigDecimalValue> boundFormData = valueForm.bind(reqParams, csLocale);
+			FormData<BigDecimalValue> boundFormData = valueForm.bind(reqParams, loc);
 			BigDecimalValue value = boundFormData.getData();
 
 			assertEquals(BigDecimal.valueOf(3098, 2), value.getValue());

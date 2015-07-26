@@ -75,7 +75,7 @@ public class Profile implements Serializable {
 	// file
 	private UploadedFile certificate;
 	
-	// text area
+	// text location
 	private String note;
 	
 	@Valid

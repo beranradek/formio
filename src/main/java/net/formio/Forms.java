@@ -16,14 +16,12 @@
  */
 package net.formio;
 
-import java.util.Locale;
-
 import net.formio.ajax.action.AjaxAction;
 import net.formio.binding.Instantiator;
 import net.formio.binding.StaticFactoryMethod;
+import net.formio.format.Location;
 import net.formio.internal.FormUtils;
 import net.formio.render.FormRenderer;
-import net.formio.render.RenderContext;
 import net.formio.render.WholeFormRenderer;
 
 /**
@@ -305,10 +303,10 @@ public final class Forms {
 	 * Renders form with embedded form renderer and opens resulting HTML
 	 * in default browser of operating system.
 	 * @param form
-	 * @param locale
+	 * @param location
 	 */
-	public static <T> void previewForm(FormMapping<T> form, Locale locale) {
-		String html = new WholeFormRenderer(new FormRenderer(new RenderContext(locale))).renderHtmlFormPage(form);
+	public static <T> void previewForm(FormMapping<T> form, Location location) {
+		String html = new WholeFormRenderer(new FormRenderer(location)).renderHtmlFormPage(form);
 		FormUtils.openHtmlInBrowser(html);
 	}
 	
@@ -319,7 +317,7 @@ public final class Forms {
 	 * @param locale
 	 */
 	public static <T> void previewForm(FormMapping<T> form) {
-		previewForm(form, Locale.ENGLISH);
+		previewForm(form, null);
 	}
 	
 	/**

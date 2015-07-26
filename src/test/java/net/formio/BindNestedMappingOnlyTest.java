@@ -16,15 +16,14 @@
  */
 package net.formio;
 
-import static org.junit.Assert.*;
-
-import java.util.Locale;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import net.formio.data.TestForms;
 import net.formio.data.TestParams;
 import net.formio.domain.NewCollegue;
-import net.formio.domain.Registration;
 import net.formio.domain.NewCollegue.New;
+import net.formio.domain.Registration;
+import net.formio.format.Location;
 import net.formio.inmemory.MapParams;
 
 import org.junit.Test;
@@ -37,7 +36,7 @@ public class BindNestedMappingOnlyTest {
 	@Test
 	public void testBindToNestedMappingOnly() {
 		FormMapping<Registration> regForm = TestForms.BASIC_REG_FORM;
-		final Locale locale = new Locale("en"); 
+		final Location loc = Location.ENGLISH;
 		
 		// Binding data from request
 		FormMapping<NewCollegue> newCollegueMapping = regForm.getMapping(NewCollegue.class, "newCollegue");
@@ -45,7 +44,7 @@ public class BindNestedMappingOnlyTest {
 		MapParams params = TestParams.newRegistrationCollegueParams();
 		final String sep = Forms.PATH_SEP;
 		params.put("registration" + sep + "email", "invalidemail.com"); // unrelated param
-		FormData<NewCollegue> formData = newCollegueMapping.bind(params, locale, New.class);
+		FormData<NewCollegue> formData = newCollegueMapping.bind(params, loc, New.class);
 		NewCollegue newCollegue = formData.getData();
 		assertEquals(2014, newCollegue.getRegDate().getYear());
 		assertEquals(11, newCollegue.getRegDate().getMonth());

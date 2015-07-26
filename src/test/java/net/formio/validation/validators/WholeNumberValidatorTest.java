@@ -58,7 +58,7 @@ public class WholeNumberValidatorTest extends ValidatorTest {
 		assertEquals(getDefaultElementName(), msg.getElementName());
 		assertEquals(AbstractNumberValidator.MIN_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
-		assertEquals(Long.valueOf(1), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
+		assertEquals(Long.valueOf(1), msg.getMessageParameters().get(AbstractValidator.VALUE_ARG));
 	}
 	
 	@Test
@@ -73,7 +73,7 @@ public class WholeNumberValidatorTest extends ValidatorTest {
 		assertEquals(getDefaultElementName(), msg.getElementName());
 		assertEquals(AbstractNumberValidator.MAX_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
-		assertEquals(Long.valueOf(10), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
+		assertEquals(Long.valueOf(10), msg.getMessageParameters().get(AbstractValidator.VALUE_ARG));
 	}
 
 }

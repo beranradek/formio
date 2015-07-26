@@ -60,7 +60,7 @@ public class DoubleValidatorTest extends ValidatorTest {
 		assertEquals(getDefaultElementName(), msg.getElementName());
 		assertEquals(AbstractNumberValidator.DECIMAL_MIN_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
-		assertEquals(Double.valueOf(2.5), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
+		assertEquals(Double.valueOf(2.5), msg.getMessageParameters().get(AbstractValidator.VALUE_ARG));
 	}
 	
 	@Test
@@ -78,7 +78,7 @@ public class DoubleValidatorTest extends ValidatorTest {
 		assertEquals(getDefaultElementName(), msg.getElementName());
 		assertEquals(AbstractNumberValidator.DECIMAL_MAX_MSG, msg.getMessageKey());
 		assertEquals(1, msg.getMessageParameters().size());
-		assertEquals(Double.valueOf(50.33), msg.getMessageParameters().get(AbstractNumberValidator.VALUE_ARG));
+		assertEquals(Double.valueOf(50.33), msg.getMessageParameters().get(AbstractValidator.VALUE_ARG));
 	}
 
 }

@@ -17,7 +17,6 @@
 package net.formio;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.validation.Validation;
 
@@ -34,6 +33,7 @@ import net.formio.binding.collection.BasicCollectionBuilders;
 import net.formio.binding.collection.CollectionBuilders;
 import net.formio.binding.collection.CollectionSpec;
 import net.formio.binding.collection.ItemsOrder;
+import net.formio.format.Location;
 import net.formio.format.BasicFormatters;
 import net.formio.format.Formatters;
 import net.formio.security.HashTokenAuthorizer;
@@ -47,7 +47,7 @@ import net.formio.validation.DefaultBeanValidator;
  */
 public class Config {
 	
-	private final Locale locale;
+	private final Location location;
 	private final String messageBundleName;
 	private final Formatters formatters;
 	private final CollectionBuilders collectionBuilders;
@@ -67,7 +67,7 @@ public class Config {
 	private final CollectionSpec<?> listMappingCollection;
 	
 	Config(Builder builder) {
-		this.locale = builder.locale;
+		this.location = builder.location;
 		this.messageBundleName = builder.messageBundleName;
 		this.formatters = builder.formatters;
 		this.collectionBuilders = builder.collectionBuilders;
@@ -89,7 +89,7 @@ public class Config {
 	
 	public static class Builder {
 		// Optional parameters - initialized to default values (these are only here in a single location)
-		Locale locale;
+		Location location;
 		String messageBundleName;
 		Formatters formatters;
 		CollectionBuilders collectionBuilders;
@@ -115,8 +115,8 @@ public class Config {
 			// package-default access so only Forms (and classes in current package) can create the builder
 		}
 		
-		public Builder locale(Locale locale) {
-			this.locale = locale;
+		public Builder location(Location location) {
+			this.location = location;
 			return this;
 		}
 		
@@ -245,7 +245,7 @@ public class Config {
 		}
 		
 		public Config build() {
-			if (this.locale == null) this.locale = DEFAULT_LOCALE;
+			if (this.location == null) this.location = DEFAULT_LOCATION;
 			if (this.messageBundleName == null) this.messageBundleName = DEFAULT_MESSAGE_BUNDLE_NAME;
 			if (this.formatters == null) this.formatters = DEFAULT_FORMATTERS;
 			if (this.collectionBuilders == null) this.collectionBuilders = DEFAULT_COLLECTION_BUILDERS;
@@ -258,7 +258,7 @@ public class Config {
 			if (this.tokenAuthorizer == null) this.tokenAuthorizer = DEFAULT_TOKEN_AUTHORIZER;
 			
 			Config cfg = new Config(this);
-			if (cfg.getLocale() == null) throw new IllegalStateException("locale cannot be null");
+			if (cfg.getLocation() == null) throw new IllegalStateException("location cannot be null");
 			if (cfg.getMessageBundleName() == null) throw new IllegalStateException("message bundle name cannot be null");
 			if (cfg.getFormatters() == null) throw new IllegalStateException("formatters cannot be null");
 			if (cfg.getCollectionBuilders() == null) throw new IllegalStateException("collectionBuilders cannot be null");
@@ -283,7 +283,7 @@ public class Config {
 		}
 		
 		private static final Formatters DEFAULT_FORMATTERS = new BasicFormatters();  
-		private static final Locale DEFAULT_LOCALE = Locale.getDefault(); // system locale of JVM
+		private static final Location DEFAULT_LOCATION = Location.getDefault();
 		private static final String DEFAULT_MESSAGE_BUNDLE_NAME = "ValidationMessages";
 		private static final CollectionBuilders DEFAULT_COLLECTION_BUILDERS = new BasicCollectionBuilders();
 		private static final ArgumentNameResolver DEFAULT_ARGUMENT_NAME_RESOLVER = new AnnotationArgumentNameResolver();
@@ -293,8 +293,8 @@ public class Config {
 		}
 	}
 
-	public Locale getLocale() {
-		return locale;
+	public Location getLocation() {
+		return location;
 	}
 
 	public String getMessageBundleName() {

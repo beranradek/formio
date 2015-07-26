@@ -33,7 +33,7 @@ public class FormRendererWrapper extends FormRenderer {
 	private final FormRenderer inner;
 	
 	public FormRendererWrapper(FormRenderer wrapped) {
-		super(wrapped.getRenderContext());
+		super(wrapped.getLocation());
 		this.inner = wrapped;
 	}
 	

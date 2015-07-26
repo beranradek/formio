@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import net.formio.data.TestData;
@@ -35,6 +34,7 @@ import net.formio.domain.Collegue;
 import net.formio.domain.NewCollegue;
 import net.formio.domain.RegDate;
 import net.formio.domain.Registration;
+import net.formio.format.Location;
 import net.formio.validation.ConstraintViolationMessage;
 import net.formio.validation.Severity;
 import net.formio.validation.ValidationResult;
@@ -60,13 +60,15 @@ public class AdvancedFormTest {
 	
 	@Test
 	public void testBindToProvidedInstance() {
+		final Location loc = Location.ENGLISH;
+		
 		Registration regToFillFromForm = new Registration(Collections.<AttendanceReason>emptySet());
 		NewCollegue col = new NewCollegue();
 		col.setEmail("collegue@email.en");
 		regToFillFromForm.setNewCollegue(col);
 		
 		FormMapping<Registration> regForm = TestForms.REG_FORM;
-		FormData<Registration> boundFormData = regForm.bind(TestParams.newRegistrationParams(), new Locale("en"), regToFillFromForm);
+		FormData<Registration> boundFormData = regForm.bind(TestParams.newRegistrationParams(), loc, regToFillFromForm);
 		Registration reg = boundFormData.getData();
 		
 		assertEquals(regToFillFromForm.getNewCollegue(), reg.getNewCollegue());
@@ -77,6 +79,7 @@ public class AdvancedFormTest {
 	
 	@Test
 	public void testBindToListElementOfProvidedInstance() {
+		final Location loc = Location.ENGLISH;
 		Registration regToFillFromForm = new Registration(Collections.<AttendanceReason>emptySet());
 		List<Collegue> collegues = new ArrayList<Collegue>();
 		collegues.add(new Collegue());
@@ -88,7 +91,7 @@ public class AdvancedFormTest {
 		regToFillFromForm.setCollegues(collegues);
 		
 		FormMapping<Registration> regForm = TestForms.REG_FORM;
-		FormData<Registration> boundFormData = regForm.bind(TestParams.newRegistrationParams(), new Locale("en"), regToFillFromForm);
+		FormData<Registration> boundFormData = regForm.bind(TestParams.newRegistrationParams(), loc, regToFillFromForm);
 		Registration reg = boundFormData.getData();
 		
 		assertEquals("Michael", reg.getCollegues().get(0).getName());
@@ -115,12 +118,12 @@ public class AdvancedFormTest {
 		assertEquals("root mapping should have correct data class", Registration.class, form.getDataClass());
 		assertEquals("root mapping should have correct label key", "registration", form.getLabelKey());
 		assertNull("root mapping has no validation report yet before filling", form.getValidationResult());
-		
-		final Locale locale = new Locale("en"); 
+		 
+		final Location loc = Location.ENGLISH;
 		
 		// Filled form
 		FormData<Registration> formData = new FormData<Registration>(TestData.newRegistration(), ValidationResult.empty);
-		FormMapping<Registration> filledForm = form.fill(formData, locale);
+		FormMapping<Registration> filledForm = form.fill(formData, loc);
 		LOG.info("Filled form: \n" + filledForm);
 		
 		assertEquals("filled root mapping should have correct name", "registration", filledForm.getName());
@@ -142,7 +145,7 @@ public class AdvancedFormTest {
 		final String sep = Forms.PATH_SEP;
 		
 		// Binding form data to model (Registration)
-		FormData<Registration> boundFormData = form.bind(TestParams.newRegistrationParams(), locale);
+		FormData<Registration> boundFormData = form.bind(TestParams.newRegistrationParams(), loc);
 		final Registration boundReg = boundFormData.getData();
 		
 		assertNotNull("bound object should not be null", boundReg);
