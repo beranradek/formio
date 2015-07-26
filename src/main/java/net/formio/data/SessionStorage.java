@@ -16,31 +16,32 @@
  */
 package net.formio.data;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
+ * Storage related to concrete application user.
+ * Implementations must be immutable.
  * @author Radek Beran
  */
-public class MockUserRelatedStorage implements UserSessionStorage {
+public interface SessionStorage {
 
-	private final Map<String, String> storage = new HashMap<String, String>();
+	/**
+	 * Sets the value and returns the value set.
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	String set(String key, String value);
 	
-	@Override
-	public String set(String key, String value) {
-		storage.put(key, value);
-		return value;
-	}
-
-	@Override
-	public String get(String key) {
-		return storage.get(key);
-	}
-
-	@Override
-	public boolean delete(String key) {
-		String previousValue = storage.remove(key);
-		return previousValue != null;
-	}
-
+	/**
+	 * Returns the value for given key or {@code null}.
+	 * @param key
+	 * @return
+	 */
+	String get(String key);
+	
+	/**
+	 * Deletes the value with given key.
+	 * @param key
+	 * @return true if the value for given key was found
+	 */
+	boolean delete(String key);
 }

@@ -14,45 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.portlet.common;
+package net.formio.servlet;
 
-import javax.portlet.PortletSession;
+import javax.servlet.http.HttpSession;
 
-import net.formio.data.UserSessionStorage;
+import net.formio.data.SessionStorage;
 
 /**
- * Implementation of {@link UserSessionStorage} using Portlet session.
+ * Implementation of {@link SessionStorage} using HTTP session.
  * @author Radek Beran
  */
-public class PortletSessionUserRelatedStorage implements UserSessionStorage {
-	private final PortletSession session;
-	private final int scope;
+public class HttpSessionStorage implements SessionStorage {
 	
-	public PortletSessionUserRelatedStorage(PortletSession session, int scope) {
+	private final HttpSession session;
+	
+	public HttpSessionStorage(HttpSession session) {
 		if (session == null) throw new IllegalArgumentException("session cannot be null");
 		this.session = session;
-		this.scope = scope;
-	}
-	
-	public PortletSessionUserRelatedStorage(PortletSession session) {
-		this(session, PortletSession.PORTLET_SCOPE);
 	}
 
 	@Override
 	public String set(String key, String value) {
-		session.setAttribute(key, value, scope);
+		session.setAttribute(key, value);
 		return value;
 	}
 
 	@Override
 	public String get(String key) {
-		return (String)session.getAttribute(key, scope);
+		return (String)session.getAttribute(key);
 	}
 
 	@Override
 	public boolean delete(String key) {
 		String value = get(key);
-		session.removeAttribute(key, scope);
+		session.removeAttribute(key);
 		return value != null;
 	}
+
 }

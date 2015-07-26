@@ -29,7 +29,7 @@ public class PortletSessionUserRelatedStorageTest {
 	public void testSetGet() {
 		String myAttr = "my_attr";
 		MockPortletSession session = new MockPortletSession();
-		PortletSessionUserRelatedStorage storage = new PortletSessionUserRelatedStorage(session, PortletSession.PORTLET_SCOPE);
+		PortletSessionStorage storage = new PortletSessionStorage(session, PortletSession.PORTLET_SCOPE);
 		assertNull(storage.get(myAttr));
 		
 		storage.set(myAttr, "Hello");

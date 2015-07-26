@@ -20,8 +20,8 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 
 import net.formio.data.RequestContext;
-import net.formio.data.UserSessionStorage;
-import net.formio.portlet.common.PortletSessionUserRelatedStorage;
+import net.formio.data.SessionStorage;
+import net.formio.portlet.common.PortletSessionStorage;
 
 /**
  * Implementation of {@link RequestContext} for portlet API.
@@ -43,12 +43,12 @@ public class PortletRequestContext implements RequestContext {
 	}
 
 	@Override
-	public UserSessionStorage getUserRelatedStorage() {
-		return new PortletSessionUserRelatedStorage(this.request.getPortletSession(), this.sessionScope);
+	public SessionStorage getSessionStorage() {
+		return new PortletSessionStorage(this.request.getPortletSession(), this.sessionScope);
 	}
 	
 	@Override
-	public String convertToRequestSecret(String generatedSecret) {
+	public String secretWithUserIdentification(String generatedSecret) {
 		return generatedSecret + SEPARATOR + getUserRequestIdentification();
 	}
 	

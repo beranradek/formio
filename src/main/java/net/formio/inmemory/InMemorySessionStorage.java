@@ -14,34 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.data;
+package net.formio.inmemory;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.formio.data.SessionStorage;
 
 /**
- * Storage related to concrete application user.
- * Implementations must be immutable.
+ * Implementation of {@link SessionStorage} using a {@link Map}.
  * @author Radek Beran
  */
-public interface UserSessionStorage {
+public class InMemorySessionStorage implements SessionStorage {
 
-	/**
-	 * Sets the value and returns the value set.
-	 * @param key
-	 * @param value
-	 * @return
-	 */
-	String set(String key, String value);
+	private final Map<String, String> map;
 	
-	/**
-	 * Returns the value for given key or {@code null}.
-	 * @param key
-	 * @return
-	 */
-	String get(String key);
+	public InMemorySessionStorage() {
+		this.map = new ConcurrentHashMap<String, String>();
+	}
 	
-	/**
-	 * Deletes the value with given key.
-	 * @param key
-	 * @return true if the value for given key was found
-	 */
-	boolean delete(String key);
+	@Override
+	public String set(String key, String value) {
+		map.put(key, value);
+		return value;
+	}
+
+	@Override
+	public String get(String key) {
+		return map.get(key);
+	}
+
+	@Override
+	public boolean delete(String key) {
+		return map.remove(key) != null;
+	}
+	
 }

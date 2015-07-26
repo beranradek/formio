@@ -14,39 +14,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.inmemory;
+package net.formio.portlet.common;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.portlet.PortletSession;
 
-import net.formio.data.UserSessionStorage;
+import net.formio.data.SessionStorage;
 
 /**
- * Implementation of {@link UserSessionStorage} using a {@link Map}.
+ * Implementation of {@link SessionStorage} using Portlet session.
  * @author Radek Beran
  */
-public class MapUserRelatedStorage implements UserSessionStorage {
-
-	private final Map<String, String> map;
+public class PortletSessionStorage implements SessionStorage {
+	private final PortletSession session;
+	private final int scope;
 	
-	public MapUserRelatedStorage() {
-		this.map = new HashMap<String, String>();
+	public PortletSessionStorage(PortletSession session, int scope) {
+		if (session == null) throw new IllegalArgumentException("session cannot be null");
+		this.session = session;
+		this.scope = scope;
 	}
 	
+	public PortletSessionStorage(PortletSession session) {
+		this(session, PortletSession.PORTLET_SCOPE);
+	}
+
 	@Override
 	public String set(String key, String value) {
-		map.put(key, value);
+		session.setAttribute(key, value, scope);
 		return value;
 	}
 
 	@Override
 	public String get(String key) {
-		return map.get(key);
+		return (String)session.getAttribute(key, scope);
 	}
 
 	@Override
 	public boolean delete(String key) {
-		return map.remove(key) != null;
+		String value = get(key);
+		session.removeAttribute(key, scope);
+		return value != null;
 	}
-	
 }

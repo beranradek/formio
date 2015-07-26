@@ -16,20 +16,22 @@
  */
 package net.formio.data;
 
+import net.formio.inmemory.InMemorySessionStorage;
+
 /**
  * @author Radek Beran
  */
 public class MockRequestContext implements RequestContext {
 	
-	private MockUserRelatedStorage storage = new MockUserRelatedStorage();
+	private InMemorySessionStorage storage = new InMemorySessionStorage();
 
 	@Override
-	public UserSessionStorage getUserRelatedStorage() {
+	public SessionStorage getSessionStorage() {
 		return storage;
 	}
 
 	@Override
-	public String convertToRequestSecret(String generatedSecret) {
+	public String secretWithUserIdentification(String generatedSecret) {
 		return generatedSecret;
 	}
 
