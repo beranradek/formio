@@ -36,7 +36,7 @@ public class AjaxAlertErrorHandler<T> implements AjaxErrorHandler<T> {
 	 */
 	@Override
 	public AjaxResponse<T> errorResponse(AbstractRequestParams requestParams, Throwable cause) {
-		return new AjaxResponse<T>(new FormRenderer(new Location(Locale.ENGLISH)).ajaxResponse()
+		return new AjaxResponse<T>(new FormRenderer(Location.getInstance(Locale.ENGLISH)).ajaxResponse()
 			.status("ERROR")
 			.script("alert(\"AJAX Error\")")
 			.asString());

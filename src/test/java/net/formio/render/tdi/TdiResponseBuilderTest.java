@@ -33,7 +33,7 @@ public class TdiResponseBuilderTest {
 			"<response>" + newLine() + 
 			"<status>OK</status>" + newLine() +
 			"</response>" + newLine(),
-			new TdiResponseBuilder(new FormRenderer(new Location(Locale.ENGLISH)))
+			new TdiResponseBuilder(new FormRenderer(Location.getInstance(Locale.ENGLISH)))
 				.status("OK").asString());
 	}
 	

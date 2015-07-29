@@ -147,7 +147,7 @@ public class BasicFormattersTest {
 	
 	@Test
 	public void testParseFromString2() {
-		final Location loc = new Location(new Locale("cs", "CZ"));
+		final Location loc = Location.getInstance(new Locale("cs", "CZ"));
 		
 		final BasicFormatters formatters = new BasicFormatters();
 		Assert.assertEquals("true", formatters.makeString(Boolean.TRUE, loc));
@@ -177,7 +177,7 @@ public class BasicFormattersTest {
 	@Test
 	public void testFormattersToAndFromString() {
 		try {
-			final Location loc = new Location(new Locale("cs", "CZ"));
+			final Location loc = Location.getInstance(new Locale("cs", "CZ"));
 			final BasicFormatters formatters = new BasicFormatters();
 			
 			Date date = new SimpleDateFormat(FormatsCache.DEFAULT_DATE_FORMAT).parse("1.12.2014");

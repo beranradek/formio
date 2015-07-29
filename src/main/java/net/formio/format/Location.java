@@ -31,75 +31,79 @@ public final class Location {
 	
 	private static final Location DEFAULT = new Location(Locale.getDefault(), TimeZone.getDefault());
 	
-	static public final Location CZECH = new Location(new Locale("cs"));
+	static public final Location CZECH = getInstance(new Locale("cs"));
 	
-	static public final Location ENGLISH = new Location(Locale.ENGLISH);
+	static public final Location ENGLISH = getInstance(Locale.ENGLISH);
 
-    static public final Location FRENCH = new Location(Locale.FRENCH);
+    static public final Location FRENCH = getInstance(Locale.FRENCH);
 
-    static public final Location GERMAN = new Location(Locale.GERMAN);
+    static public final Location GERMAN = getInstance(Locale.GERMAN);
 
-    static public final Location ITALIAN = new Location(Locale.ITALIAN);
+    static public final Location ITALIAN = getInstance(Locale.ITALIAN);
 
-    static public final Location JAPANESE = new Location(Locale.JAPANESE);
+    static public final Location JAPANESE = getInstance(Locale.JAPANESE);
 
-    static public final Location KOREAN = new Location(Locale.KOREAN);
+    static public final Location KOREAN = getInstance(Locale.KOREAN);
 
-    static public final Location CHINESE = new Location(Locale.CHINESE);
+    static public final Location CHINESE = getInstance(Locale.CHINESE);
 
-    static public final Location SIMPLIFIED_CHINESE = new Location(Locale.SIMPLIFIED_CHINESE);
+    static public final Location SIMPLIFIED_CHINESE = getInstance(Locale.SIMPLIFIED_CHINESE);
     
-    static public final Location SLOVAK = new Location(new Locale("sk"));
+    static public final Location SLOVAK = getInstance(new Locale("sk"));
 
-    static public final Location TRADITIONAL_CHINESE = new Location(Locale.TRADITIONAL_CHINESE);
+    static public final Location TRADITIONAL_CHINESE = getInstance(Locale.TRADITIONAL_CHINESE);
     
-    static public final Location CZECHIA = new Location(new Locale("cs", "CZ"));
+    static public final Location CZECHIA = getInstance(new Locale("cs", "CZ"));
 
-    static public final Location FRANCE = new Location(Locale.FRANCE);
+    static public final Location FRANCE = getInstance(Locale.FRANCE);
 
-    static public final Location GERMANY = new Location(Locale.GERMANY);
+    static public final Location GERMANY = getInstance(Locale.GERMANY);
 
-    static public final Location ITALY = new Location(Locale.ITALY);
+    static public final Location ITALY = getInstance(Locale.ITALY);
 
-    static public final Location JAPAN = new Location(Locale.JAPAN);
+    static public final Location JAPAN = getInstance(Locale.JAPAN);
 
-    static public final Location KOREA = new Location(Locale.KOREA);
+    static public final Location KOREA = getInstance(Locale.KOREA);
 
     static public final Location CHINA = SIMPLIFIED_CHINESE;
 
     static public final Location PRC = SIMPLIFIED_CHINESE;
     
-    static public final Location SLOVAKIA = new Location(new Locale("sk", "SK"));
+    static public final Location SLOVAKIA = getInstance(new Locale("sk", "SK"));
 
     static public final Location TAIWAN = TRADITIONAL_CHINESE;
 
-    static public final Location UK = new Location(Locale.UK);
+    static public final Location UK = getInstance(Locale.UK);
 
-    static public final Location US = new Location(Locale.US);
+    static public final Location US = getInstance(Locale.US);
 
-    static public final Location CANADA = new Location(Locale.CANADA);
+    static public final Location CANADA = getInstance(Locale.CANADA);
 
-    static public final Location CANADA_FRENCH = new Location(Locale.CANADA_FRENCH);
+    static public final Location CANADA_FRENCH = getInstance(Locale.CANADA_FRENCH);
 	
 	public static Location getDefault() {
 		return DEFAULT;
 	}
 	
-	public Location(Locale locale, TimeZone timeZone) {
+	public static Location getInstance(Locale locale, TimeZone timeZone) {
+		return new Location(locale, timeZone);
+	}
+	
+	public static Location getInstance(Locale locale) {
+		return getInstance(locale, TimeZone.getDefault());
+	}
+	
+	public static Location getInstance(TimeZone timeZone) {
+		return getInstance(Locale.getDefault(), timeZone);
+	}
+	
+	public static Location getInstance() {
+		return getInstance(Locale.getDefault(), TimeZone.getDefault());
+	}
+	
+	private Location(Locale locale, TimeZone timeZone) {
 		this.locale = locale;
 		this.timeZone = timeZone;
-	}
-	
-	public Location(Locale locale) {
-		this(locale, DEFAULT.getTimeZone());
-	}
-	
-	public Location(TimeZone timeZone) {
-		this(DEFAULT.getLocale(), timeZone);
-	}
-	
-	public Location() {
-		this(DEFAULT.getLocale());
 	}
 
 	public Locale getLocale() {
@@ -140,6 +144,10 @@ public final class Location {
 			return false;
 		return true;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "Location [locale=" + locale + ", timeZone=" + timeZone + "]";
+	}
 	
 }
