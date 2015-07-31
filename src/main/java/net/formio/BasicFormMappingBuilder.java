@@ -35,6 +35,7 @@ import net.formio.binding.collection.CollectionSpec;
 import net.formio.binding.collection.ItemsOrder;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
+import net.formio.format.Location;
 import net.formio.props.FormElementProperty;
 import net.formio.props.types.JsEventToUrl;
 import net.formio.upload.UploadedFile;
@@ -367,8 +368,7 @@ public class BasicFormMappingBuilder<T> {
 	}
 
 	public FormMapping<T> build() {
-		boolean plainCopy = false;
-		return buildInternal(this.config, plainCopy);
+		return build(this.config);
 	}
 	
 	/**
@@ -379,6 +379,15 @@ public class BasicFormMappingBuilder<T> {
 	public BasicFormMapping<T> build(Config config) {
 		boolean plainCopy = false;
 		return buildInternal(config, plainCopy);
+	}
+	
+	/**
+	 * Builds form mapping with given localization settings.
+	 * @param loc
+	 * @return
+	 */
+	public BasicFormMapping<T> build(Location loc) {
+		return build(Forms.config().location(loc).build());
 	}
 	
 	<U> BasicFormMappingBuilder<T> nestedInternal(FormMapping<U> nestedMapping) {
