@@ -244,14 +244,20 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	
 	@Override
 	public BasicFormMapping<T> fillAndValidate(FormData<T> formData, Location loc, RequestContext ctx, Class<?> ... validationGroups) {
-		BasicFormMapping<T> mapping = fill(formData, loc, ctx);
-		FormData<T> validatedFormData = new FormData<T>(formData.getData(), mapping.validate(loc.getLocale(), validationGroups));
-		return fill(validatedFormData, loc, ctx);
+		final Location givenOrCfgLocation = getLocation(loc);
+		BasicFormMapping<T> mapping = fill(formData, givenOrCfgLocation, ctx);
+		FormData<T> validatedFormData = new FormData<T>(formData.getData(), mapping.validate(givenOrCfgLocation.getLocale(), validationGroups));
+		return fill(validatedFormData, givenOrCfgLocation, ctx);
 	}
 	
 	@Override
 	public FormMapping<T> fillAndValidate(FormData<T> formData, Location loc, Class<?>... validationGroups) {
 		return fillAndValidate(formData, loc, (RequestContext)null, validationGroups);
+	}
+	
+	@Override
+	public FormMapping<T> fillAndValidate(FormData<T> formData, Class<?>... validationGroups) {
+		return fillAndValidate(formData, (Location)null, validationGroups);
 	}
 	
 	@Override
@@ -262,6 +268,11 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 			el = filledMapping.findElement(requestParams.getTdiAjaxSrcElementName());
 		}
 		return el;
+	}
+	
+	@Override
+	public FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Class<?>... validationGroups) {
+		return fillTdiAjaxSrcElement(requestParams, (Location)null, validationGroups);
 	}
 	
 	@Override
