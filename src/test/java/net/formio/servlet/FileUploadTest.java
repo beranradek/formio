@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.List;
 
 import net.formio.FormData;
-import net.formio.Forms;
 import net.formio.RequestParams;
 import net.formio.data.TestForms;
 import net.formio.domain.Registration;
@@ -38,7 +37,7 @@ import net.formio.validation.ConstraintViolationMessage;
 public class FileUploadTest {
 	protected static final String PDF_MIME_TYPE = "application/pdf";
 	protected static final String PDF_FILE_NAME = "test.pdf";
-	protected static final String CV_PARAM_NAME = "registration" + Forms.PATH_SEP + "cv";
+	protected static final String CV_PARAM_NAME = "registration" + TestForms.REG_FORM.getConfig().getPathSeparator() + "cv";
 	
 	protected void testFileUpload(RequestParams requestParams) throws IOException {
 		assertNull(requestParams.getRequestError());

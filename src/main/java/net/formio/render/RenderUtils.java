@@ -20,7 +20,6 @@ import java.util.Locale;
 
 import net.formio.FormElement;
 import net.formio.FormMapping;
-import net.formio.Forms;
 import net.formio.common.BundleMessageTranslator;
 import net.formio.common.IdentityMessageTranslator;
 import net.formio.common.MessageTranslator;
@@ -37,7 +36,7 @@ public class RenderUtils {
 	 * @return
 	 */
 	public static String getElementIdForName(String name) {
-		return "id" + Forms.PATH_SEP + name;
+		return "id-" + name;
 	}
 	
 	/**

@@ -154,7 +154,7 @@ public class TdiResponseBuilder {
 		if (element == null) {
 			throw new IllegalArgumentException("updated element cannot be null");
 		}
-		return update(AbstractFormElement.getElementPlaceholderId(element.getName()), renderElementMarkup(element));
+		return update(AbstractFormElement.getElementPlaceholderId(element.getName(), element.getConfig().getPathSeparator()), renderElementMarkup(element));
 	}
 	
 	/**

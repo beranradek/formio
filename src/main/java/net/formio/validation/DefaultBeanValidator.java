@@ -41,9 +41,9 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import net.formio.BasicListFormMapping;
+import net.formio.Config;
 import net.formio.FormElement;
 import net.formio.FormMapping;
-import net.formio.Forms;
 import net.formio.binding.BeanExtractor;
 import net.formio.binding.HumanReadableType;
 import net.formio.binding.ParseError;
@@ -97,7 +97,10 @@ public class DefaultBeanValidator implements BeanValidator {
 		List<InterpolatedMessage> allCustomMessages = new ArrayList<InterpolatedMessage>();
 		allCustomMessages.addAll(customMessages);
 		
+		String pathSep = null;
 		if (mapping != null && !(mapping instanceof BasicListFormMapping<?>) && mapping.isVisible() && mapping.isEnabled()) {
+			pathSep = mapping.getConfig().getPathSeparator();
+			
 			// Validate all nested elements
 			Map<String, Object> beanProperties = null;
 			for (FormElement<?> el : mapping.getElements()) {
@@ -118,9 +121,11 @@ public class DefaultBeanValidator implements BeanValidator {
 						new ValidationContext<T>(mapping.getName(), mappingBoundValue)));
 				}
 			}
+		} else {
+			pathSep = Config.DEFAULT_PATH_SEP;
 		}
 		
-		return buildReport(msgInterpolator, violationsList, allCustomMessages, propPrefix, locale);
+		return buildReport(msgInterpolator, violationsList, allCustomMessages, propPrefix, pathSep, locale);
 	}
 
 	@Override
@@ -178,18 +183,19 @@ public class DefaultBeanValidator implements BeanValidator {
 		MessageInterpolator msgInterpolator,
 		List<? extends InterpolatedMessage> interpolatedMessages,
 		String propPrefix,
+		String pathSep,
 		Map<String, List<ConstraintViolationMessage>> fieldMessages,
 		List<ConstraintViolationMessage> globalMessages,
 		Locale locale) {
 		for (InterpolatedMessage im : interpolatedMessages) {
 			if (im != null) {
 				if (im instanceof MaxRequestSizeExceededError) {
-					if (ValidationUtils.isTopLevelMapping(propPrefix)) {
+					if (ValidationUtils.isTopLevelMapping(propPrefix, pathSep)) {
 						globalMessages.add(createConstraintViolationMessage(im, msgInterpolator, locale));
 					}
 				} else if (im instanceof ParseError) {
 					ParseError parseMsg = (ParseError)im;
-					String formPrefixedPropName = pathPrefixedName(propPrefix, parseMsg.getPropertyName());
+					String formPrefixedPropName = pathPrefixedName(propPrefix, parseMsg.getPropertyName(), pathSep);
 					List<ConstraintViolationMessage> msgs = getOrCreateFieldMessages(fieldMessages, formPrefixedPropName);
 					msgs.add(createConstraintViolationMessage(im, msgInterpolator, locale));
 					fieldMessages.put(formPrefixedPropName, msgs);
@@ -250,19 +256,20 @@ public class DefaultBeanValidator implements BeanValidator {
 		List<ConstraintViolation<T>> violations, 
 		List<? extends InterpolatedMessage> customMessages,
 		String propPrefix,
+		String pathSep,
 		Locale locale) {
 		Map<String, List<ConstraintViolationMessage>> fieldMessages = new LinkedHashMap<String, List<ConstraintViolationMessage>>();
 		List<ConstraintViolationMessage> globalMessages = new ArrayList<ConstraintViolationMessage>();
 		
 		// processing parse errors and request processing errors and other custom errors (in addition to bean validation API violations)
-		processInterpolatedMessages(msgInterpolator, customMessages, propPrefix, fieldMessages, globalMessages, locale);
+		processInterpolatedMessages(msgInterpolator, customMessages, propPrefix, pathSep, fieldMessages, globalMessages, locale);
 		
 		for (ConstraintViolation<T> v : violations) {
 			// Needed data should be taken from javax.ConstraintViolation, 
 			// ConstraintViolationMessage should be javax.validation API independent
-			String formElementName = constructFormElementName(propPrefix, v);
+			String formElementName = constructFormElementName(propPrefix, v, pathSep);
 			ConstraintViolationMessage msg = new ConstraintViolationMessage(v);
-			if (formElementName.length() == 0 || !formElementName.contains(Forms.PATH_SEP)) {
+			if (formElementName.length() == 0 || !formElementName.contains(pathSep)) {
 				globalMessages.add(msg);
 			} else {
 				appendFieldMsg(fieldMessages, formElementName, msg);
@@ -271,7 +278,7 @@ public class DefaultBeanValidator implements BeanValidator {
 		return new ValidationResult(fieldMessages, globalMessages);
 	}
 
-	private <T> String constructFormElementName(String propPrefix, ConstraintViolation<T> v) {
+	private <T> String constructFormElementName(String propPrefix, ConstraintViolation<T> v, String pathSep) {
 		Path path = v.getPropertyPath();
 		StringBuilder nodePath = new StringBuilder();
 		if (propPrefix != null) {
@@ -280,7 +287,7 @@ public class DefaultBeanValidator implements BeanValidator {
 		for (Node node : path) {
 			if (node.getName() != null) {
 				if (nodePath.length() > 0) {
-					nodePath.append(Forms.PATH_SEP);
+					nodePath.append(pathSep);
 				}
 				nodePath.append(node.getName());
 			}
@@ -298,10 +305,10 @@ public class DefaultBeanValidator implements BeanValidator {
 		}
 	}
 	
-	private String pathPrefixedName(String pathPrefix, String name) {
+	private String pathPrefixedName(String pathPrefix, String name, String pathSep) {
 		if (name == null) return null;
 		if (pathPrefix == null || pathPrefix.isEmpty()) return name;
-		return pathPrefix + Forms.PATH_SEP + name;
+		return pathPrefix + pathSep + name;
 	}
 	
 	private Set<String> gatherPropertyNames(List<FormElement<?>> elements) {

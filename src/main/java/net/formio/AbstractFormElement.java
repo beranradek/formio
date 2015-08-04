@@ -221,16 +221,16 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	
 	@Override
 	public String getElementPlaceholderId() {
-		return getElementPlaceholderId(getName());
+		return getElementPlaceholderId(getName(), getConfig().getPathSeparator());
 	}
 	
-	public static String getElementPlaceholderId(String elementName) {
-		return "placeholder" + Forms.PATH_SEP + elementName;
+	public static String getElementPlaceholderId(String elementName, String pathSep) {
+		return "placeholder" + pathSep + elementName;
 	}
 	
 	@Override
 	public String getElementIdWithIndex(int index) {
-		return getElementId() + Forms.PATH_SEP + index;
+		return getElementId() + getConfig().getPathSeparator() + index;
 	}
 	
 	@Override

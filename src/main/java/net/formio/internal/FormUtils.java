@@ -36,7 +36,6 @@ import java.util.regex.Pattern;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
-import net.formio.Forms;
 
 /**
  * Utility methods for form processing.
@@ -85,21 +84,6 @@ public class FormUtils {
 			props.add(field.getPropertyName());
 		}
 		return props;
-	}
-	
-	/**
-	 * Returns last property name from given path.
-	 * @param path
-	 * @return
-	 */
-	public static String propertyName(String path) {
-		if (path == null) return null;
-		int lastSeparator = path.lastIndexOf(Forms.PATH_SEP);
-		String propName = path;
-		if (lastSeparator >= 0) {
-			propName = path.substring(lastSeparator + 1);
-		}
-		return removeTrailingBrackets(propName);
 	}
 	
 	/**

@@ -63,7 +63,7 @@ public class SimpleFormTest {
 			assertInitDataAreFilled(initData, filledObject);
 			
 			// Preparing data (filled "by the user" into the form)
-			MapParams reqParams = getRequestParams();
+			MapParams reqParams = getRequestParams(filledForm.getConfig().getPathSeparator());
 					
 			// Binding data from request to model (Person)
 			FormData<Person> boundFormData = personForm.bind(reqParams, loc);
@@ -94,7 +94,7 @@ public class SimpleFormTest {
 		personToFillFromForm.setMarriageDate(new Date());
 		personToFillFromForm.setNation(Nation.SLOVAK);
 		FormMapping<Person> personForm = TestForms.PERSON_FORM;
-		FormData<Person> boundFormData = personForm.bind(getRequestParams(), loc, personToFillFromForm);
+		FormData<Person> boundFormData = personForm.bind(getRequestParams(personForm.getConfig().getPathSeparator()), loc, personToFillFromForm);
 		MarriedPerson person = (MarriedPerson)boundFormData.getData();
 		
 		// Constructor-settable formProperties are not overriden
@@ -112,17 +112,16 @@ public class SimpleFormTest {
 		assertEquals(personToFillFromForm, person);
 	}
 
-	private MapParams getRequestParams() {
+	private MapParams getRequestParams(String pathSep) {
 		MapParams reqParams = new MapParams();
-		String sep = Forms.PATH_SEP;
-		reqParams.put("person" + sep + "personId", "1");
-		reqParams.put("person" + sep + "firstName", "Michel");
-		reqParams.put("person" + sep + "lastName", "Rider");
-		reqParams.put("person" + sep + "salary", "40000");
-		reqParams.put("person" + sep + "phone", "728111222");
-		reqParams.put("person" + sep + "male", "false");
-		reqParams.put("person" + sep + "birthDate", "23-4-1985 10-30");
-		reqParams.put("person" + sep + "nation", "JEDI_KNIGHT");
+		reqParams.put("person" + pathSep + "personId", "1");
+		reqParams.put("person" + pathSep + "firstName", "Michel");
+		reqParams.put("person" + pathSep + "lastName", "Rider");
+		reqParams.put("person" + pathSep + "salary", "40000");
+		reqParams.put("person" + pathSep + "phone", "728111222");
+		reqParams.put("person" + pathSep + "male", "false");
+		reqParams.put("person" + pathSep + "birthDate", "23-4-1985 10-30");
+		reqParams.put("person" + pathSep + "nation", "JEDI_KNIGHT");
 		return reqParams;
 	}
 

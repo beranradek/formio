@@ -99,7 +99,7 @@ public class FormFieldImpl<T> extends AbstractFormElement<T> implements FormFiel
 	public String getName() {
 		String name = null;
 		if (getParent() != null) {
-			name = getParent().getName() + Forms.PATH_SEP + propertyName;
+			name = getParent().getName() + getConfig().getPathSeparator() + propertyName;
 		} else {
 			name = propertyName;
 		}

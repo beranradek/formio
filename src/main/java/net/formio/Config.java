@@ -47,6 +47,11 @@ import net.formio.validation.DefaultBeanValidator;
  */
 public class Config {
 	
+	/**
+	 * Separator of parts in the path (used in fully qualified field name).
+	 */
+	public static final String DEFAULT_PATH_SEP = "-";
+	
 	private final Location location;
 	private final String messageBundleName;
 	private final Formatters formatters;
@@ -65,6 +70,7 @@ public class Config {
 	private final int colInputWidth;
 	private final Instantiator defaultInstantiator;
 	private final CollectionSpec<?> listMappingCollection;
+	private final String pathSeparator;
 	
 	Config(Builder builder) {
 		this.location = builder.location;
@@ -85,6 +91,7 @@ public class Config {
 		this.colInputWidth = builder.colInputWidth;
 		this.defaultInstantiator = builder.defaultInstantiator;
 		this.listMappingCollection = builder.listMappingCollection;
+		this.pathSeparator = builder.pathSeparator;
 	}
 	
 	public static class Builder {
@@ -110,6 +117,7 @@ public class Config {
 		String urlBase;
 		Instantiator defaultInstantiator = new ConstructorInstantiator();
 		CollectionSpec<?> listMappingCollection = CollectionSpec.getInstance(List.class, ItemsOrder.LINEAR);
+		String pathSeparator = DEFAULT_PATH_SEP;
 
 		Builder() {
 			// package-default access so only Forms (and classes in current package) can create the builder
@@ -244,6 +252,16 @@ public class Config {
 			return this;
 		}
 		
+		/**
+		 * Separator of parts in the path (used in fully qualified field name).
+		 * @param pathSeparator path separator
+		 * @return this builder for chaining calls
+		 */
+		public Builder pathSeparator(String pathSeparator) {
+			this.pathSeparator = pathSeparator;
+			return this;
+		}
+		
 		public Config build() {
 			if (this.location == null) this.location = DEFAULT_LOCATION;
 			if (this.messageBundleName == null) this.messageBundleName = DEFAULT_MESSAGE_BUNDLE_NAME;
@@ -256,8 +274,10 @@ public class Config {
 			if (this.binder == null) this.binder = new DefaultBinder(this.formatters, this.collectionBuilders, this.argumentNameResolver, this.setterRegex);
 			if (this.beanValidator == null) this.beanValidator = new DefaultBeanValidator(Validation.buildDefaultValidatorFactory(), this.beanExtractor, this.messageBundleName);
 			if (this.tokenAuthorizer == null) this.tokenAuthorizer = DEFAULT_TOKEN_AUTHORIZER;
+			if (this.pathSeparator == null) this.pathSeparator = DEFAULT_PATH_SEP;
 			
 			Config cfg = new Config(this);
+			if (cfg.getPathSeparator() == null) throw new IllegalStateException("path separator cannot be null");
 			if (cfg.getLocation() == null) throw new IllegalStateException("location cannot be null");
 			if (cfg.getMessageBundleName() == null) throw new IllegalStateException("message bundle name cannot be null");
 			if (cfg.getFormatters() == null) throw new IllegalStateException("formatters cannot be null");
@@ -392,5 +412,13 @@ public class Config {
 	 */
 	public CollectionSpec<?> getListMappingCollection() {
 		return listMappingCollection;
+	}
+	
+	/**
+	 * Separator of parts in the path (used in fully qualified field name).
+	 * @return
+	 */
+	public String getPathSeparator() {
+		return pathSeparator;
 	}
 }

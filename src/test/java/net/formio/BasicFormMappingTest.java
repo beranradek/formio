@@ -51,7 +51,8 @@ public class BasicFormMappingTest {
 	@Test
 	public void testGetName() {
 		assertEquals("person", TestForms.PERSON_FORM.getName());
-		assertEquals("carForm" + Forms.PATH_SEP + "engine", TestForms.CAR_FORM.getMapping(Engine.class, "engine").getName());
+		assertEquals("carForm" + TestForms.CAR_FORM.getConfig().getPathSeparator() + "engine", 
+			TestForms.CAR_FORM.getMapping(Engine.class, "engine").getName());
 	}
 
 	@Test
@@ -80,7 +81,7 @@ public class BasicFormMappingTest {
 	}
 	
 	private void testBasicRegFormElements(FormMapping<Registration> mapping) {
-		String pathSep = Forms.PATH_SEP;
+		String pathSep = mapping.getConfig().getPathSeparator();
 		String rootMappingName = "registration";
 		List<FormElement<?>> elements = mapping.getElements();
 		assertEquals(8, elements.size());

@@ -207,11 +207,6 @@ public class BasicFormMappingBuilder<T> {
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(FormField<U> formField) {
-		if (formField.getName().contains(Forms.PATH_SEP)) {
-			throw new IllegalStateException("Name of specified form field should contain only name "
-				+ "of bound property (without full path). "
-				+ "Name of outer mapping is automatically prepended to it.");
-		}
 		fields.put(formField.getName(), new FormFieldImpl<U>(formField, (FormMapping<?>)null, this.nextNestedElementOrder++));
 		return this;
 	}
@@ -391,7 +386,7 @@ public class BasicFormMappingBuilder<T> {
 	}
 	
 	<U> BasicFormMappingBuilder<T> nestedInternal(FormMapping<U> nestedMapping) {
-		if (nestedMapping.getName().contains(Forms.PATH_SEP)) {
+		if (nestedMapping.getName().contains(nestedMapping.getConfig().getPathSeparator())) {
 			throw new IllegalStateException("Nested mapping should be defined with path that is one simple name " + 
 				"that corresponds to the name of the property");
 		}
@@ -545,7 +540,7 @@ public class BasicFormMappingBuilder<T> {
 			if (field.getName() == null || field.getName().isEmpty()) {
 				throw new IllegalStateException("Field name must not be empty");
 			}
-			if (!field.getName().contains(Forms.PATH_SEP)) {
+			if (!field.getName().contains(mapping.getPathSeparator())) {
 				throw new IllegalStateException("Full path (name) of field '" + field.getName() + "' must contain at least one path separator that separates mapping path '" + 
 					mapping.getName() + "' from property name (or more complex path) mapped to field");
 			}

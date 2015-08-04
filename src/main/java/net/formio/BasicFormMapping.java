@@ -134,10 +134,11 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	public String getName() {
 		String name = null;
 		if (getParent() != null) {
+			String pathSep = getPathSeparator(); 
 			if (index != null) {
-				name = getParent().getName() + Forms.PATH_SEP + propertyName + "[" + index + "]";
+				name = getParent().getName() + pathSep + propertyName + "[" + index + "]";
 			} else {
-				name = getParent().getName() + Forms.PATH_SEP + propertyName;
+				name = getParent().getName() + pathSep + propertyName;
 			}
 		} else {
 			if (index != null) {
@@ -330,7 +331,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		
 		if (!(error instanceof MaxSizeExceededError) && this.secured) {
 			// Must be executed after processing of nested mappings
-			AuthTokens.verifyAuthToken(context, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
+			AuthTokens.verifyAuthToken(context, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping(), getPathSeparator());
 		}
 		
 		// binding data from "values" to resulting object for this mapping
@@ -433,6 +434,14 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	@Override
 	public boolean isRootMapping() {
 		return this.parent == null;
+	}
+	
+	/**
+	 * Returns separator of names in full path to form fields.
+	 * @return
+	 */
+	protected String getPathSeparator() {
+		return getConfig().getPathSeparator();
 	}
 	
 	ValidationResult validate(Locale locale, Class<?> ... validationGroups) {

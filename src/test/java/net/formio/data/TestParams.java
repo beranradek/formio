@@ -26,28 +26,26 @@ import net.formio.inmemory.MapParams;
  */
 public final class TestParams {
 
-	public static MapParams newRegistrationParams() {
+	public static MapParams newRegistrationParams(String pathSep) {
 		// Preparing data (filled "by the user" into the form)
-		final String sep = Forms.PATH_SEP;
 		final MapParams reqParams = new MapParams();
-		reqParams.put("registration" + sep + "email", "invalidemail.com");
-		reqParams.put("registration" + sep + "attendanceReasons", 
+		reqParams.put("registration" + pathSep + "email", "invalidemail.com");
+		reqParams.put("registration" + pathSep + "attendanceReasons", 
 			new String[] { AttendanceReason.COMPANY_INTEREST.name(), AttendanceReason.CERTIFICATION.name() });
-		reqParams.put("registration" + sep + "collegues[0]" + sep + "name", "Michael");
-		reqParams.put("registration" + sep + "collegues[1]" + sep + "name", "Natalie");
-		reqParams.put("registration" + sep + "newCollegue" + sep + "regDate" + sep + "year", "2014");
-		reqParams.put("registration" + sep + "newCollegue" + sep + "regDate" + sep + "month", "11");
-		reqParams.put("registration" + sep + "newCollegue" + sep + "name", "Joshua");
+		reqParams.put("registration" + pathSep + "collegues[0]" + pathSep + "name", "Michael");
+		reqParams.put("registration" + pathSep + "collegues[1]" + pathSep + "name", "Natalie");
+		reqParams.put("registration" + pathSep + "newCollegue" + pathSep + "regDate" + pathSep + "year", "2014");
+		reqParams.put("registration" + pathSep + "newCollegue" + pathSep + "regDate" + pathSep + "month", "11");
+		reqParams.put("registration" + pathSep + "newCollegue" + pathSep + "name", "Joshua");
 		return reqParams;
 	}
 	
-	public static MapParams newRegistrationCollegueParams() {
+	public static MapParams newRegistrationCollegueParams(String pathSep) {
 		// Preparing data (filled "by the user" into the form)
-		final String sep = Forms.PATH_SEP;
 		final MapParams reqParams = new MapParams();
-		reqParams.put("registration" + sep + "newCollegue" + sep + "regDate" + sep + "year", "2014");
-		reqParams.put("registration" + sep + "newCollegue" + sep + "regDate" + sep + "month", "11");
-		reqParams.put("registration" + sep + "newCollegue" + sep + "name", "Joshua");
+		reqParams.put("registration" + pathSep + "newCollegue" + pathSep + "regDate" + pathSep + "year", "2014");
+		reqParams.put("registration" + pathSep + "newCollegue" + pathSep + "regDate" + pathSep + "month", "11");
+		reqParams.put("registration" + pathSep + "newCollegue" + pathSep + "name", "Joshua");
 		return reqParams;
 	}
 	

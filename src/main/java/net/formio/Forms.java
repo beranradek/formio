@@ -31,11 +31,6 @@ import net.formio.render.WholeFormRenderer;
 public final class Forms {
 	
 	public static final String AUTH_TOKEN_FIELD_NAME = "formAuthToken";
-	
-	/**
-	 * Separator of parts in the path (used in fully qualified field name).
-	 */
-	public static final String PATH_SEP = "-";
 
 	/**
 	 * Starts building basic mapping for which all the fields and nested mappings 

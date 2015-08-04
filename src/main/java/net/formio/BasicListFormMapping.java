@@ -161,7 +161,7 @@ public class BasicListFormMapping<T> extends BasicFormMapping<T> {
 					+ "in root list mapping. Please create SINGLE root mapping with nested list mapping.");
 			}
 			if (this.secured) {
-				AuthTokens.verifyAuthToken(context, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping());
+				AuthTokens.verifyAuthToken(context, getConfig().getTokenAuthorizer(), getRootMappingPath(), paramsProvider, isRootMapping(), getPathSeparator());
 			}
 		}
 		

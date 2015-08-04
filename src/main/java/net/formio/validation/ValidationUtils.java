@@ -18,8 +18,6 @@ package net.formio.validation;
 
 import javax.validation.ConstraintViolation;
 
-import net.formio.Forms;
-
 /**
  * Auxiliary common methods for validation.
  * @author Radek Beran
@@ -44,8 +42,8 @@ final class ValidationUtils {
 		return msgTemplate;
 	}
 
-	static boolean isTopLevelMapping(String propPrefix) {
-		return propPrefix == null || propPrefix.isEmpty() || !propPrefix.contains(Forms.PATH_SEP);
+	static boolean isTopLevelMapping(String propPrefix, String pathSep) {
+		return propPrefix == null || propPrefix.isEmpty() || !propPrefix.contains(pathSep);
 	}
 
 	private ValidationUtils() {

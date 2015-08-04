@@ -19,7 +19,6 @@ package net.formio.render;
 import net.formio.BasicListFormMapping;
 import net.formio.FormElement;
 import net.formio.FormMapping;
-import net.formio.Forms;
 import net.formio.common.MessageTranslator;
 
 /**
@@ -92,13 +91,13 @@ class LabelRenderer {
 			if (formElement instanceof FormMapping) {
 				FormMapping<?> m = (FormMapping<?>) formElement;
 				if (m.getIndex() != null) {
-					msgKey = msgKey + Forms.PATH_SEP + "single";
+					msgKey = msgKey + m.getConfig().getPathSeparator() + "single";
 				}
 			}
 			sb.append(renderer.escapeHtml(tr.getMessage(msgKey, renderer.getLocation(formElement).getLocale())));
 			if (formElement instanceof BasicListFormMapping) {
 				FormMapping<?> listMapping = (FormMapping<?>) formElement;
-				sb.append(" (<span id=\"" + formElement.getName() + Forms.PATH_SEP + "size\">" + 
+				sb.append(" (<span id=\"" + formElement.getName() + listMapping.getConfig().getPathSeparator() + "size\">" + 
 					listMapping.getList().size() + 
 				"</span>)");
 			}

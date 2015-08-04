@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import net.formio.data.MockRequestContext;
 import net.formio.data.RequestContext;
 import net.formio.data.TestForms;
+import net.formio.domain.Person;
 import net.formio.inmemory.MapParams;
 import net.formio.security.HashTokenAuthorizer;
 import net.formio.security.InvalidTokenException;
@@ -39,14 +40,16 @@ public class AuthTokensTest {
 	public void testGenerateAndVerifyAuthToken() {
 		RequestContext ctx = new MockRequestContext();
 		TokenAuthorizer tokenAuthorizer = new HashTokenAuthorizer();
-		String rootMappingPath = TestForms.PERSON_FORM.getName();
+		FormMapping<Person> personForm = TestForms.PERSON_FORM; 
+		String pathSep = personForm.getConfig().getPathSeparator();
+		String rootMappingPath = personForm.getName();
 		String authToken = AuthTokens.generateAuthToken(ctx, tokenAuthorizer, rootMappingPath);
 		assertTrue("Generated auth token should not be null or empty", authToken != null && !authToken.isEmpty());
 		
 		try {
 			MapParams params = new MapParams();
-			params.put(rootMappingPath + Forms.PATH_SEP + Forms.AUTH_TOKEN_FIELD_NAME, authToken);
-			AuthTokens.verifyAuthToken(ctx, tokenAuthorizer, rootMappingPath, params, true);
+			params.put(rootMappingPath + pathSep + Forms.AUTH_TOKEN_FIELD_NAME, authToken);
+			AuthTokens.verifyAuthToken(ctx, tokenAuthorizer, rootMappingPath, params, true, pathSep);
 		} catch (InvalidTokenException ex) {
 			fail("Token is not valid: " + ex.getMessage());
 		}
@@ -56,20 +59,24 @@ public class AuthTokensTest {
 	public void testMissingAuthToken() {
 		RequestContext ctx = new MockRequestContext();
 		TokenAuthorizer tokenAuthorizer = new HashTokenAuthorizer();
-		String rootMappingPath = TestForms.PERSON_FORM.getName();
+		
+		FormMapping<Person> personForm = TestForms.PERSON_FORM;
+		String rootMappingPath = personForm.getName();
 		
 		MapParams params = new MapParams(); // without auth token parameter
-		AuthTokens.verifyAuthToken(ctx, tokenAuthorizer, rootMappingPath, params, true);
+		AuthTokens.verifyAuthToken(ctx, tokenAuthorizer, rootMappingPath, params, true, personForm.getConfig().getPathSeparator());
 	}
 	
 	@Test(expected=InvalidTokenException.class)
 	public void testInvalidAuthToken() {
 		RequestContext ctx = new MockRequestContext();
 		TokenAuthorizer tokenAuthorizer = new HashTokenAuthorizer();
-		String rootMappingPath = TestForms.PERSON_FORM.getName();
+		FormMapping<Person> personForm = TestForms.PERSON_FORM; 
+		String pathSep = personForm.getConfig().getPathSeparator();
+		String rootMappingPath = personForm.getName();
 		
 		MapParams params = new MapParams(); // without auth token parameter
-		params.put(rootMappingPath + Forms.PATH_SEP + Forms.AUTH_TOKEN_FIELD_NAME, "some_invalid_token_value");
-		AuthTokens.verifyAuthToken(ctx, tokenAuthorizer, rootMappingPath, params, true);
+		params.put(rootMappingPath + pathSep + Forms.AUTH_TOKEN_FIELD_NAME, "some_invalid_token_value");
+		AuthTokens.verifyAuthToken(ctx, tokenAuthorizer, rootMappingPath, params, true, pathSep);
 	}
 }

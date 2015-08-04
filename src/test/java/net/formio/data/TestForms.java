@@ -43,6 +43,7 @@ import net.formio.domain.inputs.Function;
 import net.formio.domain.inputs.Profile;
 import net.formio.domain.inputs.Salutation;
 import net.formio.domain.inputs.Skill;
+import net.formio.format.Location;
 import net.formio.props.FormElementProperty;
 
 /**
@@ -67,22 +68,22 @@ public final class TestForms {
 		    .fields("name", "email")
 		    .nested(REG_DATE_MAPPING)
 		    .build())
-		  .build();
+		  .build(Location.ENGLISH);
 	
 	// equivalent definition of the form, can be freely shared/cached
 	public static final FormMapping<Registration> REG_FORM = 
 		Forms.automatic(Registration.class, "registration")
 			.nested(Forms.automatic(Address.class, "contactAddress", Forms.factoryMethod(Address.class, "getInstance")).build())
-			.build();
+			.build(Location.ENGLISH);
 	
 	public static final FormMapping<Person> PERSON_FORM = Forms.basic(Person.class, "person") // NOPMD by Radek on 2.3.14 19:29
 		// whitelist of formProperties to bind
 		.fields("personId", "firstName", "lastName", "salary", "phone", "male", "nation")
 		.field(Forms.<Date>field("birthDate", "text").formatter(TestFormatters.CUSTOM_DATE_FORMATTER).build())
-		.build();
+		.build(Location.ENGLISH);
 	
 	public static final FormMapping<BigDecimalValue> VALUE_FORM = 
-		Forms.automatic(BigDecimalValue.class, "valueForm").build();
+		Forms.automatic(BigDecimalValue.class, "valueForm").build(Location.ENGLISH);
 	
 	public static final FormMapping<Car> CAR_FORM =
 		Forms.automatic(Car.class, "carForm")
@@ -95,7 +96,7 @@ public final class TestForms {
 			.field(Forms.field("cylinderCount").required(true).build())	
 			.field(Forms.field("volume").help("In units...").build())
 			.build())
-		.build();
+		.build(Location.ENGLISH);
 	
 	public static final FormMapping<Car> CAR_ACCESSIBILITY_FORM =
 		Forms.basic(Car.class, "carForm")
@@ -115,7 +116,7 @@ public final class TestForms {
 				.field("height")
 				.visible(false)
 				.build())
-			.build();
+			.build(Location.ENGLISH);
 	
 	public static final FormMapping<Profile> ALL_FIELDS_FORM = Forms.basic(Profile.class, "profile")
 		.field("profileId", Field.HIDDEN)
@@ -172,7 +173,7 @@ public final class TestForms {
 		.field("agreement", Field.CHECK_BOX)
 		.field("otherInfoUrl", Field.LINK)
 		.field("submitValue", Field.BUTTON)
-		.build();
+		.build(Location.ENGLISH);
 	
 	private static List<Skill> skillsCodebook() {
 		List<Skill> skills = new ArrayList<Skill>();

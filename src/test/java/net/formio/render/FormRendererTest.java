@@ -38,7 +38,7 @@ public class FormRendererTest {
 	public void testRenderForm() {
 		final Location loc = Location.ENGLISH;
 		Profile inputs = TestData.newAllFields();
-		String pathSep = Forms.PATH_SEP;
+		String pathSep = TestForms.ALL_FIELDS_FORM.getConfig().getPathSeparator();
 		
 		// Validation errors will be displayed when the form is shown for the first time
 		// (due to fillAndValidate call)

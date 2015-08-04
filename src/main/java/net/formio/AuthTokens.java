@@ -63,14 +63,14 @@ final class AuthTokens {
 	 * @param rootMapping true if this method is called from root mapping
 	 * @throws InvalidTokenException if token is invalid
 	 */
-	static void verifyAuthToken(RequestContext ctx, TokenAuthorizer tokenAuthorizer, String rootMappingPath, RequestParams requestParams, boolean rootMapping) {
+	static void verifyAuthToken(RequestContext ctx, TokenAuthorizer tokenAuthorizer, String rootMappingPath, RequestParams requestParams, boolean rootMapping, String pathSep) {
 		String secretKey = AuthTokens.getRootMappingSecretKey(rootMappingPath);
 		try {
 			if (ctx == null) {
 				throw new IllegalStateException(RequestContext.class.getSimpleName() + " is required when the form is " + 
 					"defined as secured. Please specify not null context in bind method.");
 			}
-			String token = getAuthTokenFromRequest(requestParams, rootMappingPath);
+			String token = getAuthTokenFromRequest(requestParams, rootMappingPath, pathSep);
 			if ("".equals(token)) {
 				throw new TokenMissingException("Unauthorized attempt. Authorization token is missing! It should be posted as " + Forms.AUTH_TOKEN_FIELD_NAME + 
 					" field. Maybe this is blocked CSRF attempt or the required field with token is not rendered in the form correctly.");
@@ -97,8 +97,8 @@ final class AuthTokens {
 		return SECRET_KEY_PREFIX + rootMappingPath;
 	}
 	
-	private static String getAuthTokenFromRequest(RequestParams params, String rootMappingPath) {
-		String token = params.getParamValue(rootMappingPath + Forms.PATH_SEP + Forms.AUTH_TOKEN_FIELD_NAME);
+	private static String getAuthTokenFromRequest(RequestParams params, String rootMappingPath, String pathSep) {
+		String token = params.getParamValue(rootMappingPath + pathSep + Forms.AUTH_TOKEN_FIELD_NAME);
 		if (token == null) {
 			token = "";
 		}

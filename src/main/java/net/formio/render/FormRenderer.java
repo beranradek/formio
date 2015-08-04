@@ -24,7 +24,6 @@ import net.formio.Field;
 import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
-import net.formio.Forms;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.action.HandledJsEvent;
 import net.formio.choice.ChoiceRenderer;
@@ -168,12 +167,13 @@ public class FormRenderer {
 	 * @return
 	 */
 	protected <T> String renderMarkupListMapping(BasicListFormMapping<T> listMapping) {
+		String pathSep = listMapping.getConfig().getPathSeparator();
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div id=\"" + listMapping.getName() + Forms.PATH_SEP + "begin\"></div>" + newLine());
+		sb.append("<div id=\"" + listMapping.getName() + pathSep + "begin\"></div>" + newLine());
 		for (FormMapping<?> m : listMapping.getList()) {
 			sb.append(renderElement(m));
 		}
-		sb.append("<div id=\"" + listMapping.getName() + Forms.PATH_SEP + "end\"></div>" + newLine());
+		sb.append("<div id=\"" + listMapping.getName() + pathSep + "end\"></div>" + newLine());
 		return sb.toString();
 	}
 

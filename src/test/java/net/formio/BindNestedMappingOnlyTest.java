@@ -41,8 +41,8 @@ public class BindNestedMappingOnlyTest {
 		// Binding data from request
 		FormMapping<NewCollegue> newCollegueMapping = regForm.getMapping(NewCollegue.class, "newCollegue");
 		
-		MapParams params = TestParams.newRegistrationCollegueParams();
-		final String sep = Forms.PATH_SEP;
+		MapParams params = TestParams.newRegistrationCollegueParams(regForm.getConfig().getPathSeparator());
+		final String sep = regForm.getConfig().getPathSeparator();
 		params.put("registration" + sep + "email", "invalidemail.com"); // unrelated param
 		FormData<NewCollegue> formData = newCollegueMapping.bind(params, loc, New.class);
 		NewCollegue newCollegue = formData.getData();

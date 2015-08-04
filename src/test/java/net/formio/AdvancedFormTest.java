@@ -68,7 +68,7 @@ public class AdvancedFormTest {
 		regToFillFromForm.setNewCollegue(col);
 		
 		FormMapping<Registration> regForm = TestForms.REG_FORM;
-		FormData<Registration> boundFormData = regForm.bind(TestParams.newRegistrationParams(), loc, regToFillFromForm);
+		FormData<Registration> boundFormData = regForm.bind(TestParams.newRegistrationParams(regForm.getConfig().getPathSeparator()), loc, regToFillFromForm);
 		Registration reg = boundFormData.getData();
 		
 		assertEquals(regToFillFromForm.getNewCollegue(), reg.getNewCollegue());
@@ -91,7 +91,7 @@ public class AdvancedFormTest {
 		regToFillFromForm.setCollegues(collegues);
 		
 		FormMapping<Registration> regForm = TestForms.REG_FORM;
-		FormData<Registration> boundFormData = regForm.bind(TestParams.newRegistrationParams(), loc, regToFillFromForm);
+		FormData<Registration> boundFormData = regForm.bind(TestParams.newRegistrationParams(regForm.getConfig().getPathSeparator()), loc, regToFillFromForm);
 		Registration reg = boundFormData.getData();
 		
 		assertEquals("Michael", reg.getCollegues().get(0).getName());
@@ -142,10 +142,10 @@ public class AdvancedFormTest {
 		
 		
 		// Binding data from the form to a model
-		final String sep = Forms.PATH_SEP;
+		final String pathSep = filledForm.getConfig().getPathSeparator();
 		
 		// Binding form data to model (Registration)
-		FormData<Registration> boundFormData = form.bind(TestParams.newRegistrationParams(), loc);
+		FormData<Registration> boundFormData = form.bind(TestParams.newRegistrationParams(pathSep), loc);
 		final Registration boundReg = boundFormData.getData();
 		
 		assertNotNull("bound object should not be null", boundReg);
@@ -161,8 +161,8 @@ public class AdvancedFormTest {
 		// Validation report
 		assertTrue(!boundFormData.isValid());
 		ValidationResult report = boundFormData.getValidationResult();
-		assertTrue(report.getFieldMessages().containsKey("registration" + sep + "email"));
-		List<ConstraintViolationMessage> msgSet = report.getFieldMessages().get("registration" + sep + "email");
+		assertTrue(report.getFieldMessages().containsKey("registration" + pathSep + "email"));
+		List<ConstraintViolationMessage> msgSet = report.getFieldMessages().get("registration" + pathSep + "email");
 		assertEquals(1, msgSet.size());
 		final ConstraintViolationMessage msg = msgSet.iterator().next();
 		assertEquals(Severity.ERROR, msg.getSeverity());

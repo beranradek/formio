@@ -5,6 +5,7 @@
 * New CollectionBuilders.getItemClass method to allow customization of reflection logic for finding type of collection item.
 * Renamed BasicFormRenderer -> FormRenderer
 * net.formio.format.Location encapsulating both Locale and TimeZone settings, accepted by fill and bind methods.
+* Configurable path separator in form field/mapping names. Removed global Forms.PATH_SEP constant.
 
 1.4.2 (6.7.2015)
 * Using Netflix gradle-extra-configurations-plugin for optional dependencies in pom.xml generated from Maven Gradle plugin

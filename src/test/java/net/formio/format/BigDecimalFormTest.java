@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 
 import net.formio.FormData;
 import net.formio.FormMapping;
-import net.formio.Forms;
 import net.formio.data.TestForms;
 import net.formio.domain.BigDecimalValue;
 import net.formio.inmemory.MapParams;
@@ -59,7 +58,7 @@ public class BigDecimalFormTest {
 			
 			// Preparing data (filled "by the user" into the form)
 			MapParams reqParams = new MapParams();
-			reqParams.put(valueForm.getName() + Forms.PATH_SEP + "value", "30,98");
+			reqParams.put(valueForm.getName() + valueForm.getConfig().getPathSeparator() + "value", "30,98");
 
 			// Binding data from request to model
 			FormData<BigDecimalValue> boundFormData = valueForm.bind(reqParams, loc);
