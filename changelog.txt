@@ -1,6 +1,6 @@
 # Changelog
 
-1.4.3 (?)
+1.5.0 (4.8.2015)
 * Configurable type of resulting collection for list mappings (nested collections of complex objects). See Config.listMappingCollection.
 * New CollectionBuilders.getItemClass method to allow customization of reflection logic for finding type of collection item.
 * Renamed BasicFormRenderer -> FormRenderer
