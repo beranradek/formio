@@ -324,7 +324,7 @@ public final class Forms {
 	 * @param requestParams request parameters
 	 * @param filledMapping filled form mapping for finding the form element that invoked the AJAX event
 	 */
-	public static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> filledMapping) {
+	public static <U, T> AjaxAction<T> findAjaxAction(RequestParams requestParams, FormMapping<U> filledMapping) {
 		return AjaxForms.findAjaxAction(requestParams, filledMapping);
 	}
 	

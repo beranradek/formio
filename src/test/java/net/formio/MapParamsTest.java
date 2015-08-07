@@ -17,6 +17,7 @@
 package net.formio;
 
 import static org.junit.Assert.*;
+import net.formio.ajax.AjaxParams;
 import net.formio.inmemory.MapParams;
 
 import org.junit.Test;
@@ -35,5 +36,31 @@ public class MapParamsTest {
 		assertTrue(str.contains("Some very long value"));
 		assertFalse(str.contains("in toString"));
 	}
+	
+	@Test
+	public void testIsTdiAjaxRequest() {
+		MapParams params = new MapParams();
+		params.put(AjaxParams.INFUSE, "1");
+		assertTrue("Should be TDI AJAX request", params.isTdiAjaxRequest());
+	}
 
+	@Test
+	public void testIsNotTdiAjaxRequest() {
+		MapParams params = new MapParams();
+		assertFalse("Should NOT be TDI AJAX request", params.isTdiAjaxRequest());
+	}
+	
+	@Test
+	public void testGetTdiAjaxSrcElement() {
+		MapParams params = new MapParams();
+		String elementName = "age";
+		params.put(AjaxParams.SRC_ELEMENT_NAME, elementName);
+		assertEquals(elementName, params.getTdiAjaxSrcElementName());
+	}
+	
+	@Test
+	public void testMissingTdiAjaxSrcElement() {
+		MapParams params = new MapParams();
+		assertNull("Should be null", params.getTdiAjaxSrcElementName());
+	}
 }

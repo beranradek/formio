@@ -128,7 +128,7 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * @param validationGroups
 	 * @return filled source element
 	 */
-	FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Location loc, Class<?>... validationGroups);
+	FormElement<?> fillTdiAjaxSrcElement(RequestParams requestParams, Location loc, Class<?>... validationGroups);
 	
 	/**
 	 * Returns form element that invoked the TDI AJAX request, filled with request data (and validation messages);
@@ -138,7 +138,7 @@ public interface FormMapping<T> extends FormElement<T> {
 	 * @param validationGroups
 	 * @return filled source element
 	 */
-	FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Class<?>... validationGroups);
+	FormElement<?> fillTdiAjaxSrcElement(RequestParams requestParams, Class<?>... validationGroups);
 	
 	FormData<T> bind(RequestParams paramsProvider, Location loc, RequestContext ctx, Class<?>... validationGroups);
 	FormData<T> bind(RequestParams paramsProvider, RequestContext ctx, Class<?>... validationGroups);

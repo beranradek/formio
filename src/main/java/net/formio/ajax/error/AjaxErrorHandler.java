@@ -16,7 +16,7 @@
  */
 package net.formio.ajax.error;
 
-import net.formio.AbstractRequestParams;
+import net.formio.RequestParams;
 import net.formio.ajax.AjaxResponse;
 
 /**
@@ -33,5 +33,5 @@ public interface AjaxErrorHandler<T> {
 	 * @param cause
 	 * @return
 	 */
-	AjaxResponse<T> errorResponse(AbstractRequestParams requestParams, Throwable cause);
+	AjaxResponse<T> errorResponse(RequestParams requestParams, Throwable cause);
 }

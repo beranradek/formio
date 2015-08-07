@@ -18,7 +18,7 @@ package net.formio.ajax.error;
 
 import java.util.Locale;
 
-import net.formio.AbstractRequestParams;
+import net.formio.RequestParams;
 import net.formio.ajax.AjaxResponse;
 import net.formio.format.Location;
 import net.formio.render.FormRenderer;
@@ -35,7 +35,7 @@ public class AjaxAlertErrorHandler<T> implements AjaxErrorHandler<T> {
 	 * @param t exception thrown during processing an AJAX request
 	 */
 	@Override
-	public AjaxResponse<T> errorResponse(AbstractRequestParams requestParams, Throwable cause) {
+	public AjaxResponse<T> errorResponse(RequestParams requestParams, Throwable cause) {
 		return new AjaxResponse<T>(new FormRenderer(Location.getInstance(Locale.ENGLISH)).ajaxResponse()
 			.status("ERROR")
 			.script("alert(\"AJAX Error\")")

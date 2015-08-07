@@ -17,7 +17,7 @@
 package net.formio.ajax.action;
 
 import static org.junit.Assert.assertEquals;
-import net.formio.AbstractRequestParams;
+import net.formio.RequestParams;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.AjaxResponse;
 import net.formio.ajax.JsEvent;
@@ -35,7 +35,7 @@ public class JsEventToActionTest {
 		JsEventToAction<Long> action = new JsEventToAction<Long>(jsEvent, new AjaxAction<Long>() {
 
 			@Override
-			public AjaxResponse<Long> apply(AbstractRequestParams requestParams) {
+			public AjaxResponse<Long> apply(RequestParams requestParams) {
 				TdiResponseBuilder rb = new TdiResponseBuilder(new FormRenderer(Location.ENGLISH));
 				return new AjaxResponse<Long>(rb.status("OK").asString());
 			}

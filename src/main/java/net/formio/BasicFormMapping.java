@@ -32,8 +32,8 @@ import net.formio.binding.Instantiator;
 import net.formio.binding.ParseError;
 import net.formio.choice.ChoiceProvider;
 import net.formio.data.RequestContext;
-import net.formio.format.Location;
 import net.formio.format.Formatter;
+import net.formio.format.Location;
 import net.formio.internal.FormUtils;
 import net.formio.props.FormMappingProperties;
 import net.formio.props.FormMappingPropertiesImpl;
@@ -262,7 +262,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	}
 	
 	@Override
-	public FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Location loc, Class<?>... validationGroups) {
+	public FormElement<?> fillTdiAjaxSrcElement(RequestParams requestParams, Location loc, Class<?>... validationGroups) {
 		FormElement<?> el = null;
 		if (requestParams.isTdiAjaxRequest()) {
 			FormMapping<?> filledMapping = fill(bind(requestParams, loc, validationGroups), loc);
@@ -272,7 +272,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 	}
 	
 	@Override
-	public FormElement<?> fillTdiAjaxSrcElement(AbstractRequestParams requestParams, Class<?>... validationGroups) {
+	public FormElement<?> fillTdiAjaxSrcElement(RequestParams requestParams, Class<?>... validationGroups) {
 		return fillTdiAjaxSrcElement(requestParams, (Location)null, validationGroups);
 	}
 	

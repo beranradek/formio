@@ -30,7 +30,7 @@ import net.formio.ajax.action.JsEventToAction;
  */
 class AjaxForms {
 
-	static <U, T> AjaxAction<T> findAjaxAction(AbstractRequestParams requestParams, FormMapping<U> mapping) {
+	static <U, T> AjaxAction<T> findAjaxAction(RequestParams requestParams, FormMapping<U> mapping) {
 		// try to find action in given form mapping according to presence of request parameter
 		AjaxAction<T> action = findAjaxActionByRequestParam(requestParams, mapping);
 		if (action == null) {
@@ -66,7 +66,7 @@ class AjaxForms {
 		return jsEvent.getEventName().equals(event);
 	}
 
-	private static <T, U> AjaxAction<T> findAjaxActionByRequestParam(AbstractRequestParams requestParams, FormElement<U> element) {
+	private static <T, U> AjaxAction<T> findAjaxActionByRequestParam(RequestParams requestParams, FormElement<U> element) {
 		AjaxAction<T> action = null;
 		for (HandledJsEvent ev : element.getProperties().getDataAjaxActions()) {
 			if (ev instanceof JsEventToAction) {

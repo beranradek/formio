@@ -16,6 +16,9 @@
  */
 package net.formio;
 
+import java.util.Iterator;
+
+import net.formio.ajax.AjaxParams;
 import net.formio.internal.FormUtils;
 import net.formio.upload.UploadedFile;
 
@@ -24,19 +27,6 @@ import net.formio.upload.UploadedFile;
  * @author Radek Beran
  */
 public abstract class AbstractRequestParams implements RequestParams {
-	
-	/**
-	 * Returns true if given request is TDI AJAX request.
-	 * @return true if this is TDI AJAX request
-	 */
-	public abstract boolean isTdiAjaxRequest();
-	
-	/**
-	 * Returns name of the form element that initiated the TDI AJAX request,
-	 * {@code null} if this is not an TDI AJAX request. 
-	 * @return name of the form element that initiated the TDI AJAX request
-	 */
-	public abstract String getTdiAjaxSrcElementName();
 
 	@Override
 	public String getParamValue(String paramName) {
@@ -59,6 +49,16 @@ public abstract class AbstractRequestParams implements RequestParams {
 	}
 	
 	@Override
+	public boolean isTdiAjaxRequest() {
+		return containsParam(AjaxParams.INFUSE);
+	}
+	
+	@Override
+	public String getTdiAjaxSrcElementName() {
+		return getParamValue(AjaxParams.SRC_ELEMENT_NAME);
+	}
+	
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
@@ -72,5 +72,20 @@ public abstract class AbstractRequestParams implements RequestParams {
 			sb.append(paramName + "=" + FormUtils.truncate(value, 60));
 		}
 		return sb.toString();
+	}
+	
+	protected boolean containsParam(String paramName) {
+		boolean found = false;
+		Iterable<String> params = getParamNames();
+		if (params != null) {
+			for (Iterator<String> it = params.iterator(); it.hasNext(); ) {
+				String param = it.next();
+				if (param != null && param.equals(paramName)) {
+					found = true;
+					break;
+				}
+			}
+		}
+		return found;
 	}
 }

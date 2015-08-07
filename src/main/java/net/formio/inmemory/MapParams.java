@@ -118,14 +118,4 @@ public class MapParams extends AbstractRequestParams {
 		this.params.clear();
 		this.files.clear();
 	}
-
-	@Override
-	public boolean isTdiAjaxRequest() {
-		return false;
-	}
-
-	@Override
-	public String getTdiAjaxSrcElementName() {
-		return null;
-	}
 }

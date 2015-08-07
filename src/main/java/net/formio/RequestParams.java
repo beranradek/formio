@@ -16,6 +16,7 @@
  */
 package net.formio;
 
+import net.formio.ajax.AjaxParams;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
 
@@ -69,4 +70,19 @@ public interface RequestParams {
 	 * @return request processing error
 	 */
 	RequestProcessingError getRequestError();
+	
+	/**
+	 * Returns true if given request is TDI AJAX request.
+	 * TDI AJAX request is indicated by presence of {@link AjaxParams#INFUSE} request parameter.
+	 * @return true if this is TDI AJAX request
+	 */
+	boolean isTdiAjaxRequest();
+	
+	/**
+	 * Returns name of the form element that initiated the TDI AJAX request,
+	 * {@code null} if this is not an TDI AJAX request.
+	 * Name of such AJAX event source element is transfered in {@link AjaxParams#SRC_ELEMENT_NAME} request parameter.
+	 * @return name of the form element that initiated the TDI AJAX request
+	 */
+	String getTdiAjaxSrcElementName();
 }

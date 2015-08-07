@@ -16,7 +16,7 @@
  */
 package net.formio.ajax.action;
 
-import net.formio.AbstractRequestParams;
+import net.formio.RequestParams;
 import net.formio.ajax.AjaxResponse;
 import net.formio.data.FormStateStorage;
 
@@ -50,7 +50,7 @@ public abstract class FormStateAjaxAction<T> implements AjaxAction<T> {
 	 * @return
 	 */
 	@Override
-	public AjaxResponse<T> apply(AbstractRequestParams requestParams) {
+	public AjaxResponse<T> apply(RequestParams requestParams) {
 		T formState = formStateStorage.findFormState(requestParams);
 		AjaxResponse<T> res = applyToState(requestParams, formState);
 		formStateStorage.saveFormState(requestParams, res.getUpdatedFormState());
@@ -64,5 +64,5 @@ public abstract class FormStateAjaxAction<T> implements AjaxAction<T> {
 	 * @param formState
 	 * @return
 	 */
-	public abstract AjaxResponse<T> applyToState(AbstractRequestParams requestParams, T formState);
+	public abstract AjaxResponse<T> applyToState(RequestParams requestParams, T formState);
 }

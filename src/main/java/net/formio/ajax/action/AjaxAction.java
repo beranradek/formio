@@ -16,7 +16,7 @@
  */
 package net.formio.ajax.action;
 
-import net.formio.AbstractRequestParams;
+import net.formio.RequestParams;
 import net.formio.ajax.AjaxResponse;
 
 /**
@@ -24,5 +24,5 @@ import net.formio.ajax.AjaxResponse;
  * @author Radek Beran
  */
 public interface AjaxAction<T> {
-	AjaxResponse<T> apply(AbstractRequestParams requestParams);
+	AjaxResponse<T> apply(RequestParams requestParams);
 }

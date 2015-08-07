@@ -21,8 +21,8 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
-import net.formio.AbstractRequestParams;
 import net.formio.ContentTypes;
+import net.formio.RequestParams;
 import net.formio.ajax.AjaxResponse;
 import net.formio.ajax.action.AjaxAction;
 import net.formio.ajax.error.AjaxAlertErrorHandler;
@@ -82,7 +82,7 @@ public final class ServletResponses {
 	 * @param action
 	 * @param errorHandler
 	 */
-	public static <T> void ajaxResponse(AbstractRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action, AjaxErrorHandler<T> errorHandler) {
+	public static <T> void ajaxResponse(RequestParams requestParams, HttpServletResponse res, AjaxAction<T> action, AjaxErrorHandler<T> errorHandler) {
 		if (requestParams == null) {
 			throw new IllegalArgumentException("request params must be specified");
 		}
@@ -112,7 +112,7 @@ public final class ServletResponses {
 	 * @param res
 	 * @param action
 	 */
-	public static <T> void ajaxResponse(AbstractRequestParams requestParams, HttpServletResponse res, AjaxAction<T> action) {
+	public static <T> void ajaxResponse(RequestParams requestParams, HttpServletResponse res, AjaxAction<T> action) {
 		ajaxResponse(requestParams, res, action, new AjaxAlertErrorHandler<T>());
 	}
 	
