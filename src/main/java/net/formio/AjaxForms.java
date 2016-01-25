@@ -42,6 +42,7 @@ class AjaxForms {
 				if (el != null) {
 					String eventType = requestParams.getParamValue(AjaxParams.EVENT);
 					for (HandledJsEvent ev : el.getProperties().getDataAjaxActions()) {
+						// TODO RBe: Refactor classes to remove this instanceof fragile code (try to design JsEventToAction better)
 						if (ev instanceof JsEventToAction) {
 							JsEventToAction<T> evToAction = (JsEventToAction<T>) ev;
 							if (eventMatches(eventType, evToAction.getEvent())) {

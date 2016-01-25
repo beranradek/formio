@@ -27,6 +27,11 @@ import java.util.Locale;
  */
 public class IdentityMessageTranslator implements MessageTranslator {
 	
+	public static final IdentityMessageTranslator INSTANCE = new IdentityMessageTranslator();  
+	
+	private IdentityMessageTranslator() {
+	}
+	
 	/**
 	 * Returns translation of the message for given message key, locale and arguments.
 	 * @param msgKey

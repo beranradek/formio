@@ -107,7 +107,7 @@ public class RenderUtils {
 		MessageTranslator tr = null;
 		FormMapping<?> rootMapping = element.getRoot();
 		if (rootMapping == null) {
-			tr = new IdentityMessageTranslator();
+			tr = IdentityMessageTranslator.INSTANCE;
 		} else {
 			tr = new BundleMessageTranslator(element.getParent().getDataClass(), locale, rootMapping.getDataClass());
 		}

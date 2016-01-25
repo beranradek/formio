@@ -54,6 +54,8 @@ public class FormRenderer {
 	private final LabelRenderer labelRenderer;
 	private final DatePickerRenderer datePickerRenderer;
 	private final AjaxEventRenderer ajaxEventRenderer;
+	
+	public static final Location DEFAULT_LOCATION = Location.ENGLISH;
 
 	public FormRenderer(Location location) {
 		this.location = location;
@@ -797,7 +799,11 @@ public class FormRenderer {
 		if (location != null) {
 			a = location;
 		} else {
-			a = element.getConfig().getLocation();
+			if (element.getConfig() != null) {
+				a = element.getConfig().getLocation();
+			} else {
+				a = DEFAULT_LOCATION;
+			}
 		}
 		return a;
 	}
