@@ -25,36 +25,36 @@ import net.formio.internal.FormUtils;
 
 /**
  * JavaScript event mapped to handling AJAX action.
+ * @param <T> type of updated form state object
  * @author Radek Beran
  */
-public class JsEventToAction<T> implements HandledJsEvent, Serializable {
-	private static final long serialVersionUID = 2178054031308176325L;
+public class JsEventHandler<T> implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private final JsEvent event;
 	private final AjaxAction<T> action;
 	private final String requestParam;
 	
-	public JsEventToAction(JsEvent event, AjaxAction<T> action) {
-		this(event, action, null);
+	public JsEventHandler(AjaxAction<T> action, JsEvent event) {
+		this(action, event, null);
 	}
 	
-	public JsEventToAction(AjaxAction<T> action) {
-		this(null, action, null);
+	public JsEventHandler(AjaxAction<T> action) {
+		this(action, (JsEvent)null);
 	}
 	
-	public JsEventToAction(String requestParam, AjaxAction<T> action) {
-		this(null, action, requestParam);
+	public JsEventHandler(AjaxAction<T> action, String requestParam) {
+		this(action, null, requestParam);
 	}
 	
-	private JsEventToAction(JsEvent event, AjaxAction<T> action, String requestParam) {
+	private JsEventHandler(AjaxAction<T> action, JsEvent event, String requestParam) {
 		if (action == null) {
 			throw new IllegalArgumentException("action must be specified");
 		}
-		this.event = event;
 		this.action = action;
+		this.event = event;
 		this.requestParam = requestParam;
 	}
 
-	@Override
 	public JsEvent getEvent() {
 		return event;
 	}
@@ -67,8 +67,13 @@ public class JsEventToAction<T> implements HandledJsEvent, Serializable {
 		return requestParam;
 	}
 
-	@Override
-	public String getUrl(String urlBase, FormElement<?> element) {
+	/**
+	 * URL handling AJAX event.
+	 * @param urlBase base URL to which additional event parameters are appended
+	 * @param element form element that is source of the event
+	 * @return
+	 */
+	public String getHandlerUrl(String urlBase, FormElement<?> element) {
 		String url = urlBase;
 		if (event != null) {
 			url = FormUtils.urlWithAppendedParameter(url, AjaxParams.EVENT, event.getEventName());

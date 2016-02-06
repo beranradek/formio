@@ -18,7 +18,7 @@ package net.formio.props;
 
 import java.util.Map;
 
-import net.formio.ajax.action.HandledJsEvent;
+import net.formio.ajax.action.JsEventHandler;
 import net.formio.common.heterog.HeterogMap;
 
 /**
@@ -59,17 +59,16 @@ public interface FormProperties {
 	boolean isLabelVisible();
 	
 	/**
-	 * Returns JavaScript events that invoke custom actions using AJAX request. 
+	 * Returns JavaScript event handlers that invoke custom actions for processing AJAX request. 
 	 * @return
 	 */
-	HandledJsEvent[] getDataAjaxActions();
+	JsEventHandler<?>[] getDataAjaxHandlers();
 	
 	/**
-	 * Returns AJAX action without specified invoking JavaScript event,
-	 * or {@code null} if no such action exists.
+	 * Returns JavaScript event handler that has no JavaScript invoking event defined; or {@code null}.
 	 * @return
 	 */
-	HandledJsEvent getDataAjaxActionWithoutEvent();
+	JsEventHandler<?> getDataAjaxHandlerWithoutEvent();
 	
 	/**
 	 * CSS selector (mostly ID selector) for finding AJAX-request-source element related elements. 

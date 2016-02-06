@@ -21,8 +21,7 @@ import java.util.Iterator;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.JsEvent;
 import net.formio.ajax.action.AjaxAction;
-import net.formio.ajax.action.HandledJsEvent;
-import net.formio.ajax.action.JsEventToAction;
+import net.formio.ajax.action.JsEventHandler;
 
 /**
  * Methods for serving AJAX forms.
@@ -41,14 +40,10 @@ class AjaxForms {
 				FormElement<Object> el = mapping.findElement(srcElement);
 				if (el != null) {
 					String eventType = requestParams.getParamValue(AjaxParams.EVENT);
-					for (HandledJsEvent ev : el.getProperties().getDataAjaxActions()) {
-						// TODO RBe: Refactor classes to remove this instanceof fragile code (try to design JsEventToAction better)
-						if (ev instanceof JsEventToAction) {
-							JsEventToAction<T> evToAction = (JsEventToAction<T>) ev;
-							if (eventMatches(eventType, evToAction.getEvent())) {
-								action = evToAction.getAction();
-								break;
-							}
+					for (JsEventHandler<?> ev : el.getProperties().getDataAjaxHandlers()) {
+						if (eventMatches(eventType, ev.getEvent())) {
+							action = (AjaxAction<T>)ev.getAction();
+							break;
 						}
 					}
 				}
@@ -69,25 +64,19 @@ class AjaxForms {
 
 	private static <T, U> AjaxAction<T> findAjaxActionByRequestParam(RequestParams requestParams, FormElement<U> element) {
 		AjaxAction<T> action = null;
-		for (HandledJsEvent ev : element.getProperties().getDataAjaxActions()) {
-			if (ev instanceof JsEventToAction) {
-				JsEventToAction<T> evToAction = (JsEventToAction<T>) ev;
-				if (evToAction.getRequestParam() != null
-						&& !evToAction.getRequestParam().isEmpty()
-						&& containsParam(requestParams.getParamNames(), evToAction.getRequestParam())) {
-					action = evToAction.getAction();
-					break;
-				}
+		for (JsEventHandler<?> ev : element.getProperties().getDataAjaxHandlers()) {
+			if (ev.getRequestParam() != null && !ev.getRequestParam().isEmpty()
+				&& containsParam(requestParams.getParamNames(), ev.getRequestParam())) {
+				action = (AjaxAction<T>)ev.getAction();
+				break;
 			}
 		}
-		if (action == null) {
-			if (element instanceof FormMapping<?>) {
-				FormMapping<?> mapping = (FormMapping<?>) element;
-				for (FormElement<?> el : mapping.getElements()) {
-					action = findAjaxActionByRequestParam(requestParams, el);
-					if (action != null) {
-						break;
-					}
+		if (action == null && element instanceof FormMapping<?>) {
+			FormMapping<?> mapping = (FormMapping<?>) element;
+			for (FormElement<?> el : mapping.getElements()) {
+				action = findAjaxActionByRequestParam(requestParams, el);
+				if (action != null) {
+					break;
 				}
 			}
 		}

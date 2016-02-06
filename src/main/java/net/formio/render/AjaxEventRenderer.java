@@ -23,7 +23,7 @@ import net.formio.Field;
 import net.formio.FormField;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.JsEvent;
-import net.formio.ajax.action.HandledJsEvent;
+import net.formio.ajax.action.JsEventHandler;
 import net.formio.internal.FormUtils;
 
 /**
@@ -48,9 +48,8 @@ class AjaxEventRenderer {
 	protected <T> String getActionLinkUrl(FormField<T> field) {
 		String url = null;
 		if (Field.LINK.getType().equals(field.getType())) {
-			List<HandledJsEvent> urlEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
-			for (HandledJsEvent eventToUrl : urlEvents) {
-				url = getActionUrl(field, eventToUrl);
+			for (JsEventHandler<?> eventHandler : field.getProperties().getDataAjaxHandlers()) {
+				url = getActionUrl(field, eventHandler);
 				break;
 			}
 		}
@@ -65,7 +64,7 @@ class AjaxEventRenderer {
 	 */
 	protected <T> String renderFieldScript(FormField<T> field, InputMultiplicity inputMultiplicity) {
 		StringBuilder sb = new StringBuilder();
-		List<HandledJsEvent> urlEvents = Arrays.asList(field.getProperties().getDataAjaxActions());
+		List<JsEventHandler<?>> urlEvents = Arrays.asList(field.getProperties().getDataAjaxHandlers());
 		if (urlEvents.size() > 0) {
 			StringBuilder tdiSend = new StringBuilder();
 			if (inputMultiplicity == InputMultiplicity.MULTIPLE) {
@@ -95,26 +94,26 @@ class AjaxEventRenderer {
 	 * (if some value is filled).
 	 * @param formField
 	 * @param inputId
-	 * @param events
+	 * @param eventHandlers
 	 * @return
 	 */
-	private <T> String renderTdiSend(FormField<T> formField, String inputId, List<HandledJsEvent> events) {
+	private <T> String renderTdiSend(FormField<T> formField, String inputId, List<JsEventHandler<?>> eventHandlers) {
 		StringBuilder sb = new StringBuilder("");
-		if (events != null && events.size() > 0) {
+		if (eventHandlers != null && eventHandlers.size() > 0) {
 			if (Field.LINK.getType().equals(formField.getType()) && (formField.getValue() == null || formField.getValue().isEmpty())) {
 				// nothing, AJAX URL is rendered directly in href attribute  
 			} else {
 				boolean actionWithJsType = false;
-				for (HandledJsEvent event : events) {
-					if (event.getEvent() != null) {
+				for (JsEventHandler<?> handler : eventHandlers) {
+					if (handler.getEvent() != null) {
 						actionWithJsType = true;
 					}
 				}
 				if (actionWithJsType) {
 					String elm = "$(\"#" + inputId + "\")";
 					sb.append(elm + ".on({" + renderer.newLine());
-					for (int i = 0; i < events.size(); i++) {
-						HandledJsEvent eventToUrl = events.get(i);
+					for (int i = 0; i < eventHandlers.size(); i++) {
+						JsEventHandler<?> eventToUrl = eventHandlers.get(i);
 						JsEvent eventType = eventToUrl.getEvent();
 						if (eventType != null) {
 							String url = getActionUrl(formField, eventToUrl);
@@ -126,7 +125,7 @@ class AjaxEventRenderer {
 							sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + renderer.newLine());
 							sb.append("var prevUrl = null;" + renderer.newLine());
 							sb.append("}");
-							if (i < events.size() - 1) {
+							if (i < eventHandlers.size() - 1) {
 								// not the last event handler
 								sb.append(",");
 							}
@@ -140,8 +139,8 @@ class AjaxEventRenderer {
 		return sb.toString();
 	}
 
-	private <T> String getActionUrl(FormField<T> formField, HandledJsEvent eventToUrl) {
-		String url = eventToUrl.getUrl(formField.getParent().getConfig().getUrlBase(), formField);
+	private <T> String getActionUrl(FormField<T> formField, JsEventHandler<?> eventHandler) {
+		String url = eventHandler.getHandlerUrl(formField.getParent().getConfig().getUrlBase(), formField);
 		if (url == null || url.isEmpty()) {
 			throw new IllegalArgumentException("No URL for AJAX request is specified");
 		}

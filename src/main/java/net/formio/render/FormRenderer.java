@@ -25,12 +25,13 @@ import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.ajax.AjaxParams;
-import net.formio.ajax.action.HandledJsEvent;
+import net.formio.ajax.action.JsEventHandler;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
 import net.formio.format.Location;
 import net.formio.internal.FormUtils;
 import net.formio.props.FormElementProperty;
+import net.formio.props.FormProperties;
 import net.formio.props.types.ButtonType;
 import net.formio.props.types.InlinePosition;
 import net.formio.render.tdi.TdiResponseBuilder;
@@ -550,7 +551,7 @@ public class FormRenderer {
 			if (element instanceof FormField<?>) {
 				FormField<?> field = (FormField<?>)element;
 				if (field.getProperties().getConfirmMessage() != null && !field.getProperties().getConfirmMessage().isEmpty()) {
-					if (field.getProperties().getDataAjaxActions() == null || field.getProperties().getDataAjaxActions().length == 0) {
+					if (field.getProperties().getDataAjaxHandlers() == null || field.getProperties().getDataAjaxHandlers().length == 0) {
 						sb.append(" onclick=\"return confirm('" + escapeHtml(field.getProperties().getConfirmMessage()) + "');\"");
 					}
 				}
@@ -579,14 +580,17 @@ public class FormRenderer {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
-			HandledJsEvent ajaxActionWithoutEvent = field.getProperties().getDataAjaxActionWithoutEvent();
-			if (ajaxActionWithoutEvent != null) {
-				String url = FormUtils.urlWithAppendedParameter(ajaxActionWithoutEvent.getUrl(field.getParent().getConfig().getUrlBase(), field), 
+			JsEventHandler<?> eventHandlerWithoutEvent = field.getProperties().getDataAjaxHandlerWithoutEvent();
+			if (eventHandlerWithoutEvent != null) {
+				String url = FormUtils.urlWithAppendedParameter(eventHandlerWithoutEvent.getHandlerUrl(field.getParent().getConfig().getUrlBase(), field), 
 					AjaxParams.SRC_ELEMENT_NAME, element.getName());
 				sb.append(" data-ajax-url=\"" + url + "\"");
 			}
-			if (field.getProperties().getDataAjaxActions() != null && field.getProperties().getDataAjaxActions().length > 0) {
-				sb.append(" data-confirm=\"" + field.getProperties().getConfirmMessage() + "\"");
+			if (field.getProperties().getDataAjaxHandlers() != null && field.getProperties().getDataAjaxHandlers().length > 0) {
+				String confirmMsg = field.getProperties().getConfirmMessage();
+				if (confirmMsg != null && !confirmMsg.isEmpty()) {
+					sb.append(" data-confirm=\"" + confirmMsg + "\"");
+				}
 			}
 			if (field.getProperties().getDataRelatedElement() != null && !field.getProperties().getDataRelatedElement().isEmpty()) {
 				sb.append(" data-related-element=\"" + field.getProperties().getDataRelatedElement() + "\"");

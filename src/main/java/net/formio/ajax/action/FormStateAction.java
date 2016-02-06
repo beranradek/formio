@@ -14,43 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.props.types;
+package net.formio.ajax.action;
 
-import java.io.Serializable;
-
-import net.formio.FormElement;
-import net.formio.ajax.JsEvent;
-import net.formio.ajax.action.HandledJsEvent;
+import net.formio.ajax.AjaxResponse;
 
 /**
- * JavaScript event mapped to handling URL address.
+ * Processing of AJAX action based on current form state.
  * @author Radek Beran
+ *
+ * @param <T>
  */
-public class JsEventToUrl implements HandledJsEvent, Serializable {
-	private static final long serialVersionUID = 2178054031308176325L;
-	private final JsEvent event;
-	private final String url;
-	
-	public JsEventToUrl(String url) {
-		this(null, url);
-	}
-	
-	public JsEventToUrl(JsEvent event, String url) {
-		this.event = event;
-		this.url = url;
-	}
+public interface FormStateAction<T> {
 
-	@Override
-	public JsEvent getEvent() {
-		return event;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-	
-	@Override
-	public String getUrl(String urlBase, FormElement<?> element) {
-		return url;
-	}
+	AjaxResponse<T> apply(T currentState);
 }

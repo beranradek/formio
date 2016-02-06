@@ -17,11 +17,9 @@
 package net.formio.props;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
-import net.formio.ajax.action.HandledJsEvent;
+import net.formio.ajax.action.JsEventHandler;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 
@@ -76,25 +74,24 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
-	public HandledJsEvent[] getDataAjaxActions() {
-		HandledJsEvent[] events = getProperty(FormElementProperty.DATA_AJAX_ACTIONS);
+	public JsEventHandler<?>[] getDataAjaxHandlers() {
+		JsEventHandler<?>[] events = getProperty(FormElementProperty.DATA_AJAX_HANDLERS);
 		if (events == null) {
-			events = new HandledJsEvent[0];
+			events = new JsEventHandler<?>[0];
 		}
 		return events;
 	}
 	
 	@Override
-	public HandledJsEvent getDataAjaxActionWithoutEvent() {
-		HandledJsEvent action = null;
-		List<HandledJsEvent> ajaxEvents = Arrays.asList(getDataAjaxActions());
-		for (HandledJsEvent e : ajaxEvents) {
+	public JsEventHandler<?> getDataAjaxHandlerWithoutEvent() {
+		JsEventHandler<?> handler = null;
+		for (JsEventHandler<?> e : getDataAjaxHandlers()) {
 			if (e.getEvent() == null) {
-				action = e;
+				handler = e;
 				break;
 			}
 		}
-		return action;
+		return handler;
 	}
 	
 	@Override

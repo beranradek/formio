@@ -19,6 +19,7 @@ package net.formio.servlet.data;
 import java.io.Serializable;
 
 import net.formio.RequestParams;
+import net.formio.data.AbstractFormStateStorage;
 import net.formio.data.FormStateStorage;
 import net.formio.servlet.ServletRequestParams;
 import net.formio.servlet.common.SessionAttributeStorage;
@@ -29,7 +30,7 @@ import net.formio.servlet.common.SessionAttributeStorage;
  *
  * @param <T>
  */
-public abstract class SessionFormStateStorage<T extends Serializable> implements FormStateStorage<T> {
+public abstract class SessionFormStateStorage<T extends Serializable> extends AbstractFormStateStorage<T> {
 
 	private final String sessionAttrName;
 	private final SessionAttributeStorage<T> formStateStorage;

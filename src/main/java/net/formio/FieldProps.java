@@ -18,23 +18,24 @@ package net.formio;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 import net.formio.ajax.JsEvent;
-import net.formio.ajax.action.HandledJsEvent;
+import net.formio.ajax.action.AjaxAction;
+import net.formio.ajax.action.JsEventHandler;
 import net.formio.choice.ChoiceProvider;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.choice.DefaultChoiceProvider;
 import net.formio.choice.DefaultChoiceRenderer;
-import net.formio.format.Location;
 import net.formio.format.Formatter;
 import net.formio.format.Formatters;
+import net.formio.format.Location;
 import net.formio.props.FormElementProperty;
 import net.formio.props.FormFieldProperties;
 import net.formio.props.FormFieldPropertiesImpl;
 import net.formio.props.types.InlinePosition;
-import net.formio.props.types.JsEventToUrl;
 import net.formio.validation.Validator;
 import net.formio.validation.validators.RequiredValidator;
 
@@ -188,20 +189,20 @@ public class FieldProps<T> implements Serializable {
 		return property(FormElementProperty.CHOOSE_OPTION_TITLE, title);
 	}
 	
-	public FieldProps<T> dataAjaxActions(HandledJsEvent action) {
-		return dataAjaxActions(new HandledJsEvent[] { action });
+	public <U> FieldProps<T> dataAjaxHandler(AjaxAction<U> action) {
+		return dataAjaxHandler(action, (JsEvent)null);
 	}
 	
-	public FieldProps<T> dataAjaxActions(JsEvent eventType, String url) {
-		return dataAjaxActions(new HandledJsEvent[] { new JsEventToUrl(eventType, url) });
+	public <U> FieldProps<T> dataAjaxHandler(AjaxAction<U> action, JsEvent event) {
+		return dataAjaxHandlers(Arrays.asList(new JsEventHandler<U>(action, event)));
 	}
 	
-	public FieldProps<T> dataAjaxActions(HandledJsEvent[] actions) {
-		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
+	public <U> FieldProps<T> dataAjaxHandler(AjaxAction<U> action, String requestParam) {
+		return dataAjaxHandlers(Arrays.asList(new JsEventHandler<U>(action, requestParam)));
 	}
 	
-	public FieldProps<T> dataAjaxActions(List<? extends HandledJsEvent> actions) {
-		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions.toArray(new HandledJsEvent[0]));
+	public FieldProps<T> dataAjaxHandlers(List<? extends JsEventHandler<?>> handlers) {
+		return property(FormElementProperty.DATA_AJAX_HANDLERS, handlers.toArray(new JsEventHandler<?>[0]));
 	}
 	
 	public FieldProps<T> dataRelatedElement(String dataRelatedElement) {

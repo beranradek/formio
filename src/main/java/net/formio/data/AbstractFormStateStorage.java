@@ -14,40 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.formio.ajax;
+package net.formio.data;
+
+import net.formio.RequestParams;
+import net.formio.ajax.AjaxResponse;
+import net.formio.ajax.action.FormStateAction;
 
 /**
- * AJAX response including the resulting form state.
+ * Implementation of {@link FormStateStorage} with basic implemented state manipulation methods.
  * @author Radek Beran
  *
- * @param <T> type of updated form state object
+ * @param <T>
  */
-public class AjaxResponse<T> {
-	private final String response;
-	private final T updatedFormState;
-	
-	public AjaxResponse(String response, T updatedFormState) {
-		this.response = response;
-		this.updatedFormState = updatedFormState;
-	}
-	
-	public AjaxResponse(String response) {
-		this(response, null);
-	}
+public abstract class AbstractFormStateStorage<T> implements FormStateStorage<T> {
 
 	/**
-	 * TDI AJAX response.
+	 * Loads current form state from storage and applies given action to it. The action returns updated form state.
+	 * Updated form state is saved back to the storage.  
+	 * @param requestParams
+	 * @param action
 	 * @return
 	 */
-	public String getResponse() {
+	public AjaxResponse<T> withUpdatedState(final RequestParams requestParams, final FormStateAction<T> action) {
+		T currentState = findFormState(requestParams);
+		AjaxResponse<T> response = action.apply(currentState);
+		saveFormState(requestParams, response.getUpdatedFormState());
 		return response;
-	}
-
-	/**
-	 * Resulting form state after processing the AJAX request.
-	 * @return
-	 */
-	public T getUpdatedFormState() {
-		return updatedFormState;
 	}
 }

@@ -18,13 +18,15 @@ package net.formio;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.formio.ajax.action.HandledJsEvent;
-import net.formio.ajax.action.JsEventToAction;
+import net.formio.ajax.JsEvent;
+import net.formio.ajax.action.AjaxAction;
+import net.formio.ajax.action.JsEventHandler;
 import net.formio.binding.BeanExtractor;
 import net.formio.binding.BindingReflectionUtils;
 import net.formio.binding.ConstructionDescription;
@@ -37,7 +39,6 @@ import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 import net.formio.format.Location;
 import net.formio.props.FormElementProperty;
-import net.formio.props.types.JsEventToUrl;
 import net.formio.upload.UploadedFile;
 import net.formio.validation.ValidationResult;
 import net.formio.validation.Validator;
@@ -334,24 +335,20 @@ public class BasicFormMappingBuilder<T> {
 		return property(FormElementProperty.LABEL_VISIBLE, Boolean.valueOf(visible));
 	}
 	
-	public BasicFormMappingBuilder<T> dataAjaxActions(HandledJsEvent action) {
-		return dataAjaxActions(new HandledJsEvent[] { action });
+	public <U> BasicFormMappingBuilder<T> dataAjaxHandler(AjaxAction<U> action) {
+		return dataAjaxHandler(action, (JsEvent)null);
+	}
+
+	public <U> BasicFormMappingBuilder<T> dataAjaxHandler(AjaxAction<U> action, JsEvent event) {
+		return dataAjaxHandlers(Arrays.asList(new JsEventHandler<U>(action, event)));
 	}
 	
-	public BasicFormMappingBuilder<T> dataAjaxActions(HandledJsEvent[] actions) {
-		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
+	public <U> BasicFormMappingBuilder<T> dataAjaxHandler(AjaxAction<U> action, String requestParam) {
+		return dataAjaxHandlers(Arrays.asList(new JsEventHandler<U>(action, requestParam)));
 	}
 	
-	public BasicFormMappingBuilder<T> dataAjaxActions(JsEventToUrl[] actions) {
-		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
-	}
-	
-	public BasicFormMappingBuilder<T> dataAjaxActions(JsEventToAction<?>[] actions) {
-		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions);
-	}
-	
-	public BasicFormMappingBuilder<T> dataAjaxActions(List<? extends HandledJsEvent> actions) {
-		return property(FormElementProperty.DATA_AJAX_ACTIONS, actions.toArray(new HandledJsEvent[0]));
+	public BasicFormMappingBuilder<T> dataAjaxHandlers(List<? extends JsEventHandler<?>> handlers) {
+		return property(FormElementProperty.DATA_AJAX_HANDLERS, handlers.toArray(new JsEventHandler[0]));
 	}
 	
 	public BasicFormMappingBuilder<T> detached(boolean detached) {

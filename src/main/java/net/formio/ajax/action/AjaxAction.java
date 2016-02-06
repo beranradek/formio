@@ -21,6 +21,7 @@ import net.formio.ajax.AjaxResponse;
 
 /**
  * Action that handles AJAX request and generates AJAX response.
+ * @param <T> type of updated form state object
  * @author Radek Beran
  */
 public interface AjaxAction<T> {

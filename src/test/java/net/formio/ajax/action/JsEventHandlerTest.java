@@ -27,21 +27,21 @@ import net.formio.render.tdi.TdiResponseBuilder;
 
 import org.junit.Test;
 
-public class JsEventToActionTest {
+public class JsEventHandlerTest {
 
 	@Test
 	public void testGetUrl() {
 		JsEvent jsEvent = JsEvent.BLUR;
-		JsEventToAction<Long> action = new JsEventToAction<Long>(jsEvent, new AjaxAction<Long>() {
+		JsEventHandler<Long> eventHandler = new JsEventHandler<Long>(new AjaxAction<Long>() {
 
 			@Override
 			public AjaxResponse<Long> apply(RequestParams requestParams) {
 				TdiResponseBuilder rb = new TdiResponseBuilder(new FormRenderer(Location.ENGLISH));
 				return new AjaxResponse<Long>(rb.status("OK").asString());
 			}
-		});
+		}, jsEvent);
 		String urlBase = "http://localhost:8080/myform";
-		String url = action.getUrl(urlBase, null);
+		String url = eventHandler.getHandlerUrl(urlBase, null);
 		assertEquals(urlBase + "?" + AjaxParams.EVENT + "=" + jsEvent.getEventName(), url);
 	}
 

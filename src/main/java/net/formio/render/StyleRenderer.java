@@ -18,6 +18,7 @@ package net.formio.render;
 
 import net.formio.Field;
 import net.formio.FormField;
+import net.formio.ajax.action.JsEventHandler;
 import net.formio.props.types.InlinePosition;
 
 /**
@@ -76,7 +77,8 @@ class StyleRenderer {
 	 */
 	protected <T> String getInputClasses(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		if (field.getProperties().getDataAjaxActionWithoutEvent() != null) {
+		JsEventHandler<?> handlerWithoutEvent = field.getProperties().getDataAjaxHandlerWithoutEvent();
+		if (handlerWithoutEvent != null) {
 			sb.append("tdi");
 		}
 		if (isFullWidthInput(field)) {
