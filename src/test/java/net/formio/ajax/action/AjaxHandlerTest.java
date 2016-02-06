@@ -27,7 +27,7 @@ import net.formio.render.tdi.TdiResponseBuilder;
 
 import org.junit.Test;
 
-public class JsEventHandlerTest {
+public class AjaxHandlerTest {
 
 	@Test
 	public void testGetUrl() {
