@@ -18,7 +18,7 @@ package net.formio.props;
 
 import java.util.Map;
 
-import net.formio.ajax.action.JsEventHandler;
+import net.formio.ajax.action.AjaxHandler;
 import net.formio.common.heterog.HeterogMap;
 
 /**
@@ -62,29 +62,29 @@ public interface FormProperties {
 	 * Returns JavaScript event handlers that invoke custom actions for processing AJAX request. 
 	 * @return
 	 */
-	JsEventHandler<?>[] getDataAjaxHandlers();
+	AjaxHandler<?>[] getAjaxHandlers();
 	
 	/**
 	 * Returns JavaScript event handler that has no JavaScript invoking event defined; or {@code null}.
 	 * @return
 	 */
-	JsEventHandler<?> getDataAjaxHandlerWithoutEvent();
+	AjaxHandler<?> getAjaxHandlerWithoutEvent();
 	
 	/**
 	 * CSS selector (mostly ID selector) for finding AJAX-request-source element related elements. 
 	 * The selector is applied to the whole document. All related elements are informed about the TDI process 
-	 * flow the same way as TDI source element is. For example, data-related-element="#basket-container".
+	 * flow the same way as TDI source element is. E.g.: #basket-container
 	 * @return
 	 */
-	String getDataRelatedElement();
+	String getAjaxRelatedElement();
 	
 	/**
-	 * CSS selector for finding the TDI AJAX-request-source element ancestor. The closest ancestor, 
-	 * which suits the CSS selector, is found. All related elements are informed about the TDI process 
-	 * flow the same way as TDI source element is. For example, data-related-element="tr".
+	 * CSS selector for finding the TDI AJAX-request-source element ancestor. The closest ancestor element, 
+	 * which suits the CSS selector, is found. Source ancestor element is informed about the TDI process 
+	 * flow the same way as TDI source element is. E.g.: tr
 	 * @return
 	 */
-	String getDataRelatedAncestor();
+	String getAjaxSourceAncestorElement();
 	
 	/**
 	 * Returns true if this form field of mapping is not attached to underlying property of form data object

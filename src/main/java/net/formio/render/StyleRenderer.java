@@ -18,7 +18,7 @@ package net.formio.render;
 
 import net.formio.Field;
 import net.formio.FormField;
-import net.formio.ajax.action.JsEventHandler;
+import net.formio.ajax.action.AjaxHandler;
 import net.formio.props.types.InlinePosition;
 
 /**
@@ -77,7 +77,7 @@ class StyleRenderer {
 	 */
 	protected <T> String getInputClasses(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		JsEventHandler<?> handlerWithoutEvent = field.getProperties().getDataAjaxHandlerWithoutEvent();
+		AjaxHandler<?> handlerWithoutEvent = field.getProperties().getAjaxHandlerWithoutEvent();
 		if (handlerWithoutEvent != null) {
 			sb.append("tdi");
 		}

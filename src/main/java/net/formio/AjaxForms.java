@@ -21,7 +21,7 @@ import java.util.Iterator;
 import net.formio.ajax.AjaxParams;
 import net.formio.ajax.JsEvent;
 import net.formio.ajax.action.AjaxAction;
-import net.formio.ajax.action.JsEventHandler;
+import net.formio.ajax.action.AjaxHandler;
 
 /**
  * Methods for serving AJAX forms.
@@ -40,7 +40,7 @@ class AjaxForms {
 				FormElement<Object> el = mapping.findElement(srcElement);
 				if (el != null) {
 					String eventType = requestParams.getParamValue(AjaxParams.EVENT);
-					for (JsEventHandler<?> ev : el.getProperties().getDataAjaxHandlers()) {
+					for (AjaxHandler<?> ev : el.getProperties().getAjaxHandlers()) {
 						if (eventMatches(eventType, ev.getEvent())) {
 							action = (AjaxAction<T>)ev.getAction();
 							break;
@@ -64,7 +64,7 @@ class AjaxForms {
 
 	private static <T, U> AjaxAction<T> findAjaxActionByRequestParam(RequestParams requestParams, FormElement<U> element) {
 		AjaxAction<T> action = null;
-		for (JsEventHandler<?> ev : element.getProperties().getDataAjaxHandlers()) {
+		for (AjaxHandler<?> ev : element.getProperties().getAjaxHandlers()) {
 			if (ev.getRequestParam() != null && !ev.getRequestParam().isEmpty()
 				&& containsParam(requestParams.getParamNames(), ev.getRequestParam())) {
 				action = (AjaxAction<T>)ev.getAction();

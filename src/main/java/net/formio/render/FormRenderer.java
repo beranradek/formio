@@ -25,7 +25,7 @@ import net.formio.FormElement;
 import net.formio.FormField;
 import net.formio.FormMapping;
 import net.formio.ajax.AjaxParams;
-import net.formio.ajax.action.JsEventHandler;
+import net.formio.ajax.action.AjaxHandler;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.common.MessageTranslator;
 import net.formio.format.Location;
@@ -551,7 +551,7 @@ public class FormRenderer {
 			if (element instanceof FormField<?>) {
 				FormField<?> field = (FormField<?>)element;
 				if (field.getProperties().getConfirmMessage() != null && !field.getProperties().getConfirmMessage().isEmpty()) {
-					if (field.getProperties().getDataAjaxHandlers() == null || field.getProperties().getDataAjaxHandlers().length == 0) {
+					if (field.getProperties().getAjaxHandlers() == null || field.getProperties().getAjaxHandlers().length == 0) {
 						sb.append(" onclick=\"return confirm('" + escapeHtml(field.getProperties().getConfirmMessage()) + "');\"");
 					}
 				}
@@ -580,23 +580,23 @@ public class FormRenderer {
 		StringBuilder sb = new StringBuilder();
 		if (element instanceof FormField) {
 			FormField<?> field = (FormField<?>)element;
-			JsEventHandler<?> eventHandlerWithoutEvent = field.getProperties().getDataAjaxHandlerWithoutEvent();
+			AjaxHandler<?> eventHandlerWithoutEvent = field.getProperties().getAjaxHandlerWithoutEvent();
 			if (eventHandlerWithoutEvent != null) {
 				String url = FormUtils.urlWithAppendedParameter(eventHandlerWithoutEvent.getHandlerUrl(field.getParent().getConfig().getUrlBase(), field), 
 					AjaxParams.SRC_ELEMENT_NAME, element.getName());
 				sb.append(" data-ajax-url=\"" + url + "\"");
 			}
-			if (field.getProperties().getDataAjaxHandlers() != null && field.getProperties().getDataAjaxHandlers().length > 0) {
+			if (field.getProperties().getAjaxHandlers() != null && field.getProperties().getAjaxHandlers().length > 0) {
 				String confirmMsg = field.getProperties().getConfirmMessage();
 				if (confirmMsg != null && !confirmMsg.isEmpty()) {
 					sb.append(" data-confirm=\"" + confirmMsg + "\"");
 				}
 			}
-			if (field.getProperties().getDataRelatedElement() != null && !field.getProperties().getDataRelatedElement().isEmpty()) {
-				sb.append(" data-related-element=\"" + field.getProperties().getDataRelatedElement() + "\"");
+			if (field.getProperties().getAjaxRelatedElement() != null && !field.getProperties().getAjaxRelatedElement().isEmpty()) {
+				sb.append(" data-related-element=\"" + field.getProperties().getAjaxRelatedElement() + "\"");
 			}
-			if (field.getProperties().getDataRelatedAncestor() != null && !field.getProperties().getDataRelatedAncestor().isEmpty()) {
-				sb.append(" data-related-ancestor=\"" + field.getProperties().getDataRelatedAncestor() + "\"");
+			if (field.getProperties().getAjaxSourceAncestorElement() != null && !field.getProperties().getAjaxSourceAncestorElement().isEmpty()) {
+				sb.append(" data-related-ancestor=\"" + field.getProperties().getAjaxSourceAncestorElement() + "\"");
 			}
 		}
 		return sb.toString();

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.formio.ajax.action.JsEventHandler;
+import net.formio.ajax.action.AjaxHandler;
 import net.formio.common.heterog.AbstractTypedKey;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
@@ -35,7 +35,7 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	private static final long serialVersionUID = 4271239940342562765L;
 	protected static List<FormElementProperty<Object>> props;
 	
-	private static final JsEventHandler<?>[] EMPTY_EVENT_HANDLERS = new JsEventHandler<?>[0];
+	private static final AjaxHandler<?>[] EMPTY_AJAX_HANDLERS = new AjaxHandler<?>[0];
 	
 	static {
 		props = new ArrayList<FormElementProperty<Object>>();
@@ -78,9 +78,9 @@ public class FormElementProperty<T> extends AbstractTypedKey<String, T> implemen
 	public static final FormElementProperty<Integer> COL_LABEL_WIDTH = register(new FormElementProperty<Integer>("colLabelWidth", Integer.class, null));
 	
 	// TDI properties
-	public static final FormElementProperty<JsEventHandler<?>[]> DATA_AJAX_HANDLERS = register(new FormElementProperty<JsEventHandler<?>[]>("dataAjaxHandlers", (Class<JsEventHandler<?>[]>)EMPTY_EVENT_HANDLERS.getClass(), EMPTY_EVENT_HANDLERS));	
-	public static final FormElementProperty<String> DATA_RELATED_ELEMENT = register(new FormElementProperty<String>("dataRelatedElement", String.class, ""));
-	public static final FormElementProperty<String> DATA_RELATED_ANCESTOR = register(new FormElementProperty<String>("dataRelatedAncestor", String.class, ""));
+	public static final FormElementProperty<AjaxHandler<?>[]> AJAX_HANDLERS = register(new FormElementProperty<AjaxHandler<?>[]>("ajaxHandlers", (Class<AjaxHandler<?>[]>)EMPTY_AJAX_HANDLERS.getClass(), EMPTY_AJAX_HANDLERS));	
+	public static final FormElementProperty<String> AJAX_RELATED_ELEMENT = register(new FormElementProperty<String>("ajaxRelatedElement", String.class, ""));
+	public static final FormElementProperty<String> AJAX_SOURCE_ANCESTOR_ELEMENT = register(new FormElementProperty<String>("ajaxSourceAncestorElement", String.class, ""));
 	
 	// Render hints for which there are no convenience accessors or setters in builders
 	/** HTML multiple attribute. */

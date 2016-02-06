@@ -28,25 +28,25 @@ import net.formio.internal.FormUtils;
  * @param <T> type of updated form state object
  * @author Radek Beran
  */
-public class JsEventHandler<T> implements Serializable {
+public class AjaxHandler<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private final JsEvent event;
 	private final AjaxAction<T> action;
 	private final String requestParam;
 	
-	public JsEventHandler(AjaxAction<T> action, JsEvent event) {
+	public AjaxHandler(AjaxAction<T> action, JsEvent event) {
 		this(action, event, null);
 	}
 	
-	public JsEventHandler(AjaxAction<T> action) {
+	public AjaxHandler(AjaxAction<T> action) {
 		this(action, (JsEvent)null);
 	}
 	
-	public JsEventHandler(AjaxAction<T> action, String requestParam) {
+	public AjaxHandler(AjaxAction<T> action, String requestParam) {
 		this(action, null, requestParam);
 	}
 	
-	private JsEventHandler(AjaxAction<T> action, JsEvent event, String requestParam) {
+	private AjaxHandler(AjaxAction<T> action, JsEvent event, String requestParam) {
 		if (action == null) {
 			throw new IllegalArgumentException("action must be specified");
 		}

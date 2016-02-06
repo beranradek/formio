@@ -32,7 +32,7 @@ public class JsEventHandlerTest {
 	@Test
 	public void testGetUrl() {
 		JsEvent jsEvent = JsEvent.BLUR;
-		JsEventHandler<Long> eventHandler = new JsEventHandler<Long>(new AjaxAction<Long>() {
+		AjaxHandler<Long> eventHandler = new AjaxHandler<Long>(new AjaxAction<Long>() {
 
 			@Override
 			public AjaxResponse<Long> apply(RequestParams requestParams) {

@@ -26,7 +26,7 @@ import java.util.Map;
 
 import net.formio.ajax.JsEvent;
 import net.formio.ajax.action.AjaxAction;
-import net.formio.ajax.action.JsEventHandler;
+import net.formio.ajax.action.AjaxHandler;
 import net.formio.binding.BeanExtractor;
 import net.formio.binding.BindingReflectionUtils;
 import net.formio.binding.ConstructionDescription;
@@ -335,20 +335,20 @@ public class BasicFormMappingBuilder<T> {
 		return property(FormElementProperty.LABEL_VISIBLE, Boolean.valueOf(visible));
 	}
 	
-	public <U> BasicFormMappingBuilder<T> dataAjaxHandler(AjaxAction<U> action) {
-		return dataAjaxHandler(action, (JsEvent)null);
+	public <U> BasicFormMappingBuilder<T> ajaxHandler(AjaxAction<U> action) {
+		return ajaxHandler(action, (JsEvent)null);
 	}
 
-	public <U> BasicFormMappingBuilder<T> dataAjaxHandler(AjaxAction<U> action, JsEvent event) {
-		return dataAjaxHandlers(Arrays.asList(new JsEventHandler<U>(action, event)));
+	public <U> BasicFormMappingBuilder<T> ajaxHandler(AjaxAction<U> action, JsEvent event) {
+		return ajaxHandlers(Arrays.asList(new AjaxHandler<U>(action, event)));
 	}
 	
-	public <U> BasicFormMappingBuilder<T> dataAjaxHandler(AjaxAction<U> action, String requestParam) {
-		return dataAjaxHandlers(Arrays.asList(new JsEventHandler<U>(action, requestParam)));
+	public <U> BasicFormMappingBuilder<T> ajaxHandler(AjaxAction<U> action, String requestParam) {
+		return ajaxHandlers(Arrays.asList(new AjaxHandler<U>(action, requestParam)));
 	}
 	
-	public BasicFormMappingBuilder<T> dataAjaxHandlers(List<? extends JsEventHandler<?>> handlers) {
-		return property(FormElementProperty.DATA_AJAX_HANDLERS, handlers.toArray(new JsEventHandler[0]));
+	public BasicFormMappingBuilder<T> ajaxHandlers(List<? extends AjaxHandler<?>> handlers) {
+		return property(FormElementProperty.AJAX_HANDLERS, handlers.toArray(new AjaxHandler[0]));
 	}
 	
 	public BasicFormMappingBuilder<T> detached(boolean detached) {

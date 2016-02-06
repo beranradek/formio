@@ -19,7 +19,7 @@ package net.formio.props;
 import java.io.Serializable;
 import java.util.Map;
 
-import net.formio.ajax.action.JsEventHandler;
+import net.formio.ajax.action.AjaxHandler;
 import net.formio.common.heterog.HeterogCollections;
 import net.formio.common.heterog.HeterogMap;
 
@@ -74,18 +74,18 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
-	public JsEventHandler<?>[] getDataAjaxHandlers() {
-		JsEventHandler<?>[] events = getProperty(FormElementProperty.DATA_AJAX_HANDLERS);
+	public AjaxHandler<?>[] getAjaxHandlers() {
+		AjaxHandler<?>[] events = getProperty(FormElementProperty.AJAX_HANDLERS);
 		if (events == null) {
-			events = new JsEventHandler<?>[0];
+			events = new AjaxHandler<?>[0];
 		}
 		return events;
 	}
 	
 	@Override
-	public JsEventHandler<?> getDataAjaxHandlerWithoutEvent() {
-		JsEventHandler<?> handler = null;
-		for (JsEventHandler<?> e : getDataAjaxHandlers()) {
+	public AjaxHandler<?> getAjaxHandlerWithoutEvent() {
+		AjaxHandler<?> handler = null;
+		for (AjaxHandler<?> e : getAjaxHandlers()) {
 			if (e.getEvent() == null) {
 				handler = e;
 				break;
@@ -95,13 +95,13 @@ public class FormPropertiesImpl implements FormProperties, Serializable {
 	}
 	
 	@Override
-	public String getDataRelatedElement() {
-		return getProperty(FormElementProperty.DATA_RELATED_ELEMENT);
+	public String getAjaxRelatedElement() {
+		return getProperty(FormElementProperty.AJAX_RELATED_ELEMENT);
 	}
 	
 	@Override
-	public String getDataRelatedAncestor() {
-		return getProperty(FormElementProperty.DATA_RELATED_ANCESTOR);
+	public String getAjaxSourceAncestorElement() {
+		return getProperty(FormElementProperty.AJAX_SOURCE_ANCESTOR_ELEMENT);
 	}
 	
 	@Override
