@@ -155,21 +155,21 @@ public interface FormElement<T> {
 	/**
 	 * Returns element with given name, or {@code null}.
 	 * @param cls
-	 * @param name
+	 * @param name name of form element as defined by {@link FormElement#getName()}
 	 * @return found element or {@code null}
 	 */
 	<U> FormElement<U> findElement(Class<U> cls, String name);
 	
 	/**
 	 * Returns element with given name, or {@code null}.
-	 * @param name
+	 * @param name name of form element as defined by {@link FormElement#getName()}
 	 * @return found element or {@code null}
 	 */
 	<U> FormElement<U> findElement(String name);
 	
 	/**
 	 * Returns element with given name, or throws an {@link IllegalStateException} if element was not found.
-	 * @param name name of element to be found
+	 * @param name name of form element as defined by {@link FormElement#getName()}
 	 * @return
 	 */
 	<U> FormElement<U> requireElement(String name);
@@ -177,7 +177,7 @@ public interface FormElement<T> {
 	/**
 	 * Returns elements with given names, or throws an {@link IllegalStateException} if some element
 	 * was not found.
-	 * @param names names of elements to be found
+	 * @param names names of elements to be found (as defined by {@link FormElement#getName()})
 	 * @return
 	 */
 	List<FormElement<?>> requireElements(String ... names);
