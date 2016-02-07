@@ -1,5 +1,13 @@
 # Changelog
 
+1.6.0 (7.2.2016)
+* Additional methods for searching form elements: requireElement, requireElements.
+* Fix: Handled null configuration when rendering form element and getting location (locale, time zone).
+* Refactoring of AJAX API:
+  * JsEventToUrl and HandledJsEvent replaced by AjaxHandler.
+  * DATA_AJAX_ACTIONS form field property replaced by AJAX_HANDLERS.
+  * AbstractFormStateStorage with withUpdatedState method that can be used to load/store form state inside AjaxAction.
+
 1.5.1 (7.8.2015)
 * Methods isTdiAjaxRequest and getTdiAjaxSrcElementName moved to RequestParams with implementations in AbstractRequestParams.
 
