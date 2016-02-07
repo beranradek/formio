@@ -165,5 +165,20 @@ public interface FormElement<T> {
 	 * @param name
 	 * @return found element or {@code null}
 	 */
-	FormElement<Object> findElement(String name);
+	<U> FormElement<U> findElement(String name);
+	
+	/**
+	 * Returns element with given name, or throws an {@link IllegalStateException} if element was not found.
+	 * @param name name of element to be found
+	 * @return
+	 */
+	<U> FormElement<U> requireElement(String name);
+	
+	/**
+	 * Returns elements with given names, or throws an {@link IllegalStateException} if some element
+	 * was not found.
+	 * @param names names of elements to be found
+	 * @return
+	 */
+	List<FormElement<?>> requireElements(String ... names);
 }

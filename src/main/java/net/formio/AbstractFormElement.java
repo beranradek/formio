@@ -19,6 +19,7 @@ package net.formio;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -194,8 +195,28 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	}
 	
 	@Override
-	public FormElement<Object> findElement(String name) {
-		return findElement(Object.class, name);
+	public <U> FormElement<U> findElement(String name) {
+		return (FormElement<U>)findElement(Object.class, name);
+	}
+	
+	@Override
+	public <U> FormElement<U> requireElement(String name) {
+		return (FormElement<U>)requireElements(name).get(0);
+	}
+	
+	@Override
+	public List<FormElement<?>> requireElements(String ... names) {
+		List<FormElement<?>> foundElems = new ArrayList<FormElement<?>>();
+		if (names != null) {
+			for (String name: names) {
+				FormElement<?> el = findElement(name);
+				if (el == null) {
+					throw new IllegalStateException("Form element with name " + name + " was not found");
+				}
+				foundElems.add(el);
+			}
+		}
+		return Collections.unmodifiableList(foundElems);
 	}
 
 	@Override
