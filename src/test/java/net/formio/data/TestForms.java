@@ -37,6 +37,7 @@ import net.formio.domain.NewCollegue;
 import net.formio.domain.Person;
 import net.formio.domain.RegDate;
 import net.formio.domain.Registration;
+import net.formio.domain.animal.Mammal;
 import net.formio.domain.inputs.Country;
 import net.formio.domain.inputs.Employer;
 import net.formio.domain.inputs.Function;
@@ -81,6 +82,8 @@ public final class TestForms {
 		.fields("personId", "firstName", "lastName", "salary", "phone", "male", "nation")
 		.field(Forms.<Date>field("birthDate", "text").formatter(TestFormatters.CUSTOM_DATE_FORMATTER).build())
 		.build(Location.ENGLISH);
+	
+	public static final FormMapping<Mammal> ANIMAL_FORM = Forms.automatic(Mammal.class, "animal").build();
 	
 	public static final FormMapping<BigDecimalValue> VALUE_FORM = 
 		Forms.automatic(BigDecimalValue.class, "valueForm").build(Location.ENGLISH);

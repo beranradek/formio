@@ -18,6 +18,7 @@ package net.formio;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,8 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import net.formio.binding.DefaultBeanExtractor;
+import net.formio.binding.PropertyMethodRegex;
 import net.formio.internal.FormUtils;
 import net.formio.render.RenderUtils;
 import net.formio.validation.ConstraintViolationMessage;
@@ -128,19 +131,41 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 		}
 		boolean required = false;
 		if (parentDataClass != null) {
+			final String propName = getPropertyName();
+			boolean accessorFound = false;
 			try {
-				final Field fld = parentDataClass.getDeclaredField(getPropertyName());
-				if (fld != null && isRequiredByAnnotations(fld.getAnnotations(), 0)) {
-					// isRequiredByAnnotations is intentionally checked first because this
-					// also checks if the field exists and throws exception in time of form definition
-					// building if not.
-					required = true;
+				final Field fld = parentDataClass.getDeclaredField(propName);
+				if (fld != null) {
+					if (isRequiredByAnnotations(fld.getAnnotations(), 0)) {
+						required = true;
+					}
+					accessorFound = true;
 				}
 			} catch (NoSuchFieldException ex) {
-				throw new ReflectionException("Error while checking if property " + getPropertyName() + 
-					" of class " + parentDataClass.getName() + 
-					" is required, the corresponding field does not exist: " + ex.getMessage(), ex);
+				// Accessor not found yet
 			}
+			if (!required) {
+				// Try to inspect annotations on getter
+				final Method[] objMethods = parentDataClass.getMethods();
+				Config conf = getConfig();
+				final PropertyMethodRegex accessorRegex = conf != null ? conf.getAccessorRegex() : DefaultBeanExtractor.DEFAULT_ACCESSOR_REGEX;
+				for (Method objMethod : objMethods) {
+		        	if (objMethod.getName().equals("getClass")) continue;
+		        	if (accessorRegex.matchesPropertyMethod(objMethod.getName(), propName)) {
+		        		if (isRequiredByAnnotations(objMethod.getAnnotations(), 0)) {
+		        			required = true;
+		        		}
+		        		accessorFound = true;
+		        		break;
+		        	}
+		        }
+			}
+	        if (!accessorFound) {
+	        	// This also checks if the accessor for property exists and throws exception in time of form definition
+				// building if not.
+	        	throw new ReflectionException("Error while checking if property " + getPropertyName() + 
+	        		" of class " + parentDataClass.getName() + " is required, the corresponding field or getter does not exist");
+	        }
 		}
 		if (validators != null && validators.contains(RequiredValidator.getInstance())) {
 			required = true;
@@ -253,7 +278,9 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 	
 	@Override
 	public String getElementIdWithIndex(int index) {
-		return getElementId() + getConfig().getPathSeparator() + index;
+		Config c = getConfig();
+		String sep = c != null ? c.getPathSeparator() : Config.DEFAULT_PATH_SEP;
+		return getElementId() + sep + index;
 	}
 	
 	@Override

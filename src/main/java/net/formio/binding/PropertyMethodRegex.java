@@ -16,6 +16,7 @@
  */
 package net.formio.binding;
 
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,6 +70,10 @@ public class PropertyMethodRegex {
 			prop = Character.toLowerCase(prop.charAt(0)) + prop.substring(1);
 		}
 		return prop;
+	}
+	
+	public boolean isAccessor(Method method) {
+		return matchesMethod(method.getName()) && method.getParameterTypes().length == 0;
 	}
 
 }

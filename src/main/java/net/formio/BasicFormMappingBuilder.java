@@ -442,10 +442,6 @@ public class BasicFormMappingBuilder<T> {
 		checkValidFormMapping(mapping);
 		return mapping;
 	}
-
-	boolean isAccessor(Method method, PropertyMethodRegex accessorRegex) {
-		return accessorRegex.matchesMethod(method.getName()) && method.getParameterTypes().length == 0;
-	}
 	
 	Map<String, Method> getClassProperties(Class<?> beanClass, BeanExtractor extractor, PropertyMethodRegex accessorRegex) {
 		final Map<String, Method> properties = new LinkedHashMap<String, Method>();
@@ -453,7 +449,7 @@ public class BasicFormMappingBuilder<T> {
         for (Method objMethod : objMethods) {
         	if (extractor.isIgnored(objMethod)) continue;
         	if (objMethod.getName().equals("getClass")) continue;
-            if (isAccessor(objMethod, accessorRegex)) {
+            if (accessorRegex.isAccessor(objMethod)) {
             	String propName = accessorRegex.getPropertyName(objMethod.getName());
             	if (propName != null) {
             		properties.put(propName, objMethod);

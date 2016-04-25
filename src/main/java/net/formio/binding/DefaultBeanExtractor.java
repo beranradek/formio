@@ -64,16 +64,12 @@ public class DefaultBeanExtractor implements BeanExtractor {
 		return method.getAnnotation(Ignored.class) != null;
 	}
 	
-	protected boolean isAccessor(Method method) {
-		return accessorRegex.matchesMethod(method.getName()) && method.getParameterTypes().length == 0;
-	}
-	
 	private Map<String, Method> getClassPropertiesInternal(Class<?> beanClass, Set<String> allowedProperties) {
 		final Map<String, Method> properties = new LinkedHashMap<String, Method>();
         final Method[] objMethods = beanClass.getMethods();
         for (Method objMethod : objMethods) {
         	if (objMethod.getName().equals("getClass")) continue;
-            if (isAccessor(objMethod)) {
+            if (accessorRegex.isAccessor(objMethod)) {
             	if (isIgnored(objMethod)) {
             		// ignored property
             	} else {
