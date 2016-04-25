@@ -1,5 +1,9 @@
 # Changelog
 
+1.6.1 (25.4.2016)
+* Fix of undiscovered field of parent class when looking for required flag.
+* Looking for required annotation also in getters.
+
 1.6.0 (7.2.2016)
 * Additional methods for searching form elements: requireElement, requireElements.
 * Fix: Handled null configuration when rendering form element and getting location (locale, time zone).
