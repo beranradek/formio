@@ -49,39 +49,39 @@ class MappingStringBuilder<T> {
 	
 	String build(String indent) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(indent + path + " : " + dataClass.getSimpleName() + " {");
+		sb.append(indent).append(path).append(" : ").append(dataClass.getSimpleName()).append(" {");
 		boolean firstBlock = true;
-		sb.append("\n" + indent + "  order : " + order + ",");
+		sb.append("\n").append(indent).append("  order : ").append(order).append(",");
 		if (fields != null && !fields.isEmpty()) {
-			sb.append("\n" + indent + "  fields {");
+			sb.append("\n").append(indent).append("  fields {");
 			boolean first = true;
 			for (FormField<?> f : fields.values()) {
 				if (!first) {
 					sb.append(",");
 				} else first = false;
-				sb.append("\n    " + indent + f);
+				sb.append("\n    ").append(indent).append(f);
 			}
-			sb.append("\n" + indent + "  }");
+			sb.append("\n").append(indent).append("  }");
 			firstBlock = false;
 		}
 		if (nested != null && !nested.isEmpty()) {
 			if (!firstBlock) sb.append(", ");
-			sb.append("\n" + indent + "  nested {");
+			sb.append("\n").append(indent).append("  nested {");
 			boolean first = true;
 			for (FormMapping<?> nm : nested.values()) {
 				if (!first) {
 					sb.append(",");
 				} else first = false;
-				sb.append("\n" + nm.toString(indent + "    "));
+				sb.append("\n").append(nm.toString(indent + "    "));
 			}
-			sb.append("\n" + indent + "  }");
+			sb.append("\n").append(indent).append("  }");
 			firstBlock = false;
 		}
 		if (listMappings != null && !listMappings.isEmpty()) {
 			if (!firstBlock) {  // NOPMD by Radek on 2.3.14 18:33
 				sb.append(", ");
 			}
-			sb.append("\n" + indent + "  list {");
+			sb.append("\n").append(indent).append("  list {");
 			boolean first = true;
 			for (FormMapping<?> m : listMappings) {
 				if (!first) {
@@ -89,12 +89,12 @@ class MappingStringBuilder<T> {
 				} else {
 					first = false;
 				}
-				sb.append("\n" + m.toString(indent + "    "));
+				sb.append("\n").append(m.toString(indent + "    "));
 			}
-			sb.append("\n" + indent + "  }");
+			sb.append("\n").append(indent).append("  }");
 			firstBlock = false;
 		}
-		sb.append("\n" + indent + "}");
+		sb.append("\n").append(indent).append("}");
 		return sb.toString();
 	}
 }

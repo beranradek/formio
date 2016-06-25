@@ -223,8 +223,7 @@ public class TdiResponseBuilder {
 	 */
 	public String asString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(renderXmlDeclaration() +
-			renderResponseBeginTag());
+		sb.append(renderXmlDeclaration()).append(renderResponseBeginTag());
 		boolean statusFound = false;
 		for (String i : instructions) {
 			if (i.contains("<" + getStatusTagName())) {
@@ -313,16 +312,16 @@ public class TdiResponseBuilder {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<script");
 		if (src != null && !src.isEmpty()) {
-			sb.append(" src=\"" + src + "\"");
+			sb.append(" src=\"").append(src).append("\"");
 		}
 		if (id != null && !id.isEmpty()) {
-			sb.append(" id=\"" + id + "\"");
+			sb.append(" id=\"").append(id).append("\"");
 		}
-		sb.append(">" + newLine());
+		sb.append(">").append(newLine());
 		if (script != null && !script.isEmpty()) {
-			sb.append(script + newLine());
-		} 
-		sb.append("</script>" + newLine());
+			sb.append(script).append(newLine());
+		}
+		sb.append("</script>").append(newLine());
 		return sb.toString();
 	}
 	

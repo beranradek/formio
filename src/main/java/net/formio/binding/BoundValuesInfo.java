@@ -85,7 +85,7 @@ public final class BoundValuesInfo {
 		StringBuilder sb = new StringBuilder();
 		if (values != null) {
 			for (Object v : values) {
-				sb.append(v + "; ");
+				sb.append(v).append("; ");
 			}
 		}
 		return sb.toString();

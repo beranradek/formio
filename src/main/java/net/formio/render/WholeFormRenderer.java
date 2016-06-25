@@ -37,57 +37,55 @@ public class WholeFormRenderer extends FormRendererWrapper {
 	
 	public <T> String renderHtmlFormPage(FormMapping<T> formMapping) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<!DOCTYPE html>" + newLine());
-		sb.append("<html lang=\"en\">" + newLine());
-		sb.append("<head>" + newLine());
-		sb.append("<meta charset=\"utf-8\">" + newLine());
-		sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">" + newLine());
-		sb.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" + newLine());
-		sb.append("<title>Form rendering test</title>" + newLine());
+		sb.append("<!DOCTYPE html>").append(newLine());
+		sb.append("<html lang=\"en\">").append(newLine());
+		sb.append("<head>").append(newLine());
+		sb.append("<meta charset=\"utf-8\">").append(newLine());
+		sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">").append(newLine());
+		sb.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">").append(newLine());
+		sb.append("<title>Form rendering test</title>").append(newLine());
 
 		// Bootstrap CSS and JavaScript
-		sb.append("<!-- Latest compiled and minified CSS -->" + newLine());
-		sb.append("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">" + newLine());
+		sb.append("<!-- Latest compiled and minified CSS -->").append(newLine());
+		sb.append("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">").append(newLine());
 
-		sb.append("<!-- JQuery UI for datepicker -->" + newLine());
+		sb.append("<!-- JQuery UI for datepicker -->").append(newLine());
 		sb.append("<link rel=\"stylesheet\" href=\"http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.min.css\">");
-		sb.append("<!-- Optional theme -->" + newLine());
-		sb.append("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">" + newLine());
+		sb.append("<!-- Optional theme -->").append(newLine());
+		sb.append("<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">").append(newLine());
 
-		sb.append("<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->" + newLine());
-		sb.append("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js\"></script>" + newLine());
-		sb.append("<!-- jQuery UI -->" + newLine());
-		sb.append("<script src=\"http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js\"></script>" + newLine());
-		sb.append("<!-- Latest compiled and minified JavaScript -->" + newLine());
-		sb.append("<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>" + newLine());
+		sb.append("<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->").append(newLine());
+		sb.append("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js\"></script>").append(newLine());
+		sb.append("<!-- jQuery UI -->").append(newLine());
+		sb.append("<script src=\"http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js\"></script>").append(newLine());
+		sb.append("<!-- Latest compiled and minified JavaScript -->").append(newLine());
+		sb.append("<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>").append(newLine());
 
-		sb.append("<script>" + newLine());
-		sb.append("$(function(){" + newLine());
-		sb.append("	$.datepicker.setDefaults(" + newLine());
-		sb.append("	  $.extend($.datepicker.regional[''])" + newLine());
-		sb.append(");" + newLine());
-		sb.append("});" + newLine());
-		sb.append("</script>" + newLine());
-		
-		sb.append("<style>" + newLine());
-		sb.append(".field-label, .mapping-label { text-align: right; }" + newLine());
-		sb.append("</style>" + newLine());
+		sb.append("<script>").append(newLine());
+		sb.append("$(function(){").append(newLine());
+		sb.append("	$.datepicker.setDefaults(").append(newLine());
+		sb.append("	  $.extend($.datepicker.regional[''])").append(newLine());
+		sb.append(");").append(newLine());
+		sb.append("});").append(newLine());
+		sb.append("</script>").append(newLine());
 
-		sb.append("</head>" + newLine());
-		sb.append("<body style=\"margin:1em\">" + newLine());
+		sb.append("<style>").append(newLine());
+		sb.append(".field-label, .mapping-label { text-align: right; }").append(newLine());
+		sb.append("</style>").append(newLine());
+
+		sb.append("</head>").append(newLine());
+		sb.append("<body style=\"margin:1em\">").append(newLine());
 
 		sb.append(renderHtmlForm(formMapping, "#", FormMethod.POST));
 
-		sb.append("</body>" + newLine());
-		sb.append("</html>" + newLine());
+		sb.append("</body>").append(newLine());
+		sb.append("</html>").append(newLine());
 		return sb.toString();
 	}
 
 	public <T> String renderHtmlForm(FormMapping<T> formMapping, String actionUrl, FormMethod method) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<form action=\"" + actionUrl + 
-			"\" method=\"" + method.name() + 
-			"\" role=\"form\">" + newLine());
+		sb.append("<form action=\"").append(actionUrl).append("\" method=\"").append(method.name()).append("\" role=\"form\">").append(newLine());
 		if (formMapping.isVisible()) {
 			sb.append(renderMarkupGlobalMessages(formMapping));
 			sb.append(renderElement(formMapping));
@@ -95,7 +93,7 @@ public class WholeFormRenderer extends FormRendererWrapper {
 				sb.append(renderDefaultSubmitButton());
 			}
 		}
-		sb.append("</form>" + newLine());
+		sb.append("</form>").append(newLine());
 		return sb.toString();
 	}
 	

@@ -41,12 +41,12 @@ class MessageRenderer {
 		StringBuilder sb = new StringBuilder();
 		ValidationResult validationResult = formMapping.getValidationResult();
 		if (!validationResult.isEmpty() && !validationResult.isSuccess()) {
-			sb.append("<div class=\"alert alert-danger\">" + renderer.newLine());
-			sb.append("<div>Form contains validation errors.</div>" + renderer.newLine());
+			sb.append("<div class=\"alert alert-danger\">").append(renderer.newLine());
+			sb.append("<div>Form contains validation errors.</div>").append(renderer.newLine());
 			for (ConstraintViolationMessage msg : validationResult.getGlobalMessages()) {
 				sb.append(renderer.renderMarkupMessage(msg));
 			}
-			sb.append("</div>" + renderer.newLine());
+			sb.append("</div>").append(renderer.newLine());
 		}
 		return sb.toString();
 	}
@@ -64,8 +64,7 @@ class MessageRenderer {
 
 	protected String renderMessage(ConstraintViolationMessage msg) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + msg.getSeverity().getStyleClass() + "\">" + 
-			renderer.escapeHtml(msg.getText()) + "</div>" + renderer.newLine());
+		sb.append("<div class=\"").append(msg.getSeverity().getStyleClass()).append("\">").append(renderer.escapeHtml(msg.getText())).append("</div>").append(renderer.newLine());
 		return sb.toString();
 	}
 }

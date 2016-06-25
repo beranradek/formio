@@ -52,9 +52,9 @@ class StyleRenderer {
 		StringBuilder sb = new StringBuilder();
 		boolean withoutLeadingLabel = isWithoutLeadingLabel(field);
 		if (withoutLeadingLabel && (inlinePos == null || inlinePos == InlinePosition.FIRST)) {
-			sb.append(getColOffsetClassPrefix() + colLabelWidth + " ");
+			sb.append(getColOffsetClassPrefix()).append(colLabelWidth).append(" ");
 		}
-		sb.append(getColWidthClassPrefix() + colInputWidth);
+		sb.append(getColWidthClassPrefix()).append(colInputWidth);
 		return sb.toString();
 	}
 	
@@ -82,10 +82,10 @@ class StyleRenderer {
 			sb.append("tdi");
 		}
 		if (isFullWidthInput(field)) {
-			sb.append(" " + getFullWidthInputClasses());
+			sb.append(" ").append(getFullWidthInputClasses());
 		}
 		if (Field.BUTTON.getType().equals(field.getType())) {
-			sb.append(" " + getButtonClasses(field));
+			sb.append(" ").append(getButtonClasses(field));
 		}
 		return sb.toString();
 	}

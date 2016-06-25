@@ -35,12 +35,11 @@ class DatePickerRenderer {
 	
 	protected <T> String renderDatePickerScript(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<script>" + renderer.newLine());
-		sb.append("$(function(){" + renderer.newLine());
-		sb.append("	$('#id-" + field.getName() + "').datepicker({ dateFormat: \""
-			+ getDatePickerPattern(field) + "\" });" + renderer.newLine());
-		sb.append("});" + renderer.newLine());
-		sb.append("</script>" + renderer.newLine());
+		sb.append("<script>").append(renderer.newLine());
+		sb.append("$(function(){").append(renderer.newLine());
+		sb.append("	$('#id-").append(field.getName()).append("').datepicker({ dateFormat: \"").append(getDatePickerPattern(field)).append("\" });").append(renderer.newLine());
+		sb.append("});").append(renderer.newLine());
+		sb.append("</script>").append(renderer.newLine());
 		return sb.toString();
 	}
 	

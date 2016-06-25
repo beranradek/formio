@@ -119,7 +119,7 @@ public class ValidationResult implements Serializable {
 				} else {
 					sb.append(",\n");
 				}
-				sb.append("  " + msg.toString());
+				sb.append("  ").append(msg.toString());
 			}
 		}
 		sb.append("\n}\n");
@@ -131,7 +131,7 @@ public class ValidationResult implements Serializable {
 			} else {
 				sb.append(",\n");
 			}
-			sb.append("  " + e.getKey() + "=");
+			sb.append("  ").append(e.getKey()).append("=");
 			boolean firstMsg = true;
 			for (ConstraintViolationMessage msg : e.getValue()) {
 				if (msg != null) {

@@ -81,7 +81,7 @@ class AjaxEventRenderer {
 				tdiSend.append(renderTdiSend(field, field.getElementId(), urlEvents));
 			}
 			if (tdiSend.length() > 0) {
-				sb.append("<script>" + renderer.newLine() + tdiSend + "</script>" + renderer.newLine());
+				sb.append("<script>").append(renderer.newLine()).append(tdiSend).append("</script>").append(renderer.newLine());
 			}
 		}
 		return sb.toString();
@@ -111,19 +111,19 @@ class AjaxEventRenderer {
 				}
 				if (actionWithJsType) {
 					String elm = "$(\"#" + inputId + "\")";
-					sb.append(elm + ".on({" + renderer.newLine());
+					sb.append(elm).append(".on({").append(renderer.newLine());
 					for (int i = 0; i < eventHandlers.size(); i++) {
 						AjaxHandler<?> eventToUrl = eventHandlers.get(i);
 						JsEvent eventType = eventToUrl.getEvent();
 						if (eventType != null) {
 							String url = getActionUrl(formField, eventToUrl);
-							sb.append(eventType.getEventName() + ": function(evt) {"  + renderer.newLine());
+							sb.append(eventType.getEventName()).append(": function(evt) {").append(renderer.newLine());
 							// Remember previous data-ajax-url (to revert it back) and set it temporarily to custom URL
-							sb.append("var prevUrl = " + elm + ".attr(\"data-ajax-url\");" + renderer.newLine());
-							sb.append(elm + ".attr(\"data-ajax-url\", \"" + url + "\");" + renderer.newLine());
-							sb.append("TDI.Ajax.send(" + elm + ");" + renderer.newLine());
-							sb.append(elm + ".attr(\"data-ajax-url\", prevUrl);" + renderer.newLine());
-							sb.append("var prevUrl = null;" + renderer.newLine());
+							sb.append("var prevUrl = ").append(elm).append(".attr(\"data-ajax-url\");").append(renderer.newLine());
+							sb.append(elm).append(".attr(\"data-ajax-url\", \"").append(url).append("\");").append(renderer.newLine());
+							sb.append("TDI.Ajax.send(").append(elm).append(");").append(renderer.newLine());
+							sb.append(elm).append(".attr(\"data-ajax-url\", prevUrl);").append(renderer.newLine());
+							sb.append("var prevUrl = null;").append(renderer.newLine());
 							sb.append("}");
 							if (i < eventHandlers.size() - 1) {
 								// not the last event handler
@@ -132,7 +132,7 @@ class AjaxEventRenderer {
 							sb.append(renderer.newLine());
 						}
 					}
-					sb.append("});" + renderer.newLine());
+					sb.append("});").append(renderer.newLine());
 				}
 			}
 		}
