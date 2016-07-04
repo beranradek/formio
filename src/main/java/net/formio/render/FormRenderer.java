@@ -158,7 +158,7 @@ public class FormRenderer {
 		}
 		
 		if (mapping.getProperties().isFieldsetDisplayed()) {
-			sb.append("</fieldset>" + newLine());
+			sb.append("</fieldset>").append(newLine());
 		}
 		
 		return newLine() + renderMarkupMappingBox(mapping, sb.toString());
@@ -172,11 +172,11 @@ public class FormRenderer {
 	protected <T> String renderMarkupListMapping(BasicListFormMapping<T> listMapping) {
 		String pathSep = listMapping.getConfig().getPathSeparator();
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div id=\"" + listMapping.getName() + pathSep + "begin\"></div>" + newLine());
+		sb.append("<div id=\"").append(listMapping.getName()).append(pathSep).append("begin\"></div>").append(newLine());
 		for (FormMapping<?> m : listMapping.getList()) {
 			sb.append(renderElement(m));
 		}
-		sb.append("<div id=\"" + listMapping.getName() + pathSep + "end\"></div>" + newLine());
+		sb.append("<div id=\"").append(listMapping.getName()).append(pathSep).append("end\"></div>").append(newLine());
 		return sb.toString();
 	}
 
@@ -291,13 +291,13 @@ public class FormRenderer {
 		StringBuilder sb = new StringBuilder();
 		// Element placeholder begin - rendered even for invisible element so there is reserved
 		// identified place that can be updated if the element becomes visible.
-		sb.append("<div id=\"" + element.getElementPlaceholderId() + "\">" + newLine());
-		
+		sb.append("<div id=\"").append(element.getElementPlaceholderId()).append("\">").append(newLine());
+
 		// The element itself
 		sb.append(innerMarkup);
 		
 		// Element placeholder end
-		sb.append("</div>" + newLine());
+		sb.append("</div>").append(newLine());
 		return sb.toString();
 	}
 
@@ -305,11 +305,11 @@ public class FormRenderer {
 		StringBuilder sb = new StringBuilder();
 		String maxSevClass = getMaxSeverityClass(mapping);
 		if (maxSevClass != null && !maxSevClass.isEmpty()) {
-			sb.append("<div class=\"" + maxSevClass + "\">" + newLine());
+			sb.append("<div class=\"").append(maxSevClass).append("\">").append(newLine());
 		}
 		sb.append(innerMarkup);
 		if (maxSevClass != null && !maxSevClass.isEmpty()) {
-			sb.append("</div>" + newLine());
+			sb.append("</div>").append(newLine());
 		}
 		return sb.toString();
 	}
@@ -320,26 +320,24 @@ public class FormRenderer {
 		int colFormWidth = field.getParent().getConfig().getColFormWidth();
 		InlinePosition inlinePos = field.getProperties().getInline();
 		if (inlinePos == null || InlinePosition.FIRST.equals(inlinePos)) {
-			sb.append("<div class=\"row\">" + newLine());
-			sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + 
-				styleRenderer.getColWidthClassPrefix() + colFormWidth + " " + 
-				maxSevClass + "\">" + newLine());
+			sb.append("<div class=\"row\">").append(newLine());
+			sb.append("<div class=\"").append(styleRenderer.getFormGroupClasses()).append(" ").append(styleRenderer.getColWidthClassPrefix()).append(colFormWidth).append(" ").append(maxSevClass).append("\">").append(newLine());
 		}
 		
 		sb.append(innerMarkup);
 		
 		if (inlinePos == null || InlinePosition.LAST.equals(inlinePos)) {
-			sb.append("</div>" + newLine());
-			sb.append("</div>" + newLine() + newLine());
+			sb.append("</div>").append(newLine());
+			sb.append("</div>").append(newLine()).append(newLine());
 		}
 		return sb.toString();
 	}
 
 	protected <T> String renderMarkupInputEnvelope(FormField<T> field, String innerMarkup) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"" + styleRenderer.getInputEnvelopeClasses(field) + "\">" + newLine());
+		sb.append("<div class=\"").append(styleRenderer.getInputEnvelopeClasses(field)).append("\">").append(newLine());
 		sb.append(innerMarkup);
-		sb.append("</div>" + newLine());
+		sb.append("</div>").append(newLine());
 		return sb.toString();
 	}
 
@@ -357,21 +355,20 @@ public class FormRenderer {
 	
 	protected <T> String renderMarkupTextArea(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<textarea name=\"" + field.getName() + "\" id=\"" + field.getElementId() + 
-			"\" class=\"" + getInputClasses(field) + "\"");
+		sb.append("<textarea name=\"").append(field.getName()).append("\" id=\"").append(field.getElementId()).append("\" class=\"").append(getInputClasses(field)).append("\"");
 		Integer cols = field.getProperties().getProperty(FormElementProperty.COLS);
 		if (cols != null) {
-			sb.append(" cols=\"" + cols.intValue() + "\"");
+			sb.append(" cols=\"").append(cols.intValue()).append("\"");
 		}
 		Integer rows = field.getProperties().getProperty(FormElementProperty.ROWS);
 		if (rows != null) {
-			sb.append(" rows=\"" + rows.intValue() + "\"");
+			sb.append(" rows=\"").append(rows.intValue()).append("\"");
 		}
 		sb.append(getElementAttributes(field));
 		sb.append(getInputPlaceholderAttribute(field));
 		sb.append(">");
 		sb.append(escapeHtml(field.getValue()));
-		sb.append("</textarea>" + newLine());
+		sb.append("</textarea>").append(newLine());
 		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
@@ -379,43 +376,41 @@ public class FormRenderer {
 	protected <T> String renderMarkupInput(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		String typeId = field.getType();
-		sb.append("<input type=\"" + field.getInputType() + "\" name=\"" + field.getName()
-				+ "\" id=\"" + field.getElementId() + "\"");
+		sb.append("<input type=\"").append(field.getInputType()).append("\" name=\"").append(field.getName()).append("\" id=\"").append(field.getElementId()).append("\"");
 		if (Field.FILE_UPLOAD.getType().equals(typeId)) {
 			String accept = field.getProperties().getProperty(FormElementProperty.ACCEPT);
 			if (accept != null) {
-				sb.append(" accept=\"" + accept + "\"");
+				sb.append(" accept=\"").append(accept).append("\"");
 			}
 		} else {
 			String value = escapeHtml(field.getValue());
-			sb.append(" value=\"" + value + "\"");
+			sb.append(" value=\"").append(value).append("\"");
 			Integer size = field.getProperties().getProperty(FormElementProperty.SIZE);
 			if (size != null) {
-				sb.append(" size=\"" + size.intValue() + "\"");
+				sb.append(" size=\"").append(size.intValue()).append("\"");
 			}
 			Integer maxlength = field.getProperties().getProperty(FormElementProperty.MAX_LENGTH);
 			if (maxlength != null) {
-				sb.append(" maxlength=\"" + maxlength.intValue() + "\"");
+				sb.append(" maxlength=\"").append(maxlength.intValue()).append("\"");
 			}
 		}
 		sb.append(getElementAttributes(field));
-		sb.append(" class=\"" + getInputClasses(field) + "\"");
+		sb.append(" class=\"").append(getInputClasses(field)).append("\"");
 		sb.append(getInputPlaceholderAttribute(field));
-		sb.append("/>" + newLine());
+		sb.append("/>").append(newLine());
 		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
 
 	protected <T> String renderMarkupCheckbox(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<input type=\"" + Field.CHECK_BOX.getInputType() + "\" name=\"" + field.getName()
-			+ "\" id=\"" + field.getElementId() + "\" value=\"1\"");
+		sb.append("<input type=\"").append(Field.CHECK_BOX.getInputType()).append("\" name=\"").append(field.getName()).append("\" id=\"").append(field.getElementId()).append("\" value=\"1\"");
 		if (field.isFilledWithTrue()) {
 			sb.append(" checked=\"checked\" ");
 		}
 		sb.append(getElementAttributes(field));
-		sb.append(" class=\"" + getInputClasses(field) + "\"");
-		sb.append("/>" + newLine());
+		sb.append(" class=\"").append(getInputClasses(field)).append("\"");
+		sb.append("/>").append(newLine());
 		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
@@ -425,18 +420,18 @@ public class FormRenderer {
 			throw new IllegalStateException("Form field should have ChoiceRenderer defined");
 		}
 		StringBuilder sb = new StringBuilder();
-		sb.append("<select name=\"" + field.getName() + "\" id=\"" + field.getElementId() + "\"");
+		sb.append("<select name=\"").append(field.getName()).append("\" id=\"").append(field.getElementId()).append("\"");
 		Boolean multiple = field.getProperties().getProperty(FormElementProperty.MULTIPLE);
 		if (multiple != null && multiple.booleanValue()) {
 			sb.append(" multiple=\"multiple\"");
 		}
 		Integer size = field.getProperties().getProperty(FormElementProperty.SIZE);
 		if (size != null) {
-			sb.append(" size=\"" + size.intValue() + "\"");
+			sb.append(" size=\"").append(size.intValue()).append("\"");
 		}
-		sb.append(" class=\"" + getInputClasses(field) + "\"");
+		sb.append(" class=\"").append(getInputClasses(field)).append("\"");
 		sb.append(getElementAttributes(field));
-		sb.append(">" + newLine());
+		sb.append(">").append(newLine());
 		if (field.getChoices() != null) {
 			List<T> items = toSimplyTypedItems(field.getChoices().getItems());
 			if (items != null) {
@@ -455,7 +450,7 @@ public class FormRenderer {
 				}
 			}
 		}
-		sb.append("</select>" + newLine());
+		sb.append("</select>").append(newLine());
 		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
@@ -475,22 +470,22 @@ public class FormRenderer {
 					String title = getChoiceTitle(choiceRenderer, item, itemIndex);
 					String itemId = field.getElementIdWithIndex(itemIndex);
 
-					sb.append("<div class=\"" + field.getInputType() + "\">" + newLine());
+					sb.append("<div class=\"").append(field.getInputType()).append("\">").append(newLine());
 					if (field.getProperties().isLabelVisible()) {
 						sb.append("<label>");
 					}
-					
-					sb.append("<input type=\"" + field.getInputType() + "\" name=\"" + field.getName() + "\" id=\"" + itemId + "\" value=\"" + value + "\"");
+
+					sb.append("<input type=\"").append(field.getInputType()).append("\" name=\"").append(field.getName()).append("\" id=\"").append(itemId).append("\" value=\"").append(value).append("\"");
 					if (field.getFilledObjects().contains(item)) {
 						sb.append(" checked=\"checked\"");
 					}
 					sb.append(getElementAttributes(field));
-					sb.append(" class=\"" + getInputClasses(field) + "\"");
+					sb.append(" class=\"").append(getInputClasses(field)).append("\"");
 					sb.append("/>");
 					if (field.getProperties().isLabelVisible()) {
-						sb.append(" " + title + "</label>");
+						sb.append(" ").append(title).append("</label>");
 					}
-					sb.append("</div>" + newLine());
+					sb.append("</div>").append(newLine());
 					itemIndex++;
 				}
 				sb.append(renderFieldScript(field, InputMultiplicity.MULTIPLE));
@@ -506,12 +501,11 @@ public class FormRenderer {
 		if (buttonType != null) {
 			type = buttonType.getTypeName();
 		}
-		sb.append("<button type=\"" + type + "\" name=\"" + field.getName() + "\" value=\"" + escapeHtml(field.getValue()) + 
-			"\" class=\"" + getInputClasses(field) + "\">");
+		sb.append("<button type=\"").append(type).append("\" name=\"").append(field.getName()).append("\" value=\"").append(escapeHtml(field.getValue())).append("\" class=\"").append(getInputClasses(field)).append("\">");
 		MessageTranslator tr = getMessageTranslator(field);
 		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
 		sb.append(text);
-		sb.append("</button>" + newLine());
+		sb.append("</button>").append(newLine());
 		return sb.toString();
 	}
 	
@@ -521,13 +515,13 @@ public class FormRenderer {
 		if (url == null || url.isEmpty()) {
 			url = ajaxEventRenderer.getActionLinkUrl(field);
 		}
-		sb.append("<a href=\"" + escapeHtml(url) + "\"");
+		sb.append("<a href=\"").append(escapeHtml(url)).append("\"");
 		sb.append(getElementAttributes(field));
-		sb.append(" class=\"" + getInputClasses(field) + "\">");
+		sb.append(" class=\"").append(getInputClasses(field)).append("\">");
 		MessageTranslator tr = getMessageTranslator(field);
 		String text = escapeHtml(tr.getMessage(field.getLabelKey()));
 		sb.append(text);
-		sb.append("</a>" + newLine());
+		sb.append("</a>").append(newLine());
 		sb.append(renderFieldScript(field, InputMultiplicity.SINGLE));
 		return sb.toString();
 	}
@@ -552,7 +546,7 @@ public class FormRenderer {
 				FormField<?> field = (FormField<?>)element;
 				if (field.getProperties().getConfirmMessage() != null && !field.getProperties().getConfirmMessage().isEmpty()) {
 					if (field.getProperties().getAjaxHandlers() == null || field.getProperties().getAjaxHandlers().length == 0) {
-						sb.append(" onclick=\"return confirm('" + escapeHtml(field.getProperties().getConfirmMessage()) + "');\"");
+						sb.append(" onclick=\"return confirm('").append(escapeHtml(field.getProperties().getConfirmMessage())).append("');\"");
 					}
 				}
 			}
@@ -582,21 +576,21 @@ public class FormRenderer {
 			FormField<?> field = (FormField<?>)element;
 			AjaxHandler<?> eventHandlerWithoutEvent = field.getProperties().getAjaxHandlerWithoutEvent();
 			if (eventHandlerWithoutEvent != null) {
-				String url = FormUtils.urlWithAppendedParameter(eventHandlerWithoutEvent.getHandlerUrl(field.getParent().getConfig().getUrlBase(), field), 
+				String url = FormUtils.urlWithAppendedParameter(eventHandlerWithoutEvent.getHandlerUrl(field.getParent().getConfig().getUrlBase(), field),
 					AjaxParams.SRC_ELEMENT_NAME, element.getName());
-				sb.append(" data-ajax-url=\"" + url + "\"");
+				sb.append(" data-ajax-url=\"").append(url).append("\"");
 			}
 			if (field.getProperties().getAjaxHandlers() != null && field.getProperties().getAjaxHandlers().length > 0) {
 				String confirmMsg = field.getProperties().getConfirmMessage();
 				if (confirmMsg != null && !confirmMsg.isEmpty()) {
-					sb.append(" data-confirm=\"" + confirmMsg + "\"");
+					sb.append(" data-confirm=\"").append(confirmMsg).append("\"");
 				}
 			}
 			if (field.getProperties().getAjaxRelatedElement() != null && !field.getProperties().getAjaxRelatedElement().isEmpty()) {
-				sb.append(" data-related-element=\"" + field.getProperties().getAjaxRelatedElement() + "\"");
+				sb.append(" data-related-element=\"").append(field.getProperties().getAjaxRelatedElement()).append("\"");
 			}
 			if (field.getProperties().getAjaxSourceAncestorElement() != null && !field.getProperties().getAjaxSourceAncestorElement().isEmpty()) {
-				sb.append(" data-related-ancestor=\"" + field.getProperties().getAjaxSourceAncestorElement() + "\"");
+				sb.append(" data-related-ancestor=\"").append(field.getProperties().getAjaxSourceAncestorElement()).append("\"");
 			}
 		}
 		return sb.toString();
@@ -620,7 +614,7 @@ public class FormRenderer {
 	protected <T> String getInputPlaceholderAttribute(FormField<T> field) {
 		StringBuilder sb = new StringBuilder();
 		if (field.getProperties().getPlaceholder() != null) {
-			sb.append(" placeholder=\"" + escapeHtml(field.getProperties().getPlaceholder()) + "\"");
+			sb.append(" placeholder=\"").append(escapeHtml(field.getProperties().getPlaceholder())).append("\"");
 		}
 		return sb.toString();
 	}
@@ -853,11 +847,11 @@ public class FormRenderer {
 	
 	private String renderMarkupOption(String value, String title, boolean selected) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<option value=\"" + escapeHtml(value) + "\"");
+		sb.append("<option value=\"").append(escapeHtml(value)).append("\"");
 		if (selected) {
 			sb.append(" selected=\"selected\"");
 		}
-		sb.append(">" + escapeHtml(title) + "</option>" + newLine());
+		sb.append(">").append(escapeHtml(title)).append("</option>").append(newLine());
 		return sb.toString();
 	}
 	

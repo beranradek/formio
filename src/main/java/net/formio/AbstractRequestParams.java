@@ -69,7 +69,7 @@ public abstract class AbstractRequestParams implements RequestParams {
 				sb.append("\n");
 			}
 			String value = getParamValue(paramName);
-			sb.append(paramName + "=" + FormUtils.truncate(value, 60));
+			sb.append(paramName).append("=").append(FormUtils.truncate(value, 60));
 		}
 		return sb.toString();
 	}

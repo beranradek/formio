@@ -49,18 +49,15 @@ class LabelRenderer {
 			}
 			int colFormWidth = mapping.getConfig().getColFormWidth();
 			if (mapping.getProperties().isFieldsetDisplayed()) {
-				sb.append("<legend class=\"mapping-legend\">" + renderer.getLabelText(mapping) + ":</legend>" + renderer.newLine());
+				sb.append("<legend class=\"mapping-legend\">").append(renderer.getLabelText(mapping)).append(":</legend>").append(renderer.newLine());
 			} else {
-				sb.append("<div class=\"row\">" + renderer.newLine());
-				sb.append("<div class=\"" + styleRenderer.getFormGroupClasses() + " " + 
-					styleRenderer.getColWidthClassPrefix() + colFormWidth +
-					"\">" + renderer.newLine());
-				sb.append("<div class=\"" + styleRenderer.getLabelClasses() + " " +
-					styleRenderer.getColWidthClassPrefix() + colLabelWidth + " mapping-label\">" + renderer.newLine());
-				sb.append("<label>" + renderer.getLabelText(mapping) + ":</label>" + renderer.newLine());
-				sb.append("</div>" + renderer.newLine());
-				sb.append("</div>" + renderer.newLine());
-				sb.append("</div>" + renderer.newLine());
+				sb.append("<div class=\"row\">").append(renderer.newLine());
+				sb.append("<div class=\"").append(styleRenderer.getFormGroupClasses()).append(" ").append(styleRenderer.getColWidthClassPrefix()).append(colFormWidth).append("\">").append(renderer.newLine());
+				sb.append("<div class=\"").append(styleRenderer.getLabelClasses()).append(" ").append(styleRenderer.getColWidthClassPrefix()).append(colLabelWidth).append(" mapping-label\">").append(renderer.newLine());
+				sb.append("<label>").append(renderer.getLabelText(mapping)).append(":</label>").append(renderer.newLine());
+				sb.append("</div>").append(renderer.newLine());
+				sb.append("</div>").append(renderer.newLine());
+				sb.append("</div>").append(renderer.newLine());
 			}
 		}
 		return sb.toString();
@@ -73,12 +70,12 @@ class LabelRenderer {
 			colLabelWidth = element.getProperties().getColLabelWidth().intValue(); 
 		}
 		if (element.getProperties().isLabelVisible()) {
-			sb.append("<div class=\"" + styleRenderer.getColWidthClassPrefix() + colLabelWidth + " field-label\">" + renderer.newLine());
-			sb.append("<label for=\"id-" + element.getName() + "\" class=\"" + styleRenderer.getLabelClasses() + "\">");
+			sb.append("<div class=\"").append(styleRenderer.getColWidthClassPrefix()).append(colLabelWidth).append(" field-label\">").append(renderer.newLine());
+			sb.append("<label for=\"id-").append(element.getName()).append("\" class=\"").append(styleRenderer.getLabelClasses()).append("\">");
 			sb.append(renderer.getLabelText(element));
 			sb.append(":");
-			sb.append("</label>" + renderer.newLine());
-			sb.append("</div>" + renderer.newLine());
+			sb.append("</label>").append(renderer.newLine());
+			sb.append("</div>").append(renderer.newLine());
 		}
 		return sb.toString();
 	}
@@ -97,9 +94,7 @@ class LabelRenderer {
 			sb.append(renderer.escapeHtml(tr.getMessage(msgKey, renderer.getLocation(formElement).getLocale())));
 			if (formElement instanceof BasicListFormMapping) {
 				FormMapping<?> listMapping = (FormMapping<?>) formElement;
-				sb.append(" (<span id=\"" + formElement.getName() + listMapping.getConfig().getPathSeparator() + "size\">" + 
-					listMapping.getList().size() + 
-				"</span>)");
+				sb.append(" (<span id=\"").append(formElement.getName()).append(listMapping.getConfig().getPathSeparator()).append("size\">").append(listMapping.getList().size()).append("</span>)");
 			}
 			if (formElement.isRequired()) {
 				sb.append(renderer.getRequiredMark(formElement));

@@ -28,7 +28,7 @@ class FormFieldStringBuilder {
 		sb.append(" (");
 		if (field.getPattern() != null && !field.getPattern().isEmpty()) {
 			if (!firstParam) sb.append(", ");
-			sb.append("pattern=" + field.getPattern());
+			sb.append("pattern=").append(field.getPattern());
 			firstParam = false;
 		}
 		if (field.getValue() != null && !field.getValue().isEmpty()) {
@@ -37,10 +37,10 @@ class FormFieldStringBuilder {
 			if (field.getFilledObjects() != null) {
 				cnt = field.getFilledObjects().size();
 			}
-			sb.append("value=" + (field.getValue().length() > 17 ? field.getValue().substring(0, 17) + "..." : field.getValue()) + " /count: " + cnt  + "/");
+			sb.append("value=").append(field.getValue().length() > 17 ? field.getValue().substring(0, 17) + "..." : field.getValue()).append(" /count: ").append(cnt).append("/");
 			firstParam = false;
 		}
-		sb.append(", order=" + field.getOrder());
+		sb.append(", order=").append(field.getOrder());
 		sb.append(")");
 		return sb.toString();
 	}
