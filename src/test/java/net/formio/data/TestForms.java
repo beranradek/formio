@@ -32,6 +32,7 @@ import net.formio.domain.BigDecimalValue;
 import net.formio.domain.Car;
 import net.formio.domain.CarDimensions;
 import net.formio.domain.Collegue;
+import net.formio.domain.Contact;
 import net.formio.domain.Engine;
 import net.formio.domain.NewCollegue;
 import net.formio.domain.Person;
@@ -177,6 +178,11 @@ public final class TestForms {
 		.field("otherInfoUrl", Field.LINK)
 		.field("submitValue", Field.BUTTON)
 		.build(Location.ENGLISH);
+	
+	public static final FormMapping<Contact> CONTACT_FORM = Forms.basic(Contact.class, "contact")
+			.field("email", Field.EMAIL)
+			.field("phone", Field.TEL)
+			.build(Location.ENGLISH);
 	
 	private static List<Skill> skillsCodebook() {
 		List<Skill> skills = new ArrayList<Skill>();
