@@ -205,6 +205,25 @@ public class BasicFormattersTest {
 		}
 	}
 	
+	@Test
+	public void testParseBooleanFromString() {
+		final BasicFormatters formatters = new BasicFormatters();
+		
+		final Location enArea = Location.ENGLISH;
+		
+		Assert.assertEquals(Boolean.TRUE, formatters.parseFromString("on", Boolean.class, enArea));
+		Assert.assertEquals(Boolean.FALSE, formatters.parseFromString("off", Boolean.class, enArea));
+	}
+	
+	@Test
+	public void testMakeStringFromBoolean() {
+		final BasicFormatters formatters = new BasicFormatters();
+		
+		final Location enArea = Location.ENGLISH;
+		
+		Assert.assertEquals("true", formatters.makeString(Boolean.TRUE, enArea));
+	}
+	
 	@Test(expected=FormatterNotFoundException.class)
 	public void testNonRegisteredParser() {
 		final Location loc = Location.CZECH;

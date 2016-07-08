@@ -290,7 +290,7 @@ public class BasicFormatters implements Formatters {
 				String formatPattern, Location loc) {
 			if (str == null || str.isEmpty()) return Boolean.FALSE;
 			String amendedStr = str.toLowerCase();
-			return Boolean.valueOf(amendedStr.equals("t") || amendedStr.equals("y") || amendedStr.equals("true") || amendedStr.equals("1"));
+			return Boolean.valueOf(amendedStr.equals("t") || amendedStr.equals("y") || amendedStr.equals("true") || amendedStr.equals("1") || amendedStr.equals("on"));
 		}
 
 		@Override
