@@ -1,5 +1,10 @@
 # Changelog
 
+1.6.2 (8.7.2016)
+* Optimized StringBuilder usage in form renderer (by jklap)
+* Added AnyNotEmpty constraint for at least one not-empty field (by Petr Kalivoda)
+* Boolean formatter recognizes "on" string.
+
 1.6.1 (25.4.2016)
 * Fix of undiscovered field of parent class when looking for required flag.
 * Looking for required annotation also in getters.
