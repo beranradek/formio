@@ -204,6 +204,12 @@ public class BasicFormattersTest {
 			fail(ex.getMessage());
 		}
 	}
+
+	@Test
+	public void testParseLongFromString() {
+		final BasicFormatters formatters = new BasicFormatters();
+		Assert.assertEquals(Long.valueOf(Long.MAX_VALUE), formatters.parseFromString("" + Long.MAX_VALUE, Long.class, Location.ENGLISH));
+	}
 	
 	@Test
 	public void testParseBooleanFromString() {
@@ -214,7 +220,7 @@ public class BasicFormattersTest {
 		Assert.assertEquals(Boolean.TRUE, formatters.parseFromString("on", Boolean.class, enArea));
 		Assert.assertEquals(Boolean.FALSE, formatters.parseFromString("off", Boolean.class, enArea));
 	}
-	
+
 	@Test
 	public void testMakeStringFromBoolean() {
 		final BasicFormatters formatters = new BasicFormatters();

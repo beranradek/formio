@@ -196,7 +196,7 @@ public class BasicFormatters implements Formatters {
 					try {
 						String amendedStr = removeDecimalPart(str, loc.getLocale());
 						return Long.valueOf(FormatsCache.getOrCreateDecimalFormat(formatPattern, loc)
-							.parse(amendedStr).byteValue());
+							.parse(amendedStr).longValue());
 					} catch (Exception ex) {
 						throw new StringParseException(Long.class, str, ex);
 					}

@@ -1,5 +1,8 @@
 # Changelog
 
+1.6.3 (25.3.2017)
+* Fixed longFormatter in BasicFormatters (incorrect byteValue call was used to parse value from a string)
+
 1.6.2 (8.7.2016)
 * Optimized StringBuilder usage in form renderer (by jklap)
 * Added AnyNotEmpty constraint for at least one not-empty field (by Petr Kalivoda)
