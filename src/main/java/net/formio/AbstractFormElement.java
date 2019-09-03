@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import net.formio.binding.DefaultBeanExtractor;
 import net.formio.binding.PropertyMethodRegex;
@@ -178,13 +177,7 @@ public abstract class AbstractFormElement<T> implements FormElement<T> {
 		if (level < 2) {
 			if (annots != null) {
 				for (Annotation ann : annots) {
-					if (ann instanceof Size) {
-						Size s = (Size) ann;
-						if (s.min() > 0) {
-							required = true;
-							break;
-						}
-					} else if (ann instanceof NotNull) {
+					if (ann instanceof NotNull) {
 						required = true;
 						break;
 					} else if (ann instanceof NotEmpty) {

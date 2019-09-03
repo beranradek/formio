@@ -39,7 +39,7 @@ public class AbstractFormElementTest {
 	@Test
 	public void testIsRequired() {
 		try {
-			assertTrue("name is required", ((AbstractFormElement<?>)Forms.field("name").build()).isRequired(Contact.class));
+			assertFalse("name is not required, only size of not-null value is validated", ((AbstractFormElement<?>)Forms.field("name").build()).isRequired(Contact.class));
 			assertTrue("email is required", ((AbstractFormElement<?>)Forms.field("email").build()).isRequired(Contact.class));
 			assertTrue("age is required", ((AbstractFormElement<?>)Forms.field("age").build()).isRequired(Contact.class));
 			assertFalse("phone is not required", ((AbstractFormElement<?>)Forms.field("phone").build()).isRequired(Contact.class));

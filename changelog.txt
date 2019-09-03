@@ -1,5 +1,8 @@
 # Changelog
 
+1.6.4 (3.9.2019)
+* Size annotation presence should not be checked within isRequiredByAnnotations. Null elements should be valid for specified Size annotation according to JSR-303.
+
 1.6.3 (25.3.2017)
 * Fixed longFormatter in BasicFormatters (incorrect byteValue call was used to parse value from a string)
 
