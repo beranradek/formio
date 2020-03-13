@@ -27,17 +27,7 @@ import net.formio.MappingType;
 import net.formio.choice.ChoiceItem;
 import net.formio.choice.ChoiceRenderer;
 import net.formio.choice.EnumChoiceProvider;
-import net.formio.domain.Address;
-import net.formio.domain.BigDecimalValue;
-import net.formio.domain.Car;
-import net.formio.domain.CarDimensions;
-import net.formio.domain.Collegue;
-import net.formio.domain.Contact;
-import net.formio.domain.Engine;
-import net.formio.domain.NewCollegue;
-import net.formio.domain.Person;
-import net.formio.domain.RegDate;
-import net.formio.domain.Registration;
+import net.formio.domain.*;
 import net.formio.domain.animal.Mammal;
 import net.formio.domain.inputs.Country;
 import net.formio.domain.inputs.Employer;
@@ -88,6 +78,9 @@ public final class TestForms {
 	
 	public static final FormMapping<BigDecimalValue> VALUE_FORM = 
 		Forms.automatic(BigDecimalValue.class, "valueForm").build(Location.ENGLISH);
+
+	public static final FormMapping<DoubleValue> DOUBLE_VALUE_FORM =
+			Forms.automatic(DoubleValue.class, "valueForm").build(Location.ENGLISH);
 	
 	public static final FormMapping<Car> CAR_FORM =
 		Forms.automatic(Car.class, "carForm")
