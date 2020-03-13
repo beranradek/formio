@@ -20,8 +20,8 @@ apply plugin: 'eclipse'
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 11
+targetCompatibility = 11
  
 repositories {
   mavenCentral()
@@ -38,7 +38,9 @@ dependencies {
 
   // Test dependencies 
   testCompile "junit:junit:4.8.2"
-  testCompile "org.hibernate:hibernate-validator:4.3.1.Final"
+  testCompile "org.hibernate:hibernate-validator:6.1.2.Final"
+  testCompile "javax.el:javax.el-api:3.0.1-b06"
+  testCompile "org.glassfish:javax.el:3.0.0"
   testCompile "org.springframework:spring-mock:2.0.8"
   testCompile "commons-httpclient:commons-httpclient:3.1"
   testCompile "org.springframework:spring-core:3.2.12.RELEASE"
