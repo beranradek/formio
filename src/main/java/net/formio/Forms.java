@@ -309,7 +309,6 @@ public final class Forms {
 	 * Renders form with embedded form renderer and opens resulting HTML
 	 * in default browser of operating system.
 	 * @param form
-	 * @param locale
 	 */
 	public static <T> void previewForm(FormMapping<T> form) {
 		previewForm(form, null);

@@ -277,7 +277,6 @@ public interface FormMapping<T> extends FormElement<T> {
 	/**
 	 * Returns copy of this mapping that is attached to given parent.
 	 * @param parent
-	 * @param config
 	 * @return
 	 */
 	FormMapping<T> withParent(FormMapping<?> parent);

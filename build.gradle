@@ -11,18 +11,17 @@ buildscript {
 // release plugin adding release task, see: https://github.com/researchgate/gradle-release
 plugins {
   id 'net.researchgate.release' version '2.6.0'
+  id 'java'
+  id 'maven' // takes care of the metadata, generates the pom.xml when publishing to repo, deploys build output to repo
+  id 'signing' // signs generated artifacts: https://docs.gradle.org/current/userguide/signing_plugin.html
+  id 'eclipse'
 }
-
-apply plugin: 'java'
-apply plugin: 'maven' // takes care of the metadata, generates the pom.xml when publishing to repo, deploys build output to repo
-apply plugin: 'signing' // signs generated artifacts: https://docs.gradle.org/current/userguide/signing_plugin.html
-apply plugin: 'eclipse'
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
-sourceCompatibility = 11
-targetCompatibility = 11
- 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 repositories {
   mavenCentral()
 }
@@ -37,31 +36,31 @@ dependencies {
   implementation "javax.portlet:portlet-api:2.0"
 
   // Test dependencies 
-  testCompile "junit:junit:4.8.2"
-  testCompile "org.hibernate:hibernate-validator:6.1.2.Final"
-  testCompile "javax.el:javax.el-api:3.0.1-b06"
-  testCompile "org.glassfish:javax.el:3.0.0"
-  testCompile "org.springframework:spring-mock:2.0.8"
-  testCompile "commons-httpclient:commons-httpclient:3.1"
-  testCompile "org.springframework:spring-core:3.2.12.RELEASE"
-  testCompile "org.springframework:spring-portlet:2.0.8"
+  testImplementation "junit:junit:4.8.2"
+  testImplementation "org.hibernate:hibernate-validator:6.1.2.Final"
+  testImplementation "javax.el:javax.el-api:3.0.1-b06"
+  testImplementation "org.glassfish:javax.el:3.0.0"
+  testImplementation "org.springframework:spring-mock:2.0.8"
+  testImplementation "commons-httpclient:commons-httpclient:3.1"
+  testImplementation "org.springframework:spring-core:3.2.12.RELEASE"
+  testImplementation "org.springframework:spring-portlet:2.0.8"
 }
 
 // Task for generating javadoc artifact
 task javadocJar(type: Jar) {
-  classifier = 'javadoc'
+  getArchiveClassifier().set('javadoc')
   from javadoc
 }
 
 // Task for generating sources artifact
 task sourcesJar(type: Jar) {
-  classifier = 'sources'
+  getArchiveClassifier().set('sources')
   from sourceSets.main.allSource
 }
 
 // Gather all output artifacts together
 artifacts {
-  archives jar  
+  archives jar
   archives javadocJar
   archives sourcesJar
 }

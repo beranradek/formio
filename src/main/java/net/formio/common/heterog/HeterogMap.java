@@ -43,7 +43,7 @@ public interface HeterogMap<K> {
 	
 	/**
 	 * Copies all of the keys and values from the specified container to this container.
-	 * @param c
+	 * @param source
 	 */
 	void putAllFromSource(HeterogMap<K> source);
 

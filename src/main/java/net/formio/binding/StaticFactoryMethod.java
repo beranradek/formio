@@ -24,7 +24,6 @@ import java.util.List;
 /**
  * Instantiates a class of type T using static factory method with given name.
  * @author Radek Beran
- * @param <T>
  */
 public class StaticFactoryMethod extends AbstractInstantiator {
 

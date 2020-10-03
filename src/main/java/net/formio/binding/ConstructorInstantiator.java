@@ -28,7 +28,6 @@ import net.formio.upload.UploadedFileWrapper;
 /**
  * Instantiates a class of type T using given constructor.
  * @author Radek Beran
- * @param <T>
  */
 public class ConstructorInstantiator extends AbstractInstantiator {
 	

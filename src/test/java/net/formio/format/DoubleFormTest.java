@@ -48,7 +48,7 @@ public class DoubleFormTest {
 			LOG.info("Filled form: \n" + filledForm);
 
 			String filledValue = filledForm.getFields().get("value").getValue();
-			assertEquals("30 000", filledValue);
+			assertEquals("300", filledValue);
 
 			assertEquals(getInitData(), filledForm.getFilledObject());
 			
@@ -70,7 +70,7 @@ public class DoubleFormTest {
 	
 	private DoubleValue getInitData() {
 		DoubleValue v = new DoubleValue();
-		v.setValue(new Double(30000d));
+		v.setValue(Double.valueOf(300));
 		return v;
 	}
 

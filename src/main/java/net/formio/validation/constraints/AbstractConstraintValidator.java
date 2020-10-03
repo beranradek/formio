@@ -24,7 +24,7 @@ import javax.validation.ConstraintValidatorContext;
 /**
  * Abstract base implementation of constraint validator.
  * @author Radek Beran
- * @param <T>
+ * @param <A>
  */
 public abstract class AbstractConstraintValidator<A extends Annotation> implements ConstraintValidator<A, String> {
 

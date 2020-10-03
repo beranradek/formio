@@ -204,7 +204,7 @@ public class BasicFormMappingBuilder<T> {
 	
 	/**
 	 * Adds form field specification.
-	 * @param form field with specified property name
+	 * @param formField field with specified property name
 	 * @return
 	 */
 	public <U> BasicFormMappingBuilder<T> field(FormField<U> formField) {

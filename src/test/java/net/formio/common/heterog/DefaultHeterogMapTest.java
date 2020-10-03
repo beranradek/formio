@@ -41,9 +41,9 @@ public class DefaultHeterogMapTest {
 	
 	@Test
 	public void testPutAndGetValue() {
-		config.putTyped(INT_KEY, new Integer(15));
+		config.putTyped(INT_KEY, Integer.valueOf(15));
 		config.putTyped(HELLO_KEY, "Hello");
-		config.putTyped(ANOTHER_INT_KEY, new Integer(10));
+		config.putTyped(ANOTHER_INT_KEY, Integer.valueOf(10));
 		assertEquals(3, config.size());
 		Integer i1 = config.getTyped(INT_KEY);
 		String str = config.getTyped(HELLO_KEY);
@@ -82,16 +82,16 @@ public class DefaultHeterogMapTest {
 	public void testContainsKey() {
 		assertFalse("Container should not contain key", config.containsKey(INT_KEY));
 		assertFalse("Container should not contain key", config.containsKey(MISSING_KEY));
-		config.putTyped(INT_KEY, new Integer(15));
+		config.putTyped(INT_KEY, Integer.valueOf(15));
 		assertTrue("Container should contain key", config.containsKey(INT_KEY));
 		assertFalse("Container should not contain key", config.containsKey(MISSING_KEY));
 	}
 	
 	@Test
 	public void testToString() {
-		config.putTyped(INT_KEY, new Integer(15));
+		config.putTyped(INT_KEY, Integer.valueOf(15));
 		config.putTyped(HELLO_KEY, "Hello");
-		config.putTyped(ANOTHER_INT_KEY, new Integer(10));
+		config.putTyped(ANOTHER_INT_KEY, Integer.valueOf(10));
 		String s = config.toString();
 		assertTrue("toString result should contain expected text", s.contains("java.lang.Integer"));
 		assertTrue("toString result should contain expected text", s.contains("15"));

@@ -32,7 +32,7 @@ public class AjaxAlertErrorHandler<T> implements AjaxErrorHandler<T> {
 	/**
 	 * Handles error in processing an AJAX request by generating AJAX response that shows "AJAX error" alert.
 	 * @param requestParams
-	 * @param t exception thrown during processing an AJAX request
+	 * @param cause exception thrown during processing an AJAX request
 	 */
 	@Override
 	public AjaxResponse<T> errorResponse(RequestParams requestParams, Throwable cause) {
