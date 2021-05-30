@@ -66,6 +66,8 @@ if (formData.isValid()) {
 * Perform release: gradlew clean release
 * Installation to local Maven repository (e.g. for testing snapshots): gradlew install
 
+Updating gradle wrapper: gradlew wrapper --gradle-version X.Y.Z
+
 ### Release
 
 * Just run: gradlew clean test assemble to see all is ok and ready for release.
