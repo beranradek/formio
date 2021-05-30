@@ -56,7 +56,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 
 	final Class<T> dataClass;
 	final Instantiator instantiator;
-	final Config config;
+	Config config;
 	final T filledObject;
 	
 	/** Mapping simple property names to fields. */
@@ -386,6 +386,7 @@ public class BasicFormMapping<T> extends AbstractFormElement<T> implements FormM
 		if (cfg == null) {
 			// fallback to default config
 			cfg = Forms.defaultConfig(this.dataClass);
+			this.config = cfg;
 		}
 		return cfg;
 	}

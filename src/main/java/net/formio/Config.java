@@ -17,8 +17,10 @@
 package net.formio;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 
 import net.formio.binding.AnnotationArgumentNameResolver;
 import net.formio.binding.ArgumentNameResolver;
@@ -51,6 +53,7 @@ public class Config {
 	 * Separator of parts in the path (used in fully qualified field name).
 	 */
 	public static final String DEFAULT_PATH_SEP = "-";
+	public static final ValidatorFactory DEFAULT_VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
 	
 	private final Location location;
 	private final String messageBundleName;
@@ -263,6 +266,7 @@ public class Config {
 		}
 		
 		public Config build() {
+			// final long startTime = System.nanoTime();
 			if (this.location == null) this.location = DEFAULT_LOCATION;
 			if (this.messageBundleName == null) this.messageBundleName = DEFAULT_MESSAGE_BUNDLE_NAME;
 			if (this.formatters == null) this.formatters = DEFAULT_FORMATTERS;
@@ -272,7 +276,7 @@ public class Config {
 			if (this.setterRegex == null) this.setterRegex = DefaultBinder.DEFAULT_SETTER_REGEX;
 			if (this.beanExtractor == null) this.beanExtractor = defaultBeanExtractor(this.accessorRegex);
 			if (this.binder == null) this.binder = new DefaultBinder(this.formatters, this.collectionBuilders, this.argumentNameResolver, this.setterRegex);
-			if (this.beanValidator == null) this.beanValidator = new DefaultBeanValidator(Validation.buildDefaultValidatorFactory(), this.beanExtractor, this.messageBundleName);
+			if (this.beanValidator == null) this.beanValidator = new DefaultBeanValidator(DEFAULT_VALIDATOR_FACTORY, this.beanExtractor, this.messageBundleName);
 			if (this.tokenAuthorizer == null) this.tokenAuthorizer = DEFAULT_TOKEN_AUTHORIZER;
 			if (this.pathSeparator == null) this.pathSeparator = DEFAULT_PATH_SEP;
 			
@@ -299,17 +303,9 @@ public class Config {
 			if (!cfg.getCollectionBuilders().canHandle(cfg.getListMappingCollection())) {
 				throw new IllegalStateException("List Mapping collection specification should be supported by used collection builders.");
 			}
+			// final long millis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+			// System.out.println("Default form definition built within " + millis + " ms");
 			return cfg;
-		}
-		
-		private static final Formatters DEFAULT_FORMATTERS = new BasicFormatters();  
-		private static final Location DEFAULT_LOCATION = Location.getDefault();
-		private static final String DEFAULT_MESSAGE_BUNDLE_NAME = "ValidationMessages";
-		private static final CollectionBuilders DEFAULT_COLLECTION_BUILDERS = new BasicCollectionBuilders();
-		private static final ArgumentNameResolver DEFAULT_ARGUMENT_NAME_RESOLVER = new AnnotationArgumentNameResolver();
-		private static final TokenAuthorizer DEFAULT_TOKEN_AUTHORIZER = new HashTokenAuthorizer();
-		private static BeanExtractor defaultBeanExtractor(PropertyMethodRegex accessorRegex) {
-			return new DefaultBeanExtractor(accessorRegex);
 		}
 	}
 
@@ -420,5 +416,15 @@ public class Config {
 	 */
 	public String getPathSeparator() {
 		return pathSeparator;
+	}
+
+	private static final Formatters DEFAULT_FORMATTERS = new BasicFormatters();
+	private static final Location DEFAULT_LOCATION = Location.DEFAULT;
+	private static final String DEFAULT_MESSAGE_BUNDLE_NAME = "ValidationMessages";
+	private static final CollectionBuilders DEFAULT_COLLECTION_BUILDERS = new BasicCollectionBuilders();
+	private static final ArgumentNameResolver DEFAULT_ARGUMENT_NAME_RESOLVER = new AnnotationArgumentNameResolver();
+	private static final TokenAuthorizer DEFAULT_TOKEN_AUTHORIZER = new HashTokenAuthorizer();
+	private static BeanExtractor defaultBeanExtractor(PropertyMethodRegex accessorRegex) {
+		return new DefaultBeanExtractor(accessorRegex);
 	}
 }

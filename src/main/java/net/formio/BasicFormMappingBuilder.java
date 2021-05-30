@@ -429,6 +429,7 @@ public class BasicFormMappingBuilder<T> {
 			Config c = config;
 			if (c == null) {
 				c = Forms.defaultConfig(this.dataClass);
+				this.config = c;
 			}
 			buildFieldsAndNestedMappingsAutomatically(c);
 		}

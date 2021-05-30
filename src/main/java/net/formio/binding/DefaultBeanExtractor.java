@@ -22,13 +22,15 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Extracts values from formProperties using regular expression for an accessor.
  * @author Radek Beran
  */
 public class DefaultBeanExtractor implements BeanExtractor {
-	
+
+	public static final Pattern DEFAULT_ACCESSOR_REGEX_PATTERN = Pattern.compile("(is|get)([_a-zA-Z][_a-zA-Z0-9]*)");
 	private final PropertyMethodRegex accessorRegex;
 	private static final Object[] NO_ARGS = new Object[0];
 	
@@ -36,7 +38,7 @@ public class DefaultBeanExtractor implements BeanExtractor {
 	 * Default regular expression for matching name of accessor of a property and 
 	 * property name within it.
 	 */
-	public static final PropertyMethodRegex DEFAULT_ACCESSOR_REGEX = new PropertyMethodRegex("(is|get)([_a-zA-Z][_a-zA-Z0-9]*)", 2);
+	public static final PropertyMethodRegex DEFAULT_ACCESSOR_REGEX = new PropertyMethodRegex(DEFAULT_ACCESSOR_REGEX_PATTERN, 2);
 	
 	public DefaultBeanExtractor(final PropertyMethodRegex accessorRegex) {
 		if (accessorRegex == null) throw new IllegalArgumentException("accessorRegex cannot be null");

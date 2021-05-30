@@ -34,7 +34,7 @@ public final class BoundValuesInfo {
 	}
 	
 	public static BoundValuesInfo getInstance(Object[] values, String pattern) {
-		return getInstance(values, pattern, null, Location.getDefault());
+		return getInstance(values, pattern, null, Location.DEFAULT);
 	}
 	
 	public static BoundValuesInfo getInstance(Object[] values) {

@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import net.formio.Forms;
 import net.formio.binding.collection.BasicCollectionBuilders;
@@ -42,7 +43,8 @@ import net.formio.upload.UploadedFile;
  * @author Radek Beran
  */
 public class DefaultBinder implements Binder {
-	
+
+	public static final Pattern DEFAULT_SETTER_REGEX_PATTERN = Pattern.compile("set([_a-zA-Z][_a-zA-Z0-9]*)");
 	private final Formatters formatters;
 	private final ArgumentNameResolver argNameResolver;
 	private final CollectionBuilders collectionBuilders;
@@ -51,7 +53,7 @@ public class DefaultBinder implements Binder {
 	/**
 	 * Default regular expression for matching name of setter of a property and property name within it.
 	 */
-	public static final PropertyMethodRegex DEFAULT_SETTER_REGEX = new PropertyMethodRegex("set([_a-zA-Z][_a-zA-Z0-9]*)", 1);
+	public static final PropertyMethodRegex DEFAULT_SETTER_REGEX = new PropertyMethodRegex(DEFAULT_SETTER_REGEX_PATTERN, 1);
 	
 	public DefaultBinder(
 		Formatters formatters, 

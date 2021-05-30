@@ -27,20 +27,22 @@ import java.util.regex.Pattern;
  * @author Radek Beran
  */
 public class PropertyMethodRegex {
-	private final String regex;
 	private final int propertyNameGroup;
 	private final Pattern pattern;
 
-	public PropertyMethodRegex(String regex, int propertyNameGroup) {
-		if (regex == null) throw new IllegalArgumentException("regex cannot be null");
+	public PropertyMethodRegex(Pattern pattern, int propertyNameGroup) {
+		if (pattern == null) throw new IllegalArgumentException("regex pattern cannot be null");
 		if (propertyNameGroup < 1) throw new IllegalArgumentException("propertyNameGroup must be > 0");
-		this.regex = regex;
 		this.propertyNameGroup = propertyNameGroup;
-		this.pattern = Pattern.compile(regex);
+		this.pattern = pattern;
+	}
+
+	public Pattern getPattern() {
+		return pattern;
 	}
 
 	public String getRegex() {
-		return regex;
+		return pattern.pattern();
 	}
 
 	public int getPropertyNameGroup() {
