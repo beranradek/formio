@@ -60,16 +60,16 @@ if (formData.isValid()) {
 
 ### Gradle Build
 
-* Build artifacts (jar, sources, javadoc): gradle clean assemble
-* Import into Eclipse: gradle cleanEclipse eclipse
-* Run tests: gradle test
-* Perform release: gradle clean release
-* Installation to local Maven repository (e.g. for testing snapshots): gradle install
+* Build artifacts (jar, sources, javadoc): gradlew clean assemble
+* Import into Eclipse: gradlew cleanEclipse eclipse
+* Run tests: gradlew test
+* Perform release: gradlew clean release
+* Installation to local Maven repository (e.g. for testing snapshots): gradlew install
 
 ### Release
 
-* Just run: gradle clean test assemble to see all is ok and ready for release.
-* Run: gradle clean release
+* Just run: gradlew clean test assemble to see all is ok and ready for release.
+* Run: gradlew clean release
   * This automatically executes also uploadArchives (upload to Maven central) after the release version is created
 * Push commits from Gradle release plugin to GitHub
 * Login to https://oss.sonatype.org/, "Close" the Staging repository for library, "Refresh" it and "Release" it.
