@@ -1,5 +1,8 @@
 # Changelog
 
+1.6.6 (2.3.2022)
+* Field for user readable message text in InterpolatedMessage.
+
 1.6.5 (30.5.2021)
 * Fixed issue #18: Build of form definition with default config is too slow.
 

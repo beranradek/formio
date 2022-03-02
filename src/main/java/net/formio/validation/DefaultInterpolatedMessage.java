@@ -30,6 +30,7 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 	private final String elementName;
 	private final Severity severity;
 	private final String messageKey;
+	private final String messageText;
 	private final Map<String, Serializable> messageParameters;
 	
 	public DefaultInterpolatedMessage(String elementName, Severity severity) {
@@ -44,8 +45,12 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 			messageKey,
 			new LinkedHashMap<String, Serializable>());
 	}
-	
+
 	public DefaultInterpolatedMessage(String elementName, Severity severity, String messageKey, Map<String, Serializable> messageParameters) {
+		this(elementName, severity, messageKey, messageParameters, null);
+	}
+	
+	public DefaultInterpolatedMessage(String elementName, Severity severity, String messageKey, Map<String, Serializable> messageParameters, String messageText) {
 		this.elementName = elementName;
 		if (severity == null) {
 			throw new IllegalArgumentException("severity cannot be null");
@@ -56,6 +61,7 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 			throw new IllegalArgumentException("Message parameters cannot be null, only empty");
 		}
 		this.messageParameters = messageParameters;
+		this.messageText = messageText;
 	}
 	
 	@Override
@@ -80,7 +86,16 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 		}
 		return messageKey;
 	}
-	
+
+	/**
+	 * Message text for cases when the message comes already translated in human-readable format.
+	 * @return
+	 */
+	@Override
+	public String getMessageText() {
+		return messageText;
+	}
+
 	/**
 	 * Message parameters for translation file.
 	 * @return

@@ -44,6 +44,12 @@ public interface InterpolatedMessage {
 	 * @return
 	 */
 	String getMessageKey();
+
+	/**
+	 * Message text for cases when the message comes already translated in human-readable format.
+	 * @return
+	 */
+	String getMessageText();
 	
 	/**
 	 * Message parameters for translation file.
