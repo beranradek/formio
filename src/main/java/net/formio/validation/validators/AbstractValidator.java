@@ -38,24 +38,36 @@ public abstract class AbstractValidator<T> implements Validator<T> {
 	public static final String CURRENT_VALUE_ARG = "currentValue";
 	
 	public InterpolatedMessage error(String elementName, String messageKey, Arg ... args) {
-		return message(elementName, Severity.ERROR, messageKey, args);
+		return message(elementName, Severity.ERROR, messageKey, null, args);
 	}
-	
+
 	public InterpolatedMessage warning(String elementName, String messageKey, Arg ... args) {
-		return message(elementName, Severity.WARNING, messageKey, args);
+		return message(elementName, Severity.WARNING, messageKey, null, args);
 	}
 	
 	public InterpolatedMessage info(String elementName, String messageKey, Arg ... args) {
-		return message(elementName, Severity.INFO, messageKey, args);
+		return message(elementName, Severity.INFO, messageKey, null, args);
 	}
-
-	private InterpolatedMessage message(String elementName, Severity severity, String messageKey, Arg... args) {
+	
+	public InterpolatedMessage localizedError(String elementName, String messageText) {
+		return message(elementName, Severity.ERROR, messageText, messageText);
+	}
+	
+	public InterpolatedMessage localizedWarning(String elementName, String messageText) {
+		return message(elementName, Severity.WARNING, messageText, messageText);
+	}
+	
+	public InterpolatedMessage localizedInfo(String elementName, String messageText) {
+		return message(elementName, Severity.INFO, messageText, messageText);
+	}
+	
+	private InterpolatedMessage message(String elementName, Severity severity, String messageKey, String messageText, Arg... args) {
 		Map<String, Serializable> argsMap = new LinkedHashMap<String, Serializable>();
 		if (args != null) {
 			for (Arg arg : args) {
 				argsMap.put(arg.getName(), arg.getValue());
 			}
 		}
-		return new DefaultInterpolatedMessage(elementName, severity, messageKey, argsMap);
+		return new DefaultInterpolatedMessage(elementName, severity, messageKey, argsMap, messageText);
 	}
 }
