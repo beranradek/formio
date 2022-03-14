@@ -228,6 +228,9 @@ public class DefaultBeanValidator implements BeanValidator {
 	}
 	
 	private String interpolateMessage(MessageInterpolator msgInterpolator, InterpolatedMessage msg, Locale locale) {
+		if (msg.getMessageText() != null) {
+			return msg.getMessageText(); //Message already contains localized text 
+		}
 		Map<String, Serializable> params = new LinkedHashMap<String, Serializable>();
 		params.putAll(msg.getMessageParameters());
 		if (msg instanceof ParseError) {
