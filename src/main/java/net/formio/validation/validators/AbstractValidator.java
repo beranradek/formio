@@ -50,15 +50,15 @@ public abstract class AbstractValidator<T> implements Validator<T> {
 	}
 	
 	public InterpolatedMessage localizedError(String elementName, String messageText) {
-		return message(elementName, Severity.ERROR, messageText, messageText);
+		return message(elementName, Severity.ERROR, null, messageText);
 	}
 	
 	public InterpolatedMessage localizedWarning(String elementName, String messageText) {
-		return message(elementName, Severity.WARNING, messageText, messageText);
+		return message(elementName, Severity.WARNING, null, messageText);
 	}
 	
 	public InterpolatedMessage localizedInfo(String elementName, String messageText) {
-		return message(elementName, Severity.INFO, messageText, messageText);
+		return message(elementName, Severity.INFO, null, messageText);
 	}
 	
 	private InterpolatedMessage message(String elementName, Severity severity, String messageKey, String messageText, Arg... args) {
