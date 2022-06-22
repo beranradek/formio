@@ -114,4 +114,14 @@ public final class ParseError extends DefaultInterpolatedMessage {
 		return hrt;
 	}
 
+	@Override
+	public String getMessageKey() {
+		String messageKey = super.getMessageKey();
+		if (messageKey == null) {
+			// interpolated message key must be enclosed in braces otherwise it will not be translated
+			return "{" + getClass().getSimpleName() + ".message}";
+		}
+		return messageKey;
+	}
+
 }
