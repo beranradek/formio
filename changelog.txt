@@ -1,5 +1,8 @@
 # Changelog
 
+1.6.8 (26.6.2022)
+* Removed default messageKey from DefaultInterpolatedMessage ("{" + getClass().getSimpleName() + ".message}" default remains only in concrete subclasses).
+
 1.6.7 (14.3.2022)
 * Usage of user readable message text in bean validator.
 
