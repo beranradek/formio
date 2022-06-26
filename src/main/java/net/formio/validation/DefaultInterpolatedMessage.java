@@ -80,10 +80,6 @@ public class DefaultInterpolatedMessage implements InterpolatedMessage, Serializ
 	 */
 	@Override
 	public String getMessageKey() {
-		if (messageKey == null) {
-			// interpolated message key must be enclosed in braces otherwise it will not be translated
-			return "{" + getClass().getSimpleName() + ".message}";
-		}
 		return messageKey;
 	}
 
