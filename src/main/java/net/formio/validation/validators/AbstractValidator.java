@@ -49,15 +49,15 @@ public abstract class AbstractValidator<T> implements Validator<T> {
 		return message(elementName, Severity.INFO, messageKey, null, args);
 	}
 
-	public InterpolatedMessage error(String elementName, String messageText, String messageKey, Arg ... args) {
+	public InterpolatedMessage localizedError(String elementName, String messageText, String messageKey, Arg ... args) {
 		return message(elementName, Severity.ERROR, messageKey, messageText, args);
 	}
 
-	public InterpolatedMessage warning(String elementName, String messageText, String messageKey, Arg ... args) {
+	public InterpolatedMessage localizedWarning(String elementName, String messageText, String messageKey, Arg ... args) {
 		return message(elementName, Severity.WARNING, messageKey, messageText, args);
 	}
 
-	public InterpolatedMessage info(String elementName, String messageText, String messageKey, Arg ... args) {
+	public InterpolatedMessage localizedInfo(String elementName, String messageText, String messageKey, Arg ... args) {
 		return message(elementName, Severity.INFO, messageKey, messageText, args);
 	}
 	
