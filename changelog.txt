@@ -1,5 +1,8 @@
 # Changelog
 
+1.6.9 (30.7.2022)
+* New methods in AbstractValidator: localizedError/Warning/Info for creation of already translated messages.
+
 1.6.8 (26.6.2022)
 * Removed default messageKey from DefaultInterpolatedMessage ("{" + getClass().getSimpleName() + ".message}" default remains only in concrete subclasses).
 
