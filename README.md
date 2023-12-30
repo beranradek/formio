@@ -68,10 +68,11 @@ Updating gradle wrapper: gradlew wrapper --gradle-version X.Y.Z
 ### Release
 
 * Remove -SNAPSHOT suffix from version in gradle.properties
-* Just run: gradlew clean test assemble to see all is ok and ready for release.
-* Run: ./gradlew clean publish --warn --stacktrace
-* Push commits to GitHub
+* Just run: ./gradlew clean test assemble to see all is ok and ready for release.
+* Run: ./gradlew clean publish --warning-mode all --stacktrace
 * Login to https://oss.sonatype.org/, "Close" the Staging repository for library, "Refresh" it and "Release" it.
+* Set new version with -SNAPSHOT suffix in gradle.properties
+* Push new version preparation to GitHub
 
 See https://medium.com/viascom/publishing-to-maven-central-with-gradle-a-step-by-step-guide-f3f50724648f
 and https://central.sonatype.org/publish/publish-gradle/ for details.  

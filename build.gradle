@@ -12,9 +12,6 @@ plugins {
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
 repositories {
   mavenCentral()
 }
@@ -44,6 +41,8 @@ dependencies {
 }
 
 java {
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
   withJavadocJar()
   withSourcesJar()
 }
