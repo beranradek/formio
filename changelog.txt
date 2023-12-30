@@ -1,5 +1,9 @@
 # Changelog
 
+1.7.0 (30.12.2023)
+* Upgrade to Jakarta Servlet API 6, Gradle 8.5, Java 17, Jakarta Validation API 3, Commons File Upload Jakarta 2
+* PortletRequestParams (Portlet API) is no longer part of the library after upgrade.
+
 1.6.9 (30.7.2022)
 * New methods in AbstractValidator: localizedError/Warning/Info for creation of already translated messages.
 

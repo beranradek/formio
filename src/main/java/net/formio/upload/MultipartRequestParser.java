@@ -16,17 +16,18 @@
  */
 package net.formio.upload;
 
-import java.util.List;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileItemFactory;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
+import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * Parser of multipart request.
  * @author Radek Beran
  */
 public interface MultipartRequestParser {
-	List<FileItem> parseFileItems(FileItemFactory fif, long singleFileSizeMax, long totalSizeMax, String defaultEncoding);
+	List<FileItem> parseFileItems(FileItemFactory fif, long singleFileSizeMax, long totalSizeMax, Charset headerCharset);
 	
 	/**
 	 * Returns error from parsing multipart request, or {@code null} in case of success.

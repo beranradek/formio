@@ -16,19 +16,18 @@
  */
 package net.formio.servlet;
 
-import java.io.File;
-import java.util.Collections;
-
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import net.formio.AbstractRequestParams;
 import net.formio.RequestParams;
 import net.formio.ajax.AjaxParams;
 import net.formio.upload.MultipartRequestPreprocessor;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Collections;
 
 /**
  * Implementation of {@link RequestParams} for servlet request that
@@ -45,17 +44,17 @@ public class ServletRequestParams extends AbstractRequestParams {
 	/**
 	 * Creates request params extractor.
 	 * @param request request
-	 * @param defaultEncoding header and request parameter encoding 
+	 * @param headerCharset header and request parameter encoding
 	 * @param tempDir temporary directory to store files bigger than specified size threshold
 	 * @param sizeThreshold max size of file (in bytes) that is loaded into the memory and not temporarily stored to disk
 	 * @param totalSizeMax maximum allowed size of the whole request in bytes
 	 * @param singleFileSizeMax maximum allowed size of a single uploaded file
 	 */
-	public ServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
+	public ServletRequestParams(HttpServletRequest request, Charset headerCharset, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
 		if (request == null) throw new IllegalArgumentException("request cannot be null");
-		HttpServletRequest r = null;
-		if (ServletFileUpload.isMultipartContent(request)) {
-			ServletFileUploadWrapper wr = new ServletFileUploadWrapper(request, defaultEncoding, tempDir, sizeThreshold, totalSizeMax, singleFileSizeMax);
+		HttpServletRequest r;
+		if (JakartaServletFileUpload.isMultipartContent(request)) {
+			ServletFileUploadWrapper wr = new ServletFileUploadWrapper(request, headerCharset, tempDir, sizeThreshold, totalSizeMax, singleFileSizeMax);
         	this.error = wr.getRequestProcessingError();
             r = wr;
 		} else { 
@@ -65,20 +64,20 @@ public class ServletRequestParams extends AbstractRequestParams {
 		this.request = r;
 	}
 	
-	public ServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax) {
-		this(request, defaultEncoding, tempDir, sizeThreshold, totalSizeMax, MultipartRequestPreprocessor.SINGLE_FILE_SIZE_MAX);
+	public ServletRequestParams(HttpServletRequest request, Charset headerCharset, File tempDir, int sizeThreshold, long totalSizeMax) {
+		this(request, headerCharset, tempDir, sizeThreshold, totalSizeMax, MultipartRequestPreprocessor.SINGLE_FILE_SIZE_MAX);
 	}
 	
-	public ServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir, int sizeThreshold) {
-		this(request, defaultEncoding, tempDir, sizeThreshold, MultipartRequestPreprocessor.TOTAL_SIZE_MAX);
+	public ServletRequestParams(HttpServletRequest request, Charset headerCharset, File tempDir, int sizeThreshold) {
+		this(request, headerCharset, tempDir, sizeThreshold, MultipartRequestPreprocessor.TOTAL_SIZE_MAX);
 	}
 	
-	public ServletRequestParams(HttpServletRequest request, String defaultEncoding, File tempDir) {
-		this(request, defaultEncoding, tempDir, MultipartRequestPreprocessor.SIZE_THRESHOLD);
+	public ServletRequestParams(HttpServletRequest request, Charset headerCharset, File tempDir) {
+		this(request, headerCharset, tempDir, MultipartRequestPreprocessor.SIZE_THRESHOLD);
 	}
 	
 	public ServletRequestParams(HttpServletRequest request) {
-		this(request, MultipartRequestPreprocessor.DEFAULT_ENCODING, MultipartRequestPreprocessor.getDefaultTempDir());
+		this(request, MultipartRequestPreprocessor.DEFAULT_HEADER_CHARSET, MultipartRequestPreprocessor.getDefaultTempDir());
 	}
 	
 	// request.getParameterNames() returns only elements of type String

@@ -18,8 +18,8 @@ package net.formio.validation.constraints;
 
 import java.lang.annotation.Annotation;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * Abstract base implementation of constraint validator.

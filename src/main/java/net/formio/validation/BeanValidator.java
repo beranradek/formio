@@ -19,7 +19,7 @@ package net.formio.validation;
 import java.util.List;
 import java.util.Locale;
 
-import javax.validation.groups.Default;
+import jakarta.validation.groups.Default;
 
 import net.formio.FormMapping;
 

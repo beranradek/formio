@@ -1,7 +1,7 @@
 package net.formio.validation.constraints;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import net.formio.upload.UploadedFile;
 

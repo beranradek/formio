@@ -16,20 +16,18 @@
  */
 package net.formio.upload;
 
+import net.formio.internal.FormUtils;
+import org.apache.commons.fileupload2.core.*;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
+
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.formio.internal.FormUtils;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUpload;
-import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadException;
-
 /**
  * Common implementation of multipart request parsers.
+ * See also https://commons.apache.org/proper/commons-fileupload/using.html.
+ *
  * @author Radek Beran
  */
 public abstract class AbstractMultipartRequestParser implements MultipartRequestParser {
@@ -39,16 +37,16 @@ public abstract class AbstractMultipartRequestParser implements MultipartRequest
 	}
 
 	@Override
-	public List<FileItem> parseFileItems(FileItemFactory fif, long singleFileSizeMax, long totalSizeMax, String defaultEncoding) {
-		List<FileItem> fileItems = new ArrayList<FileItem>();
+	public List<FileItem> parseFileItems(FileItemFactory fif, long singleFileSizeMax, long totalSizeMax, Charset headerCharset) {
+		List<FileItem> fileItems = new ArrayList<>();
 		RequestProcessingError err = null;
 		try {
-			fileItems = parseRequest(fif, singleFileSizeMax, totalSizeMax, defaultEncoding);
-		} catch (FileSizeLimitExceededException ex) {
-			err = new MaxFileSizeExceededError(ex.getMessage(), ex, ex.getActualSize(), ex.getPermittedSize(),
+			fileItems = parseRequest(fif, singleFileSizeMax, totalSizeMax, headerCharset);
+		} catch (FileUploadByteCountLimitException ex) {
+			err = new MaxFileSizeExceededError(ex.getMessage(), ex, ex.getActualSize(), ex.getPermitted(),
 				FormUtils.removeTrailingBrackets(ex.getFieldName()));
-		} catch (SizeLimitExceededException ex) {
-			err = new MaxRequestSizeExceededError(ex.getMessage(), ex, ex.getActualSize(), ex.getPermittedSize());
+		} catch (FileUploadSizeException ex) {
+			err = new MaxRequestSizeExceededError(ex.getMessage(), ex, ex.getActualSize(), ex.getPermitted());
 		} catch (FileUploadException ex) {
 			err = new RequestProcessingError(null, ex.getMessage(), ex);
 		} finally {
@@ -68,29 +66,29 @@ public abstract class AbstractMultipartRequestParser implements MultipartRequest
 	 * @param fif
 	 * @param singleFileSizeMax
 	 * @param totalSizeMax
-	 * @param defaultEncoding
+	 * @param headerCharset
 	 * @return
-	 * @throws FileUploadException
+	 * @throws org.apache.commons.fileupload2.core.FileUploadException
 	 */
-	protected abstract List<FileItem> parseRequest(FileItemFactory fif, long singleFileSizeMax, long totalSizeMax, String defaultEncoding) throws FileUploadException;
+	protected abstract List<FileItem> parseRequest(FileItemFactory fif, long singleFileSizeMax, long totalSizeMax, Charset headerCharset) throws FileUploadException;
 	
 	/**
-	 * Convenience method for common configuration of {@link FileUpload}.
-	 * Can be called from {@link #parseRequest(FileItemFactory, long, long, String)} method
+	 * Convenience method for common configuration of file upload.
+	 * Can be called from {@link #parseRequest(FileItemFactory, long, long, Charset)} method
 	 * that must be implemented by subclasses.
 	 * @param upload
 	 * @param singleFileSizeMax
 	 * @param totalSizeMax
-	 * @param defaultEncoding
+	 * @param headerCharset
 	 */
-	protected void configureUpload(final FileUpload upload, long singleFileSizeMax, long totalSizeMax, String defaultEncoding) {
+	protected void configureUpload(final JakartaServletFileUpload upload, long singleFileSizeMax, long totalSizeMax, Charset headerCharset) {
 		// set overall request size constraint
 		// maximum allowed size of a single uploaded file
 		upload.setFileSizeMax(singleFileSizeMax);
 		// maximum allowed size of the whole request
 		upload.setSizeMax(totalSizeMax);
-		if (defaultEncoding != null) {
-			upload.setHeaderEncoding(defaultEncoding);
+		if (headerCharset != null) {
+			upload.setHeaderCharset(headerCharset);
 		}
 	}
 }

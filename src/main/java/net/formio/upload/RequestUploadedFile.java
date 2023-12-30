@@ -16,11 +16,11 @@
  */
 package net.formio.upload;
 
+import org.apache.commons.fileupload2.core.FileItem;
+
 import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-
-import org.apache.commons.fileupload.FileItem;
 
 /**
  * Implementation of {@link UploadedFile} that uses {@link FileItem} from commons-fileupload library.
@@ -41,20 +41,15 @@ public class RequestUploadedFile extends AbstractUploadedFile {
 		return Channels.newChannel(fileItem.getInputStream());
 	}
 
-	/**
-	 * @see java.lang.Object#finalize()
-	 */
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-		deleteTempFile();
-	}
-
 	@Override
 	public void deleteTempFile() {
 		if (fileItem != null) {
-			fileItem.delete();
-			fileItem = null;
+            try {
+                fileItem.delete();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            fileItem = null;
 		}
 	}
 	

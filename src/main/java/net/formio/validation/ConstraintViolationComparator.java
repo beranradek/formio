@@ -18,7 +18,7 @@ package net.formio.validation;
 
 import java.util.Comparator;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 
 /**
  * Compares two {@link ConstraintViolation}s to ensure deterministic order of violation

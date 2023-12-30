@@ -16,16 +16,15 @@
  */
 package net.formio.servlet;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import net.formio.upload.AbstractMultipartRequestParser;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileItemFactory;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * Parser of multipart request for servlet API.
@@ -40,9 +39,9 @@ class ServletMultipartRequestParser extends AbstractMultipartRequestParser {
 	}
 
 	@Override
-	protected List<FileItem> parseRequest(FileItemFactory fif, long singleFileSizeMax, long totalSizeMax, String defaultEncoding) throws FileUploadException {
-		final ServletFileUpload upload = new ServletFileUpload(fif);
-		configureUpload(upload, singleFileSizeMax, totalSizeMax, defaultEncoding);
+	protected List<FileItem> parseRequest(FileItemFactory fif, long singleFileSizeMax, long totalSizeMax, Charset headerCharset) throws FileUploadException {
+		final JakartaServletFileUpload upload = new JakartaServletFileUpload(fif);
+		configureUpload(upload, singleFileSizeMax, totalSizeMax, headerCharset);
 		return upload.parseRequest(request);
 	}
 }

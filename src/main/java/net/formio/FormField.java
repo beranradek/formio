@@ -25,7 +25,7 @@ import net.formio.props.FormFieldProperties;
 
 /**
  * Form field representation. Implementations must be immutable.
- * @param T type of data filled into this form field; field can be filled with one or more values of type T
+ * @param <T> type of data filled into this form field; field can be filled with one or more values of type T
  * @author Radek Beran
  */
 public interface FormField<T> extends FormElement<T> {

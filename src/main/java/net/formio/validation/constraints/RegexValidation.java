@@ -18,7 +18,7 @@ package net.formio.validation.constraints;
 
 import java.util.regex.Matcher;
 
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 /** 
  * Validates if given value matches the regular expresssion pattern.

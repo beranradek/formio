@@ -22,9 +22,9 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.validation.Validation;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.Validation;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import net.formio.binding.DefaultBeanExtractor;
 import net.formio.validation.InterpolatedMessage;

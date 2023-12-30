@@ -19,8 +19,8 @@ package net.formio.validation;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Payload;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Payload;
 
 /**
  * Severity of validation message.

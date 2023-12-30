@@ -16,7 +16,7 @@
  */
 package net.formio.validation;
 
-import javax.validation.Payload;
+import jakarta.validation.Payload;
 
 /**
  * Severities that can be used as payloads in bean validation annotations to mark severity of validation.

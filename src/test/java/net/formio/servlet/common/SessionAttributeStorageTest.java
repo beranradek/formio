@@ -16,10 +16,10 @@
  */
 package net.formio.servlet.common;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpSession;
+
+import static org.junit.Assert.*;
 
 public class SessionAttributeStorageTest {
 

@@ -19,7 +19,7 @@ package net.formio.validation;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.validation.MessageInterpolator;
+import jakarta.validation.MessageInterpolator;
 
 /**
  * Message that can be localized using {@link MessageInterpolator}.

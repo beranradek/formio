@@ -16,24 +16,19 @@
  */
 package net.formio.upload;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.formio.EncodingException;
 import net.formio.internal.FormUtils;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.io.FileCleaningTracker;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Preprocesses multipart/form-data request to {@link RequestUploadedFile}(s) and
@@ -48,32 +43,40 @@ public class MultipartRequestPreprocessor {
 	public static final int TOTAL_SIZE_MAX = 10485760; // 10 MB
 	/** Max. size of file that is stored only in memory. */
 	public static final int SIZE_THRESHOLD = 10240; // 10 KB
-	public static final String DEFAULT_ENCODING = "utf-8";
+	public static final Charset DEFAULT_HEADER_CHARSET = StandardCharsets.UTF_8;
 	public static File getDefaultTempDir() { return FormUtils.getTempDir(); }
-	
-	private final String defaultEncoding;
+
+	private final Charset headerCharset;
 	private final RequestProcessingError error;
 
 	/**
 	 * Wrapper which preprocesses multipart request.
 	 * @param parser multipart request parser
-	 * @param defaultEncoding header and request parameter encoding 
+	 * @param headerCharset header and request parameter encoding
 	 * @param tempDir temporary directory to store files bigger than specified size threshold
 	 * @param sizeThreshold max size of file (in bytes) that is loaded into the memory and not temporarily stored to disk
 	 * @param totalSizeMax maximum allowed size of the whole request in bytes
 	 * @param singleFileSizeMax maximum allowed size of a single uploaded file
+	 * @param fileCleaningTracker
 	 */
-	public MultipartRequestPreprocessor(MultipartRequestParser parser, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
-		this.defaultEncoding = defaultEncoding;
-		final DiskFileItemFactory fif = new DiskFileItemFactory();
-		if (tempDir != null) { 
-			fif.setRepository(tempDir);
+	public MultipartRequestPreprocessor(MultipartRequestParser parser, Charset headerCharset, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax, FileCleaningTracker fileCleaningTracker) {
+		this.headerCharset = headerCharset;
+		DiskFileItemFactory.Builder diskFileItemFactoryBuilder = new DiskFileItemFactory.Builder();
+		if (tempDir != null) {
+			diskFileItemFactoryBuilder.setPath(tempDir.toPath());
 		}
-		if (sizeThreshold > 0) { 
-			fif.setSizeThreshold(sizeThreshold);
+		if (fileCleaningTracker != null) {
+			diskFileItemFactoryBuilder.setFileCleaningTracker(fileCleaningTracker);
 		}
+		if (sizeThreshold > 0) {
+			diskFileItemFactoryBuilder.setBufferSize(sizeThreshold);
+		}
+		if (headerCharset != null) {
+			diskFileItemFactoryBuilder.setCharset(headerCharset);
+		}
+		DiskFileItemFactory fif = diskFileItemFactoryBuilder.get();
 		try {
-			List<FileItem> fileItems = parser.parseFileItems(fif, singleFileSizeMax, totalSizeMax, defaultEncoding);
+			List<FileItem> fileItems = parser.parseFileItems(fif, singleFileSizeMax, totalSizeMax, headerCharset);
 			convertToMaps(fileItems);
 		} finally {
 			this.error = parser.getError();
@@ -239,8 +242,8 @@ public class MultipartRequestPreprocessor {
 
 	private void addItemValue(List<String> list, FileItem item) {
 		try {
-			list.add(item.getString(defaultEncoding));
-		} catch (UnsupportedEncodingException ex) {
+			list.add(item.getString(headerCharset));
+		} catch (IOException ex) {
 			throw new EncodingException(ex.getMessage(), ex);
 		}
 	}

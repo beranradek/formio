@@ -16,7 +16,7 @@
  */
 package net.formio.servlet;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import net.formio.data.RequestContext;
 import net.formio.data.SessionStorage;

@@ -16,18 +16,17 @@
  */
 package net.formio.servlet;
 
-import java.io.File;
-import java.util.Enumeration;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import net.formio.upload.MultipartRequestPreprocessor;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.RequestUploadedFile;
+import org.apache.commons.fileupload2.jakarta.JakartaFileCleaner;
 
-import org.apache.commons.fileupload.FileItem;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Enumeration;
+import java.util.Map;
 
 /**
  * Wrapper for a file upload servlet request.
@@ -42,21 +41,22 @@ class ServletFileUploadWrapper extends HttpServletRequestWrapper {
 	/**
 	 * Wrapper which preprocesses multipart request.
 	 * @param req request
-	 * @param defaultEncoding header and request parameter encoding 
+	 * @param headerCharset header and request parameter encoding
 	 * @param tempDir temporary directory to store files bigger than specified size threshold
 	 * @param sizeThreshold max size of file (in bytes) that is loaded into the memory and not temporarily stored to disk
 	 * @param totalSizeMax maximum allowed size of the whole request in bytes
 	 * @param singleFileSizeMax maximum allowed size of a single uploaded file
 	 */
-	public ServletFileUploadWrapper(HttpServletRequest req, String defaultEncoding, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
+	public ServletFileUploadWrapper(HttpServletRequest req, Charset headerCharset, File tempDir, int sizeThreshold, long totalSizeMax, long singleFileSizeMax) {
 		super(req);
 		final MultipartRequestPreprocessor reqPreprocessor = new MultipartRequestPreprocessor(
 			new ServletMultipartRequestParser(req),
-			defaultEncoding, 
+			headerCharset,
 			tempDir,
 			sizeThreshold,
 			totalSizeMax,
-			singleFileSizeMax
+			singleFileSizeMax,
+			JakartaFileCleaner.getFileCleaningTracker(req.getServletContext())
 		);
 		this.reqPreprocessor = reqPreprocessor;
 	}
@@ -108,7 +108,7 @@ class ServletFileUploadWrapper extends HttpServletRequestWrapper {
 	}
 
 	/**
-	 * Return the {@link FileItem} of the given name.
+	 * Return the {@link org.apache.commons.fileupload2.core.FileItem} of the given name.
 	 * <p>
 	 * If the name is unknown, then return <tt>null</tt>.
 	 */

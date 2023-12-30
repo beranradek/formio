@@ -18,7 +18,7 @@ package net.formio.servlet.common;
 
 import java.io.Serializable;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Immutable typesafe facade for storage of Serializable object in HTTP session.

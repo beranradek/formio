@@ -18,7 +18,7 @@ package net.formio.validation.constraints;
 
 import static org.junit.Assert.*;
 
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 import org.junit.Test;
 

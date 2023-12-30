@@ -18,7 +18,7 @@ package net.formio.domain.inputs;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.Digits;
+import jakarta.validation.constraints.Digits;
 
 public class Employer implements Serializable {
 	private static final long serialVersionUID = -2969710396425077947L;

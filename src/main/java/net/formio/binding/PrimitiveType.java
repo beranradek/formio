@@ -21,8 +21,7 @@ import java.util.Map;
 
 /**
  * Primitive types information.
- * 
- * @param T
+ *
  * @author Radek Beran
  */
 public class PrimitiveType {

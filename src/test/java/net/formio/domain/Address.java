@@ -18,7 +18,7 @@ package net.formio.domain;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 import net.formio.binding.ArgumentName;
 

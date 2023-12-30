@@ -16,7 +16,7 @@
  */
 package net.formio.validation;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 
 /**
  * Auxiliary common methods for validation.

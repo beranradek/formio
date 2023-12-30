@@ -23,8 +23,8 @@
  */
 package net.formio.domain.validation;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import net.formio.domain.Address;
 import net.formio.domain.Registration;

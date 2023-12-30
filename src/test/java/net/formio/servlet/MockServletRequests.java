@@ -16,16 +16,15 @@
  */
 package net.formio.servlet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 
 /**
@@ -45,12 +44,12 @@ public final class MockServletRequests {
 			MockHttpServletRequest request = new MockHttpServletRequest();
 		    // Load resource being uploaded
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		    Streams.copy(MockServletRequests.class.getResourceAsStream(resourceName), bos, true);
+			MockServletRequests.class.getResourceAsStream(resourceName).transferTo(bos);
 		    byte[] fileContent = bos.toByteArray();
 		    
 		    // Create part & entity from resource
 		    Part[] parts = new Part[] {
-		        new FilePart(paramName, new ByteArrayPartSource(resourceName, fileContent), mimeType, (String)null) 
+		        new FilePart(paramName, new ByteArrayPartSource(resourceName, fileContent), mimeType, null)
 		    };
 		    MultipartRequestEntity multipartRequestEntity =
 		        new MultipartRequestEntity(parts, new PostMethod().getParams());

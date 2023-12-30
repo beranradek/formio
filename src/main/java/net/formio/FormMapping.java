@@ -19,7 +19,7 @@ package net.formio;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.groups.Default;
+import jakarta.validation.groups.Default;
 
 import net.formio.binding.Instantiator;
 import net.formio.data.RequestContext;

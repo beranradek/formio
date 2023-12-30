@@ -33,12 +33,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.MessageInterpolator;
-import javax.validation.Path;
-import javax.validation.Path.Node;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.MessageInterpolator;
+import jakarta.validation.Path;
+import jakarta.validation.Path.Node;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 import net.formio.BasicListFormMapping;
 import net.formio.Config;
@@ -269,7 +269,7 @@ public class DefaultBeanValidator implements BeanValidator {
 		
 		for (ConstraintViolation<T> v : violations) {
 			// Needed data should be taken from javax.ConstraintViolation, 
-			// ConstraintViolationMessage should be javax.validation API independent
+			// ConstraintViolationMessage should be jakarta.validation API independent
 			String formElementName = constructFormElementName(propPrefix, v, pathSep);
 			ConstraintViolationMessage msg = new ConstraintViolationMessage(v);
 			if (formElementName.length() == 0 || !formElementName.contains(pathSep)) {

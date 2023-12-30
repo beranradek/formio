@@ -19,7 +19,7 @@
 
 ## Available in Maven Central
 
-http://search.maven.org/#search|ga|1|net.formio
+https://central.sonatype.com/search?q=net.formio
 
 ## Get Started and Documentation
 
@@ -60,23 +60,21 @@ if (formData.isValid()) {
 
 ### Gradle Build
 
-* Build artifacts (jar, sources, javadoc): gradlew clean assemble
-* Import into Eclipse: gradlew cleanEclipse eclipse
+* Build artifacts (jar, sources, javadoc): ./gradlew clean assemble
 * Run tests: gradlew test
-* Perform release: gradlew clean release
-* Installation to local Maven repository (e.g. for testing snapshots): gradlew install
 
 Updating gradle wrapper: gradlew wrapper --gradle-version X.Y.Z
 
 ### Release
 
+* Remove -SNAPSHOT suffix from version in gradle.properties
 * Just run: gradlew clean test assemble to see all is ok and ready for release.
-* Run: gradlew clean release
-  * This automatically executes also uploadArchives (upload to Maven central) after the release version is created
-* Push commits from Gradle release plugin to GitHub
+* Run: ./gradlew clean publish --warn --stacktrace
+* Push commits to GitHub
 * Login to https://oss.sonatype.org/, "Close" the Staging repository for library, "Refresh" it and "Release" it.
 
-See http://central.sonatype.org/pages/ossrh-guide.html#releasing-to-central and http://central.sonatype.org/pages/gradle.html for details.  
+See https://medium.com/viascom/publishing-to-maven-central-with-gradle-a-step-by-step-guide-f3f50724648f
+and https://central.sonatype.org/publish/publish-gradle/ for details.  
 
 ### Troubleshooting
 

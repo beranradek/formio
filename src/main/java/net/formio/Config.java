@@ -19,8 +19,8 @@ package net.formio;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.Validation;
+import jakarta.validation.ValidatorFactory;
 
 import net.formio.binding.AnnotationArgumentNameResolver;
 import net.formio.binding.ArgumentNameResolver;

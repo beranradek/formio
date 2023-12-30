@@ -19,7 +19,7 @@ package net.formio.validation.validators;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 import net.formio.validation.Arg;
 import net.formio.validation.InterpolatedMessage;
