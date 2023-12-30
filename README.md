@@ -71,6 +71,7 @@ Updating gradle wrapper: gradlew wrapper --gradle-version X.Y.Z
 * Just run: ./gradlew clean test assemble to see all is ok and ready for release.
 * Run: ./gradlew clean publish --warning-mode all --stacktrace
 * Login to https://oss.sonatype.org/, "Close" the Staging repository for library, "Refresh" it and "Release" it.
+* Create tag with released version (in format X.Y.Z)
 * Set new version with -SNAPSHOT suffix in gradle.properties
 * Push new version preparation to GitHub
 
