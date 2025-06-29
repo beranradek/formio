@@ -1,4 +1,4 @@
- # Documentation: Introduction to Formio
+ # Introduction to Formio
 
 ## Content
 - [Important classes/interfaces of the library](#important)
