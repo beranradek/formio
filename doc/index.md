@@ -2,11 +2,12 @@
 
 ## Form definition & binding library for Java platform
 
-📎 [Download (Maven)](http://search.maven.org/#search%7Cga%7C1%7Cnet.formio)  
-📎 [Changelog](https://github.com/beranradek/formio/blob/master/changelog.txt)  
-📎 [Issues](https://github.com/beranradek/formio/issues)  
+* [Formio in Maven Central Repository](http://search.maven.org/#search%7Cga%7C1%7Cnet.formio)  
+* [Changelog](https://github.com/beranradek/formio/blob/master/changelog.txt)  
+* [Issues](https://github.com/beranradek/formio/issues)  
 
-📎 Documentation:
+## Documentation
+
   * [Get started](get-started.md)
   * [Why to use Formio?](formio-why-use.md)
   * Reference documentation
