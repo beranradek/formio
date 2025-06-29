@@ -23,7 +23,7 @@ https://central.sonatype.com/search?q=net.formio
 
 ## Get Started and Documentation
 
-http://www.formio.net
+[Documentation](/doc/index)
 
 ## Demo
 
