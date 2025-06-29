@@ -23,7 +23,7 @@ https://central.sonatype.com/search?q=net.formio
 
 ## Get Started and Documentation
 
-[Documentation](/doc/index)
+[Documentation](/doc/index.md)
 
 ## Demo
 
@@ -87,3 +87,6 @@ git tag -d formio-x.y.z
 git push master :refs/tags/formio-x.y.z
 ```
 
+### Next steps
+
+Please check [official documentation](/doc/index.md) for more details about Formio usage, features, and examples.
