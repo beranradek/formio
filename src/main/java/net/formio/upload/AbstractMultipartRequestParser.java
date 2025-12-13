@@ -18,7 +18,7 @@ package net.formio.upload;
 
 import net.formio.internal.FormUtils;
 import org.apache.commons.fileupload2.core.*;
-import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;

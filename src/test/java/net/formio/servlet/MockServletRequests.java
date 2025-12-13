@@ -16,11 +16,9 @@
  */
 package net.formio.servlet;
 
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.io.ByteArrayOutputStream;
@@ -47,18 +45,16 @@ public final class MockServletRequests {
 			MockServletRequests.class.getResourceAsStream(resourceName).transferTo(bos);
 		    byte[] fileContent = bos.toByteArray();
 		    
-		    // Create part & entity from resource
-		    Part[] parts = new Part[] {
-		        new FilePart(paramName, new ByteArrayPartSource(resourceName, fileContent), mimeType, null)
-		    };
-		    MultipartRequestEntity multipartRequestEntity =
-		        new MultipartRequestEntity(parts, new PostMethod().getParams());
+		    // Create multipart entity from resource using HttpClient 5
+		    HttpEntity multipartEntity = MultipartEntityBuilder.create()
+		        .addBinaryBody(paramName, fileContent, ContentType.parse(mimeType), resourceName)
+		        .build();
 		    
 		    ByteArrayOutputStream requestContent = new ByteArrayOutputStream();
-		    multipartRequestEntity.writeRequest(requestContent);
+		    multipartEntity.writeTo(requestContent);
 		    request.setContent(requestContent.toByteArray());
 		    // Set content type of request (important, includes MIME boundary string)
-		    String contentType = multipartRequestEntity.getContentType();
+		    String contentType = multipartEntity.getContentType();
 		    request.setContentType(contentType);
 		    request.setMethod("POST");
 		    return request;

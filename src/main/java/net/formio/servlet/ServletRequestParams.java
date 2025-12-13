@@ -23,7 +23,7 @@ import net.formio.ajax.AjaxParams;
 import net.formio.upload.MultipartRequestPreprocessor;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.UploadedFile;
-import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 
 import java.io.File;
 import java.nio.charset.Charset;

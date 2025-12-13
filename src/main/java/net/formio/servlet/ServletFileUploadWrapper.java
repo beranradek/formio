@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import net.formio.upload.MultipartRequestPreprocessor;
 import net.formio.upload.RequestProcessingError;
 import net.formio.upload.RequestUploadedFile;
-import org.apache.commons.fileupload2.jakarta.JakartaFileCleaner;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaFileCleaner;
 
 import java.io.File;
 import java.nio.charset.Charset;

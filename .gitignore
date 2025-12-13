@@ -11,6 +11,7 @@ dist
 /.idea_modules
 /.classpath
 /.project
+/.claude
 /RUNNING_PID
 .sc
 pom.xml.releaseBackup
