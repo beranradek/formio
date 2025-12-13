@@ -70,7 +70,7 @@ Updating gradle wrapper: gradlew wrapper --gradle-version X.Y.Z
 * Remove -SNAPSHOT suffix from version in gradle.properties
 * Just run: ./gradlew clean test assemble to see all is ok and ready for release.
 * You can test the publishing: ./gradlew publishToMavenLocal --dry-run
-* Publish by running: ./gradlew clean publish --warning-mode all --stacktrace
+* Publish by running: ./gradlew clean publishToSonatype closeAndReleaseSonatypeStagingRepository
 * Login to https://central.sonatype.com/ and check Deployments. Process should be fully automatic.
 * Create tag with released version (in format X.Y.Z)
 * Set new version with -SNAPSHOT suffix in gradle.properties
