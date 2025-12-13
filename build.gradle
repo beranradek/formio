@@ -62,15 +62,15 @@ java {
 publishing {
   repositories {
     maven {
-      def releaseRepo = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-      def snapshotRepo = "https://oss.sonatype.org/content/repositories/snapshots/"
+      def releaseRepo = "https://central.sonatype.com/api/v1/publisher/upload"
+      def snapshotRepo = "https://central.sonatype.com/repository/maven-snapshots/"
 
-      name = "OSSRH"
+      name = "Central"
       url = isReleaseVersion ? releaseRepo : snapshotRepo
 
       credentials {
-        username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
-        password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+        username = findProperty("centralUsername") ?: System.getenv("CENTRAL_USERNAME")
+        password = findProperty("centralPassword") ?: System.getenv("CENTRAL_PASSWORD")
       }
     }
   }
