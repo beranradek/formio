@@ -2,6 +2,12 @@
 
 ## [1.9.0] - 2026-07-24
 
+### Build
+
+- Upgraded Gradle wrapper: `8.5` -> `9.2.1`
+- Upgraded Java source/target compatibility: `17` -> `25`
+- Updated `.travis.yml` to build with `openjdk25` (was `oraclejdk11`/`openjdk11`)
+
 ### Fixed
 
 - **File upload broken with `commons-fileupload2-jakarta-servlet6:2.0.0-M5`**: `AbstractFileUpload.setFileSizeMax()`
