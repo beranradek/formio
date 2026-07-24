@@ -17,22 +17,22 @@ repositories {
   mavenCentral()
 }
 
-def testSpringVersion = '7.0.2'
+def testSpringVersion = '7.0.8'
 def servletApiVersion = '6.1.0'
 
 dependencies {
   // Required compile-time dependencies
   implementation 'jakarta.validation:jakarta.validation-api:4.0.0-M1'
-  implementation 'org.apache.commons:commons-fileupload2-jakarta-servlet6:2.0.0-M4'
+  implementation 'org.apache.commons:commons-fileupload2-jakarta-servlet6:2.0.0-M5'
   
   // Optional dependencies
   compileOnly "jakarta.servlet:jakarta.servlet-api:$servletApiVersion"
 
-  // Test dependencies 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:6.1.0-M1'
-  testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.1.0-M1'
-  testImplementation 'org.junit.vintage:junit-vintage-engine:6.1.0-M1'
-  testImplementation 'org.hibernate.validator:hibernate-validator:9.1.0.Final'
+  // Test dependencies
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:6.1.2'
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.1.2'
+  testImplementation 'org.junit.vintage:junit-vintage-engine:6.1.2'
+  testImplementation 'org.hibernate.validator:hibernate-validator:9.1.2.Final'
 
   testImplementation "org.springframework:spring-core:$testSpringVersion"
   testImplementation "org.springframework:spring-web:$testSpringVersion"
@@ -40,7 +40,7 @@ dependencies {
   testImplementation 'jakarta.el:jakarta.el-api:6.0.1'
   testImplementation 'org.glassfish:jakarta.el:5.0.0-M1'
   testImplementation "jakarta.servlet:jakarta.servlet-api:$servletApiVersion"
-  testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.5.1'
+  testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.6.2'
 }
 
 java {

@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **File upload broken with `commons-fileupload2-jakarta-servlet6:2.0.0-M5`**: `AbstractFileUpload.setFileSizeMax()`
+  and `AbstractFileUpload.setSizeMax()` were renamed to `setMaxFileSize()` and `setMaxSize()` between M4 and M5
+  (see [commons-fileupload RELEASE-NOTES.txt](https://github.com/apache/commons-fileupload/blob/master/RELEASE-NOTES.txt)),
+  causing `NoSuchMethodError` at runtime. Updated `AbstractMultipartRequestParser` to use the new method names and
+  bumped the dependency to `2.0.0-M5`.
+
+### Updated Dependencies
+
+- `org.apache.commons:commons-fileupload2-jakarta-servlet6`: `2.0.0-M4` -> `2.0.0-M5`
+- JUnit (`junit-jupiter-api`, `junit-jupiter-engine`, `junit-vintage-engine`): `6.1.0-M1` -> `6.1.2`
+- Spring Test Framework (`spring-core`, `spring-web`, `spring-test`): `7.0.2` -> `7.0.8`
+- Hibernate Validator: `9.1.0.Final` -> `9.1.2.Final`
+- Apache HttpClient 5 (`httpclient5`): `5.5.1` -> `5.6.2`
+
 ## [1.8.1] - 2025-12-13
 
 ### Updated Dependencies
