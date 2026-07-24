@@ -84,9 +84,12 @@ public abstract class AbstractMultipartRequestParser implements MultipartRequest
 	protected void configureUpload(final JakartaServletFileUpload upload, long singleFileSizeMax, long totalSizeMax, Charset headerCharset) {
 		// set overall request size constraint
 		// maximum allowed size of a single uploaded file
-		upload.setFileSizeMax(singleFileSizeMax);
+		// Renamed from setFileSizeMax to setMaxFileSize in commons-fileupload2 2.0.0-M5, see
+		// https://github.com/apache/commons-fileupload/blob/master/RELEASE-NOTES.txt
+		upload.setMaxFileSize(singleFileSizeMax);
 		// maximum allowed size of the whole request
-		upload.setSizeMax(totalSizeMax);
+		// Renamed from setSizeMax to setMaxSize in commons-fileupload2 2.0.0-M5
+		upload.setMaxSize(totalSizeMax);
 		if (headerCharset != null) {
 			upload.setHeaderCharset(headerCharset);
 		}
