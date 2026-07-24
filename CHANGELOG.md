@@ -7,6 +7,10 @@
 - Upgraded Gradle wrapper: `8.5` -> `9.2.1`
 - Upgraded Java source/target compatibility: `17` -> `25`
 - Updated `.travis.yml` to build with `openjdk25` (was `oraclejdk11`/`openjdk11`)
+- Replaced `io.github.gradle-nexus.publish-plugin` (relies on the now unreliable legacy OSSRH staging-bridge API)
+  with `com.gradleup.nmcp`, which publishes directly through the Central Portal Publisher API. Configured via the
+  new `settings.gradle` using the `com.gradleup.nmcp.settings` plugin. Publish with `./gradlew publishAggregationToCentralPortal`
+  (was `publishToSonatype closeAndReleaseSonatypeStagingRepository`)
 
 ### Fixed
 

@@ -8,7 +8,7 @@ plugins {
   id 'java'
   id 'maven-publish' // // takes care of the metadata, generates the pom.xml when publishing to repo, deploys build output to repo
   id 'signing' // signs generated artifacts: https://docs.gradle.org/current/userguide/signing_plugin.html
-  id 'io.github.gradle-nexus.publish-plugin' version '2.0.0' // Central Portal publishing
+  // Central Portal publishing (com.gradleup.nmcp) is configured in settings.gradle via the nmcp settings plugin
 }
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
@@ -50,22 +50,8 @@ java {
   withSourcesJar()
 }
 
-// Configure nexus publishing for Central Portal
-nexusPublishing {
-  repositories {
-    sonatype {
-      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
-      username = findProperty("centralUsername") ?: System.getenv("CENTRAL_USERNAME")
-      password = findProperty("centralPassword") ?: System.getenv("CENTRAL_PASSWORD")
-    }
-  }
-}
-
-// For publishing to Maven Central,
-// see https://medium.com/viascom/publishing-to-maven-central-with-gradle-a-step-by-step-guide-f3f50724648f
-// and https://central.sonatype.org/publish/publish-gradle/
-// Deployment to Maven Central repository can be started using: ./gradlew clean publishToSonatype closeAndReleaseSonatypeStagingRepository
+// For publishing to Maven Central, see https://central.sonatype.org/publish/publish-portal-gradle/
+// Deployment to Maven Central repository can be started using: ./gradlew clean publishAggregationToCentralPortal
 // The credentials for signing and upload are stored in <user-home>/.gradle/gradle.properties file
 // Signing key is stored in <user-home>/AppData/Roaming/gnupg/secring.gpg
 // Previous (obsolete) guide for publishing to public Maven central repo with Gradle:

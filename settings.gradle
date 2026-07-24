@@ -1,0 +1,13 @@
+plugins {
+  id 'com.gradleup.nmcp.settings' version '1.6.1'
+}
+
+rootProject.name = 'formio'
+
+nmcpSettings {
+  centralPortal {
+    username = providers.gradleProperty('centralUsername')
+    password = providers.gradleProperty('centralPassword')
+    publishingType = 'USER_MANAGED' // requires an explicit manual release in the Central Portal UI, like the previous close+release step did
+  }
+}
